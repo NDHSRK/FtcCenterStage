@@ -1,0 +1,37 @@
+            <ANALYZE_BARCODE>
+                <image_parameters>
+                    <ocv_image>vuforia</ocv_image>
+                    <resolution>
+                        <width>848</width>
+                        <height>480</height>
+                    </resolution>
+                    <image_roi>
+                        <x>300</x>
+                        <y>360</y>
+                        <width>380</width>
+                        <height>110</height>
+                    </image_roi>
+                </image_parameters>
+                <!-- BLUE_CAROUSEL -->
+                <barcode_recognition>
+                    <recognition_path>reflective_tape</recognition_path>
+                    <!-- These values are relative to the image ROI -->
+                    <left_window>
+                        <x>0</x>
+                        <y>0</y>
+                        <width>165</width>
+                        <height>110</height>
+                        <shipping_hub_level>SHIPPING_HUB_LEVEL_1</shipping_hub_level>
+                    </left_window>
+                    <right_window>
+                        <!-- x starts at left_window.x + left_window.width + 1 -->
+                        <width>200</width>
+                        <!-- y is the same as that of the left_window -->
+                        <!-- height is the same as that of the left_window -->
+                        <shipping_hub_level>SHIPPING_HUB_LEVEL_2</shipping_hub_level>
+                    </right_window>
+                    <barcode_element_npos>
+                        <shipping_hub_level>SHIPPING_HUB_LEVEL_3</shipping_hub_level>
+                    </barcode_element_npos>
+                </barcode_recognition>
+            </ANALYZE_BARCODE>

@@ -1,0 +1,41 @@
+            <FIND_TEAM_PROP>
+                <image_parameters>
+                    <image_source>front_webcam</image_source>
+                    <resolution>
+                        <width>640</width>
+                        <height>480</height>
+                    </resolution>
+                    <image_roi>
+                        <x>300</x>
+                        <y>360</y>
+                        <width>380</width>
+                        <height>110</height>
+                    </image_roi>
+                </image_parameters>
+                <!-- BLUE_A2 -->
+                <team_prop_recognition>
+                    <recognition_path>red_channel_circles</recognition_path>
+                    <!-- These values are relative to the image ROI -->
+                    <!-- Note: the left_window may enclose the LEFT_SPIKE
+                         or the CENTER_SPIKE, depending on the robot's
+                         starting position. For BLUE_A2 the left_window
+                         encloses the CENTER_SPIKE. -->
+                    <left_window>
+                        <x>0</x>
+                        <y>0</y>
+                        <width>165</width>
+                        <height>110</height>
+                        <spike_location>CENTER_SPIKE</spike_location>
+                    </left_window>
+                    <right_window>
+                        <!-- x starts at left_window.x + left_window.width + 1 -->
+                        <width>200</width>
+                        <!-- y is the same as that of the left_window -->
+                        <!-- height is the same as that of the left_window -->
+                        <spike_location>RIGHT_SPIKE</spike_location>
+                    </right_window>
+                    <team_prop_npos>
+                        <spike_location>LEFT_SPIKE</spike_location>
+                    </team_prop_npos>
+                </team_prop_recognition>
+            </FIND_TEAM_PROP>

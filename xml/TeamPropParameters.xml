@@ -1,0 +1,19 @@
+<team_prop_parameters>
+  <red_channel_circles>
+    <gray_parameters>
+      <median_target>150</median_target>
+      <threshold_low>170</threshold_low>
+    </gray_parameters>
+    <hough_circles_function_call_parameters>
+      <dp>3.0</dp>
+      <minDist>50.0</minDist>
+      <param1>100.0</param1>
+      <param2>100.0</param2>
+      <minRadius>10.0</minRadius>
+      <maxRadius>20.0</maxRadius>
+    </hough_circles_function_call_parameters>
+    <criteria>
+      <max_circles>3</max_circles>
+    </criteria> 
+  </red_channel_circles>
+</team_prop_parameters>

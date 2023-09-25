@@ -1,0 +1,57 @@
+<RobotConfig>
+
+  <!-- LED Ring -->
+  <!-- None defined; see FreightFrenzy -->
+
+  <!-- Sensors -->
+  <!-- None defined -->
+
+  <!-- start with one (forward facing webcam) with a single processor
+    for team prop detection via raw video frames.
+    Then add a processor for AprilTags. -->
+  <!-- later you may want two switchable webcams, one forward
+      facing and one rear facing. The forward facing webcam will
+      have the same two processors as above. The rear facing webcam
+      will have only an AprilTag processor. -->
+
+  <!-- There is a maximum of two webcams in a set. If there
+  are two webcams we will treat them as switchable. -->
+  <VISION_PORTAL_WEBCAM configured="yes">
+    <webcam_set>
+      <webcam>
+        <internal_id>front_webcam</internal_id>
+        <!-- BRIO -->
+        <serial_number>8765F120</serial_number>
+        <!-- BRIO 501 2023 -->
+        <!-- serial_number></serial_number -->
+        <resolution_width>640</resolution_width>
+        <resolution_height>480</resolution_height>
+        <processor>webcam_frame</processor>
+        <!-- (optional) april tag calibration values should go here. -->
+        <webcam_calibration_for_apriltags>
+          <focal_length_x>627.41948883</focal_length_x>
+          <focal_length_y>627.419488832</focal_length_y>
+          <optical_center_x>301.424062225</optical_center_x>
+          <optical_center_y>234.042415697</optical_center_y>
+        </webcam_calibration_for_apriltags>
+      </webcam>
+
+      <!-- StreamCam //**TODO need actual calibration for the StreamCam
+      <webcam>
+        <internal_id>rear_webcam</internal_id>
+        <serial_number>EC2E0DA5</serial_number>
+        <resolution_width>640</resolution_width>
+        <resolution_height>480</resolution_height>
+        <processor>april_tag</processor>
+        <webcam_calibration_for_apriltags>
+           <focal_length_x>627.41948883</focal_length_x>
+           <focal_length_y>627.419488832</focal_length_y>
+           <optical_center_x>301.424062225</optical_center_x>
+           <optical_center_y>234.042415697</optical_center_y>
+        </webcam_calibration_for_apriltags>     
+     </webcam>     
+      -->
+    </webcam_set>
+  </VISION_PORTAL_WEBCAM>
+
+</RobotConfig>
