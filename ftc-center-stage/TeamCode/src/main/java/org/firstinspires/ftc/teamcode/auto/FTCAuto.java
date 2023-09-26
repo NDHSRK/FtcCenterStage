@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.xml.sax.SAXException;
@@ -175,10 +176,17 @@ public class FTCAuto {
             }
 
             //**TODO
-            // ENABLE_WEBCAM_FRAME_PROCESSOR
-            // DISABLE_WEBCAM_FRAME_PROCESSOR
-            // ENABLE_APRILTAG_PROCESSOR
-            // DISABLE_APRILTAG_PROCESSOR
+            case "ENABLE_PROCESSOR": {
+                String idString = actionXPath.getRequiredText("processor").toUpperCase();
+                visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.valueOf(idString));
+                break;
+            }
+
+            case "DISABLE_PROCESSOR": {
+                String idString = actionXPath.getRequiredText("processor").toUpperCase();
+                visionPortalWebcam.disableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.valueOf(idString));
+                break;
+            }
 
             // For testing, get a frame from a webcam managed by the VisionPortal
             // API and write it out to a file. Assume that the webcam has already
@@ -213,6 +221,18 @@ public class FTCAuto {
                 //Callable<RobotConstantsPowerPlay.SignalSleeveLocation> callableAnalyzeSignalSleeve =
                 //        analyze_signal_sleeve(pAction, actionXPath);
                 //callableAnalyzeSignalSleeve.call(); // execute now
+                break;
+            }
+
+            //**TODO AprilTags
+            case "FIND_APRIL_TAGS": {
+                List<AprilTagDetection> aprilTags = visionPortalWebcam.getAprilTagData(500);
+                if (aprilTags.isEmpty()) {
+                    linearOpMode.telemetry.addLine("No AprilTags found");
+                    linearOpMode.telemetry.update();
+                    RobotLogCommon.d(TAG,"No AprilTags found");
+                }
+                else telemetryAprilTag(aprilTags);
                 break;
             }
 
@@ -266,6 +286,43 @@ public class FTCAuto {
         if (linearOpMode.opModeIsActive() && sleepRemainder != 0)
             linearOpMode.sleep(sleepRemainder);
     }
+
+    // Copied from the sample ConceptAprilTag and slightly modified.
+    private void telemetryAprilTag(List<AprilTagDetection> pCurrentDetections) {
+
+        linearOpMode.telemetry.addData("# AprilTags Detected", pCurrentDetections.size());
+
+        // Step through the list of detections and display info for each one.
+        for (AprilTagDetection detection : pCurrentDetections) {
+            if (detection.metadata != null) {
+                linearOpMode.telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                linearOpMode.telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                linearOpMode.telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                linearOpMode.telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+
+                RobotLogCommon.d(TAG, String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                RobotLogCommon.d(TAG, String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                RobotLogCommon.d(TAG, String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                RobotLogCommon.d(TAG, String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+            } else {
+                linearOpMode.telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                linearOpMode.telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+                RobotLogCommon.d(TAG, String.format("\n==== (ID %d) Unknown", detection.id));
+                RobotLogCommon.d(TAG, String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+            }
+        }   // end for() loop
+
+        // Add "key" information to telemetry
+        linearOpMode.telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
+        linearOpMode.telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
+        linearOpMode.telemetry.addLine("RBE = Range, Bearing & Elevation");
+        linearOpMode.telemetry.update();
+
+        RobotLogCommon.d(TAG, "\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
+        RobotLogCommon.d(TAG, "PRY = Pitch, Roll & Yaw (XYZ Rotation)");
+        RobotLogCommon.d(TAG, "RBE = Range, Bearing & Elevation");
+
+    }   // end method telemetryAprilTag()
 
 }
 

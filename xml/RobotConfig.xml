@@ -26,7 +26,9 @@
         <!-- serial_number></serial_number -->
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
-        <processor>webcam_frame</processor>
+        <processor_set>
+          <processor>webcam_frame</processor>
+        </processor_set>
         <!-- (optional) april tag calibration values should go here. -->
         <webcam_calibration_for_apriltags>
           <focal_length_x>627.41948883</focal_length_x>
@@ -42,7 +44,9 @@
         <serial_number>EC2E0DA5</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
-        <processor>april_tag</processor>
+        <processor_set>
+          <processor>april_tag</processor>
+        </processor_set>
         <webcam_calibration_for_apriltags>
            <focal_length_x>627.41948883</focal_length_x>
            <focal_length_y>627.419488832</focal_length_y>
