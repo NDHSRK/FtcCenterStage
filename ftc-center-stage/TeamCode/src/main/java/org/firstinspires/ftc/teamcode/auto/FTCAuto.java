@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -46,6 +47,12 @@ public class FTCAuto {
     private final VisionPortalWebcam visionPortalWebcam;
     private RobotConstantsCenterStage.InternalWebcamId webcamInUse;
     private RobotConstantsCenterStage.InternalWebcamId stoppedWebcam;
+
+    // Image recognition.
+    EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
+    private List<RobotXMLElement> teamPropLocationInsert;
+    private boolean executeTeamPropLocationActions = false;
+    private RobotConstantsCenterStage.TeamPropLocation teamPropLocation;
 
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -116,6 +123,12 @@ public class FTCAuto {
                 RobotLogCommon.setMostDetailedLogLevel(logLevel);
             RobotLogCommon.c(TAG, "Most detailed log level " + RobotLogCommon.getMostDetailedLogLevel());
 
+            // For the current OpMode get the actions for all three team prop locations.
+            // We won't know which location to go for until we've performed image recognition.
+            // This reference may be null if no team prop location actions have been defined
+            // for an OpMode.
+            // EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
+
             // Follow the choreography specified in the robot action file.
             // Note that executeAction returns false as a signal to stop
             // all processing immediately.
@@ -125,8 +138,29 @@ public class FTCAuto {
                 if (!linearOpMode.opModeIsActive())
                     return; // better to just bail out
 
-                if (!executeAction(action))
-                    return;
+                if (!executeTeamPropLocationActions) { // execute steps specific to team prop locations now?
+                    // No, but executeAction may change that.
+                    if (!executeAction(action))
+                        return;
+                }
+
+                // Takes care of the case where the SIGNAL_SLEEVE_LOCATION_CHOICE
+                // action is the last action for the opmode in RobotConfig.xml.
+                if (executeTeamPropLocationActions) { // any steps specific to the signal sleeve location?
+                    // Yes, execute all of those actions now.
+                    for (RobotXMLElement insertedStep : teamPropLocationInsert) {
+                        if (insertedStep.getRobotXMLElementName().equals("TEAM_PROP_LOCATION_CHOICE"))
+                            throw new AutonomousRobotException(TAG, "Nesting of TEAM_PROP_LOCATION_CHOICE is not allowed");
+
+                        if (!linearOpMode.opModeIsActive())
+                            return; // better to just bail out
+
+                        if (!executeAction(insertedStep))
+                            return;
+                    }
+                    teamPropLocationInsert.clear();
+                    executeTeamPropLocationActions = false;
+                }
             }
         } finally {
             if (!keepCamerasRunning) {
