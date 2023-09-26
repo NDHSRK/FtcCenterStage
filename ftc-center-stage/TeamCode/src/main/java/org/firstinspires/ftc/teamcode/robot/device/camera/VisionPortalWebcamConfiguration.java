@@ -4,13 +4,14 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 // Configuration parameters for all webcams.
 public class VisionPortalWebcamConfiguration {
-     public final ArrayList<ConfiguredWebcam> webcams;
+     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, ConfiguredWebcam> webcams;
 
-    public VisionPortalWebcamConfiguration(ArrayList<ConfiguredWebcam> pWebcams) {
-        webcams = pWebcams;
+    public VisionPortalWebcamConfiguration(EnumMap<RobotConstantsCenterStage.InternalWebcamId, ConfiguredWebcam> pWebcamMap) {
+        webcams = pWebcamMap;
     }
 
     // Note: all fields originate in RobotConfig.xml except for webcamName,

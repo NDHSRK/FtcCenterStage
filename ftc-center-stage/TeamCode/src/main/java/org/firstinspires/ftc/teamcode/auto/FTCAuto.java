@@ -44,6 +44,7 @@ public class FTCAuto {
     private boolean keepCamerasRunning = false;
     private final VisionPortalWebcam visionPortalWebcam;
     private RobotConstantsCenterStage.InternalWebcamId webcamInUse;
+    private RobotConstantsCenterStage.InternalWebcamId stoppedWebcam;
 
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -69,9 +70,10 @@ public class FTCAuto {
         // signalSleeveParameters = signalSleeveParametersXML.getSignalSleeveParameters();
         //signalSleeveRecognition = new SignalSleeveRecognition(alliance);
 
-        //**TODO assume 1 webcam for now.
-        webcamInUse = robot.visionPortalWebcamConfiguration.webcams.get(0).webcamId;
-        visionPortalWebcam = new VisionPortalWebcam(robot.visionPortalWebcamConfiguration.webcams.get(0));
+        // Since the first task in Autonomous is to find the Team Prop, start the front webcam
+        // with the processor for raw frames.
+        webcamInUse = robot.visionPortalWebcamConfiguration.webcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM).webcamId;
+        visionPortalWebcam = new VisionPortalWebcam(robot.visionPortalWebcamConfiguration.webcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM));
         visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
 
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
@@ -150,12 +152,14 @@ public class FTCAuto {
         String actionName = pAction.getRobotXMLElementName().toUpperCase();
         RobotLogCommon.d(TAG, "Executing FTCAuto action " + actionName);
 
+        //**TODO with two webcams both could be in use ...
         switch (actionName) {
             case "STOP_WEBCAM_STREAMING": {
                 if (webcamInUse == RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
                     throw new AutonomousRobotException(TAG, "No webcam is active");
 
                 visionPortalWebcam.stopStreaming();
+                stoppedWebcam = webcamInUse;
                 webcamInUse = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
                 break;
             }
@@ -165,7 +169,8 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "No webcam is active");
 
                 visionPortalWebcam.resumeStreaming();
-                webcamInUse = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
+                webcamInUse = stoppedWebcam;
+                stoppedWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
                 break;
             }
 

@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -121,7 +122,8 @@ public class RobotConfigXML {
     // Parse a VISION_PORTAL_WEBCAM element into its own structure.
     // Returns null if the element is configured out.
     private VisionPortalWebcamConfiguration parseWebcamConfiguration(Node pWebcamNode) {
-        ArrayList<VisionPortalWebcamConfiguration.ConfiguredWebcam> webcams = new ArrayList<>();
+        EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> webcams =
+                new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
 
         NamedNodeMap configuration_attributes = pWebcamNode.getAttributes();
         Node configured_node = configuration_attributes.getNamedItem("configured");
@@ -150,20 +152,21 @@ public class RobotConfigXML {
             VisionPortalWebcamConfiguration.ConfiguredWebcam webcamData = parseWebcamData(each_webcam);
 
             // Make sure there are no duplicate webcam ids or serial numbers.
-            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> duplicate = webcams.stream()
-                    .filter(webcam -> webcam.serialNumber.equals(webcamData.serialNumber) ||
-                            webcam.webcamId == webcamData.webcamId)
+            Optional<RobotConstantsCenterStage.InternalWebcamId> duplicate = webcams.entrySet().stream()
+                    .filter(e -> e.getValue().serialNumber.equals(webcamData.serialNumber) ||
+                            e.getKey() == webcamData.webcamId)
+                    .map(Map.Entry::getKey)
                     .findFirst();
 
             if (duplicate.isPresent())
                 throw new AutonomousRobotException(TAG, "Duplicate serial number or webcam id");
 
-            webcams.add(webcamData);
+            webcams.put(webcamData.webcamId, webcamData);
         });
 
         return new VisionPortalWebcamConfiguration(webcams);
     }
-    
+
     private VisionPortalWebcamConfiguration.ConfiguredWebcam parseWebcamData(Node pWebcamNode) {
         // <id>
         Node id_node = pWebcamNode.getFirstChild();
@@ -215,23 +218,32 @@ public class RobotConfigXML {
             throw new AutonomousRobotException(TAG, "Invalid number format in element 'resolution_height'");
         }
 
-        //**TODO later need <processor_set><processor> -> ArrayList<RobotConstantsCenterStage.ProcessorIdentifier>
-        // Parse the <processor> element.
-        Node processor_node = resolution_height_node.getNextSibling();
-        processor_node = XMLUtils.getNextElement(processor_node);
-        if (processor_node == null || !processor_node.getNodeName().equals("processor") ||
-                processor_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'processor' not found");
+        // Parse the <processor_set> element.
+        Node processor_set_node = resolution_height_node.getNextSibling();
+        processor_set_node = XMLUtils.getNextElement(processor_set_node);
+        if (processor_set_node == null || !processor_set_node.getNodeName().equals("processor_set") ||
+                processor_set_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'processor_set' not found");
 
-        ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processors =
-                new ArrayList<>();
-        RobotConstantsCenterStage.ProcessorIdentifier processor =
-                RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processor_node.getTextContent().toUpperCase());
-        processors.add(processor);
+        // Process all of the children of the <processor_set> element.
+        NodeList processor_set_elements = processor_set_node.getChildNodes();
+        if (processor_set_elements == null)
+            throw new AutonomousRobotException(TAG, "Missing 'processor' elements");
+
+        ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIds = new ArrayList<>();
+        XMLUtils.processElements(processor_set_elements, (processor_node) -> {
+            if (processor_node == null || !processor_node.getNodeName().equals("processor") ||
+                    processor_node.getTextContent().isEmpty())
+                throw new AutonomousRobotException(TAG, "Element 'processor' not found");
+
+            RobotConstantsCenterStage.ProcessorIdentifier processorId =
+                    RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processor_node.getTextContent().toUpperCase());
+            processorIds.add(processorId);
+        });
 
         // Parse the optional <webcam_calibration_for_apriltags> element
         VisionPortalWebcamConfiguration.CameraCalibration calibration = null;
-        Node calibration_node = processor_node.getNextSibling();
+        Node calibration_node = processor_set_node.getNextSibling();
         calibration_node = XMLUtils.getNextElement(calibration_node);
         if (calibration_node != null) {
             if (!calibration_node.getNodeName().equals("webcam_calibration_for_apriltags"))
@@ -303,7 +315,7 @@ public class RobotConfigXML {
         }
 
         return new VisionPortalWebcamConfiguration.ConfiguredWebcam(webcamId,
-                serial_number, resolution_width, resolution_height, processors,
+                serial_number, resolution_width, resolution_height, processorIds,
                 calibration);
     }
 

@@ -14,7 +14,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -29,8 +28,7 @@ public class FTCRobot {
 
     public final TeleOpSettings teleOpSettings;
 
-    public VisionPortalWebcamConfiguration visionPortalWebcamConfiguration =
-            new VisionPortalWebcamConfiguration(new ArrayList<>());
+    public VisionPortalWebcamConfiguration visionPortalWebcamConfiguration;
 
     public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType) {
         hardwareMap = pLinearOpMode.hardwareMap;
@@ -121,10 +119,7 @@ public class FTCRobot {
     // object. Use the webcam's serial number in its WebcamName
     // object to associate the webcam with its counterpart in
     // RobotConfig.xml.
-    //**TODO allow more than one processor but the webcams must be the same!!
     //**TODO How to support multiple webcams!!??
-    //**TODO you may have to make pRobot.visionPortalWebcamConfiguration.webcams
-    // a map by webcamId.
     private void matchHardwareWebcamsWithConfiguredWebcams() {
         String webcamId;
         for (int i = 1; i <= visionPortalWebcamConfiguration.webcams.size(); i++) {
@@ -134,7 +129,7 @@ public class FTCRobot {
                 throw new AutonomousRobotException(TAG, "Webcam " + webcamId +
                         " is not a webcam or is not attached");
 
-            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = visionPortalWebcamConfiguration.webcams.stream()
+            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = visionPortalWebcamConfiguration.webcams.values().stream()
                     .filter(webcam -> webcam.serialNumber.equals(webcamName.getSerialNumber().getString()))
                     .findFirst();
 
