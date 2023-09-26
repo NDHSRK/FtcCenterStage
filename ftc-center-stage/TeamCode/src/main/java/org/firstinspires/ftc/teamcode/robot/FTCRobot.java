@@ -121,6 +121,10 @@ public class FTCRobot {
     // object. Use the webcam's serial number in its WebcamName
     // object to associate the webcam with its counterpart in
     // RobotConfig.xml.
+    //**TODO allow more than one processor but the webcams must be the same!!
+    //**TODO How to support multiple webcams!!??
+    //**TODO you may have to make pRobot.visionPortalWebcamConfiguration.webcams
+    // a map by webcamId.
     private void matchHardwareWebcamsWithConfiguredWebcams() {
         String webcamId;
         for (int i = 1; i <= visionPortalWebcamConfiguration.webcams.size(); i++) {

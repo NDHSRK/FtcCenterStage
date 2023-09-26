@@ -71,8 +71,8 @@ public class FTCAuto {
 
         //**TODO assume 1 webcam for now.
         webcamInUse = robot.visionPortalWebcamConfiguration.webcams.get(0).webcamId;
-        visionPortalWebcam = new VisionPortalWebcam(robot);
-        visionPortalWebcam.enableWebcamFrameProcessor();
+        visionPortalWebcam = new VisionPortalWebcam(robot.visionPortalWebcamConfiguration.webcams.get(0));
+        visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
 
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
     }
@@ -179,7 +179,7 @@ public class FTCAuto {
             // API and write it out to a file. Assume that the webcam has already
             // been started.
             case "TAKE_PICTURE_WEBCAM": {
-                visionPortalWebcam.enableWebcamFrameProcessor();
+                visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
                 Pair<Mat, Date> image = visionPortalWebcam.getVisionPortalWebcamData(2000);
 
                 if (image == null) {
@@ -203,7 +203,7 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO replace Analyze the image on the signal sleeve.
+            //**TODO Analyze the image on the signal sleeve.
             case "FIND_TEAM_PROP": {
                 //Callable<RobotConstantsPowerPlay.SignalSleeveLocation> callableAnalyzeSignalSleeve =
                 //        analyze_signal_sleeve(pAction, actionXPath);

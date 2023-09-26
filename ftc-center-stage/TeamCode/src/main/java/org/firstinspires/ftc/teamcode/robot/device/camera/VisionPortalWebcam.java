@@ -13,7 +13,6 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -22,7 +21,9 @@ import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Objects;
 
 // Use the VisionPortal API to manage a webcam and either one or two
 // "processors": one for raw webcam frames and the other for AprilTags.
@@ -33,58 +34,62 @@ public class VisionPortalWebcam {
     private static final String TAG = VisionPortalWebcam.class.getSimpleName();
 
     private final VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam;
-    private final WebcamFrameProcessor webcamFrameProcessor;
-    private final AprilTagProcessor aprilTagProcessor;
-    private VisionProcessor activeProcessor;
+    private final EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> processors =
+            new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
+    private int processorIndex = 0;
+
     private RobotConstantsCenterStage.ProcessorIdentifier activeProcessorId;
     private final VisionPortal visionPortal;
 
-    public VisionPortalWebcam(FTCRobot pRobot) {
-        //**TODO for now support only the Team Prop/AprilTag camera and a single processor.
-        // Note: even if we attach two processors, only one at a time will be enabled.
-        // See the sample ConceptDoubleVision.
-        configuredWebcam = pRobot.visionPortalWebcamConfiguration.webcams.get(0);
-        switch (configuredWebcam.processorId) {
-            case WEBCAM_FRAME: {
-                webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-                activeProcessor = webcamFrameProcessor;
-                aprilTagProcessor = null;
-                break;
+    public VisionPortalWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam) {
+        // Support a single camera and two processors, a WebcamFrameProcessor and an
+        // AprilTag processor. Even if both processors are in the configuration, only
+        // one at a time will be enabled. See the sample ConceptDoubleVision.
+        // Note: all processors are attached to the same webcam.
+        configuredWebcam = pConfiguredWebcam;
+        VisionProcessor[] processorArray = new VisionProcessor[configuredWebcam.processors.size()];
+        pConfiguredWebcam.processors.forEach(processorId -> {
+            switch (processorId) {
+                    case WEBCAM_FRAME: {
+                        VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+                        processors.put(processorId, webcamFrameProcessor);
+                        processorArray[processorIndex++] = webcamFrameProcessor;
+                        break;
+                    }
+                    case APRIL_TAG: {
+                        VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
+                                //.setDrawAxes(false)
+                                //.setDrawCubeProjection(false)
+                                .setDrawTagOutline(true)
+                                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                                //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+
+                                // == CAMERA CALIBRATION ==
+                                // If you do not manually specify calibration parameters, the SDK will attempt
+                                // to load a predefined calibration for your camera.
+                                // ... these parameters are fx, fy, cx, cy.
+                                //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+                                .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
+                                        configuredWebcam.cameraCalibration.focalLengthY,
+                                        configuredWebcam.cameraCalibration.opticalCenterX,
+                                        configuredWebcam.cameraCalibration.opticalCenterY)
+                                .build();
+
+                        processors.put(processorId, aprilTagProcessor);
+                        processorArray[processorIndex++] = aprilTagProcessor;
+                        break;
+                    }
+                    default:
+                        throw new AutonomousRobotException(TAG, "Unrecognized VisionPortal processor");
             }
-            case APRIL_TAG: {
-                if (configuredWebcam.cameraCalibration == null)
-                    throw new AutonomousRobotException(TAG, "Missing webcam calibration for AprilTag processor");
-
-                aprilTagProcessor = new AprilTagProcessor.Builder()
-                        //.setDrawAxes(false)
-                        //.setDrawCubeProjection(false)
-                        .setDrawTagOutline(true)
-                        .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                        //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                        .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-
-                        // == CAMERA CALIBRATION ==
-                        // If you do not manually specify calibration parameters, the SDK will attempt
-                        // to load a predefined calibration for your camera.
-                        // ... these parameters are fx, fy, cx, cy.
-                        //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
-                        // ##PY for Logitech Brio from the 3DF Zephyr tool
-                        .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
-                                configuredWebcam.cameraCalibration.focalLengthY,
-                                configuredWebcam.cameraCalibration.opticalCenterX,
-                                configuredWebcam.cameraCalibration.opticalCenterY)
-                        .build();
-
-                activeProcessor = aprilTagProcessor;
-                webcamFrameProcessor = null;
-                break;
-            }
-            default:
-                throw new AutonomousRobotException(TAG, "Unrecognized VisionPortal processor");
-        }
+        });
 
         RobotLogCommon.d(TAG, "Opening the webcam " + configuredWebcam.webcamId +
-                " with the processor " + configuredWebcam.processorId);
+                " with the following processor(s): ");
+        processors.forEach((processorId,processor) ->
+            RobotLogCommon.d(TAG, "Processor " + processorId));
+
         visionPortal = new VisionPortal.Builder()
                 .setCamera(configuredWebcam.getWebcamName())
                 .setCameraResolution(new Size(configuredWebcam.resolutionWidth, configuredWebcam.resolutionHeight))
@@ -93,15 +98,13 @@ public class VisionPortalWebcam {
                 // If set "false", monitor shows camera view without annotations.
                 .setAutoStopLiveView(false)
 
-                // Set and enable the processor.
-                .addProcessor(activeProcessor)
-                //**TODO later - support multiple processors and use .addProcessors(processors)
-                // which must be an array VisionProcessor[]
+                // Set and enable the processor(s).
+                .addProcessors(processorArray)
 
                 .build();
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.ERROR)
-            throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.webcamId + " on " + configuredWebcam.getWebcamName().getDeviceName());
+            throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.webcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
         // Wait here with timeout until VisionPortal.CameraState.STREAMING.
         // The async camera startup happens behind the scenes in VisionPortalImpl.
@@ -117,67 +120,42 @@ public class VisionPortalWebcam {
         if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
             throw new AutonomousRobotException(TAG, "Timed out waiting for webcam streaming to start");
 
-        // Start with the processor disabled.
-        visionPortal.setProcessorEnabled(activeProcessor, false);
+        // Start with the processor(s) disabled.
+        processors.forEach((processorId,processor) ->
+           visionPortal.setProcessorEnabled(processor, false));
         activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
     }
 
-    public void enableWebcamFrameProcessor() {
-       if (activeProcessorId == RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
-           return; // already enabled
-
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS)
-          visionPortal.setProcessorEnabled(activeProcessor, false);
-
-        if (webcamFrameProcessor == null)
-            throw new AutonomousRobotException(TAG, "Attempt to enable an uninitialized WEBCAM_FRAME processor");
-
-        visionPortal.setProcessorEnabled(webcamFrameProcessor, true);
-        activeProcessor = webcamFrameProcessor;
-        activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME;
-        RobotLogCommon.d(TAG, "Enabling the processor " + RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-    }
-
-    public void enableAprilTagProcessor() {
-        if (activeProcessorId == RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
+    public void enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
+        if (activeProcessorId == pProcessorId)
             return; // already enabled
 
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS)
+        VisionProcessor processor = processors.get(pProcessorId);
+        if (processor == null)
+            throw new AutonomousRobotException(TAG, "Attempt to enable an uninitialized processor " + pProcessorId);
+
+        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS) {
+            // A processor is already active, disable it.
+            VisionProcessor activeProcessor = processors.get(activeProcessorId);
             visionPortal.setProcessorEnabled(activeProcessor, false);
+        }
 
-        if (aprilTagProcessor == null)
-            throw new AutonomousRobotException(TAG, "Attempt to enable an uninitialized APRIL_TAG processor");
-
-        visionPortal.setProcessorEnabled(aprilTagProcessor, true);
-        activeProcessor = aprilTagProcessor;
-        activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG;
-        RobotLogCommon.d(TAG, "Enabling the processor " + RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG);
+        visionPortal.setProcessorEnabled(processor, true);
+        activeProcessorId = pProcessorId;
+        RobotLogCommon.d(TAG, "Enabling the processor " + pProcessorId);
     }
 
-    public void disableWebcamFrameProcessor() {
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
+    public void disableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
+        if (activeProcessorId != pProcessorId)
             return; // already disabled
 
-        if (webcamFrameProcessor == null)
-            throw new AutonomousRobotException(TAG, "Attempt to disable an uninitialized WEBCAM_FRAME processor");
+        VisionProcessor processor = processors.get(pProcessorId);
+        if (processor == null)
+            throw new AutonomousRobotException(TAG, "Attempt to disable an uninitialized processor " + pProcessorId);
 
-        visionPortal.setProcessorEnabled(webcamFrameProcessor, false);
-        activeProcessor = null;
+        visionPortal.setProcessorEnabled(processor, false);
         activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
-        RobotLogCommon.d(TAG, "Disabling the processor " + RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-    }
-
-    public void disableAprilTagProcessor() {
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
-            return; // already disabled
-
-        if (aprilTagProcessor == null)
-            throw new AutonomousRobotException(TAG, "Attempt to disable an uninitialized APRIL_TAG processor");
-
-        visionPortal.setProcessorEnabled(aprilTagProcessor, false);
-        activeProcessor = null;
-        activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
-        RobotLogCommon.d(TAG, "Enabling the processor " + RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG);
+        RobotLogCommon.d(TAG, "Disabling the processor " + pProcessorId);
     }
 
     public void stopStreaming() {
@@ -202,11 +180,13 @@ public class VisionPortalWebcam {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
             throw new AutonomousRobotException(TAG, "WEBCAM_FRAME is not the active processor");
 
+        WebcamFrameProcessor webcamFrameProcessor = (WebcamFrameProcessor) processors.get(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+
         Pair<Mat, Date> frameVal = null;
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
-            frameVal = webcamFrameProcessor.getWebcamFrame();
+            frameVal = Objects.requireNonNull(webcamFrameProcessor).getWebcamFrame();
             if (frameVal != null)
                 break;
             else {
@@ -222,11 +202,13 @@ public class VisionPortalWebcam {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
             throw new AutonomousRobotException(TAG, "APRIL_TAG is not the active processor");
 
+        AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) processors.get(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG);
+
         List<AprilTagDetection> currentDetections = new ArrayList<>();
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
-            currentDetections = aprilTagProcessor.getDetections();
+            currentDetections = Objects.requireNonNull(aprilTagProcessor).getDetections();
             if (!currentDetections.isEmpty())
                 break;
             else {

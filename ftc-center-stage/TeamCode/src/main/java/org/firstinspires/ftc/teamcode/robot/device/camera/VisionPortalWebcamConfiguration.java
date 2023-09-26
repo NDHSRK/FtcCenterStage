@@ -13,7 +13,6 @@ public class VisionPortalWebcamConfiguration {
         webcams = pWebcams;
     }
 
-    //**TODO later need ArrayList<ProcessorIdentifier>
     // Note: all fields originate in RobotConfig.xml except for webcamName,
     // which can only be added after we access the FTC HardwareMap in FTCRobot.
     public static class ConfiguredWebcam {
@@ -22,20 +21,20 @@ public class VisionPortalWebcamConfiguration {
         public final String serialNumber;
         public final int resolutionWidth;
         public final int resolutionHeight;
-        public final RobotConstantsCenterStage.ProcessorIdentifier processorId;
+        public final ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processors;
         public final CameraCalibration cameraCalibration;
  
         public ConfiguredWebcam(RobotConstantsCenterStage.InternalWebcamId pCameraId,
                                 String pSerialNumber,
                                 int pResolutionWidth,
                                 int pResolutionHeight,
-                                RobotConstantsCenterStage.ProcessorIdentifier pProcessor,
+                                ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessors,
                                 CameraCalibration pCameraCalibration) {
             webcamId = pCameraId;
             serialNumber = pSerialNumber;
             resolutionWidth = pResolutionWidth;
             resolutionHeight = pResolutionHeight;
-            processorId = pProcessor;
+            processors = pProcessors;
             cameraCalibration = pCameraCalibration;
         }
 

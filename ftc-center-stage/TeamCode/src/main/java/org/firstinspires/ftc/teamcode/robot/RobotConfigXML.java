@@ -223,8 +223,11 @@ public class RobotConfigXML {
                 processor_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'processor' not found");
 
+        ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processors =
+                new ArrayList<>();
         RobotConstantsCenterStage.ProcessorIdentifier processor =
                 RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processor_node.getTextContent().toUpperCase());
+        processors.add(processor);
 
         // Parse the optional <webcam_calibration_for_apriltags> element
         VisionPortalWebcamConfiguration.CameraCalibration calibration = null;
@@ -300,7 +303,7 @@ public class RobotConfigXML {
         }
 
         return new VisionPortalWebcamConfiguration.ConfiguredWebcam(webcamId,
-                serial_number, resolution_width, resolution_height, processor,
+                serial_number, resolution_width, resolution_height, processors,
                 calibration);
     }
 
