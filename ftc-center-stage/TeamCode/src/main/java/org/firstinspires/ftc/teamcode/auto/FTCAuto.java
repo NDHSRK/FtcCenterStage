@@ -209,7 +209,7 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO
+            //**TODO ready to test
             case "ENABLE_PROCESSOR": {
                 String idString = actionXPath.getRequiredText("processor").toUpperCase();
                 visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.valueOf(idString));
@@ -250,7 +250,7 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO Analyze the image on the signal sleeve.
+            //**TODO Find the location of the Team Prop.
             case "FIND_TEAM_PROP": {
                 //Callable<RobotConstantsPowerPlay.SignalSleeveLocation> callableAnalyzeSignalSleeve =
                 //        analyze_signal_sleeve(pAction, actionXPath);
@@ -258,7 +258,7 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO AprilTags
+            //**TODO ready to test AprilTags
             case "FIND_APRIL_TAGS": {
                 List<AprilTagDetection> aprilTags = visionPortalWebcam.getAprilTagData(500);
                 if (aprilTags.isEmpty()) {

@@ -176,6 +176,8 @@ public class VisionPortalWebcam {
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.webcamId);
     }
 
+    //**TODO Find a way not to hardcode the methods for getting the results from
+    // the processors attached to the current webcam.
     public Pair<Mat, Date> getVisionPortalWebcamData(int pTimeoutMs) {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
             throw new AutonomousRobotException(TAG, "WEBCAM_FRAME is not the active processor");
