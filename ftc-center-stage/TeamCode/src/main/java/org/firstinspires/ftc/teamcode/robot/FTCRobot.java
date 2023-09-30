@@ -146,7 +146,7 @@ public class FTCRobot {
             configuredWebcamObject.setWebcamName(webcamName);
             RobotLogCommon.i(TAG, "Webcam hardware device " + webcamId +
                     " is associated by serial number " + webcamName.getSerialNumber() +
-                    " with configured webcam " + configuredWebcamObject.webcamId);
+                    " with configured webcam " + configuredWebcamObject.internalWebcamId);
         }
     }
 

@@ -4,7 +4,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 
 // Configuration parameters for all webcams.
 public class VisionPortalWebcamConfiguration {
@@ -14,7 +13,7 @@ public class VisionPortalWebcamConfiguration {
     public static class ConfiguredWebcam {
         private WebcamName webcamName;
         private VisionPortalWebcam visionPortalWebcam;
-        public final RobotConstantsCenterStage.InternalWebcamId webcamId;
+        public final RobotConstantsCenterStage.InternalWebcamId internalWebcamId;
         public final String serialNumber;
         public final int resolutionWidth;
         public final int resolutionHeight;
@@ -27,7 +26,7 @@ public class VisionPortalWebcamConfiguration {
                                 int pResolutionHeight,
                                 ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessors,
                                 CameraCalibration pCameraCalibration) {
-            webcamId = pCameraId;
+            internalWebcamId = pCameraId;
             serialNumber = pSerialNumber;
             resolutionWidth = pResolutionWidth;
             resolutionHeight = pResolutionHeight;

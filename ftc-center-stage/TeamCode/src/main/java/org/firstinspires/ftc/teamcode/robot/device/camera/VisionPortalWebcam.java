@@ -85,7 +85,7 @@ public class VisionPortalWebcam {
             }
         });
 
-        RobotLogCommon.d(TAG, "Opening the webcam " + configuredWebcam.webcamId +
+        RobotLogCommon.d(TAG, "Opening the webcam " + configuredWebcam.internalWebcamId +
                 " with the following processor(s): ");
         processors.forEach((processorId,processor) ->
             RobotLogCommon.d(TAG, "Processor " + processorId));
@@ -104,7 +104,7 @@ public class VisionPortalWebcam {
                 .build();
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.ERROR)
-            throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.webcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
+            throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
         // Wait here with timeout until VisionPortal.CameraState.STREAMING.
         // The async camera startup happens behind the scenes in VisionPortalImpl.
@@ -160,12 +160,12 @@ public class VisionPortalWebcam {
 
     public void stopStreaming() {
         visionPortal.stopStreaming();
-        RobotLogCommon.d(TAG, "Stop streaming the webcam " + configuredWebcam.webcamId);
+        RobotLogCommon.d(TAG, "Stop streaming the webcam " + configuredWebcam.internalWebcamId);
     }
 
     public void resumeStreaming() {
         visionPortal.resumeStreaming();
-        RobotLogCommon.d(TAG, "Resume streaming the webcam " + configuredWebcam.webcamId);
+        RobotLogCommon.d(TAG, "Resume streaming the webcam " + configuredWebcam.internalWebcamId);
     }
 
     // Completely shut down the webcam.
@@ -173,7 +173,7 @@ public class VisionPortalWebcam {
     // OpMode that uses the webcam.
     public void finalShutdown() {
         visionPortal.close();
-        RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.webcamId);
+        RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }
 
     //**TODO Find a way not to hardcode the methods for getting the results from

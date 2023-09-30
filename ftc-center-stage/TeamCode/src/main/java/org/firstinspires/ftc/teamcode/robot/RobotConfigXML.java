@@ -154,14 +154,14 @@ public class RobotConfigXML {
             // Make sure there are no duplicate webcam ids or serial numbers.
             Optional<RobotConstantsCenterStage.InternalWebcamId> duplicate = configuredWebcams.entrySet().stream()
                     .filter(e -> e.getValue().serialNumber.equals(webcamData.serialNumber) ||
-                            e.getKey() == webcamData.webcamId)
+                            e.getKey() == webcamData.internalWebcamId)
                     .map(Map.Entry::getKey)
                     .findFirst();
 
             if (duplicate.isPresent())
                 throw new AutonomousRobotException(TAG, "Duplicate serial number or webcam id");
 
-            configuredWebcams.put(webcamData.webcamId, webcamData);
+            configuredWebcams.put(webcamData.internalWebcamId, webcamData);
         });
     }
 

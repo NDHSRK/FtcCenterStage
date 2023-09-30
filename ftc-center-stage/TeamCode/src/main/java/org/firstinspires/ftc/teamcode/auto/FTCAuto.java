@@ -19,15 +19,18 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
+import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamImageProvider;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
@@ -45,11 +48,9 @@ public class FTCAuto {
 
     private final RobotActionXMLCenterStage actionXML;
     private boolean keepCamerasRunning = false;
-    private RobotConstantsCenterStage.InternalWebcamId webcamInUse;
-    private RobotConstantsCenterStage.InternalWebcamId stoppedWebcam;
 
     // Image recognition.
-    EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
+    EnumMap<RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
     private RobotConstantsCenterStage.TeamPropLocation teamPropLocation;
@@ -82,15 +83,14 @@ public class FTCAuto {
         // with the processor for raw frames.
         VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                 robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
-        VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(frontWebcamConfiguration);
+        VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
         frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
         visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-        webcamInUse = frontWebcamConfiguration.webcamId;
 
         // If the rear-facing webcam is in the configuration start it now with
         // its processor(s) disabled. It may not be configured in during debugging.
         VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
-        robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
+                robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
         if (rearWebcamConfiguration != null) {
             VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
             rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
@@ -177,7 +177,7 @@ public class FTCAuto {
         } finally {
             if (!keepCamerasRunning) {
                 RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                visionPortalWebcam.finalShutdown();
+                robot.configuredWebcams.forEach((k,v) -> v.getVisionPortalWebcam().finalShutdown());
             }
         }
 
@@ -199,49 +199,45 @@ public class FTCAuto {
         String actionName = pAction.getRobotXMLElementName().toUpperCase();
         RobotLogCommon.d(TAG, "Executing FTCAuto action " + actionName);
 
-        //**TODO with two webcams both could be in use ...
         switch (actionName) {
             case "STOP_WEBCAM_STREAMING": {
-                if (webcamInUse == RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
-                    throw new AutonomousRobotException(TAG, "No webcam is active");
-
-                visionPortalWebcam.stopStreaming();
-                stoppedWebcam = webcamInUse;
-                webcamInUse = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
+                RobotConstantsCenterStage.InternalWebcamId webcamId =
+                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().stopStreaming();
+                RobotLogCommon.d(TAG, "Stopped streaming webcam " + webcamIdString);
                 break;
             }
 
             case "RESUME_WEBCAM_STREAMING": {
-                if (webcamInUse == RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
-                    throw new AutonomousRobotException(TAG, "No webcam is active");
-
-                visionPortalWebcam.resumeStreaming();
-                webcamInUse = stoppedWebcam;
-                stoppedWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
+                RobotConstantsCenterStage.InternalWebcamId webcamId =
+                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().resumeStreaming();
+                RobotLogCommon.d(TAG, "Resumed streaming webcam " + webcamIdString);
                 break;
             }
 
-            //**TODO in a multicam environment need to specify webcam and processor
             case "ENABLE_PROCESSOR": {
-                String webcamIdString = actionXPath.getRequiredText("internal_id").toUpperCase();
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
-                robot.configuredWebcams.get(webcamId).getVisionPortalWebcam().enableProcessor(processorId);
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().enableProcessor(processorId);
                 RobotLogCommon.d(TAG, "Enabled processor " + processorIdString + " on webcam " + webcamIdString);
                 break;
             }
 
             case "DISABLE_PROCESSOR": {
-                String webcamIdString = actionXPath.getRequiredText("internal_id").toUpperCase();
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
-                robot.configuredWebcams.get(webcamId).getVisionPortalWebcam().disableProcessor(processorId);
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().disableProcessor(processorId);
                 RobotLogCommon.d(TAG, "Enabled processor " + processorIdString + " on webcam " + webcamIdString);
                 break;
             }
@@ -250,22 +246,23 @@ public class FTCAuto {
             // API and write it out to a file. Assume that the webcam has already
             // been started.
             case "TAKE_PICTURE_WEBCAM": {
-                String webcamIdString = actionXPath.getRequiredText("internal_id").toUpperCase();
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                VisionPortalWebcam visionPortalWebcam = robot.configuredWebcams.get(webcamId).getVisionPortalWebcam();
+                VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
                 visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-                Pair<Mat, Date> image = visionPortalWebcam.getVisionPortalWebcamData(2000);
 
+                VisionPortalWebcamImageProvider provider = new VisionPortalWebcamImageProvider(visionPortalWebcam);
+                Pair<Mat, Date> image = provider.getImage();
                 if (image == null) {
-                    RobotLogCommon.d(TAG, "Unable to get image from " + webcamInUse);
-                    linearOpMode.telemetry.addData("Take picture:", "unable to get image from " + webcamInUse);
+                    RobotLogCommon.d(TAG, "Unable to get image from " + webcamIdString);
+                    linearOpMode.telemetry.addData("Take picture:", "unable to get image from " + webcamIdString);
                     linearOpMode.telemetry.update();
                 } else {
-                    RobotLogCommon.d(TAG, "Took a picture with " + webcamInUse);
+                    RobotLogCommon.d(TAG, "Took a picture with " + webcamIdString);
                     String fileDate = TimeStamp.getDateTimeStamp(image.second);
-                    String outputFilenamePreamble = workingDirectory + RobotConstants.imageDir + webcamInUse + "_" + fileDate;
+                    String outputFilenamePreamble = workingDirectory + RobotConstants.imageDir + webcamIdString + "_" + fileDate;
 
                     String imageFilename = outputFilenamePreamble + "_IMG.png";
                     RobotLogCommon.d(TAG, "Writing image " + imageFilename);
@@ -284,21 +281,36 @@ public class FTCAuto {
                 //Callable<RobotConstantsPowerPlay.SignalSleeveLocation> callableAnalyzeSignalSleeve =
                 //        analyze_signal_sleeve(pAction, actionXPath);
                 //callableAnalyzeSignalSleeve.call(); // execute now
+
+                teamPropLocation = RobotConstantsCenterStage.TeamPropLocation.RIGHT_SPIKE; //**TODO temp
+
+                // Prepare to execute the robot actions for the team prop location that was found.
+                // If you're only testing team prop recognition then there may not be any associated
+                // actions.
+                if (teamPropLocationActions != null)
+                    teamPropLocationInsert = new ArrayList<>(Objects.requireNonNull(teamPropLocationActions.get(teamPropLocation)));
+                break;
+            }
+
+            case "TEAM_PROP_LOCATION_CHOICE": {
+                if (teamPropLocationInsert == null)
+                    throw new AutonomousRobotException(TAG, "Missing element FIND_TEAM_PROP");
+
+                executeTeamPropLocationActions = true;
                 break;
             }
 
             case "FIND_APRIL_TAGS": {
-                String webcamIdString = actionXPath.getRequiredText("internal_id").toUpperCase();
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
-                VisionPortalWebcam visionPortalWebcam = robot.configuredWebcams.get(webcamId).getVisionPortalWebcam();
+                VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
                 List<AprilTagDetection> aprilTags = visionPortalWebcam.getAprilTagData(500);
                 if (aprilTags.isEmpty()) {
                     linearOpMode.telemetry.addLine("No AprilTags found");
                     linearOpMode.telemetry.update();
-                    RobotLogCommon.d(TAG,"No AprilTags found");
-                }
-                else telemetryAprilTag(aprilTags);
+                    RobotLogCommon.d(TAG, "No AprilTags found");
+                } else telemetryAprilTag(aprilTags);
                 break;
             }
 
