@@ -94,6 +94,7 @@ public class FTCRobot {
             // Check for the special run types AUTO_NO_DRIVE
             // and TELEOP_NO_DRIVE, which we use for stand-alone
             // testing of devices and the camera.
+            //**TODO Why not check the drive train for @configured??
             if (!(pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
                     pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE ||
                     pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS)) {
@@ -104,6 +105,7 @@ public class FTCRobot {
 
             // Only look at including cameras if the configuration needs them.
             if (!(pRunType == RobotConstants.RunType.AUTONOMOUS ||
+                    pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
                     pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_OPENCV_CALIBRATION)) {
@@ -116,6 +118,7 @@ public class FTCRobot {
 
                 if (webcamYesNo.equals("yes")) {
                     configuredWebcams = configXML.getConfiguredWebcams();
+                    RobotLogCommon.d(TAG, "Number of webcams configured " + configuredWebcams.size());
                     if (configuredWebcams.size() > 2)
                         throw new AutonomousRobotException(TAG, "CenterStage season: only two webcams at mnost are supported");
 
@@ -126,6 +129,7 @@ public class FTCRobot {
             }
 
             if (pRunType == RobotConstants.RunType.AUTONOMOUS ||
+                    pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
                     pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS) {
                 BasicIMU basicIMU = new BasicIMU(hardwareMap);

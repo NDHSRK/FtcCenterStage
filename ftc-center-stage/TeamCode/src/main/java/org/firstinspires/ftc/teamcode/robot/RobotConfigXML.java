@@ -122,10 +122,7 @@ public class RobotConfigXML {
 
     // Parse a VISION_PORTAL_WEBCAM element into its own structure.
     private void parseWebcamConfiguration(Node pWebcamNode) {
-        EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams =
-                new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
-
-        NamedNodeMap configuration_attributes = pWebcamNode.getAttributes();
+      NamedNodeMap configuration_attributes = pWebcamNode.getAttributes();
         Node configured_node = configuration_attributes.getNamedItem("configured");
         if (configured_node == null || configured_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Attribute 'configured' is missing or empty");

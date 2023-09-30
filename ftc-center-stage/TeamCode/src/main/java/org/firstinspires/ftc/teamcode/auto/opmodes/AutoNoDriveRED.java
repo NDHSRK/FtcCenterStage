@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
 @Autonomous(name = "AutoNoDriveRED", group = "TeamCode")
-@Disabled
+//@Disabled
 public class AutoNoDriveRED extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         FTCAutoDispatch.runAuto(RobotConstants.RunType.AUTO_NO_DRIVE,

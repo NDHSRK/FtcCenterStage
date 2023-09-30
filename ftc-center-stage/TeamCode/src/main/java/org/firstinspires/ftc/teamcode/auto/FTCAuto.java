@@ -523,7 +523,6 @@ public class FTCAuto {
             //  of actions without commenting out any XML.
             // Shut down background threads, including the imu and the logger.
             case "STOP": {
-                RobotLogCommon.closeLog();
                 sleep(1000);
                 return false;
             }
