@@ -10,7 +10,7 @@
         <actions>
 
             <TAKE_PICTURE_WEBCAM>
-                <internal_id>front_webcam</internal_id>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM>
 
             <!-- SLEEP>
@@ -18,12 +18,12 @@
             </SLEEP>
 
             <ENABLE_PROCESSOR>
-                <internal_id>front_webcam</internal_id>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
             </ENABLE_PROCESSOR>
 
             <FIND_APRIL_TAGS>
-                <internal_id>front_webcam</internal_id>                
+                <internal_webcam_id>front_webcam</internal_webcam_id>                
             </FIND_APRIL_TAGS -->
 
             <SLEEP>

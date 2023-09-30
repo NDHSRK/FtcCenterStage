@@ -26,7 +26,7 @@ public class FTCAutoDispatch {
         // LCHSAuto, the common class for all autonomous opmodes, needs
         // access to the public data fields and methods in LinearOpMode.
         try {
-            RobotLogCommon.initialize(RobotLogCommon.LogIdentifier.AUTO_LOG, WorkingDirectory.getWorkingDirectory() + RobotConstants.logDir);
+            RobotLogCommon.initialize(RobotLogCommon.LogIdentifier.AUTO_LOG, WorkingDirectory.getWorkingDirectory() + RobotConstants.LOG_DIR);
 
             RobotLogCommon.c(TAG, "Constructing FTCRobot with run type " + pRunType);
             FTCRobot robot = new FTCRobot(pLinear, pRunType);

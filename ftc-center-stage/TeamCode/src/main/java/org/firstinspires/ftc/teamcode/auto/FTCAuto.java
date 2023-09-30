@@ -13,7 +13,12 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
+import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
+import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
+import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
+import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
+import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
@@ -22,6 +27,7 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConf
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamImageProvider;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.xml.sax.SAXException;
 
@@ -41,7 +47,6 @@ public class FTCAuto {
 
     private static final String TAG = FTCAuto.class.getSimpleName();
 
-    private final RobotConstants.Alliance alliance;
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
     private final String workingDirectory;
@@ -50,10 +55,11 @@ public class FTCAuto {
     private boolean keepCamerasRunning = false;
 
     // Image recognition.
+    private final TeamPropParameters teamPropParameters;
+    private final TeamPropRecognition teamPropRecognition;
     EnumMap<RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
-    private RobotConstantsCenterStage.TeamPropLocation teamPropLocation;
 
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -62,22 +68,20 @@ public class FTCAuto {
 
         RobotLogCommon.c(TAG, "FTCAuto constructor");
 
-        alliance = pAlliance;
         linearOpMode = pLinearOpMode; // FTC context
         robot = pRobot; // robot hardware
 
         // Get the directory for the various configuration files.
         workingDirectory = WorkingDirectory.getWorkingDirectory();
-        String xmlDirectory = workingDirectory + RobotConstants.xmlDir;
+        String xmlDirectory = workingDirectory + RobotConstants.XML_DIR;
 
         // Read the robot action file for all OpModes.
         actionXML = new RobotActionXMLCenterStage(xmlDirectory);
 
-        //**TODO Replace with TeamProp XML/recognition
-        //  Read the signal sleeve image recognition parameters from an xml file.
-        //SignalSleeveParametersXML signalSleeveParametersXML = new SignalSleeveParametersXML(xmlDirectory);
-        // signalSleeveParameters = signalSleeveParametersXML.getSignalSleeveParameters();
-        //signalSleeveRecognition = new SignalSleeveRecognition(alliance);
+        // Read the parameters for team prop recognition from the xml file.
+        TeamPropParametersXML teamPropParametersXML = new TeamPropParametersXML(xmlDirectory);
+        teamPropParameters = teamPropParametersXML.getTeamPropParameters();
+        teamPropRecognition = new TeamPropRecognition(pAlliance);
 
         // Since the first task in Autonomous is to find the Team Prop, start the front webcam
         // with the processor for raw frames.
@@ -249,7 +253,6 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
-
                 VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
                 visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
 
@@ -262,7 +265,7 @@ public class FTCAuto {
                 } else {
                     RobotLogCommon.d(TAG, "Took a picture with " + webcamIdString);
                     String fileDate = TimeStamp.getDateTimeStamp(image.second);
-                    String outputFilenamePreamble = workingDirectory + RobotConstants.imageDir + webcamIdString + "_" + fileDate;
+                    String outputFilenamePreamble = workingDirectory + RobotConstants.IMAGE_DIR + webcamIdString + "_" + fileDate;
 
                     String imageFilename = outputFilenamePreamble + "_IMG.png";
                     RobotLogCommon.d(TAG, "Writing image " + imageFilename);
@@ -276,19 +279,77 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO Find the location of the Team Prop.
+            // Find the location of the Team Prop.
             case "FIND_TEAM_PROP": {
-                //Callable<RobotConstantsPowerPlay.SignalSleeveLocation> callableAnalyzeSignalSleeve =
-                //        analyze_signal_sleeve(pAction, actionXPath);
-                //callableAnalyzeSignalSleeve.call(); // execute now
+                // Prepare for image recognition.
+                VisionParameters.ImageParameters teamPropImageParameters =
+                        actionXML.getImageParametersFromXPath(pAction, "image_parameters");
+                String webcamIdString = teamPropImageParameters.image_source.toUpperCase();
+                RobotConstantsCenterStage.InternalWebcamId webcamId =
+                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                teamPropLocation = RobotConstantsCenterStage.TeamPropLocation.RIGHT_SPIKE; //**TODO temp
+                VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+                VisionPortalWebcamImageProvider imageProvider = new VisionPortalWebcamImageProvider(visionPortalWebcam);
+
+                // Get the recognition path from the XML file.
+                String recognitionPathString = actionXPath.getRequiredText("team_prop_recognition/recognition_path");
+                RobotConstantsCenterStage.TeamPropRecognitionPath teamPropRecognitionPath =
+                        RobotConstantsCenterStage.TeamPropRecognitionPath.valueOf(recognitionPathString.toUpperCase());
+
+                RobotLogCommon.d(TAG, "Recognition path " + teamPropRecognitionPath);
+
+                // Set the team prop recognition parameters for the current OpMode.
+                EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows =
+                        new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
+
+                // The left window onto the three spikes may be the leftmost spike or the
+                // center spike. The right window is always immediately to the right of the
+                // left window.
+                // Get the boundaries for the left window onto the spikes.
+                int left_x = actionXPath.getRequiredInt("team_prop_recognition/left_window/x");
+                int left_y = actionXPath.getRequiredInt("team_prop_recognition/left_window/y");
+                int left_width = actionXPath.getRequiredInt("team_prop_recognition/left_window/width");
+                int left_height = actionXPath.getRequiredInt("team_prop_recognition/left_window/height");
+                RobotConstantsCenterStage.TeamPropLocation team_prop_in_left_window = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/left_window/prop_location").toUpperCase());
+                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.LEFT, Pair.create(new Rect(left_x, left_y, left_width, left_height), team_prop_in_left_window));
+
+                // Get the boundaries for the right window onto the spikes.
+                int right_width = actionXPath.getRequiredInt("team_prop_recognition/right_window/width");
+                RobotConstantsCenterStage.TeamPropLocation team_prop_in_right_window = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/right_window/prop_location").toUpperCase());
+                // Note: the right window starts 1 pixel past the left element. The height of the right
+                // window is the same as that of the left window.
+                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT, Pair.create(new Rect(left_x + left_width, left_y, right_width, left_height), team_prop_in_right_window));
+
+                // Set the shipping hub level to infer if the Shipping Hub Element is either the left or right window.
+                RobotConstantsCenterStage.TeamPropLocation team_prop_npos = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/team_prop_npos/prop_location").toUpperCase());
+                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0),team_prop_npos));
+                teamPropParameters.setSpikeWindows(spikeWindows);
+
+                // Perform image recognition.
+                TeamPropReturn teamPropReturn =
+                        teamPropRecognition.recognizeTeamProp(imageProvider, teamPropImageParameters, teamPropParameters, teamPropRecognitionPath);
+
+                RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
+
+                if (teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_INTERNAL_ERROR ||
+                   teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL) {
+                // Something went wrong during recognition but don't crash; use the default location of CENTER_SPIKE.
+                finalTeamPropLocation = RobotConstantsCenterStage.TeamPropLocation.CENTER_SPIKE;
+                RobotLogCommon.d(TAG, "Error in computer vision subsystem; using default location of CENTER_SPIKE");
+            }
+                else {
+                    finalTeamPropLocation = teamPropReturn.teamPropLocation;
+                    RobotLogCommon.d(TAG, "Team Prop Location " + teamPropReturn.teamPropLocation);
+                    linearOpMode.telemetry.addData("Team Prop Location: ", teamPropReturn.teamPropLocation);
+                    linearOpMode.telemetry.update();
+                }
 
                 // Prepare to execute the robot actions for the team prop location that was found.
                 // If you're only testing team prop recognition then there may not be any associated
                 // actions.
                 if (teamPropLocationActions != null)
-                    teamPropLocationInsert = new ArrayList<>(Objects.requireNonNull(teamPropLocationActions.get(teamPropLocation)));
+                    teamPropLocationInsert = new ArrayList<>(Objects.requireNonNull(teamPropLocationActions.get(finalTeamPropLocation)));
                 break;
             }
 
@@ -366,6 +427,7 @@ public class FTCAuto {
     }
 
     // Copied from the sample ConceptAprilTag and slightly modified.
+    @SuppressLint("DefaultLocale")
     private void telemetryAprilTag(List<AprilTagDetection> pCurrentDetections) {
 
         linearOpMode.telemetry.addData("# AprilTags Detected", pCurrentDetections.size());
@@ -373,20 +435,28 @@ public class FTCAuto {
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : pCurrentDetections) {
             if (detection.metadata != null) {
-                linearOpMode.telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                linearOpMode.telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                linearOpMode.telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                linearOpMode.telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+                String detectionId = String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name);
+                String XYZ = String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z);
+                String PRY = String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw);
+                String RBE = String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation);
 
-                RobotLogCommon.d(TAG, String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                RobotLogCommon.d(TAG, String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                RobotLogCommon.d(TAG, String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                RobotLogCommon.d(TAG, String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+                linearOpMode.telemetry.addLine(detectionId);
+                linearOpMode.telemetry.addLine(XYZ);
+                linearOpMode.telemetry.addLine(PRY);
+                linearOpMode.telemetry.addLine(RBE);
+
+                RobotLogCommon.d(TAG, detectionId);
+                RobotLogCommon.d(TAG, XYZ);
+                RobotLogCommon.d(TAG, PRY);
+                RobotLogCommon.d(TAG, RBE);
             } else {
-                linearOpMode.telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                linearOpMode.telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-                RobotLogCommon.d(TAG, String.format("\n==== (ID %d) Unknown", detection.id));
-                RobotLogCommon.d(TAG, String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+                String unknownId = String.format("\n==== (ID %d) Unknown", detection.id);
+                String center = String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y);
+
+                linearOpMode.telemetry.addLine(unknownId);
+                linearOpMode.telemetry.addLine(center);
+                RobotLogCommon.d(TAG, unknownId);
+                RobotLogCommon.d(TAG, center);
             }
         }   // end for() loop
 

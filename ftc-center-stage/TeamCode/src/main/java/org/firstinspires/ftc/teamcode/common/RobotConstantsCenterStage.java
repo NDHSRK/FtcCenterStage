@@ -35,19 +35,45 @@ public class RobotConstantsCenterStage {
     }
 
     public enum TeamPropRecognitionPath {
-        COLOR, CIRCLES, COLOR_CHANNEL_GRAYSCALE
+        COLOR_CHANNEL_CIRCLES
     }
 
+    // Relative position of a barcode element within the ROI.
+    public enum SpikeLocationWindow {
+        LEFT, RIGHT, WINDOW_NPOS
+    }
+
+    // Constructor parameters are the AprilTag id of the
+    // blue alliance backstop locations and the AprilTag
+    // id of the red alliance backstop locations.
     public enum TeamPropLocation {
-        LEFT_SPIKE, CENTER_SPIKE, RIGHT_SPIKE
+        LEFT_SPIKE(1, 4), CENTER_SPIKE (2, 5), RIGHT_SPIKE(3, 6), SPIKE_NPOS(-1, -1);
+
+        private final int blueBackdropAprilTagId;
+        private final int redBackdropAprilTagId;
+        TeamPropLocation(int pBlueBackdropAprilTagId, int pRedBackdropAprilTagId) {
+            blueBackdropAprilTagId = pBlueBackdropAprilTagId;
+            redBackdropAprilTagId = pRedBackdropAprilTagId;
+        }
+
+        public int getBlueBackdropAprilTagId() {
+            return blueBackdropAprilTagId;
+        }
+
+        public int getRedBackdropAprilTagId() {
+            return redBackdropAprilTagId;
+        }
     }
 
     // AprilTag identifiers
-    public enum AprilTagIdentifier {
+    public enum FieldWallAprilTagIdentifier {
         RED_ALLIANCE_AUDIENCE_WALL, RED_ALLIANCE_PIXEL_STACK,
-        BLUE_ALLIANCE_AUDIENCE_WALL, BLUE_ALLIANCE_PIXEL_STACK,
-        RED_ALLIANCE_BACKDROP_LEFT, RED_ALLIANCE_BACKDROP_CENTER, RED_ALLIANCE_BACKDROP_RIGHT,
-        BLUE_ALLIANCE_BACKDROP_LEFT, BLUE_ALLIANCE_BACKDROP_CENTER, BLUE_ALLIANCE_BACKDROP_RIGHT
+        BLUE_ALLIANCE_AUDIENCE_WALL, BLUE_ALLIANCE_PIXEL_STACK
+    }
+
+    // Reference implementation of the gold cube.
+    public enum GoldCubeRecognitionPath {
+        RED_CHANNEL_GRAYSCALE, COLOR
     }
 
 }

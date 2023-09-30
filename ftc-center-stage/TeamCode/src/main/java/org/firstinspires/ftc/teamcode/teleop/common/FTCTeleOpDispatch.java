@@ -43,7 +43,7 @@ public class FTCTeleOpDispatch {
 
         // All TeleOp OpModes need access to the public data fields and methods in LinearOpMode.
         try {
-            RobotLogCommon.initialize(RobotLogCommon.LogIdentifier.TELEOP_LOG, WorkingDirectory.getWorkingDirectory() + RobotConstants.logDir);
+            RobotLogCommon.initialize(RobotLogCommon.LogIdentifier.TELEOP_LOG, WorkingDirectory.getWorkingDirectory() + RobotConstants.LOG_DIR);
 
             RobotLogCommon.c(TAG, "Preparing to run TeleOp with run type " + pRunType + " from class " + pTeleOpClass);
             RobotLogCommon.c(TAG, "Constructing FTCRobot with run type " + pRunType);

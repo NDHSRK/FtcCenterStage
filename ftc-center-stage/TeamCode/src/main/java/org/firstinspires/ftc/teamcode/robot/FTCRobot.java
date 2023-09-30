@@ -56,7 +56,7 @@ public class FTCRobot {
         */
 
         String workingDirectory = WorkingDirectory.getWorkingDirectory();
-        String xmlDirectory = workingDirectory + RobotConstants.xmlDir;
+        String xmlDirectory = workingDirectory + RobotConstants.XML_DIR;
 
         // Get the hardware configuration parameters from RobotConfig.xml.
         try {
@@ -122,7 +122,6 @@ public class FTCRobot {
     // object. Use the webcam's serial number in its WebcamName
     // object to associate the webcam with its counterpart in
     // RobotConfig.xml.
-    //**TODO How to support multiple webcams!!??
     private void matchHardwareWebcamsWithConfiguredWebcams() {
         String webcamId;
         for (int i = 1; i <= configuredWebcams.size(); i++) {
