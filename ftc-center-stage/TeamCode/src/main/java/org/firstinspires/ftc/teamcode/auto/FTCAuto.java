@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import static android.os.SystemClock.sleep;
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
+import org.firstinspires.ftc.ftcdevcommon.Threading;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
@@ -25,6 +28,8 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamImageProvider;
+import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
+import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -37,11 +42,15 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathException;
+import javax.xml.xpath.XPathExpressionException;
 
 public class FTCAuto {
 
@@ -52,7 +61,13 @@ public class FTCAuto {
     private final String workingDirectory;
 
     private final RobotActionXMLCenterStage actionXML;
-    private boolean keepCamerasRunning = false;
+    private double desiredHeading = 0.0; // always normalized
+
+    private final DriveTrainMotion driveTrainMotion;
+    private CompletableFuture<Void> asyncStraight;
+    private CompletableFuture<Double> asyncTurn;
+
+    private boolean keepIMUAndCamerasRunning = false;
 
     // Image recognition.
     private final TeamPropParameters teamPropParameters;
@@ -64,7 +79,7 @@ public class FTCAuto {
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
                    RobotConstants.RunType pRunType)
-            throws ParserConfigurationException, SAXException, XPathException, IOException, InterruptedException, TimeoutException {
+            throws ParserConfigurationException, SAXException, XPathException, IOException {
 
         RobotLogCommon.c(TAG, "FTCAuto constructor");
 
@@ -77,6 +92,13 @@ public class FTCAuto {
 
         // Read the robot action file for all OpModes.
         actionXML = new RobotActionXMLCenterStage(xmlDirectory);
+
+        // Initialize the hardware and classes that control motion.
+        // Do not initialize if the components have been configured out.
+        if (robot.driveTrain != null)
+            driveTrainMotion = new DriveTrainMotion(linearOpMode, robot);
+        else
+            driveTrainMotion = null;
 
         // Read the parameters for team prop recognition from the xml file.
         TeamPropParametersXML teamPropParametersXML = new TeamPropParametersXML(xmlDirectory);
@@ -107,7 +129,7 @@ public class FTCAuto {
     // under TeleOp it is necessary *not* to shut down the camera(s) at the end of
     // runOpMode.
     public void runRobotWithCameras(RobotConstantsCenterStage.OpMode pOpMode) throws Exception {
-        keepCamerasRunning = true;
+        keepIMUAndCamerasRunning = true;
         runRobot(pOpMode);
     }
 
@@ -179,9 +201,13 @@ public class FTCAuto {
                 }
             }
         } finally {
-            if (!keepCamerasRunning) {
+            if (!keepIMUAndCamerasRunning) {
+                // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
+                RobotLogCommon.i(TAG, "In FTCAuto finally: close the imu reader");
+                robot.imuReader.stopIMUReader();
+
                 RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                robot.configuredWebcams.forEach((k,v) -> v.getVisionPortalWebcam().finalShutdown());
+                robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
             }
         }
 
@@ -204,6 +230,119 @@ public class FTCAuto {
         RobotLogCommon.d(TAG, "Executing FTCAuto action " + actionName);
 
         switch (actionName) {
+            // The robot moves without rotation in a direction relative to
+            // the robot's current heading according to the "angle" parameter.
+            case "STRAIGHT_BY": {
+                straight_by(actionXPath, () -> {
+                    try {
+                        return actionXPath.getRequiredDouble("angle");
+                    } catch (XPathExpressionException e) {
+                        String eMessage = e.getMessage() == null ? "**no error message**" : e.getMessage();
+                        throw new AutonomousRobotException(TAG, "XPath exception " + eMessage);
+                    }
+                }).call();
+                break;
+            }
+
+            // Specialization of STRAIGHT_BY.
+            case "FORWARD": {
+                straight_by(actionXPath, () -> 0.0).call();
+                break;
+            }
+
+            // Specialization of STRAIGHT_BY.
+            case "BACK": {
+                straight_by(actionXPath, () -> -180.0).call();
+                break;
+            }
+
+            // Specialization of STRAIGHT_BY.
+            case "STRAFE_LEFT": {
+                straight_by(actionXPath, () -> 90.0).call();
+                break;
+            }
+
+            // Specialization of STRAIGHT_BY.
+            case "STRAFE_RIGHT": {
+                straight_by(actionXPath, () -> -90.0).call();
+                break;
+            }
+
+            // Drive straight asynchronously.
+            // The lambda gets the angle from the XML file.
+            case "ASYNC_STRAIGHT_BY": {
+                async_straight_by(actionXPath,
+                        () -> {
+                            try {
+                                return actionXPath.getRequiredDouble("angle");
+                            } catch (XPathExpressionException e) {
+                                String eMessage = e.getMessage() == null ? "**no error message**" : e.getMessage();
+                                throw new AutonomousRobotException(TAG, "XPath exception " + eMessage);
+                            }
+                        });
+                break;
+            }
+
+            // Specialization of ASYNC_STRAIGHT_BY.
+            // The lambda supplies the angle 0.0 (forward).
+            case "ASYNC_FORWARD": {
+                async_straight_by(actionXPath, () -> 0.0);
+                break;
+            }
+
+            // Specialization of ASYNC_STRAIGHT_BY.
+            case "ASYNC_BACK": {
+                async_straight_by(actionXPath, () -> -180.0);
+                break;
+            }
+
+            // Specialization of ASYNC_STRAIGHT_BY.
+            case "ASYNC_STRAFE_LEFT": {
+                async_straight_by(actionXPath, () -> 90.0);
+                break;
+            }
+
+            // Specialization of ASYNC_STRAIGHT_BY.
+            case "ASYNC_STRAFE_RIGHT": {
+                async_straight_by(actionXPath, () -> -90.0);
+                break;
+            }
+
+            // Making the robot turn ---
+            // An XML attribute determines whether the angle of a turn is
+            // relative to the starting position of the robot (heading 0.0)
+            // or the current position of the robot. For example, if the
+            // current heading of the robot is 30 degrees (counter-clockwise)
+            // a turn of -30 degrees relative to the starting position of
+            // the robot will turn clockwise until the heading reaches -30
+            // degrees (clockwise). But the same -30 angle relative to the
+            // current position of the robot will turn clockwise until the
+            // robot reaches a heading of 0.0.
+
+            // At the same time, a turn may be normalized or unnormalized. A
+            // normalized turn is always the shortest distance from the
+            // current heading to the desired heading. For example, if the
+            // current heading is 30 degrees and the requested angle is -210
+            // degrees (clockwise) to reach the desired heading of -180 degrees,
+            // the robot will turn counter-clockwise 150 degrees. If the turn
+            // is unnormalized, the robot will always turn in the requested
+            // direction.
+            case "TURN": {
+                desiredHeading = turn(actionXPath).call();
+                break;
+            }
+
+            case "ASYNC_TURN": {
+                async_turn(actionXPath);
+                break;
+            }
+
+            // Straighten out the robot by turning to the desired heading.
+            case "DESKEW": {
+                deskew();
+                break;
+            }
+
             case "STOP_WEBCAM_STREAMING": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
@@ -323,7 +462,7 @@ public class FTCAuto {
 
                 // Set the shipping hub level to infer if the Shipping Hub Element is either the left or right window.
                 RobotConstantsCenterStage.TeamPropLocation team_prop_npos = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/team_prop_npos/prop_location").toUpperCase());
-                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0),team_prop_npos));
+                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0), team_prop_npos));
                 teamPropParameters.setSpikeWindows(spikeWindows);
 
                 // Perform image recognition.
@@ -333,12 +472,11 @@ public class FTCAuto {
                 RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
 
                 if (teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_INTERNAL_ERROR ||
-                   teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL) {
-                // Something went wrong during recognition but don't crash; use the default location of CENTER_SPIKE.
-                finalTeamPropLocation = RobotConstantsCenterStage.TeamPropLocation.CENTER_SPIKE;
-                RobotLogCommon.d(TAG, "Error in computer vision subsystem; using default location of CENTER_SPIKE");
-            }
-                else {
+                        teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL) {
+                    // Something went wrong during recognition but don't crash; use the default location of CENTER_SPIKE.
+                    finalTeamPropLocation = RobotConstantsCenterStage.TeamPropLocation.CENTER_SPIKE;
+                    RobotLogCommon.d(TAG, "Error in computer vision subsystem; using default location of CENTER_SPIKE");
+                } else {
                     finalTeamPropLocation = teamPropReturn.teamPropLocation;
                     RobotLogCommon.d(TAG, "Team Prop Location " + teamPropReturn.teamPropLocation);
                     linearOpMode.telemetry.addData("Team Prop Location: ", teamPropReturn.teamPropLocation);
@@ -388,6 +526,42 @@ public class FTCAuto {
                 RobotLogCommon.closeLog();
                 sleep(1000);
                 return false;
+            }
+
+            // For testing: record the heading and pitch from the IMU for
+            // 10 seconds.
+            case "RECORD_IMU": {
+                ElapsedTime imuTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+                double heading;
+                double pitch;
+                double roll;
+                //double baselinePitch = robot.imuReader.getIMUPitch();
+
+                //RobotLogCommon.d(TAG, "IMU baseline pitch " + baselinePitch);
+                //linearOpMode.telemetry.addData("IMU baseline pitch: ", baselinePitch);
+                //linearOpMode.telemetry.update();
+
+                //sleepInLoop(1000);
+                imuTimer.reset();
+
+                while (linearOpMode.opModeIsActive() && imuTimer.time() < 10000) {
+                    heading = robot.imuReader.getIMUHeading();
+                    pitch = robot.imuReader.getIMUPitch();
+                    roll = robot.imuReader.getIMURoll();
+
+                    String logString = "heading " + heading + ", pitch " + pitch + ", roll " + roll;
+                    RobotLogCommon.d(TAG, "IMU " + logString);
+                    linearOpMode.telemetry.addData("IMU ", logString);
+                    linearOpMode.telemetry.update();
+
+                    //if (Math.abs(pitch) > Math.abs(baselinePitch) + 2.5) {
+                    //    linearOpMode.telemetry.addData("IMU pitch +- 2.5 deg from baseline: ", pitch);
+                    //    linearOpMode.telemetry.update();
+                    //}
+                    sleep(50);
+                }
+
+                break;
             }
 
             default: {
@@ -472,5 +646,191 @@ public class FTCAuto {
 
     }   // end method telemetryAprilTag()
 
+    private void async_straight_by(XPathAccess pActionXPath, Supplier<Double> pAngle) throws XPathExpressionException, IOException, InterruptedException, TimeoutException {
+        String operation = pActionXPath.getRequiredTextInRange("operation", pActionXPath.validRange("start", "wait"));
+        switch (operation) {
+            case "start": {
+                Callable<Void> callableDriveToPosition =
+                        straight_by(pActionXPath, pAngle);
+                asyncStraight = Threading.launchAsync(callableDriveToPosition);
+                break;
+            }
+
+            // Wait for the straight run to complete.
+            case "wait": {
+                if (asyncStraight == null)
+                    throw new AutonomousRobotException(TAG, "In wait: asyncStraight has not been initalized");
+
+                RobotLogCommon.d(TAG, "Async drive straight: wait");
+                Threading.getFutureCompletion(asyncStraight);
+                RobotLogCommon.d(TAG, "Async drive straight: complete");
+                asyncStraight = null;
+                break;
+            }
+
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid asynchronous straight operation: " + operation);
+        }
+    }
+
+    // Return a Callable that can be used to move the robot directly or can be launched
+    // to move the robot asynchronously.
+    private Callable<Void> straight_by(XPathAccess pActionXPath, Supplier<Double> pAngle) throws XPathExpressionException {
+        if (asyncStraight != null) // Prevent double initialization
+            throw new AutonomousRobotException(TAG, "straight_by: asyncStraight is active");
+
+        if (asyncTurn != null)
+            throw new AutonomousRobotException(TAG, "straight_by: asyncTurn is active");
+
+        // Start with the absolute value of the click count. The sign of the click count for each of the
+        // motors will be adjusted depending on the sign of the angle.
+        //**TDOD also log angle
+        double distanceInches = Math.abs(pActionXPath.getRequiredDouble("distance"));
+        RobotLogCommon.d(TAG, "Drive " + distanceInches + " inches");
+        int targetClicks = (int) (distanceInches * robot.driveTrain.getClicksPerInch());
+
+        // Default to no ramp-down.
+        double rampDownInches = Math.abs(pActionXPath.getDouble("ramp_down_at_distance_remaining", 0.0));
+        int rampDownAtClicksRemaining = (int) (rampDownInches * robot.driveTrain.getClicksPerInch());
+
+        // Sanity check.
+        if (rampDownAtClicksRemaining > targetClicks)
+            rampDownAtClicksRemaining = targetClicks;
+
+        // The velocity factor must be positive and in the range > 0.0 and <= 1.0
+        double velocity = Math.abs(pActionXPath.getRequiredDouble("velocity")); // fraction of maximum
+        if (velocity > 1.0 || velocity < DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY)
+            throw new AutonomousRobotException(TAG, "velocity out of range " + velocity);
+
+        int finalRampDownAtClicksRemaining = rampDownAtClicksRemaining;
+
+        return () -> {
+            driveTrainMotion.straight(targetClicks, pAngle.get(), velocity, finalRampDownAtClicksRemaining, desiredHeading);
+            return null;
+        };
+    }
+
+    public void async_turn(XPathAccess pActionXPath) throws XPathExpressionException, IOException, InterruptedException, TimeoutException {
+        String operation = pActionXPath.getRequiredTextInRange("operation", pActionXPath.validRange("start", "wait"));
+        switch (operation) {
+            case "start": {
+                Callable<Double> callableTurn = turn(pActionXPath);
+                asyncTurn = Threading.launchAsync(callableTurn);
+                break;
+            }
+
+            // Wait for the turn to complete.
+            case "wait": {
+                if (asyncTurn == null)
+                    throw new AutonomousRobotException(TAG, "In wait: asyncTurn has not been initalized");
+
+                RobotLogCommon.d(TAG, "Async turn: wait");
+                desiredHeading = Threading.getFutureCompletion(asyncTurn);
+                RobotLogCommon.d(TAG, "Async turn: complete");
+                asyncTurn = null;
+                break;
+            }
+
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid asynchronous turn operation: " + operation);
+        }
+    }
+
+    // Return a Callable that can be used to turn the robot directly or can be launched
+    // to turn the robot asynchronously.
+    private Callable<Double> turn(XPathAccess pActionXPath) throws XPathExpressionException, IOException, InterruptedException, TimeoutException {
+        if (asyncTurn != null) // Prevent double initialization
+            throw new AutonomousRobotException(TAG, "turn: asyncTurn is active");
+
+        if (asyncStraight != null)
+            throw new AutonomousRobotException(TAG, "turn: asyncStraight is active");
+
+        String postTurnString = pActionXPath.getTextInRange("@post_turn_heading", "relative_to_current", pActionXPath.validRange("relative_to_start", "relative_to_current")).toUpperCase();
+        DriveTrainConstants.PostTurnHeading postTurnHeading = DriveTrainConstants.PostTurnHeading.valueOf(postTurnString);
+
+        String normalizationString = pActionXPath.getTextInRange("@turn_normalization", "normalized", pActionXPath.validRange("normalized", "unnormalized")).toUpperCase();
+        DriveTrainConstants.TurnNormalization turnNormalization = DriveTrainConstants.TurnNormalization.valueOf(normalizationString);
+
+        double angle = pActionXPath.getRequiredDouble("angle");
+
+        // If the requested post-turn heading is RELATIVE_TO_START then we have to
+        // adjust the angle. So if the requested angle is -90 and the current
+        // heading is 30 then the turn will be -120.
+        double currentHeading = robot.imuReader.getIMUHeading();
+        if (postTurnHeading == DriveTrainConstants.PostTurnHeading.RELATIVE_TO_START) {
+            angle = angle - currentHeading;
+            RobotLogCommon.d(TAG, "Turn is relative to the starting position of the robot");
+        } else
+            RobotLogCommon.d(TAG, "Turn is relative to the current heading of the robot");
+
+        switch (turnNormalization) {
+            case NORMALIZED: {
+                RobotLogCommon.d(TAG, "TURN normalized, angle " + angle);
+                if (!((angle >= 0 && angle < 180) || (angle <= 0 && angle >= -180)))
+                    throw new AutonomousRobotException(TAG, "Normalized angle out of range " + angle);
+                break;
+            }
+            case UNNORMALIZED: {
+                RobotLogCommon.d(TAG, "TURN unnormalized, angle " + angle);
+                if (!((angle >= 0 && angle < 360) || (angle <= 0 && angle > -360)))
+                    throw new AutonomousRobotException(TAG, "Unnormalized angle out of range " + angle);
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "Unrecognized turn normalization " + turnNormalization);
+        }
+
+        double power = Math.abs(pActionXPath.getRequiredDouble("power")); // fraction of maximum
+        if (power > 1.0 || power < DriveTrainConstants.MINIMUM_TURN_POWER)
+            throw new AutonomousRobotException(TAG, "Power out of range " + power);
+
+        // Default to no ramp-down. For consistency always make the rampdown value positive.
+        double rampDownAtAngleRemaining = Math.abs(pActionXPath.getDouble("ramp_down_at_angle_remaining", 0.0));
+        RobotLogCommon.d(TAG, "TURN ramp down " + rampDownAtAngleRemaining);
+
+        // Sanity check.
+        if (rampDownAtAngleRemaining > Math.abs(angle)) {
+            rampDownAtAngleRemaining = Math.abs(angle);
+            RobotLogCommon.d(TAG, "TURN ramp down reset to " + rampDownAtAngleRemaining);
+        }
+
+        final double finalRampDownAtAngleRemaining = rampDownAtAngleRemaining; // reqired for lambda
+        final double finalAngle = angle;
+        return () -> driveTrainMotion.turn(desiredHeading, robot.imuReader.getIMUHeading(), finalAngle, power, finalRampDownAtAngleRemaining, turnNormalization);
+    }
+
+    // Straighten out the robot by turning to the desired heading.
+    // Make a normalized turn at minimum power.
+    private void deskew() throws IOException, InterruptedException, TimeoutException {
+        if (asyncStraight != null)
+            throw new AutonomousRobotException(TAG, "Deskew not allowed while asyncStraight is in progress");
+
+        if (asyncTurn != null)
+            throw new AutonomousRobotException(TAG, "Deskew not allowed while asyncTurn is in progress");
+
+        double currentHeading = robot.imuReader.getIMUHeading();
+        double degreeDifference = DEGREES.normalize(desiredHeading - currentHeading);
+        if (Math.abs(degreeDifference) >= DriveTrainConstants.SKEW_THRESHOLD_DEGREES) {
+            RobotLogCommon.d(TAG, "De-skewing " + degreeDifference + " degrees");
+            RobotLogCommon.d(TAG, "Desired heading " + desiredHeading);
+            RobotLogCommon.d(TAG, "Current heading before turn " + currentHeading);
+
+            driveTrainMotion.turn(desiredHeading, currentHeading, 0.0, DriveTrainConstants.MINIMUM_TURN_POWER, 0.0, DriveTrainConstants.TurnNormalization.NORMALIZED);
+        }
+    }
+
+    //## We noticed that the robot took time starting and stopping for
+    // short distances (such as 1.0") at .3 velocity while at longer
+    // distances we sometimes want to keep the low velocity.
+    private double shortDistanceVelocity(double pDistance) {
+        return Math.abs(pDistance) < 2.0 ? 0.5 : 0.3;
+    }
+
+    //## We noticed that the robot took time starting and stopping for
+    // small angles (such as 3 degrees) at .3 velocity while at larger
+    // angles we sometimes want to keep the low velocity.
+    private double smallAngleVelocity(double pAngle) {
+        return Math.abs(pAngle) < 5.0 ? 0.5 : 0.3;
+    }
 }
 

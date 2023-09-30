@@ -1,5 +1,26 @@
 <RobotConfig>
 
+  <TELEOP_SETTINGS>
+    <!-- In production the value is "off" but set to a
+         more detailed level during testing needed. -->
+    <log_level>off</log_level>
+    <!-- Settings for the velocity control buttons on the game controller. -->
+    <drive_train_velocity>
+      <high>1.0</high>
+      <medium>0.7</medium>
+      <low>.25</low>
+    </drive_train_velocity>
+  </TELEOP_SETTINGS>
+
+  <DRIVE_TRAIN>
+    <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019" clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
+      <left_front_drive direction="REVERSE">lf</left_front_drive>
+      <right_front_drive direction="FORWARD">rf</right_front_drive>
+      <left_back_drive direction="REVERSE">lb</left_back_drive>
+      <right_back_drive direction="FORWARD">rb</right_back_drive>
+    </motors>
+  </DRIVE_TRAIN>
+
   <!-- LED Ring -->
   <!-- None defined; see FreightFrenzy -->
 
