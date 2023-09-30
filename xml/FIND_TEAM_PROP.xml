@@ -6,36 +6,35 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>300</x>
-                        <y>360</y>
-                        <width>380</width>
-                        <height>110</height>
+                        <x>0</x>
+                        <y>195</y>
+                        <width>630</width>
+                        <height>240</height>
                     </image_roi>
                 </image_parameters>
-                <!-- BLUE_A2 -->
                 <team_prop_recognition>
-                    <recognition_path>red_channel_circles</recognition_path>
+                    <recognition_path>color_channel_circles</recognition_path>
                     <!-- These values are relative to the image ROI -->
                     <!-- Note: the left_window may enclose the LEFT_SPIKE
                          or the CENTER_SPIKE, depending on the robot's
-                         starting position. For BLUE_A2 the left_window
-                         encloses the CENTER_SPIKE. -->
+                         starting position. For RED_F2 the left_window
+                         encloses the LEFT_SPIKE. -->
                     <left_window>
                         <x>0</x>
                         <y>0</y>
-                        <width>165</width>
-                        <height>110</height>
-                        <spike_location>CENTER_SPIKE</spike_location>
+                        <width>245</width>
+                        <height>240</height>
+                        <prop_location>LEFT_SPIKE</prop_location>
                     </left_window>
                     <right_window>
-                        <!-- x starts at left_window.x + left_window.width + 1 -->
-                        <width>200</width>
+                        <!-- x starts at left_window.x + left_window.width -->
+                        <width>345</width>
                         <!-- y is the same as that of the left_window -->
                         <!-- height is the same as that of the left_window -->
-                        <spike_location>RIGHT_SPIKE</spike_location>
+                        <prop_location>CENTER_SPIKE</prop_location>
                     </right_window>
                     <team_prop_npos>
-                        <spike_location>LEFT_SPIKE</spike_location>
+                        <prop_location>RIGHT_SPIKE</prop_location>
                     </team_prop_npos>
                 </team_prop_recognition>
             </FIND_TEAM_PROP>

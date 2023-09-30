@@ -8,12 +8,12 @@
       <dp>3.0</dp>
       <minDist>50.0</minDist>
       <param1>100.0</param1>
-      <param2>100.0</param2>
-      <minRadius>10.0</minRadius>
-      <maxRadius>20.0</maxRadius>
+      <param2>150.0</param2>
+      <minRadius>5</minRadius>
+      <maxRadius>100</maxRadius>
     </hough_circles_function_call_parameters>
     <criteria>
-      <max_circles>3</max_circles>
+      <max_circles>1</max_circles>
     </criteria> 
   </red_channel_circles>
 </team_prop_parameters>

@@ -11,6 +11,9 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
+import org.firstinspires.ftc.teamcode.robot.device.imu.BasicIMU;
+import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
+import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -26,13 +29,23 @@ public class FTCRobot {
 
     private static final String TAG = FTCRobot.class.getSimpleName();
 
+    // All motors on the robot for this year's game.
+    public enum MotorId {
+        LEFT_FRONT_DRIVE, RIGHT_FRONT_DRIVE, LEFT_BACK_DRIVE, RIGHT_BACK_DRIVE,
+        ELEVATOR_LEFT, ELEVATOR_RIGHT,
+        MOTOR_ID_NPOS // for error checking
+    }
+
     private final HardwareMap hardwareMap;
 
     public final TeleOpSettings teleOpSettings;
+    public final DriveTrain driveTrain;
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
-    public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType) {
+    public final IMUReader imuReader;
+
+    public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType)  throws InterruptedException {
         hardwareMap = pLinearOpMode.hardwareMap;
 
         RobotLogCommon.c(TAG, "FTCRobot constructor");
@@ -77,6 +90,18 @@ public class FTCRobot {
             } else
                 teleOpSettings = null;
 
+            // Get the drive train configuration.
+            // Check for the special run types AUTO_NO_DRIVE
+            // and TELEOP_NO_DRIVE, which we use for stand-alone
+            // testing of devices and the camera.
+            if (!(pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
+                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE ||
+                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS)) {
+                configXPath = configXML.getPath("DRIVE_TRAIN");
+                driveTrain = new DriveTrain(hardwareMap, configXPath);
+            } else
+                driveTrain = null;
+
             // Only look at including cameras if the configuration needs them.
             if (!(pRunType == RobotConstants.RunType.AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
@@ -100,8 +125,6 @@ public class FTCRobot {
                     configuredWebcams = new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
             }
 
-            //**TODO Since we're not using Roadrunner ...
-            /*
             if (pRunType == RobotConstants.RunType.AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS) {
@@ -109,7 +132,7 @@ public class FTCRobot {
                 imuReader = new IMUReader(basicIMU.getInitializedIMU());
             } else
                 imuReader = null;
-             */
+
         } catch (ParserConfigurationException | SAXException | XPathExpressionException |
                  IOException ex) {
             String eMessage = ex.getMessage() == null ? "**no error message**" : ex.getMessage();
