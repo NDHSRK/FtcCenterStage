@@ -28,6 +28,7 @@
         <resolution_height>480</resolution_height>
         <processor_set>
           <processor>webcam_frame</processor>
+          <processor>april_tag</processor>
         </processor_set>
         <!-- (optional) april tag calibration values should go here. -->
         <webcam_calibration_for_apriltags>

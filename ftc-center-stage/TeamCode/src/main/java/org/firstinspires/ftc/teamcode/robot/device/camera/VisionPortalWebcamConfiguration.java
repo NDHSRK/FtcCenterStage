@@ -8,16 +8,12 @@ import java.util.EnumMap;
 
 // Configuration parameters for all webcams.
 public class VisionPortalWebcamConfiguration {
-     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, ConfiguredWebcam> webcams;
-
-    public VisionPortalWebcamConfiguration(EnumMap<RobotConstantsCenterStage.InternalWebcamId, ConfiguredWebcam> pWebcamMap) {
-        webcams = pWebcamMap;
-    }
-
-    // Note: all fields originate in RobotConfig.xml except for webcamName,
-    // which can only be added after we access the FTC HardwareMap in FTCRobot.
+    // Note: all fields originate in RobotConfig.xml except for webcamName and
+    // visionPortalWebcam, which can only be added after we access the FTC
+    // HardwareMap in FTCRobot and construct the visionPortalWebcam, respectively.
     public static class ConfiguredWebcam {
         private WebcamName webcamName;
+        private VisionPortalWebcam visionPortalWebcam;
         public final RobotConstantsCenterStage.InternalWebcamId webcamId;
         public final String serialNumber;
         public final int resolutionWidth;
@@ -45,6 +41,14 @@ public class VisionPortalWebcamConfiguration {
 
         public WebcamName getWebcamName() {
             return webcamName;
+        }
+
+        public void setVisionPortalWebcam(VisionPortalWebcam pVisionPortalWebcam) {
+            visionPortalWebcam = pVisionPortalWebcam;
+        }
+
+        public VisionPortalWebcam getVisionPortalWebcam() {
+            return visionPortalWebcam;
         }
     }
 

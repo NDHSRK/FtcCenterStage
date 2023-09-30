@@ -42,7 +42,8 @@ public class RobotConfigXML {
     // End IntelliJ only
 
     private final Map<String, RobotXMLElement> robotElementCollection = new HashMap<>();
-    private VisionPortalWebcamConfiguration visionPortalWebcamConfiguration;
+    private final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams
+            = new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
 
     public RobotConfigXML(String pWorkingDirectory) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 
@@ -93,10 +94,10 @@ public class RobotConfigXML {
 
             if (robotXMLElement.getRobotXMLElementName().equals("VISION_PORTAL_WEBCAM")) {
                 RobotLogCommon.c(TAG, "Parsing XML for VisionPortal webcam(s)");
-                if (visionPortalWebcamConfiguration != null)
+                if (!configuredWebcams.isEmpty())
                     throw new AutonomousRobotException(TAG, "Duplicate VISION_PORTAL_WEBCAM element");
 
-                visionPortalWebcamConfiguration = parseWebcamConfiguration(oneConfigNode);
+                parseWebcamConfiguration(oneConfigNode);
             }
         }
 
@@ -114,15 +115,14 @@ public class RobotConfigXML {
         return new XPathAccess(mappedRobotXMLElement);
     }
 
-    // Returns null if the webcam is configured out.
-    public VisionPortalWebcamConfiguration getVisionPortalWebcamConfiguration() {
-        return visionPortalWebcamConfiguration;
+    // Returns an empty map if the webcam is configured out.
+    public EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> getConfiguredWebcams() {
+        return configuredWebcams;
     }
 
     // Parse a VISION_PORTAL_WEBCAM element into its own structure.
-    // Returns null if the element is configured out.
-    private VisionPortalWebcamConfiguration parseWebcamConfiguration(Node pWebcamNode) {
-        EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> webcams =
+    private void parseWebcamConfiguration(Node pWebcamNode) {
+        EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams =
                 new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
 
         NamedNodeMap configuration_attributes = pWebcamNode.getAttributes();
@@ -135,7 +135,7 @@ public class RobotConfigXML {
             throw new AutonomousRobotException(TAG, "Attribute 'configured' must be 'yes' or 'no'");
 
         if (configuredAttribute.equals("no"))
-            return null;
+            return;
 
         // There must be at least one webcam in the configuration.
         Node webcam_set_node = pWebcamNode.getFirstChild();
@@ -152,7 +152,7 @@ public class RobotConfigXML {
             VisionPortalWebcamConfiguration.ConfiguredWebcam webcamData = parseWebcamData(each_webcam);
 
             // Make sure there are no duplicate webcam ids or serial numbers.
-            Optional<RobotConstantsCenterStage.InternalWebcamId> duplicate = webcams.entrySet().stream()
+            Optional<RobotConstantsCenterStage.InternalWebcamId> duplicate = configuredWebcams.entrySet().stream()
                     .filter(e -> e.getValue().serialNumber.equals(webcamData.serialNumber) ||
                             e.getKey() == webcamData.webcamId)
                     .map(Map.Entry::getKey)
@@ -161,10 +161,8 @@ public class RobotConfigXML {
             if (duplicate.isPresent())
                 throw new AutonomousRobotException(TAG, "Duplicate serial number or webcam id");
 
-            webcams.put(webcamData.webcamId, webcamData);
+            configuredWebcams.put(webcamData.webcamId, webcamData);
         });
-
-        return new VisionPortalWebcamConfiguration(webcams);
     }
 
     private VisionPortalWebcamConfiguration.ConfiguredWebcam parseWebcamData(Node pWebcamNode) {

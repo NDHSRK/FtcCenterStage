@@ -9,11 +9,13 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.EnumMap;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -28,7 +30,7 @@ public class FTCRobot {
 
     public final TeleOpSettings teleOpSettings;
 
-    public VisionPortalWebcamConfiguration visionPortalWebcamConfiguration;
+    public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
     public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType) {
         hardwareMap = pLinearOpMode.hardwareMap;
@@ -80,24 +82,25 @@ public class FTCRobot {
                     pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_OPENCV_CALIBRATION)) {
-                visionPortalWebcamConfiguration = null;
+                configuredWebcams = null;
             } else {
                 // Any configured VisionPortal webcams?
-                //**TODO Start of CenterStage season: only allow a single webcam.
                 configXPath = configXML.getPath("VISION_PORTAL_WEBCAM");
                 String webcamYesNo = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
                 RobotLogCommon.c(TAG, "VisionPortal webcam configuration option: " + webcamYesNo);
 
                 if (webcamYesNo.equals("yes")) {
-                    visionPortalWebcamConfiguration = configXML.getVisionPortalWebcamConfiguration();
-                    if (visionPortalWebcamConfiguration != null && (visionPortalWebcamConfiguration.webcams.size() != 1))
-                        throw new AutonomousRobotException(TAG, "Start of CenterStage season: only one webcam is allowed");
+                    configuredWebcams = configXML.getConfiguredWebcams();
+                    if (configuredWebcams.size() > 2)
+                        throw new AutonomousRobotException(TAG, "CenterStage season: only two webcams at mnost are supported");
 
                     matchHardwareWebcamsWithConfiguredWebcams();
                 }
+                else
+                    configuredWebcams = new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
             }
 
-            //**TODO If we're not using Roadrunner ...
+            //**TODO Since we're not using Roadrunner ...
             /*
             if (pRunType == RobotConstants.RunType.AUTONOMOUS ||
                     pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
@@ -122,14 +125,14 @@ public class FTCRobot {
     //**TODO How to support multiple webcams!!??
     private void matchHardwareWebcamsWithConfiguredWebcams() {
         String webcamId;
-        for (int i = 1; i <= visionPortalWebcamConfiguration.webcams.size(); i++) {
+        for (int i = 1; i <= configuredWebcams.size(); i++) {
             webcamId = "Webcam " + new DecimalFormat("0").format(i);
             WebcamName webcamName = hardwareMap.get(WebcamName.class, webcamId);
             if (!webcamName.isWebcam() || !webcamName.isAttached())
                 throw new AutonomousRobotException(TAG, "Webcam " + webcamId +
                         " is not a webcam or is not attached");
 
-            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = visionPortalWebcamConfiguration.webcams.values().stream()
+            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = configuredWebcams.values().stream()
                     .filter(webcam -> webcam.serialNumber.equals(webcamName.getSerialNumber().getString()))
                     .findFirst();
 

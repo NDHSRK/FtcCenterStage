@@ -80,11 +80,6 @@ public class WebcamFrameProcessorImpl extends WebcamFrameProcessor {
         // So we need to convert to BGR for OpenCV here.
         Imgproc.cvtColor(input, bgrFrame, Imgproc.COLOR_RGBA2BGR);
         webcamFrame.set(Pair.create(bgrFrame, new Date()));
-
-        //**TODO if you do the OpenCV processing here you can show
-        // the results in the viewport - I think. But then this method
-        // is no longer generic. You'd have to pass a Function<T,R>
-        // in to the constructor.
         return input;
     }
 
