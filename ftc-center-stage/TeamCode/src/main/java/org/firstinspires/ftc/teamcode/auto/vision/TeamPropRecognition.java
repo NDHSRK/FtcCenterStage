@@ -72,21 +72,21 @@ public class TeamPropRecognition {
         Mat selectedChannel;
         switch (alliance) {
             case RED: {
-                // Write out the red channel as grayscale.
-                selectedChannel = channels.get(2);
-                Imgcodecs.imwrite(pOutputFilenamePreamble + "_RED_CHANNEL.png", selectedChannel);
-                RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_RED_CHANNEL.png");
-                break;
+                // The inversion of the blue channel gives better contrast
+                // than the red channel.
+                selectedChannel = channels.get(0);
+                Core.bitwise_not(selectedChannel, selectedChannel);
+                Imgcodecs.imwrite(pOutputFilenamePreamble + "_BLUE_INVERTED.png", selectedChannel);
+                RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_BLUE_INVERTED.png");
+               break;
             }
-            // Note that the blue channel does not give great contrast
-            // against the gray tiles. So use the inverted red channel.
             case BLUE: {
-                // Write out the blue channel as grayscale.
-                selectedChannel = channels.get(2); // channels.get(0);
+                // The inversion of the red channel gives better contrast
+                // than the blue channel.
+                selectedChannel = channels.get(2);
                 Core.bitwise_not(selectedChannel, selectedChannel);
                 Imgcodecs.imwrite(pOutputFilenamePreamble + "_RED_INVERTED.png", selectedChannel);
                 RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_RED_INVERTED.png");
-                break;
             }
             default:
                 throw new AutonomousRobotException(TAG, "Alliance must be RED or BLUE");
