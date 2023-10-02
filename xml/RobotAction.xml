@@ -36,39 +36,6 @@
         </actions>
     </OpMode>
 
-    <!-- For testing *without* a drive train. -->
-    <OpMode id="AUTO_NO_DRIVE">
-        <parameters>
-            <log_level>v</log_level>
-        </parameters>
-        <actions>
-
-            <TAKE_PICTURE_WEBCAM>
-                <internal_webcam_id>front_webcam</internal_webcam_id>
-            </TAKE_PICTURE_WEBCAM>
-
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
-            <ENABLE_PROCESSOR>
-                <internal_webcam_id>front_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
-            </ENABLE_PROCESSOR>
-
-            <FIND_APRIL_TAGS>
-                <internal_webcam_id>front_webcam</internal_webcam_id>                
-            </FIND_APRIL_TAGS>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <STOP />
-
-        </actions>
-    </OpMode>
-
     <!-- Pseudo-OpModes that can be used to run FTCAuto functions from within TeleOp -->
     <OpMode id="TELEOP_TAKE_PICTURE_WEBCAM">
         <parameters>

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCTeleOpDispatch;
 @Disabled
 public class TeleOpTakePictureLaunch extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
-        FTCTeleOpDispatch.runTeleOp(RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS, TeleOpTakePicture.class.getSimpleName(), RobotConstants.Alliance.NONE, this,
+        FTCTeleOpDispatch.runTeleOp(RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS, TeleOpTakePicture.class.getSimpleName(), RobotConstants.Alliance.NONE, this,
                 (FTCTeleOpDispatch.TeleOpWithAllianceParameters tp) ->
                         new TeleOpTakePicture(tp.alliance, tp.linearOpMode, tp.robot, tp.ftcAuto));
     }

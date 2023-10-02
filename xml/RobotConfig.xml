@@ -12,7 +12,7 @@
     </drive_train_velocity>
   </TELEOP_SETTINGS>
 
-  <DRIVE_TRAIN>
+  <DRIVE_TRAIN  configured="no">
     <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019" clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
       <left_front_drive direction="REVERSE">lf</left_front_drive>
       <right_front_drive direction="FORWARD">rf</right_front_drive>

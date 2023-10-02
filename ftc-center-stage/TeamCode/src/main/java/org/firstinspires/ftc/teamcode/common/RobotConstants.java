@@ -10,11 +10,8 @@ public class RobotConstants {
     public static final String xsltFilename = "StandardTransform.xslt";
 
     public enum RunType {
-        AUTONOMOUS, AUTO_NO_DRIVE,
-        TELEOP, TELEOP_WITH_IMU,
-        TELEOP_WITH_EMBEDDED_AUTONOMOUS,
-        TELEOP_NO_DRIVE, TELEOP_OPENCV_CALIBRATION,
-        TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS
+        AUTONOMOUS, TELEOP,
+        TELEOP_WITH_EMBEDDED_AUTONOMOUS
     }
 
     public enum Alliance {

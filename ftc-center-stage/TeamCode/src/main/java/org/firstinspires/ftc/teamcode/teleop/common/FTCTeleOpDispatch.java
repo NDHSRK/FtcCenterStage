@@ -52,8 +52,7 @@ public class FTCTeleOpDispatch {
             // Support running Autonomous within TeleOp.
             // Construct FTCAuto here to avoid lengthy construction time after "start".
             FTCAuto ftcAuto = null;
-            if (pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
-                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS) {
+            if (pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS) {
                 RobotLogCommon.c(TAG, "Constructing FTCAuto to be embedded within TeleOp");
                 ftcAuto = new FTCAuto(pAlliance, pLinear, robot, pRunType);
             } else

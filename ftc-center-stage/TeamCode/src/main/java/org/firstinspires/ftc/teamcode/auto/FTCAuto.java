@@ -107,19 +107,21 @@ public class FTCAuto {
 
         // Since the first task in Autonomous is to find the Team Prop, start the front webcam
         // with the processor for raw frames.
-        VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
-                robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
-        VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
-        frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
-        visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+        if (robot.configuredWebcams != null) { // if webcam(s) are configured in
+            VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
+                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
+            VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
+            frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
+            visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
 
-        // If the rear-facing webcam is in the configuration start it now with
-        // its processor(s) disabled. It may not be configured in during debugging.
-        VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
-                robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
-        if (rearWebcamConfiguration != null) {
-            VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
-            rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
+            // If the rear-facing webcam is in the configuration start it now with
+            // its processor(s) disabled. It may not be configured in during debugging.
+            VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
+                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
+            if (rearWebcamConfiguration != null) {
+                VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
+                rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
+            }
         }
 
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
@@ -202,12 +204,16 @@ public class FTCAuto {
             }
         } finally {
             if (!keepIMUAndCamerasRunning) {
-                // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
-                RobotLogCommon.i(TAG, "In FTCAuto finally: close the imu reader");
-                robot.imuReader.stopIMUReader();
+                if (robot.imuReader != null) { // if the IMU is configured in
+                    // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
+                    RobotLogCommon.i(TAG, "In FTCAuto finally: close the imu reader");
+                    robot.imuReader.stopIMUReader();
+                }
 
-                RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
+                if (robot.configuredWebcams != null) { // if webcam(s) are configured in
+                    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
+                    robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
+                }
             }
         }
 

@@ -45,7 +45,7 @@ public class FTCRobot {
 
     public final IMUReader imuReader;
 
-    public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType)  throws InterruptedException {
+    public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType) throws InterruptedException {
         hardwareMap = pLinearOpMode.hardwareMap;
 
         RobotLogCommon.c(TAG, "FTCRobot constructor");
@@ -90,52 +90,50 @@ public class FTCRobot {
             } else
                 teleOpSettings = null;
 
-            // Get the drive train configuration.
-            // Check for the special run types AUTO_NO_DRIVE
-            // and TELEOP_NO_DRIVE, which we use for stand-alone
-            // testing of devices and the camera.
-            //**TODO Why not check the drive train for @configured??
-            if (!(pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
-                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE ||
-                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS)) {
-                configXPath = configXML.getPath("DRIVE_TRAIN");
+            // If you have a test setup without a drive train,
+            // such as a Robot Controller and a webcam, then just
+            // configure the drive train out in RobotConfig.xml.
+            configXPath = configXML.getPath("DRIVE_TRAIN");
+            String driveTrainYesNo = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            RobotLogCommon.c(TAG, "Drive train configuration option: " + driveTrainYesNo);
+            if (driveTrainYesNo.equals("yes"))
                 driveTrain = new DriveTrain(hardwareMap, configXPath);
-            } else
+            else
                 driveTrain = null;
 
-            // Only look at including cameras if the configuration needs them.
-            if (!(pRunType == RobotConstants.RunType.AUTONOMOUS ||
-                    pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
-                    pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
-                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS ||
-                    pRunType == RobotConstants.RunType.TELEOP_OPENCV_CALIBRATION)) {
+            // In a competition the webcam(s) would be configured in and
+            // used in Autonomous but not in TeleOp so we can't just check
+            // the configuration file.
+            if (pRunType == RobotConstants.RunType.TELEOP) {
                 configuredWebcams = null;
             } else {
                 // Any configured VisionPortal webcams?
+                EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcamsLocal;
                 configXPath = configXML.getPath("VISION_PORTAL_WEBCAM");
                 String webcamYesNo = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
                 RobotLogCommon.c(TAG, "VisionPortal webcam configuration option: " + webcamYesNo);
 
                 if (webcamYesNo.equals("yes")) {
-                    configuredWebcams = configXML.getConfiguredWebcams();
-                    RobotLogCommon.d(TAG, "Number of webcams configured " + configuredWebcams.size());
-                    if (configuredWebcams.size() > 2)
+                    configuredWebcamsLocal = configXML.getConfiguredWebcams();
+                    RobotLogCommon.d(TAG, "Number of webcams configured " + configuredWebcamsLocal.size());
+                    if (configuredWebcamsLocal.size() > 2)
                         throw new AutonomousRobotException(TAG, "CenterStage season: only two webcams at mnost are supported");
 
-                    matchHardwareWebcamsWithConfiguredWebcams();
-                }
-                else
-                    configuredWebcams = new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
+                    matchHardwareWebcamsWithConfiguredWebcams(configuredWebcamsLocal);
+                } else
+                    configuredWebcamsLocal = null;
+
+                configuredWebcams = configuredWebcamsLocal; // needed to preserve "final"
             }
 
-            if (pRunType == RobotConstants.RunType.AUTONOMOUS ||
-                    pRunType == RobotConstants.RunType.AUTO_NO_DRIVE ||
-                    pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
-                    pRunType == RobotConstants.RunType.TELEOP_NO_DRIVE_WITH_EMBEDDED_AUTONOMOUS) {
+            // In a competition the IMU would be configured in and
+            // used in Autonomous but not in TeleOp.
+            if (pRunType == RobotConstants.RunType.TELEOP)
+                imuReader = null;
+            else {
                 BasicIMU basicIMU = new BasicIMU(hardwareMap);
                 imuReader = new IMUReader(basicIMU.getInitializedIMU());
-            } else
-                imuReader = null;
+            }
 
         } catch (ParserConfigurationException | SAXException | XPathExpressionException |
                  IOException ex) {
@@ -149,16 +147,16 @@ public class FTCRobot {
     // object. Use the webcam's serial number in its WebcamName
     // object to associate the webcam with its counterpart in
     // RobotConfig.xml.
-    private void matchHardwareWebcamsWithConfiguredWebcams() {
+    private void matchHardwareWebcamsWithConfiguredWebcams(EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> pConfiguredWebcams) {
         String webcamId;
-        for (int i = 1; i <= configuredWebcams.size(); i++) {
+        for (int i = 1; i <= pConfiguredWebcams.size(); i++) {
             webcamId = "Webcam " + new DecimalFormat("0").format(i);
             WebcamName webcamName = hardwareMap.get(WebcamName.class, webcamId);
             if (!webcamName.isWebcam() || !webcamName.isAttached())
                 throw new AutonomousRobotException(TAG, "Webcam " + webcamId +
                         " is not a webcam or is not attached");
 
-            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = configuredWebcams.values().stream()
+            Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = pConfiguredWebcams.values().stream()
                     .filter(webcam -> webcam.serialNumber.equals(webcamName.getSerialNumber().getString()))
                     .findFirst();
 
