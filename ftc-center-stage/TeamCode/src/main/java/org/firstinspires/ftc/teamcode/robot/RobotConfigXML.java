@@ -148,6 +148,8 @@ public class RobotConfigXML {
         XMLUtils.processElements(webcam_set_elements, (each_webcam) -> {
             VisionPortalWebcamConfiguration.ConfiguredWebcam webcamData = parseWebcamData(each_webcam);
 
+            RobotLogCommon.d(TAG, "Configuring webcam with serial number " + webcamData.serialNumber);
+
             // Make sure there are no duplicate webcam ids or serial numbers.
             Optional<RobotConstantsCenterStage.InternalWebcamId> duplicate = configuredWebcams.entrySet().stream()
                     .filter(e -> e.getValue().serialNumber.equals(webcamData.serialNumber) ||

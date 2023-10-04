@@ -19,12 +19,12 @@
             </SLEEP>
 
             <ENABLE_PROCESSOR>
-                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
             </ENABLE_PROCESSOR>
 
             <FIND_APRIL_TAGS>
-                <internal_webcam_id>front_webcam</internal_webcam_id>                
+                <internal_webcam_id>rear_webcam</internal_webcam_id>                
             </FIND_APRIL_TAGS -->
 
             <SLEEP>

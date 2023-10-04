@@ -109,15 +109,16 @@ public class VisionPortalWebcam {
         // Wait here with timeout until VisionPortal.CameraState.STREAMING.
         // The async camera startup happens behind the scenes in VisionPortalImpl.
         // This is not ideal; see the comments in: WebcamFrameProcessorImpl.init().
-        RobotLogCommon.d(TAG, "Waiting for the webcam to start streaming");
+        RobotLogCommon.d(TAG, "Waiting for webcam "  + configuredWebcam.internalWebcamId + " to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
         streamingTimer.reset(); // start
         while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             sleep(50);
         }
 
-        RobotLogCommon.d(TAG, "The webcam is streaming");
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
+        VisionPortal.CameraState cameraState = visionPortal.getCameraState();
+        RobotLogCommon.d(TAG, "State of webcam " + configuredWebcam.internalWebcamId + ": " + cameraState);
+        if (cameraState != VisionPortal.CameraState.STREAMING)
             throw new AutonomousRobotException(TAG, "Timed out waiting for webcam streaming to start");
 
         // Start with the processor(s) disabled.

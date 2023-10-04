@@ -156,8 +156,11 @@ public class FTCRobot {
                 throw new AutonomousRobotException(TAG, "Webcam " + webcamId +
                         " is not a webcam or is not attached");
 
+            //RobotLogCommon.d(TAG, "Webcam hardware device " + webcamId +
+            //        " is attached to webcam serial number " + webcamName.getSerialNumber());
+
             Optional<VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcam = pConfiguredWebcams.values().stream()
-                    .filter(webcam -> webcam.serialNumber.equals(webcamName.getSerialNumber().getString()))
+                    .filter(webcam -> webcam.serialNumber.equals(webcamName.getSerialNumber().toString()))
                     .findFirst();
 
             if (!configuredWebcam.isPresent())
