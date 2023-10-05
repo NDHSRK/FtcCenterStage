@@ -108,7 +108,12 @@ public class FTCAuto {
         // Since the first task in Autonomous is to find the Team Prop, start the front webcam
         // with the processor for raw frames.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-            //**TODO reverse the order of initialization to rear first
+            VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
+                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
+            VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
+            frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
+            visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+
             // If the rear-facing webcam is in the configuration start it now with
             // its processor(s) disabled. It may not be configured in during debugging.
             VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
@@ -116,16 +121,8 @@ public class FTCAuto {
             if (rearWebcamConfiguration != null) {
                 VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
                 rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
-                visionPortalRearWebcam.stopStreaming(); //**TODO try this and see if the second camera starts up
             }
-
-            VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
-                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
-            VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
-            frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
-            visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-
-        }
+          }
 
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
     }

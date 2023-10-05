@@ -3,13 +3,20 @@ package org.firstinspires.ftc.teamcode.teleop.sample;
 import android.util.Size;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import java.util.Date;
 import java.util.List;
+
+import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.opencv.core.Mat;
 
 @TeleOp(name = "MultiPortal")
 //@Disabled
@@ -22,6 +29,8 @@ public class MultiPortal extends LinearOpMode {
   int Portal_2_View_ID;
   AprilTagProcessor myAprilTagProcessor_1;
   AprilTagProcessor myAprilTagProcessor_2;
+  WebcamFrameProcessor webcamFrameProcessor; //##PY added 10/5/23
+
   VisionPortal myVisionPortal_1;
   VisionPortal myVisionPortal_2;
 
@@ -56,6 +65,10 @@ public class MultiPortal extends LinearOpMode {
     USE_WEBCAM_1 = true;
     USE_WEBCAM_2 = true;
     initMultiPortals();
+
+    //##PY added 10/5/23
+    webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+
     // Initialize AprilTag before waitForStart.
     initAprilTag();
     // Wait for the Start button to be touched.
@@ -63,9 +76,16 @@ public class MultiPortal extends LinearOpMode {
     telemetry.addData(">", "Touch Play to start OpMode");
     telemetry.update();
     waitForStart();
+
+    int webcamFrameCount = 1;
     if (opModeIsActive()) {
       while (opModeIsActive()) {
         AprilTag_telemetry_for_Portal_1();
+
+        //##PY added 10/5/23 add telemetry for webcam frames
+        Pair<Mat, Date> frameVal = webcamFrameProcessor.getWebcamFrame();
+        telemetry.addLine("Received raw webcam frame " + webcamFrameCount++);
+
         AprilTag_telemetry_for_Portal_2();
         AprilTag_telemetry_legend();
         Toggle_camera_streams();
@@ -114,8 +134,12 @@ public class MultiPortal extends LinearOpMode {
     // Add myAprilTagProcessor to the VisionPortal.Builder.
     myVisionPortalBuilder.addProcessor(myAprilTagProcessor_1);
     // Add the Portal View ID to the VisionPortal.Builder
+
+    //##PY 10/5/23 do not use live view
+    myVisionPortalBuilder.enableLiveView(false); //##PY changed to false 10/5/23
     // Set the camera monitor view id.
-    myVisionPortalBuilder.setLiveViewContainerId(Portal_1_View_ID);
+    //myVisionPortalBuilder.setLiveViewContainerId(Portal_1_View_ID);
+
     // Create a VisionPortal by calling build.
     myVisionPortal_1 = myVisionPortalBuilder.build();
   }
@@ -137,11 +161,20 @@ public class MultiPortal extends LinearOpMode {
     // Manage USB bandwidth of two camera streams, by selecting Streaming Format.
     // Set the stream format.
     myVisionPortalBuilder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
+
+    //##PY added 10/5/23
+    myVisionPortalBuilder.addProcessor(webcamFrameProcessor);
+
     // Add myAprilTagProcessor to the VisionPortal.Builder.
     myVisionPortalBuilder.addProcessor(myAprilTagProcessor_2);
+
     // Add the Portal View ID to the VisionPortal.Builder
+
+    //##PY 10/5/23 do not use live view
+    myVisionPortalBuilder.enableLiveView(false); //##PY changed to false 10/5/23
     // Set the camera monitor view id.
-    myVisionPortalBuilder.setLiveViewContainerId(Portal_2_View_ID);
+    //myVisionPortalBuilder.setLiveViewContainerId(Portal_2_View_ID);
+
     // Create a VisionPortal by calling build.
     myVisionPortal_2 = myVisionPortalBuilder.build();
   }
