@@ -14,6 +14,11 @@
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM>
 
+            <FORWARD>
+                <distance>24.0</distance>
+                <velocity>.5</velocity>
+            </FORWARD>
+
             <!-- SLEEP>
                 <ms>1000</ms>
             </SLEEP>

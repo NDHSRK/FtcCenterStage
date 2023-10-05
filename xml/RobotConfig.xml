@@ -55,7 +55,7 @@
                <optical_center_x>319.803</optical_center_x>
                <optical_center_y>241.251</optical_center_y>
             </webcam_calibration_for_apriltags>     
-         </webcam>    
+         </webcam>  
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
 
