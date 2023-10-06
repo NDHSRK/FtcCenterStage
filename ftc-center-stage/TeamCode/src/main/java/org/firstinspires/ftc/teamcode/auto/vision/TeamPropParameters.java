@@ -9,14 +9,19 @@ import java.util.EnumMap;
 // Input parameters to barcode recognition.
 public class TeamPropParameters {
 
-    // Parameters for the grayscale recognition path.
-    public final RedChannelCirclesParameters redChannelCirclesParameters;
+    public final ColorChannelCirclesParameters colorChannelCirclesParameters;
+    public final ColorChannelBrightSpotParameters colorChannelBrightSpotParameters;
+    public final ColorChannelContoursParameters colorChannelContoursParameters;
 
     private EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows =
             new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
 
-    public TeamPropParameters(RedChannelCirclesParameters pRedChannelCirclesParameters) {
-        redChannelCirclesParameters = pRedChannelCirclesParameters;
+    public TeamPropParameters(ColorChannelCirclesParameters pColorChannelCirclesParameters,
+                              ColorChannelBrightSpotParameters pColorChannelBrightSpotParameters,
+                              ColorChannelContoursParameters pColorChannelContoursParameters) {
+        colorChannelCirclesParameters = pColorChannelCirclesParameters;
+        colorChannelBrightSpotParameters = pColorChannelBrightSpotParameters;
+        colorChannelContoursParameters = pColorChannelContoursParameters;
     }
 
     public void setSpikeWindows(EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> pSpikeWindows) {
@@ -27,14 +32,14 @@ public class TeamPropParameters {
         return spikeWindows;
     }
 
-    public static class RedChannelCirclesParameters {
+    public static class ColorChannelCirclesParameters {
         public final VisionParameters.GrayParameters grayParameters;
         public final HoughCirclesFunctionCallParameters houghCirclesFunctionCallParameters;
         public final int maxCircles;
 
-        public RedChannelCirclesParameters(VisionParameters.GrayParameters pGrayParameters,
-                                           HoughCirclesFunctionCallParameters pHoughCirclesFunctionCallParameters,
-                                           int pMaxCircles) {
+        public ColorChannelCirclesParameters(VisionParameters.GrayParameters pGrayParameters,
+                                             HoughCirclesFunctionCallParameters pHoughCirclesFunctionCallParameters,
+                                             int pMaxCircles) {
          grayParameters = pGrayParameters;
          houghCirclesFunctionCallParameters = pHoughCirclesFunctionCallParameters;
          maxCircles = pMaxCircles;
@@ -59,6 +64,29 @@ public class TeamPropParameters {
             param2 = pParam2;
             minRadius = pMinRadius;
             maxRadius = pMaxRadius;
+        }
+    }
+
+    public static class ColorChannelBrightSpotParameters {
+        public final VisionParameters.GrayParameters grayParameters;
+        public final double blurKernel;
+
+        public ColorChannelBrightSpotParameters(VisionParameters.GrayParameters pGrayParameters, double pBlurKernel) {
+            grayParameters = pGrayParameters;
+            blurKernel = pBlurKernel;
+        }
+    }
+
+    public static class ColorChannelContoursParameters {
+        public final VisionParameters.GrayParameters grayParameters;
+        public final double minArea;
+        public final double maxArea;
+
+        public ColorChannelContoursParameters(VisionParameters.GrayParameters pGrayParameters,
+                                              double pMinArea, double pMaxArea) {
+            grayParameters = pGrayParameters;
+            minArea = pMinArea;
+            maxArea = pMaxArea;
         }
     }
 

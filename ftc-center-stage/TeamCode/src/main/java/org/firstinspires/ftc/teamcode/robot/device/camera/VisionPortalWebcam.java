@@ -94,7 +94,7 @@ public class VisionPortalWebcam {
                 .setCamera(configuredWebcam.getWebcamName())
                 .setCameraResolution(new Size(configuredWebcam.resolutionWidth, configuredWebcam.resolutionHeight))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .enableLiveView(true)
+                .enableLiveView(false) //##PY changed to false 10/5/23
                 // If set "false", monitor shows camera view without annotations.
                 .setAutoStopLiveView(false)
 
@@ -107,20 +107,8 @@ public class VisionPortalWebcam {
             throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
         // Wait here with timeout until VisionPortal.CameraState.STREAMING.
-        // The async camera startup happens behind the scenes in VisionPortalImpl.
-        // This is not ideal; see the comments in: WebcamFrameProcessorImpl.init().
-        RobotLogCommon.d(TAG, "Waiting for webcam "  + configuredWebcam.internalWebcamId + " to start streaming");
-        ElapsedTime streamingTimer = new ElapsedTime();
-        streamingTimer.reset(); // start
-        while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            sleep(50);
-        }
-
-        VisionPortal.CameraState cameraState = visionPortal.getCameraState();
-        RobotLogCommon.d(TAG, "State of webcam " + configuredWebcam.internalWebcamId + ": " + cameraState);
-        if (cameraState != VisionPortal.CameraState.STREAMING)
-            throw new AutonomousRobotException(TAG, "Timed out waiting for webcam streaming to start");
-
+        //## PY 10/5/2023 remove the timeout - the samples don't have one ...
+ 
         // Start with the processor(s) disabled.
         processors.forEach((processorId,processor) ->
            visionPortal.setProcessorEnabled(processor, false));
