@@ -1,19 +1,83 @@
 <team_prop_parameters>
-  <red_channel_circles>
+  <color_channel_circles>
     <gray_parameters>
       <median_target>150</median_target>
       <threshold_low>170</threshold_low>
     </gray_parameters>
     <hough_circles_function_call_parameters>
+      <dp>1.0</dp>
+      <minDist>50.0</minDist>
+      <!-- 
+        param1 is the higher threshold of the two passed to the Canny edge detector (the lower one is twice
+      smaller). 
+      -->
+      <param1>200.0</param1>
+      <param2>20.0</param2>
+      <minRadius>5</minRadius>
+      <maxRadius>100</maxRadius>
+      <!-- full circles 
       <dp>3.0</dp>
       <minDist>50.0</minDist>
       <param1>100.0</param1>
       <param2>150.0</param2>
       <minRadius>5</minRadius>
       <maxRadius>100</maxRadius>
+      -->
     </hough_circles_function_call_parameters>
     <criteria>
       <max_circles>1</max_circles>
-    </criteria> 
-  </red_channel_circles>
+    </criteria>
+  </color_channel_circles>
+
+  <color_channel_bright_spot>
+    <!-- Need gray parameters for the median; threshold is not used. -->
+    <gray_parameters>
+      <median_target>150</median_target>
+      <threshold_low>0</threshold_low>
+    </gray_parameters>
+    <blur_kernel>31.0</blur_kernel>
+  </color_channel_bright_spot>
+
+  <!-- For use with OpenCV findContours -->
+  <color_channel_contours>
+    <gray_parameters>
+      <median_target>150</median_target>
+      <threshold_low>200</threshold_low>
+    </gray_parameters>
+
+    <!-- Note: if you include FloodFill then you'll need
+     some additional parameters.
+    <floodfill_function_call_parameters>
+    </floodfill_function_call_parameters -->
+
+    <criteria>
+      <min_area>3000.0</min_area>
+      <max_area>6000.0</max_area>
+    </criteria>
+  </color_channel_contours>
+
+  <!-- For use with OpenCV goodFeaturesToMatch
+  <color_channel_features>
+    *comment* Need gray parameters for the median; threshold is not used.
+    <gray_parameters>
+      <median_target>150</median_target>
+      <threshold_low>0</threshold_low>
+    </gray_parameters>
+    <features_function_call_parameters>
+      *comment* Need function call parameters for features
+      int  	maxCorners,
+		  double  	qualityLevel,
+		  double  	minDistance,
+		  InputArray  	mask = noArray(),
+		  int  	blockSize = 3,
+		  bool  	useHarrisDetector = false, *omit*
+		  double  	k = 0.04 *omit* - used with Harris
+    </features_function_call_parameters>      
+    <criteria>
+        <min_features>3</min_features>
+        <max_features>20</max_features>
+    </criteria>
+  </color_channel_features>          
+  -->
+
 </team_prop_parameters>

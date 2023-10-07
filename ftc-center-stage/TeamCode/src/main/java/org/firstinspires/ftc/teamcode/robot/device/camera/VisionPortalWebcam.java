@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
@@ -24,6 +26,7 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 // Use the VisionPortal API to manage a webcam and either one or two
 // "processors": one for raw webcam frames and the other for AprilTags.
@@ -113,6 +116,45 @@ public class VisionPortalWebcam {
         processors.forEach((processorId,processor) ->
            visionPortal.setProcessorEnabled(processor, false));
         activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
+    }
+
+    public VisionPortal.CameraState getCameraState() {
+        return visionPortal.getCameraState();
+    }
+
+    // Adapted from the FTC SDK 9.0 sample RobotAutoDriveToAprilTagOmni.
+    /*
+     * Manually set the camera gain and exposure.
+     * This can only be called AFTER calling initAprilTag().
+     */
+    public void setManualExposure(int exposureMS, int gain, int pTimeoutMs) {
+        // Wait for the camera to be open, then use the controls
+        // Make sure camera is streaming before we try to set the exposure controls
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            boolean webcamIsStreaming = false;
+            ElapsedTime streamingTimer = new ElapsedTime();
+            streamingTimer.reset(); // start
+            while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING && streamingTimer.milliseconds() < pTimeoutMs) {
+                sleep(20);
+            }
+
+            //**TODO crashing is too dire - just give up and return.
+            if (!webcamIsStreaming)
+                throw new AutonomousRobotException(TAG, "Timed out waiting for CameraState.STREAMING");
+        }
+
+        // Set camera controls unless we are stopping.
+            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+                exposureControl.setMode(ExposureControl.Mode.Manual);
+                sleep(50);
+            }
+
+            exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
+            sleep(20);
+            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+            gainControl.setGain(gain);
+            sleep(20);
     }
 
     public void enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {

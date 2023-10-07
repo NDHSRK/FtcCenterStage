@@ -8,6 +8,10 @@ public class DriveTrainConstants {
         DOMINANT, SUBORDINATE
     }
 
+    public enum Direction {
+        FORWARD, BACK
+    }
+
     // Drive constants
     public static final double MINIMUM_DOMINANT_MOTOR_VELOCITY = 0.2; // minimum velocity to turn the wheels
 
