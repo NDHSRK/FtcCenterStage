@@ -31,9 +31,13 @@ package org.firstinspires.ftc.teamcode.robot.device.motor.drive;
 
 import static android.os.SystemClock.sleep;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
@@ -74,66 +78,101 @@ public class AprilTagNavigation {
         linearOpMode = pLinearOpMode;
         robot = pRobot; // robot hardware
         webcam = pWebcam;
+   }
 
-        //**TODO This should be called from FTCAuto AFTER Team Prop recognition.
-        webcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
-    }
-
+    @SuppressLint("DefaultLocale")
     public boolean driveToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
-        double drive = 0; // Desired forward power/speed (-1 to +1)
-        double strafe = 0; // Desired strafe power/speed (-1 to +1)
-        double turn = 0; // Desired turning power/speed (-1 to +1)
+        double drive; // Desired forward power/speed (-1 to +1)
+        double strafe; // Desired strafe power/speed (-1 to +1)
+        double turn; // Desired turning power/speed (-1 to +1)
 
-        // Step through the list of detected tags and look for a matching tag.
-        AprilTagDetection desiredTag = null;
-        List<AprilTagDetection> currentDetections = webcam.getAprilTagData(1000);
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null && detection.id == pDesiredTagId) {
-                desiredTag = detection;
-                break; // don't look any further.
+        // For stall detection.
+        double previousRangeError = -1;
+        double previousHeadingError = -1;
+        double previousYawError = -1;
+
+        // Drive until the robot is positioned in front of the desired AprilTag
+        // OR there is no AprilTag for us to work with.
+        boolean logFirstDetection = true;
+        ElapsedTime stallTimer = new ElapsedTime();
+        stallTimer.reset(); // start
+        while (true) {
+            // Step through the list of detected tags and look for a matching tag.
+            AprilTagDetection desiredTag = null;
+            List<AprilTagDetection> currentDetections = webcam.getAprilTagData(1000);
+            for (AprilTagDetection detection : currentDetections) {
+                if (detection.metadata != null && detection.id == pDesiredTagId) {
+                    desiredTag = detection;
+                    break; // don't look any further.
+                }
             }
-        }
 
-        //**TODO Need logging in addition to or instead of telemetry
+            // If we have not found the desired target, just give up.
+            if (desiredTag == null) {
+                RobotLogCommon.d(TAG, "Tag Id " + pDesiredTagId + " not found within 1 sec");
+                linearOpMode.telemetry.addLine("Tag Id " + pDesiredTagId + " not found within 1 sec");
+                linearOpMode.telemetry.update();
+                return false;
+            }
 
-        // If we have found the desired target, drive to target automatically.
-        if (desiredTag != null) {
-            linearOpMode.telemetry.addLine("Tag Id " + pDesiredTagId + " not found within 1 sec");
+            // We have found the desired target, drive to it automatically.
+            String targetTagId = "Target " + String.format("Id %d (%s)", desiredTag.id, desiredTag.metadata.name);
+            String range = "Range " + String.format("%5.1f inches", desiredTag.ftcPose.range);
+            String bearing = "Bearing " + String.format("%3.0f degrees", desiredTag.ftcPose.bearing);
+            String yaw = "Yaw " + String.format("%3.0f degrees", desiredTag.ftcPose.yaw);
+
+            if (logFirstDetection) {
+                logFirstDetection = false;
+                RobotLogCommon.d(TAG, targetTagId);
+                RobotLogCommon.d(TAG, range);
+                RobotLogCommon.d(TAG, bearing);
+                RobotLogCommon.d(TAG, yaw);
+            }
+
+            linearOpMode.telemetry.addLine(targetTagId);
             linearOpMode.telemetry.update();
-            return false;
-        }
 
-        linearOpMode.telemetry.addData("Target", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-        linearOpMode.telemetry.addData("Range", "%5.1f inches", desiredTag.ftcPose.range);
-        linearOpMode.telemetry.addData("Bearing", "%3.0f degrees", desiredTag.ftcPose.bearing);
-        linearOpMode.telemetry.addData("Yaw", "%3.0f degrees", desiredTag.ftcPose.yaw);
+            // Determine heading, range and Yaw (tag image rotation) error so we can use
+            // them to control the robot automatically.
+            double rangeError = (desiredTag.ftcPose.range - pDesiredDistanceFromTag);
+            double headingError = desiredTag.ftcPose.bearing;
+            double yawError = desiredTag.ftcPose.yaw;
 
-        //**TODO the direction of the robot affects the signs of some of these values
-        // Currently set to forward only ...
+            // We need a means of detecting that the robot has completed its alignment
+            // to the AprilTag and of preventing a stall.
+            if (rangeError == previousRangeError && headingError == previousHeadingError &&
+                yawError == previousYawError) {
+                if (stallTimer.milliseconds() >= 1000) {
+                    linearOpMode.telemetry.addLine("In position: no change in AprilTag values for 1 sec");
+                    linearOpMode.telemetry.update();
+                    RobotLogCommon.d(TAG,"In position: no change in AprilTag values for 1 sec");
+                    return true;
+                }
+            } else {
+                // At least one of the AprilTag values has changed.
+                previousRangeError = rangeError;
+                previousHeadingError = headingError;
+                previousYawError = yawError;
+                stallTimer.reset(); // restart the timer
+            }
 
-        // Determine heading, range and Yaw (tag image rotation) error so we can use
-        // them to control the robot automatically.
-        double rangeError = (desiredTag.ftcPose.range - pDesiredDistanceFromTag);
-        double headingError = desiredTag.ftcPose.bearing;
-        double yawError = desiredTag.ftcPose.yaw;
+            // The direction of the robot affects the signs of some
+            // of the corrections.
+            if (pDirection == DriveTrainConstants.Direction.BACK) {
+                rangeError = -rangeError;
+                // heading is unchanged
+                yawError = -yawError;
+            }
 
-        // Use the speed and turn "gains" to calculate how we want the robot to move.
-        drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-        strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
-        turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
+            // Use the speed and turn "gains" to calculate how we want the robot to move.
+            drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
+            strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
+            turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
 
-        linearOpMode.telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-
-        linearOpMode.telemetry.update();
-
-        // **TODO Need means of preventing a stall ...
-        // Apply desired axes of motion to the drivetrain.
-        while (Math.abs(rangeError) > 0 || Math.abs(headingError) > 0 || Math.abs(yawError) > 0) {
+            // Apply desired axes of motion to the drivetrain.
             moveRobot(drive, strafe, turn);
-            sleep(20);
+            sleep(10);
         }
-
-        return true;
     }
 
     /**

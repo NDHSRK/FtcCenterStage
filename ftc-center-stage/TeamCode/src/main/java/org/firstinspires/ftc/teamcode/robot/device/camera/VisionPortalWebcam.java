@@ -110,7 +110,13 @@ public class VisionPortalWebcam {
             throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
         // Wait here with timeout until VisionPortal.CameraState.STREAMING.
-        //## PY 10/5/2023 remove the timeout - the samples don't have one ...
+        // The async camera startup happens behind the scenes in VisionPortalImpl.
+        RobotLogCommon.d(TAG, "Waiting for webcam "  + configuredWebcam.internalWebcamId + " to start streaming");
+        ElapsedTime streamingTimer = new ElapsedTime();
+        streamingTimer.reset(); // start
+        while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            sleep(50);
+        }
  
         // Start with the processor(s) disabled.
         processors.forEach((processorId,processor) ->

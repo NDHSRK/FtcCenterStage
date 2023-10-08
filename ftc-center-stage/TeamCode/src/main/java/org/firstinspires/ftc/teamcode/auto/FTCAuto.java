@@ -115,12 +115,13 @@ public class FTCAuto {
             visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
 
             // If the rear-facing webcam is in the configuration start it now with
-            // its processor(s) disabled. It may not be configured in during debugging.
+            // its processor(s) disabled. It may be configured out during debugging.
             VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
             if (rearWebcamConfiguration != null) {
                 VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
                 rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
+                visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
             }
           }
 

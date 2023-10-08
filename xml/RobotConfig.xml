@@ -47,7 +47,7 @@
             <resolution_height>480</resolution_height>
             <processor_set>
               <processor>webcam_frame</processor>
-              <processor>april_tag</processor>
+              <!-- only if you want to pick up pixels in Auto processor>april_tag</processor -->
             </processor_set>
             <webcam_calibration_for_apriltags>
                <focal_length_x>622.001</focal_length_x>
@@ -55,7 +55,24 @@
                <optical_center_x>319.803</optical_center_x>
                <optical_center_y>241.251</optical_center_y>
             </webcam_calibration_for_apriltags>     
-         </webcam>  
+         </webcam> 
+         <webcam>
+          <internal_id>rear_webcam</internal_id>
+          <!-- C920 -->
+          <serial_number>1133:2277</serial_number>
+          <resolution_width>320</resolution_width>
+          <resolution_height>240</resolution_height>
+          <processor_set>
+            <!-- processor>webcam_frame</processor -->
+            <processor>april_tag</processor>
+          </processor_set>
+          <webcam_calibration_for_apriltags>
+            <focal_length_x>622.001</focal_length_x>
+            <focal_length_y>622.001</focal_length_y>
+            <optical_center_x>319.803</optical_center_x>
+            <optical_center_y>241.251</optical_center_y>
+          </webcam_calibration_for_apriltags>
+        </webcam> 
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
 

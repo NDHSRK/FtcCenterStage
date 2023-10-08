@@ -14,12 +14,12 @@
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM>
 
-            <FORWARD>
+            <!-- FORWARD>
                 <distance>24.0</distance>
                 <velocity>.5</velocity>
-            </FORWARD>
+            </FORWARD -->
 
-            <!-- SLEEP>
+            <SLEEP>
                 <ms>1000</ms>
             </SLEEP>
 
@@ -30,7 +30,7 @@
 
             <FIND_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>                
-            </FIND_APRIL_TAGS -->
+            </FIND_APRIL_TAGS>
 
             <SLEEP>
                 <ms>1500</ms>
