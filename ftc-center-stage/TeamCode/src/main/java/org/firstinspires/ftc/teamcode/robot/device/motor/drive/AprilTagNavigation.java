@@ -164,6 +164,10 @@ public class AprilTagNavigation {
                 yawError = -yawError;
             }
 
+            // Note: We'll keep the identifier "strafe" for compatibility with the
+            // sample but the true meaning is "power to the motors that ensures
+            // that the face of the webcam is parallel to the target".
+            
             // Use the speed and turn "gains" to calculate how we want the robot to move.
             drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
             strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);

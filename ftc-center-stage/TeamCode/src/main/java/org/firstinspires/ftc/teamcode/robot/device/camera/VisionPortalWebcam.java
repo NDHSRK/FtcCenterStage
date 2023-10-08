@@ -117,6 +117,11 @@ public class VisionPortalWebcam {
         while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             sleep(50);
         }
+
+        VisionPortal.CameraState cameraState = visionPortal.getCameraState();
+        RobotLogCommon.d(TAG, "State of webcam " + configuredWebcam.internalWebcamId + ": " + cameraState);
+        if (cameraState != VisionPortal.CameraState.STREAMING)
+            throw new AutonomousRobotException(TAG, "Timed out waiting for webcam streaming to start");
  
         // Start with the processor(s) disabled.
         processors.forEach((processorId,processor) ->
