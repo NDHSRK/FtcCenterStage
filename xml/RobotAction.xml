@@ -19,6 +19,15 @@
                 <velocity>.5</velocity>
             </FORWARD -->
 
+            <DISABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>webcam_frame</processor>
+            <DISABLE_PROCESSOR>
+
+            <STOP_WEBCAM_STREAMING>
+                <internal_webcam_id>front_webcam</internal_webcam_id>                
+            </STOP_WEBCAM_STREAMING>
+
             <SLEEP>
                 <ms>1000</ms>
             </SLEEP>
@@ -31,6 +40,15 @@
             <FIND_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>                
             </FIND_APRIL_TAGS>
+
+            <DISABLE_PROCESSOR>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            <DISABLE_PROCESSOR>
+
+            <STOP_WEBCAM_STREAMING>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>                
+            </STOP_WEBCAM_STREAMING>
 
             <SLEEP>
                 <ms>1500</ms>

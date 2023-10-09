@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamImageProvider;
+import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -56,6 +57,7 @@ public class FTCAuto {
 
     private static final String TAG = FTCAuto.class.getSimpleName();
 
+    private final RobotConstants.Alliance alliance;
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
     private final String workingDirectory;
@@ -76,6 +78,8 @@ public class FTCAuto {
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
 
+    private AprilTagNavigation aprilTagNavigation;
+
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
                    RobotConstants.RunType pRunType)
@@ -83,6 +87,7 @@ public class FTCAuto {
 
         RobotLogCommon.c(TAG, "FTCAuto constructor");
 
+        alliance = pAlliance;
         linearOpMode = pLinearOpMode; // FTC context
         robot = pRobot; // robot hardware
 
@@ -123,7 +128,7 @@ public class FTCAuto {
                 rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
                 visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
             }
-          }
+        }
 
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
     }
@@ -506,6 +511,7 @@ public class FTCAuto {
                 break;
             }
 
+            // For testing: just look for AprilTags.
             case "FIND_APRIL_TAGS": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
@@ -517,6 +523,36 @@ public class FTCAuto {
                     linearOpMode.telemetry.update();
                     RobotLogCommon.d(TAG, "No AprilTags found");
                 } else telemetryAprilTag(aprilTags);
+                break;
+            }
+
+            // Locate a specific AprilTag and drive the robot into position
+            // in front of it.
+            case "NAVIGATE_TO_APRIL_TAG": {
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
+                RobotConstantsCenterStage.InternalWebcamId webcamId =
+                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+
+                // If the internal id of the webcam in the current AprilTagNavigation object
+                // does not match the id just specified then recreate the AprilTagNavigation object.
+                if (aprilTagNavigation == null || aprilTagNavigation.getInternalWebcamId() !=
+                        webcamId) {
+                    RobotLogCommon.d(TAG, "Switching AprilTag navigation to " + webcamIdString);
+                    VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                    aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, visionPortalWebcam);
+                }
+
+                int desiredTagId = actionXPath.getRequiredInt("desired_tag_id");
+                double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
+
+                String directionString = actionXPath.getRequiredText("direction").toUpperCase();
+                DriveTrainConstants.Direction direction =
+                        DriveTrainConstants.Direction.valueOf(directionString);
+                RobotLogCommon.d(TAG, "Navigating to AprilTag with id " + desiredTagId);
+                RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
+                RobotLogCommon.d(TAG, "Direction of travel " + directionString);
+                aprilTagNavigation.driveToAprilTag(desiredTagId, desiredDistanceFromTag, direction);
+
                 break;
             }
 

@@ -38,3 +38,12 @@
                     </team_prop_npos>
                 </team_prop_recognition>
             </FIND_TEAM_PROP>
+
+            <DISABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>webcam_frame</processor>
+            <DISABLE_PROCESSOR>
+
+            <STOP_WEBCAM_STREAMING>
+                <internal_webcam_id>front_webcam</internal_webcam_id>                
+            </STOP_WEBCAM_STREAMING>

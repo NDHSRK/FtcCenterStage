@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -70,6 +71,7 @@ public class AprilTagNavigation {
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
     private final VisionPortalWebcam webcam;
+
     private final EnumMap<FTCRobot.MotorId, Double> powerMap = new EnumMap<>(FTCRobot.MotorId.class);
 
     public AprilTagNavigation(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -79,6 +81,10 @@ public class AprilTagNavigation {
         robot = pRobot; // robot hardware
         webcam = pWebcam;
    }
+
+    public RobotConstantsCenterStage.InternalWebcamId getInternalWebcamId() {
+        return webcam.getInternalWebcamId();
+    }
 
     @SuppressLint("DefaultLocale")
     public boolean driveToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
@@ -189,7 +195,7 @@ public class AprilTagNavigation {
      * Positive Yaw is counter-clockwise
      */
     // **TODO Make sure the motors are in the right mode ...
-    public void moveRobot(double x, double y, double yaw) {
+    private void moveRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
         double leftFrontPower = x - y - yaw;
         double rightFrontPower = x + y + yaw;

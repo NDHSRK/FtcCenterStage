@@ -129,6 +129,10 @@ public class VisionPortalWebcam {
         activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
     }
 
+    public RobotConstantsCenterStage.InternalWebcamId getInternalWebcamId() {
+        return configuredWebcam.internalWebcamId;
+    }
+
     public VisionPortal.CameraState getCameraState() {
         return visionPortal.getCameraState();
     }
