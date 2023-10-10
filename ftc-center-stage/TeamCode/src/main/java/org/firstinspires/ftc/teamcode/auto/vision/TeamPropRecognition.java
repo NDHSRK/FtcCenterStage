@@ -12,10 +12,11 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -56,15 +57,18 @@ public class TeamPropRecognition {
             case COLOR_CHANNEL_CIRCLES: {
                 return colorChannelCirclesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelCirclesParameters);
             }
-            case COLOR_CHANNEL_BRIGHT_SPOT: {
-                return colorChannelBrightSpotPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelBrightSpotParameters);
+            case COLOR_CHANNEL_FEATURES: {
+                return colorChannelFeaturesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelFeaturesParameters);
             }
             case COLOR_CHANNEL_CONTOURS: {
                 return colorChannelContoursPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelContoursParameters);
             }
-
-            //**TODO DEFER case COLOR_CHANNEL_FEATURES -> {
-            //}
+            case COLOR_CHANNEL_BRIGHT_SPOT: {
+                return colorChannelBrightSpotPath(imageROI, outputFilenamePreamble, pTeamPropParameters.brightSpotParameters);
+            }
+            case GRAYSCALE_BRIGHT_SPOT: {
+                return grayscaleBrightSpotPath(imageROI, outputFilenamePreamble, pTeamPropParameters.brightSpotParameters);
+            }
             default:
                 throw new AutonomousRobotException(TAG, "Unrecognized recognition path");
         }
@@ -170,26 +174,58 @@ public class TeamPropRecognition {
         return lookThroughWindows(propOut, centerOfLargestCircle, pOutputFilenamePreamble);
     }
 
-    private TeamPropReturn colorChannelBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
-                                                      TeamPropParameters.ColorChannelBrightSpotParameters pColorChannelBrightSpotParameters) {
-        Mat split = splitChannels(pImageROI, pColorChannelBrightSpotParameters.grayParameters, pOutputFilenamePreamble);
+    private TeamPropReturn colorChannelFeaturesPath(Mat pImageROI, String pOutputFilenamePreamble,
+                                                    TeamPropParameters.ColorChannelFeaturesParameters pFeaturesParameters) {
+        Mat split = splitChannels(pImageROI, pFeaturesParameters.grayParameters, pOutputFilenamePreamble);
 
         // Apply a 2d filter to sharpen the image.
         Mat sharp = sharpen(split, pOutputFilenamePreamble);
 
-        // See --
-        // https://pyimagesearch.com/2014/09/29/finding-brightest-spot-image-using-python-opencv/
-        Mat bright = new Mat();
-        Imgproc.GaussianBlur(sharp, bright, new Size(pColorChannelBrightSpotParameters.blurKernel, pColorChannelBrightSpotParameters.blurKernel), 0);
-        Core.MinMaxLocResult brightResult = Core.minMaxLoc(bright);
-        Mat brightSpotOut = pImageROI.clone();
-        Imgproc.circle(brightSpotOut, brightResult.maxLoc, (int) pColorChannelBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
+        MatOfPoint corners = new MatOfPoint();
+        Imgproc.goodFeaturesToTrack(sharp, corners, pFeaturesParameters.maxCorners, pFeaturesParameters.qualityLevel, 0, new Mat(), 2, false, 0.04);
+        Mat featuresOut = pImageROI.clone();
+        for (int i = 0; i < corners.height(); i++) {
+            Imgproc.circle(featuresOut, new Point(corners.get(i, 0)), 3, new Scalar(0, 255, 0));
+        }
 
-        String brightSpotFilename = pOutputFilenamePreamble + "_BRIGHT.png";
-        RobotLogCommon.d(TAG, "Writing " + brightSpotFilename);
-        Imgcodecs.imwrite(brightSpotFilename, brightSpotOut);
+        // For convenience convert the MatOfPoint into a List,
+        // sort it separately by the x-coordinate of the Points
+        // and then the y-coordinates of the Points, and make
+        // a composite median Point.
+        List<Point> cornersListX = corners.toList();
+        cornersListX.sort(Comparator.comparing(point -> point.x));
+        List<Point> cornersListY = new ArrayList<>(cornersListX);
+        cornersListY.sort(Comparator.comparing(point -> point.y));
 
-        return lookThroughWindows(brightSpotOut, brightResult.maxLoc, pOutputFilenamePreamble);
+        int size = cornersListX.size();
+        if (size == 0) {
+            Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            RobotLogCommon.d(TAG, "No features found");
+            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL, nposWindow.second);
+        }
+
+        double compositeMedianFeatureX;
+        if (size % 2 == 0)
+            compositeMedianFeatureX = (cornersListX.get(size / 2).x + cornersListX.get(size / 2 - 1).x) / 2;
+        else
+            compositeMedianFeatureX = cornersListX.get(size / 2).x;
+
+        double compositeMedianFeatureY;
+        if (size % 2 == 0)
+            compositeMedianFeatureY = (cornersListY.get(size / 2).y + cornersListY.get(size / 2 - 1).y) / 2;
+        else
+            compositeMedianFeatureY = cornersListY.get(size / 2).y;
+
+        Point compositePoint = new Point(compositeMedianFeatureX, compositeMedianFeatureY);
+        RobotLogCommon.d(TAG, "Composite features median x " + compositeMedianFeatureX + " y " +
+                compositeMedianFeatureY);
+        Imgproc.circle(featuresOut, compositePoint, 7, new Scalar(0, 255, 255), 4);
+
+        String featuresFilename = pOutputFilenamePreamble + "_FEATURES.png";
+        RobotLogCommon.d(TAG, "Writing " + featuresFilename);
+        Imgcodecs.imwrite(featuresFilename, featuresOut);
+
+        return lookThroughWindows(featuresOut, compositePoint, pOutputFilenamePreamble);
     }
 
     // The inverted red channel of a blue ball has very
@@ -237,33 +273,67 @@ public class TeamPropRecognition {
         return lookThroughWindows(enclosingCircleOut, contourCentroid, pOutputFilenamePreamble);
     }
 
-    //**TODO try goodFeaturesToTrack; function call parameters should go into
-    // TeamPropParameters.xml.
-    // This will be successful but requires more work than bright spot detection
-    // because we have to parse the function call parameters and determine here
-    // which point to choose for testing against the window boundaries.
-    /*
-    // Here's how to sort and get the median of an array but we have a MatOfPoint.
-    // See stackoverflow
-    Arrays.sort(numArray);
-    double median;
-    if (numArray.length % 2 == 0)
-      median = ((double)numArray[numArray.length/2] + (double)numArray[numArray.length/2 - 1])/2;
-    else
-      median = (double) numArray[numArray.length/2];
+    private TeamPropReturn colorChannelBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
+                                                      TeamPropParameters.BrightSpotParameters pBrightSpotParameters) {
+        Mat split = splitChannels(pImageROI, pBrightSpotParameters.grayParameters, pOutputFilenamePreamble);
 
-        MatOfPoint corners = new MatOfPoint();
-        Imgproc.goodFeaturesToTrack(readyForHoughCircles, corners, 10, 0.15, 0, new Mat(), 2, false, 0.04);
-        Mat featuresOut = pImageROI.clone();
-        for (int i = 0; i < corners.height(); i++) {
-            Imgproc.circle(featuresOut, new Point(corners.get(i, 0)), 3, new Scalar(0, 255, 0));
-        }
+        // Apply a 2d filter to sharpen the image.
+        Mat sharp = sharpen(split, pOutputFilenamePreamble);
 
-        String featuresFilename = pOutputFilenamePreamble + "_FEATURES.png";
-        RobotLogCommon.d(TAG, "Writing " + featuresFilename);
-        Imgcodecs.imwrite(featuresFilename, featuresOut);
+        // See --
+        // https://pyimagesearch.com/2014/09/29/finding-brightest-spot-image-using-python-opencv/
+        Mat bright = new Mat();
+        Imgproc.GaussianBlur(sharp, bright, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
 
-     */
+        String blurFilename = pOutputFilenamePreamble + "_BLUR.png";
+        RobotLogCommon.d(TAG, "Writing " + blurFilename);
+        Imgcodecs.imwrite(blurFilename, bright);
+
+        Core.MinMaxLocResult brightResult = Core.minMaxLoc(bright);
+        Mat brightSpotOut = pImageROI.clone();
+        Imgproc.circle(brightSpotOut, brightResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
+
+        String brightSpotFilename = pOutputFilenamePreamble + "_BRIGHT.png";
+        RobotLogCommon.d(TAG, "Writing " + brightSpotFilename);
+        Imgcodecs.imwrite(brightSpotFilename, brightSpotOut);
+
+        return lookThroughWindows(brightSpotOut, brightResult.maxLoc, pOutputFilenamePreamble);
+    }
+
+    private TeamPropReturn grayscaleBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
+                                                   TeamPropParameters.BrightSpotParameters pBrightSpotParameters) {
+        Mat gray = new Mat();
+        Imgproc.cvtColor(pImageROI, gray, Imgproc.COLOR_BGR2GRAY);
+
+        String grayFilename = pOutputFilenamePreamble + "_GRAY.png";
+        RobotLogCommon.d(TAG, "Writing " + grayFilename);
+        Imgcodecs.imwrite(grayFilename, gray);
+
+        Core.bitwise_not(gray, gray); // invert for better contrast
+
+        String grayInvertedFilename = pOutputFilenamePreamble + "_GRAY_INVERTED.png";
+        RobotLogCommon.d(TAG, "Writing " + grayInvertedFilename);
+        Imgcodecs.imwrite(grayInvertedFilename, gray);
+
+        Mat graySharp = sharpen(gray, pOutputFilenamePreamble + "_GRAY");
+
+        Mat brightGray = new Mat();
+        Imgproc.GaussianBlur(graySharp, brightGray, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
+
+        String blurFilename = pOutputFilenamePreamble + "_GRAY__BLUR.png";
+        RobotLogCommon.d(TAG, "Writing " + blurFilename);
+        Imgcodecs.imwrite(blurFilename, brightGray);
+
+        Core.MinMaxLocResult brightGrayResult = Core.minMaxLoc(brightGray);
+        Mat brightGraySpotGrayOut = pImageROI.clone();
+        Imgproc.circle(brightGraySpotGrayOut, brightGrayResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
+
+        String brightSpotGrayFilename = pOutputFilenamePreamble + "_GRAY_BRIGHT.png";
+        RobotLogCommon.d(TAG, "Writing " + brightSpotGrayFilename);
+        Imgcodecs.imwrite(brightSpotGrayFilename, brightGraySpotGrayOut);
+
+        return lookThroughWindows(brightGraySpotGrayOut, brightGrayResult.maxLoc, pOutputFilenamePreamble);
+    }
 
     // Look through the left and right windows and determine if the team prop
     // is in the left window, the right window, or neither. Also draw the boundaries

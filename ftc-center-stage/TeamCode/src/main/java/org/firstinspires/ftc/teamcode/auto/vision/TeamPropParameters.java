@@ -10,18 +10,21 @@ import java.util.EnumMap;
 public class TeamPropParameters {
 
     public final ColorChannelCirclesParameters colorChannelCirclesParameters;
-    public final ColorChannelBrightSpotParameters colorChannelBrightSpotParameters;
+    public final ColorChannelFeaturesParameters colorChannelFeaturesParameters;
     public final ColorChannelContoursParameters colorChannelContoursParameters;
+    public final BrightSpotParameters brightSpotParameters;
 
     private EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows =
             new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
 
     public TeamPropParameters(ColorChannelCirclesParameters pColorChannelCirclesParameters,
-                              ColorChannelBrightSpotParameters pColorChannelBrightSpotParameters,
-                              ColorChannelContoursParameters pColorChannelContoursParameters) {
+                              ColorChannelFeaturesParameters pColorChannelFeaturesParameters,
+                              ColorChannelContoursParameters pColorChannelContoursParameters,
+                              BrightSpotParameters pBrightSpotParameters) {
         colorChannelCirclesParameters = pColorChannelCirclesParameters;
-        colorChannelBrightSpotParameters = pColorChannelBrightSpotParameters;
+        colorChannelFeaturesParameters = pColorChannelFeaturesParameters;
         colorChannelContoursParameters = pColorChannelContoursParameters;
+        brightSpotParameters = pBrightSpotParameters;
     }
 
     public void setSpikeWindows(EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> pSpikeWindows) {
@@ -40,9 +43,9 @@ public class TeamPropParameters {
         public ColorChannelCirclesParameters(VisionParameters.GrayParameters pGrayParameters,
                                              HoughCirclesFunctionCallParameters pHoughCirclesFunctionCallParameters,
                                              int pMaxCircles) {
-         grayParameters = pGrayParameters;
-         houghCirclesFunctionCallParameters = pHoughCirclesFunctionCallParameters;
-         maxCircles = pMaxCircles;
+            grayParameters = pGrayParameters;
+            houghCirclesFunctionCallParameters = pHoughCirclesFunctionCallParameters;
+            maxCircles = pMaxCircles;
         }
     }
 
@@ -67,13 +70,16 @@ public class TeamPropParameters {
         }
     }
 
-    public static class ColorChannelBrightSpotParameters {
+    public static class ColorChannelFeaturesParameters {
         public final VisionParameters.GrayParameters grayParameters;
-        public final double blurKernel;
+        public final int maxCorners;
+        public final double qualityLevel;
 
-        public ColorChannelBrightSpotParameters(VisionParameters.GrayParameters pGrayParameters, double pBlurKernel) {
+        public ColorChannelFeaturesParameters(VisionParameters.GrayParameters pGrayParameters,
+                                              int pMaxCorners, double pQualityLevel) {
             grayParameters = pGrayParameters;
-            blurKernel = pBlurKernel;
+            maxCorners = pMaxCorners;
+            qualityLevel = pQualityLevel;
         }
     }
 
@@ -87,6 +93,16 @@ public class TeamPropParameters {
             grayParameters = pGrayParameters;
             minArea = pMinArea;
             maxArea = pMaxArea;
+        }
+    }
+
+    public static class BrightSpotParameters {
+        public final VisionParameters.GrayParameters grayParameters;
+        public final double blurKernel;
+
+        public BrightSpotParameters(VisionParameters.GrayParameters pGrayParameters, double pBlurKernel) {
+            grayParameters = pGrayParameters;
+            blurKernel = pBlurKernel;
         }
     }
 
