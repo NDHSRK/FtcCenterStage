@@ -146,6 +146,13 @@ public class AprilTagNavigation {
 
             // We need a means of detecting that the robot has completed its alignment
             // to the AprilTag and of preventing a stall.
+            if (Math.abs(rangeError) < 1.0 && Math.abs(headingError) < 1.0 && Math.abs(yawError) < 1.0) {
+                linearOpMode.telemetry.addLine("In position: all AprilTag values < 1 degree");
+                linearOpMode.telemetry.update();
+                RobotLogCommon.d(TAG,"In position: all AprilTag values < 1 degree");
+                return true;
+            }
+
             if (rangeError == previousRangeError && headingError == previousHeadingError &&
                 yawError == previousYawError) {
                 if (stallTimer.milliseconds() >= 1000) {

@@ -110,15 +110,13 @@ public class FTCAuto {
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
 
-        // Since the first task in Autonomous is to find the Team Prop, start the front webcam
-        // with the processor for raw frames.
+        //**TODO TEST this ...
+        //!! 10/9/2023 Very important - I made an enquiry on the FTC Forum about Driver
+        // Station camera streams when more than one webcam is in the configuration.
+        // The answer came back that second camera's stream is the one that is displayed
+        // during init. So start the AprilTag camera first and the Team Prop camera
+        // second.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-            VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
-                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
-            VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
-            frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
-            visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-
             // If the rear-facing webcam is in the configuration start it now with
             // its processor(s) disabled. It may be configured out during debugging.
             VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
@@ -127,6 +125,17 @@ public class FTCAuto {
                 VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
                 rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
                 visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+            }
+
+            // Since the first task in Autonomous is to find the Team Prop, start the front webcam
+            // with the processor for raw frames. The only time this camera might not be in the
+            // configuration is during testing.
+            VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
+                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
+            if (frontWebcamConfiguration != null) {
+                VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
+                frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
+                visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
             }
         }
 
@@ -393,7 +402,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
                 Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().disableProcessor(processorId);
-                RobotLogCommon.d(TAG, "Enabled processor " + processorIdString + " on webcam " + webcamIdString);
+                RobotLogCommon.d(TAG, "Disabled processor " + processorIdString + " on webcam " + webcamIdString);
                 break;
             }
 
@@ -726,9 +735,8 @@ public class FTCAuto {
 
         // Start with the absolute value of the click count. The sign of the click count for each of the
         // motors will be adjusted depending on the sign of the angle.
-        //**TDOD also log angle
         double distanceInches = Math.abs(pActionXPath.getRequiredDouble("distance"));
-        RobotLogCommon.d(TAG, "Drive " + distanceInches + " inches");
+        RobotLogCommon.d(TAG, "Drive " + distanceInches + " inches" + " at angle " + pAngle.get());
         int targetClicks = (int) (distanceInches * robot.driveTrain.getClicksPerInch());
 
         // Default to no ramp-down.
