@@ -60,7 +60,7 @@ import java.util.Date;
 //@Disabled
 public class WebcamFrameCapture extends LinearOpMode {
  
-    //**TODO Hardcoded here but in the real world the resolution will
+    //## Hardcoded here but in the real world the resolution will
     // come from RobotConfig.xml. In order for this to happen this
     // class will have to implement TeleOpWithAlliance, which gives
     // access to FTCRobot where the camera configurations are stored.
@@ -70,14 +70,14 @@ public class WebcamFrameCapture extends LinearOpMode {
     @Override
     public void runOpMode()
     {
-        //**TODO image directory hardcoded; should be RobotConstants.imageDir
+        //## Image directory hardcoded; should be RobotConstants.imageDir
         String imageWorkingDirectory = WorkingDirectory.getWorkingDirectory() + "/images/";
         WebcamFrameProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
         VisionPortal portal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .setCameraResolution(new Size(RESOLUTION_WIDTH, RESOLUTION_HEIGHT))
                     .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                    .enableLiveView(true)
+                    .enableLiveView(false)
                     // If set "false", monitor shows camera view without annotations.
                     .setAutoStopLiveView(false)
 
@@ -85,13 +85,6 @@ public class WebcamFrameCapture extends LinearOpMode {
                     .addProcessor(webcamFrameProcessor)
 
                     .build();
-
-        //**TODO if cameraState = CameraState.ERROR throw AutonomousRobotException
-        //**TODO wait here with timeout until portal.getCameraState() == CameraState.STREAMING
-        // && a countdown latch shared with init() in WebcamFrameProcessorImpl indicates
-        // that the first frame has been received. *OR* just wait for the latch.
-        // to ensure that frames are flowing. The async camera startup happens
-        // behind the scenes in VisionPortalImpl.
 
         boolean x;
         boolean lastX = false;
@@ -122,7 +115,7 @@ public class WebcamFrameCapture extends LinearOpMode {
                     telemetry.addLine("\nTimed out waiting for frame!");
                 else {
                     telemetry.addLine("\nCaptured Frame!");
-                    //**TODO as a test write it to FIRST\TeamData\images
+                    //## As a test write it to FIRST\TeamData\images
                     String fileDate = TimeStamp.getDateTimeStamp(frameToWrite.second);
                     Imgcodecs.imwrite(imageWorkingDirectory + "WebcamFrame" + "_" + fileDate + ".png", frameToWrite.first);
                 }

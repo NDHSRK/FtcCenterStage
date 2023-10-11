@@ -153,7 +153,8 @@ public class VisionPortalWebcam {
                 sleep(20);
             }
 
-            //**TODO crashing is too dire - just give up and return.
+            //**TODO leave in for testing but crashing is too dire for competition -
+            // just log, give up and return.
             if (!webcamIsStreaming)
                 throw new AutonomousRobotException(TAG, "Timed out waiting for CameraState.STREAMING");
         }
@@ -223,7 +224,9 @@ public class VisionPortalWebcam {
     }
 
     //**TODO Find a way not to hardcode the methods for getting the results from
-    // the processors attached to the current webcam.
+    // the processors attached to the current webcam: possible but it would mean
+    // moving all methods related to processors to another class.Not worth the
+    // architectural change at this point (10/11/2023).
     public Pair<Mat, Date> getVisionPortalWebcamData(int pTimeoutMs) {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
             throw new AutonomousRobotException(TAG, "WEBCAM_FRAME is not the active processor");

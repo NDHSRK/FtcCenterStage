@@ -110,7 +110,7 @@ public class ConceptTelemetry extends LinearOpMode {
 
                 // This delay makes a huge difference: the fixed information always
                 // comes out in the right order.
-                sleep(250); //**TODO 500 works; try 250
+                sleep(250);
             }
 
             // Try error handling after 5 seconds.
