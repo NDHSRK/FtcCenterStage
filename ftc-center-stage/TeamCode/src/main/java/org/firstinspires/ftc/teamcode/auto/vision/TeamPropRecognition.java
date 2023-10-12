@@ -317,7 +317,7 @@ public class TeamPropRecognition {
         if (brightResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
-            drawSpikeWindows(brightSpotOut, pOutputFilenamePreamble);
+            drawSpikeWindows(pImageROI.clone(), pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
@@ -363,7 +363,7 @@ public class TeamPropRecognition {
         if (brightGrayResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
-            drawSpikeWindows(brightGraySpotOut, pOutputFilenamePreamble);
+            drawSpikeWindows(pImageROI.clone(), pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
