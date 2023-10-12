@@ -58,9 +58,10 @@ public class TeamPropRecognition {
             case COLOR_CHANNEL_CIRCLES: {
                 return colorChannelCirclesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelCirclesParameters);
             }
-            case COLOR_CHANNEL_FEATURES: {
-                return colorChannelFeaturesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelFeaturesParameters);
-            }
+            //**TODO 10/12/23 DO NOT USE - see comments in IJCenterStage
+           // case COLOR_CHANNEL_FEATURES: {
+           //     return colorChannelFeaturesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelFeaturesParameters);
+           // }
             case COLOR_CHANNEL_CONTOURS: {
                 return colorChannelContoursPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelContoursParameters);
             }
@@ -79,11 +80,12 @@ public class TeamPropRecognition {
                                                    TeamPropParameters.ColorChannelCirclesParameters pColorChannelCirclesParameters) {
         Mat split = splitChannels(pImageROI, pColorChannelCirclesParameters.grayParameters, pOutputFilenamePreamble);
 
+        // Sharpening the image does not improve the results.
         // Apply a 2d filter to sharpen the image.
-        Mat sharp = sharpen(split, pOutputFilenamePreamble);
+        //Mat sharp = sharpen(split, pOutputFilenamePreamble);
 
         // Remove noise by Gaussian blurring.
-        Imgproc.GaussianBlur(sharp, sharp, new Size(5, 5), 0);
+        Imgproc.GaussianBlur(split, split, new Size(5, 5), 0);
 
         // Support both full and partial circles depending upon the ROI
         // and the parameters in the XML file.
@@ -91,7 +93,7 @@ public class TeamPropRecognition {
         // dp = 1, minDist = 60, param1 = 200, param2 = 20, 0, 0);
         // Perform HoughCircles recognition
         Mat circles = new Mat();
-        Imgproc.HoughCircles(sharp, circles, Imgproc.HOUGH_GRADIENT,
+        Imgproc.HoughCircles(split, circles, Imgproc.HOUGH_GRADIENT,
                 pColorChannelCirclesParameters.houghCirclesFunctionCallParameters.dp,
                 pColorChannelCirclesParameters.houghCirclesFunctionCallParameters.minDist,
                 pColorChannelCirclesParameters.houghCirclesFunctionCallParameters.param1,
@@ -175,12 +177,14 @@ public class TeamPropRecognition {
         return lookThroughWindows(propOut, centerOfLargestCircle, pOutputFilenamePreamble);
     }
 
-    //**TODO 10/12/23 DO NOT USE - still a work in progress in IJCenterStage
+    //**TODO DO NOT USE: goodFeaturesToTrack always returns something -
+    // even when no Team Prop if present.
     private TeamPropReturn colorChannelFeaturesPath(Mat pImageROI, String pOutputFilenamePreamble,
                                                     TeamPropParameters.ColorChannelFeaturesParameters pFeaturesParameters) {
         Mat split = splitChannels(pImageROI, pFeaturesParameters.grayParameters, pOutputFilenamePreamble);
 
-        // Apply a 2d filter to sharpen the image.
+        // Apply a 2d filter to sharpen the image. It does help -
+        // it reduces the number of spurious features.
         Mat sharp = sharpen(split, pOutputFilenamePreamble);
 
         MatOfPoint corners = new MatOfPoint();
@@ -200,10 +204,12 @@ public class TeamPropRecognition {
         cornersListY.sort(Comparator.comparing(point -> point.y));
 
         int size = cornersListX.size();
+        RobotLogCommon.d(TAG, "Number of features " + size);
+
         if (size == 0) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "No features found");
-            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL, nposWindow.second);
+            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
         double compositeMedianFeatureX;
@@ -237,6 +243,9 @@ public class TeamPropRecognition {
                                                     TeamPropParameters.ColorChannelContoursParameters pColorChannelContoursParameters) {
         Mat split = splitChannels(pImageROI, pColorChannelContoursParameters.grayParameters, pOutputFilenamePreamble);
 
+        // Results are much better (fewer contours) without sharpening and slightly better
+        // without blurring.
+
         // Threshold the image: set pixels over the threshold value to white.
         Mat thresholded = new Mat(); // output binary image
         Imgproc.threshold(split, thresholded,
@@ -253,7 +262,7 @@ public class TeamPropRecognition {
         if (!targetContour.isPresent()) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "No contours found");
-            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL, nposWindow.second);
+            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
         MatOfPoint largestContour = targetContour.get().second;
@@ -282,13 +291,13 @@ public class TeamPropRecognition {
                                                       TeamPropParameters.BrightSpotParameters pBrightSpotParameters) {
         Mat split = splitChannels(pImageROI, pBrightSpotParameters.grayParameters, pOutputFilenamePreamble);
 
-        // Apply a 2d filter to sharpen the image.
-        Mat sharp = sharpen(split, pOutputFilenamePreamble);
+        // Sharpening the image does not improve the results.
+        //Mat sharp = sharpen(split, pOutputFilenamePreamble);
 
         // See --
         // https://pyimagesearch.com/2014/09/29/finding-brightest-spot-image-using-python-opencv/
         Mat bright = new Mat();
-        Imgproc.GaussianBlur(sharp, bright, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
+        Imgproc.GaussianBlur(split, bright, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
 
         String blurFilename = pOutputFilenamePreamble + "_BLUR.png";
         RobotLogCommon.d(TAG, "Writing " + blurFilename);
@@ -330,16 +339,19 @@ public class TeamPropRecognition {
         RobotLogCommon.d(TAG, "Writing " + grayInvertedFilename);
         Imgcodecs.imwrite(grayInvertedFilename, gray);
 
-        Mat graySharp = sharpen(gray, pOutputFilenamePreamble + "_GRAY");
+        // Sharpening the image does not improve the results.
+        //Mat graySharp = sharpen(gray, pOutputFilenamePreamble + "_GRAY");
 
         Mat brightGray = new Mat();
-        Imgproc.GaussianBlur(graySharp, brightGray, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
+        Imgproc.GaussianBlur(gray, brightGray, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
 
         String blurFilename = pOutputFilenamePreamble + "_GRAY_BLUR.png";
         RobotLogCommon.d(TAG, "Writing " + blurFilename);
         Imgcodecs.imwrite(blurFilename, brightGray);
 
         Core.MinMaxLocResult brightGrayResult = Core.minMaxLoc(brightGray);
+        RobotLogCommon.d(TAG, "Bright spot location " + brightGrayResult.maxLoc + ", value " + brightGrayResult.maxVal);
+
         Mat brightGraySpotOut = pImageROI.clone();
         Imgproc.circle(brightGraySpotOut, brightGrayResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
 

@@ -44,6 +44,8 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.EnumMap;
 import java.util.List;
 
@@ -93,9 +95,13 @@ public class AprilTagNavigation {
         double turn; // Desired turning power/speed (-1 to +1)
 
         // For stall detection.
-        double previousRangeError = -1;
-        double previousHeadingError = -1;
-        double previousYawError = -1;
+        BigDecimal bd;
+        double currentRangeError = 0;
+        double currentHeadingError = 0;
+        double currentYawError = 0;
+        double previousRangeError = 0;
+        double previousHeadingError = 0;
+        double previousYawError = 0;
 
         // Drive until the robot is positioned in front of the desired AprilTag
         // OR there is no AprilTag for us to work with.
@@ -153,8 +159,22 @@ public class AprilTagNavigation {
                 return true;
             }
 
-            if (rangeError == previousRangeError && headingError == previousHeadingError &&
-                yawError == previousYawError) {
+            // Round to two decimal places. This is ugly but Java doesn't have a
+            // built-in way of doing this. See https://www.baeldung.com/java-round-decimal-number.
+            bd = new BigDecimal(Double.toString(rangeError));
+            bd = bd.setScale(2, RoundingMode.HALF_UP);
+            currentRangeError =  bd.doubleValue();
+
+            bd = new BigDecimal(Double.toString(headingError));
+            bd = bd.setScale(2, RoundingMode.HALF_UP);
+            currentHeadingError =  bd.doubleValue();
+
+            bd = new BigDecimal(Double.toString(yawError));
+            bd = bd.setScale(2, RoundingMode.HALF_UP);
+            currentYawError =  bd.doubleValue();
+
+            if (currentRangeError == previousRangeError && currentHeadingError == previousHeadingError &&
+                currentYawError == previousYawError) {
                 if (stallTimer.milliseconds() >= 1000) {
                     linearOpMode.telemetry.addLine("In position: no change in AprilTag values for 1 sec");
                     linearOpMode.telemetry.update();
@@ -163,9 +183,9 @@ public class AprilTagNavigation {
                 }
             } else {
                 // At least one of the AprilTag values has changed.
-                previousRangeError = rangeError;
-                previousHeadingError = headingError;
-                previousYawError = yawError;
+                previousRangeError = currentRangeError;
+                previousHeadingError = currentHeadingError;
+                previousYawError = currentYawError;
                 stallTimer.reset(); // restart the timer
             }
 
