@@ -43,7 +43,7 @@
   <color_channel_contours>
     <gray_parameters>
       <median_target>150</median_target>
-      <threshold_low>200</threshold_low>
+      <threshold_low>220</threshold_low>
     </gray_parameters>
 
     <!-- Note: if you include FloodFill then you'll need
@@ -53,16 +53,15 @@
 
     <criteria>
       <min_area>3000.0</min_area>
-      <max_area>6000.0</max_area>
+      <max_area>7000.0</max_area>
     </criteria>
   </color_channel_contours>
 
   <!-- Can be used for full image grayscale or color channel grayscale -->
   <bright_spot>
-    <!-- Need gray parameters for the median; threshold is not used. -->
     <gray_parameters>
       <median_target>150</median_target>
-      <threshold_low>0</threshold_low>
+      <threshold_low>225</threshold_low>
     </gray_parameters>
     <blur_kernel>31.0</blur_kernel>
   </bright_spot>
