@@ -1,12 +1,11 @@
       <webcam>
         <internal_id>front_webcam</internal_id>
-        <!-- BRIO PY front -->
-        <serial_number>8765F120</serial_number>
+        <!-- BRIO Notre Dame front -->
+        <serial_number>0E574C8B</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>
           <processor>webcam_frame</processor>
-          <processor>april_tag</processor>
         </processor_set>
         <!-- (optional) april tag calibration values should go here. -->
         <webcam_calibration_for_apriltags>

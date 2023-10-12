@@ -1,7 +1,7 @@
       <webcam>
         <internal_id>rear_webcam</internal_id>
-        <!-- BRIO Notre Dame rear -->
-        <serial_number>0E574C8B</serial_number>
+        <!-- BRIO PY rear -->
+        <serial_number>8765F120</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>

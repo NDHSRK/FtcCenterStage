@@ -1,16 +1,14 @@
 package org.firstinspires.ftc.teamcode.robot.device.imu;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.ZYX;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.INTRINSIC;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.ftcdevcommon.AutoWorker;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -26,22 +24,22 @@ public class IMUReader {
 
     private static final String TAG = "IMUReader";
 
-    private final BNO055IMU imu;
-    private boolean imuActivated = false;
+    private final IMU imu;
+    private boolean imuActivated;
 
     // Thread-related.
     private final CountDownLatch countDownLatch;
     private final IMUReaderCallable imuReaderCallable;
     private final CompletableFuture<Void> imuReaderFuture;
 
-    private final AtomicReference<Orientation> imuOrientation;
+    private final AtomicReference<YawPitchRollAngles> imuOrientation;
     private final ElapsedTime imuTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     private final AtomicLong imuReadCount = new AtomicLong();
 
     // The IMU must have been previously initialized.
-    public IMUReader(BNO055IMU pInitializedIMU) throws InterruptedException {
+    public IMUReader(IMU pInitializedIMU) throws InterruptedException {
         imu = pInitializedIMU;
-        imuOrientation = new AtomicReference<>(imu.getAngularOrientation().toAxesReference(INTRINSIC).toAxesOrder(ZYX));
+        imuOrientation = new AtomicReference<>(imu.getRobotYawPitchRollAngles());
 
         // Start up the IMU reader as a CompletableFuture.
         RobotLogCommon.i(TAG, "Starting IMU reader thread");
@@ -79,24 +77,18 @@ public class IMUReader {
 
     public double getIMUHeading() throws IOException, InterruptedException, TimeoutException {
         checkIMUReaderCompletion();
-        Orientation angles = imuOrientation.get();
-        return (DEGREES.normalize(angles.firstAngle));
+        YawPitchRollAngles angles = imuOrientation.get();
+        return angles.getYaw(DEGREES);
     }
 
-    //# NOTE: the IMU on our 2018-2019 robot is oriented such that "secondAngle"
-    //  reports pitch and "thirdAngle" reports roll. This is unlike the
-    //  SensorBNO055IMU sample:
-    //           .addData("roll", new Func<String>() {
-    //                @Override public String value() {
-    //                    return formatAngle(angles.angleUnit, angles.secondAngle);
     public double getIMUPitch() {
-        Orientation angles = imuOrientation.get();
-        return (DEGREES.normalize(angles.secondAngle));
+        YawPitchRollAngles angles = imuOrientation.get();
+        return angles.getPitch(DEGREES);
     }
 
     public double getIMURoll() {
-        Orientation angles = imuOrientation.get();
-        return (DEGREES.normalize(angles.thirdAngle));
+        YawPitchRollAngles angles = imuOrientation.get();
+        return angles.getRoll(DEGREES);
     }
 
     // In any CompletableFuture that contains a loop you need to
@@ -122,7 +114,7 @@ public class IMUReader {
 
             //## the linearOpMode is not usually active when this thread is started so do not test linearOpMode.opModeIsActive() here.
             while (!stopThreadRequested() && !Thread.interrupted()) {
-                imuOrientation.set(imu.getAngularOrientation().toAxesReference(INTRINSIC).toAxesOrder(ZYX));
+                imuOrientation.set(imu.getRobotYawPitchRollAngles());
                 imuReadCount.incrementAndGet();
             }
 

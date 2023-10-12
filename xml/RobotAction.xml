@@ -10,45 +10,47 @@
         </parameters>
         <actions>
 
-            <TAKE_PICTURE_WEBCAM>
-                <internal_webcam_id>front_webcam</internal_webcam_id>
-            </TAKE_PICTURE_WEBCAM>
-
-            <!-- FORWARD>
-                <distance>24.0</distance>
+            <FORWARD>
+                <distance>27.0</distance>
                 <velocity>.5</velocity>
-            </FORWARD -->
+                <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
+            </FORWARD>
 
-            <DISABLE_PROCESSOR>
-                <internal_webcam_id>front_webcam</internal_webcam_id>
-                <processor>webcam_frame</processor>
-            </DISABLE_PROCESSOR>
+            <TURN>
+                <angle>45.0</angle>
+                <power>.5</power>
+                <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+            </TURN>
 
-            <STOP_WEBCAM_STREAMING>
-                <internal_webcam_id>front_webcam</internal_webcam_id>                
-            </STOP_WEBCAM_STREAMING>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+            
+            <TURN>
+                <angle>-45.0</angle>
+                <power>.5</power>
+                <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+            </TURN>
+
+            <DESKEW />           
 
             <SLEEP>
                 <ms>1000</ms>
             </SLEEP>
 
-            <ENABLE_PROCESSOR>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
-            </ENABLE_PROCESSOR>
+            <BACK>
+                <distance>20</distance>
+                <velocity>.5</velocity>
+                <ramp_down_at_distance_remaining>5.0</ramp_down_at_distance_remaining>
+            </BACK>
 
-            <FIND_APRIL_TAGS>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>                
-            </FIND_APRIL_TAGS>
-
-            <DISABLE_PROCESSOR>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
-            </DISABLE_PROCESSOR>
-
-            <STOP_WEBCAM_STREAMING>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>                
-            </STOP_WEBCAM_STREAMING>
+            <!-- Test strafe by angle -->
+            <!-- STRAIGHT_BY>
+                <distance>30.0</distance>
+                <velocity>0.5</velocity>
+                <angle>-20.0</angle>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </STRAIGHT_BY -->
 
             <SLEEP>
                 <ms>1500</ms>

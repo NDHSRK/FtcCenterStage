@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
-import org.firstinspires.ftc.teamcode.robot.device.imu.BasicIMU;
+import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.xml.sax.SAXException;
@@ -131,8 +131,8 @@ public class FTCRobot {
             if (pRunType == RobotConstants.RunType.TELEOP)
                 imuReader = null;
             else {
-                BasicIMU basicIMU = new BasicIMU(hardwareMap);
-                imuReader = new IMUReader(basicIMU.getInitializedIMU());
+                GenericIMU genericIMU = new GenericIMU(hardwareMap);
+                imuReader = new IMUReader(genericIMU.getImu());
             }
 
         } catch (ParserConfigurationException | SAXException | XPathExpressionException |
