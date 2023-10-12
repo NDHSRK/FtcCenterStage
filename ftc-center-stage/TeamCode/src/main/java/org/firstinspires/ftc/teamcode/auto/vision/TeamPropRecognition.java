@@ -13,6 +13,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
@@ -174,6 +175,7 @@ public class TeamPropRecognition {
         return lookThroughWindows(propOut, centerOfLargestCircle, pOutputFilenamePreamble);
     }
 
+    //**TODO 10/12/23 DO NOT USE - still a work in progress in IJCenterStage
     private TeamPropReturn colorChannelFeaturesPath(Mat pImageROI, String pOutputFilenamePreamble,
                                                     TeamPropParameters.ColorChannelFeaturesParameters pFeaturesParameters) {
         Mat split = splitChannels(pImageROI, pFeaturesParameters.grayParameters, pOutputFilenamePreamble);
@@ -235,9 +237,17 @@ public class TeamPropRecognition {
                                                     TeamPropParameters.ColorChannelContoursParameters pColorChannelContoursParameters) {
         Mat split = splitChannels(pImageROI, pColorChannelContoursParameters.grayParameters, pOutputFilenamePreamble);
 
-        // Apply a 2d filter to sharpen the image.
-        Mat sharp = sharpen(split, pOutputFilenamePreamble);
-        Mat thresholded = ImageUtils.applyGrayThreshold(sharp, pColorChannelContoursParameters.grayParameters.threshold_low);
+        // Threshold the image: set pixels over the threshold value to white.
+        Mat thresholded = new Mat(); // output binary image
+        Imgproc.threshold(split, thresholded,
+                Math.abs(pColorChannelContoursParameters.grayParameters.threshold_low),    // threshold value
+                255,   // white
+                pColorChannelContoursParameters.grayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
+        RobotLogCommon.v(TAG, "Threshold values: low " + pColorChannelContoursParameters.grayParameters.threshold_low + ", high 255");
+
+        String thrFilename = pOutputFilenamePreamble + "_THR.png";
+        Imgcodecs.imwrite(thrFilename, thresholded);
+        RobotLogCommon.d(TAG, "Writing " + thrFilename);
 
         Optional<Pair<Integer, MatOfPoint>> targetContour = ImageUtils.getLargestContour(pImageROI, thresholded, pOutputFilenamePreamble);
         if (!targetContour.isPresent()) {
@@ -250,17 +260,7 @@ public class TeamPropRecognition {
         double contourArea = Imgproc.contourArea(largestContour);
         RobotLogCommon.d(TAG, "Area of largest contour: " + contourArea);
 
-        // Within the ROI draw a circle around the largest contour.
-        Mat enclosingCircleOut = pImageROI.clone();
-        float[] radius = new float[1];
-        Point center = new Point();
-        Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour.toArray()), center, radius);
-        Imgproc.circle(enclosingCircleOut, center, (int) radius[0], new Scalar(0, 0, 0), 4);
-
-        // Check the area of the enclosing circle around the largest contour.
-        double enclosingCircleArea = Math.PI * Math.pow(radius[0], 2);
-        RobotLogCommon.d(TAG, "Area of enclosing circle: " + enclosingCircleArea);
-
+        // Make sure the largest contour is within our bounds.
         if (contourArea < pColorChannelContoursParameters.minArea ||
                 contourArea > pColorChannelContoursParameters.maxArea) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
@@ -268,9 +268,14 @@ public class TeamPropRecognition {
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL, nposWindow.second);
         }
 
+        // Redraw the contours to show against the Team Prop windows.
+        Mat contoursOut = pImageROI.clone();
+        List<MatOfPoint> requiredArray = new ArrayList<>(Arrays.asList(largestContour)); // required by drayContours
+        Imgproc.drawContours(contoursOut, requiredArray, 0, new Scalar(0, 255, 0), 2);
+
         // Get the center point of the largest contour.
         Point contourCentroid = ImageUtils.getContourCentroid(largestContour);
-        return lookThroughWindows(enclosingCircleOut, contourCentroid, pOutputFilenamePreamble);
+        return lookThroughWindows(contoursOut, contourCentroid, pOutputFilenamePreamble);
     }
 
     private TeamPropReturn colorChannelBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
@@ -290,12 +295,22 @@ public class TeamPropRecognition {
         Imgcodecs.imwrite(blurFilename, bright);
 
         Core.MinMaxLocResult brightResult = Core.minMaxLoc(bright);
+        RobotLogCommon.d(TAG, "Bright spot location " + brightResult.maxLoc + ", value " + brightResult.maxVal);
+
         Mat brightSpotOut = pImageROI.clone();
         Imgproc.circle(brightSpotOut, brightResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
 
         String brightSpotFilename = pOutputFilenamePreamble + "_BRIGHT.png";
         RobotLogCommon.d(TAG, "Writing " + brightSpotFilename);
         Imgcodecs.imwrite(brightSpotFilename, brightSpotOut);
+
+        // If the bright spot is under the threshold then assume no Team Prop is present.
+        if (brightResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
+            Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
+            drawSpikeWindows(brightSpotOut, pOutputFilenamePreamble);
+            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
+        }
 
         return lookThroughWindows(brightSpotOut, brightResult.maxLoc, pOutputFilenamePreamble);
     }
@@ -320,19 +335,27 @@ public class TeamPropRecognition {
         Mat brightGray = new Mat();
         Imgproc.GaussianBlur(graySharp, brightGray, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
 
-        String blurFilename = pOutputFilenamePreamble + "_GRAY__BLUR.png";
+        String blurFilename = pOutputFilenamePreamble + "_GRAY_BLUR.png";
         RobotLogCommon.d(TAG, "Writing " + blurFilename);
         Imgcodecs.imwrite(blurFilename, brightGray);
 
         Core.MinMaxLocResult brightGrayResult = Core.minMaxLoc(brightGray);
-        Mat brightGraySpotGrayOut = pImageROI.clone();
-        Imgproc.circle(brightGraySpotGrayOut, brightGrayResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
+        Mat brightGraySpotOut = pImageROI.clone();
+        Imgproc.circle(brightGraySpotOut, brightGrayResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
 
         String brightSpotGrayFilename = pOutputFilenamePreamble + "_GRAY_BRIGHT.png";
         RobotLogCommon.d(TAG, "Writing " + brightSpotGrayFilename);
-        Imgcodecs.imwrite(brightSpotGrayFilename, brightGraySpotGrayOut);
+        Imgcodecs.imwrite(brightSpotGrayFilename, brightGraySpotOut);
 
-        return lookThroughWindows(brightGraySpotGrayOut, brightGrayResult.maxLoc, pOutputFilenamePreamble);
+        // If the bright spot is under the threshold then assume no Team Prop is present.
+        if (brightGrayResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
+            Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
+            drawSpikeWindows(brightGraySpotOut, pOutputFilenamePreamble);
+            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
+        }
+
+        return lookThroughWindows(brightGraySpotOut, brightGrayResult.maxLoc, pOutputFilenamePreamble);
     }
 
     // Look through the left and right windows and determine if the team prop
