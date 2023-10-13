@@ -1,3 +1,4 @@
+            <!-- RED_F4 -->
             <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -6,14 +7,14 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>0</x>
-                        <y>195</y>
-                        <width>630</width>
-                        <height>240</height>
+                        <x>50</x>
+                        <y>270</y>
+                        <width>530</width>
+                        <height>145</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
-                    <recognition_path>color_channel_circles</recognition_path>
+                    <recognition_path>color_channel_bright_spot</recognition_path>
                     <!-- These values are relative to the image ROI -->
                     <!-- Note: the left_window may enclose the LEFT_SPIKE
                          or the CENTER_SPIKE, depending on the robot's
@@ -22,19 +23,19 @@
                     <left_window>
                         <x>0</x>
                         <y>0</y>
-                        <width>245</width>
-                        <height>240</height>
-                        <prop_location>LEFT_SPIKE</prop_location>
+                        <width>360</width>
+                        <height>145</height>
+                        <prop_location>CENTER_SPIKE</prop_location>
                     </left_window>
                     <right_window>
                         <!-- x starts at left_window.x + left_window.width -->
-                        <width>345</width>
+                        <width>170</width>
                         <!-- y is the same as that of the left_window -->
                         <!-- height is the same as that of the left_window -->
-                        <prop_location>CENTER_SPIKE</prop_location>
+                        <prop_location>RIGHT_SPIKE</prop_location>
                     </right_window>
                     <team_prop_npos>
-                        <prop_location>RIGHT_SPIKE</prop_location>
+                        <prop_location>LEFT_SPIKE</prop_location>
                     </team_prop_npos>
                 </team_prop_recognition>
             </FIND_TEAM_PROP>
@@ -42,7 +43,7 @@
             <DISABLE_PROCESSOR>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
                 <processor>webcam_frame</processor>
-            <DISABLE_PROCESSOR>
+            </DISABLE_PROCESSOR>
 
             <STOP_WEBCAM_STREAMING>
                 <internal_webcam_id>front_webcam</internal_webcam_id>                
