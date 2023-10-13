@@ -168,6 +168,7 @@ public class FTCAuto {
             }
 
             RobotLogCommon.i(TAG, "FTCAuto runRobot()");
+            RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuReader.getIMUHeading());
 
             // Extract data from
             // the parsed XML file for the selected OpMode only.
@@ -182,14 +183,13 @@ public class FTCAuto {
             // We won't know which location to go for until we've performed image recognition.
             // This reference may be null if no team prop location actions have been defined
             // for an OpMode.
-            // EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
+            teamPropLocationActions = actionData.teamPropLocationActions;
 
             // Follow the choreography specified in the robot action file.
             // Note that executeAction returns false as a signal to stop
             // all processing immediately.
             List<RobotXMLElement> actions = actionData.actions;
             for (RobotXMLElement action : actions) {
-
                 if (!linearOpMode.opModeIsActive())
                     return; // better to just bail out
 
@@ -199,9 +199,9 @@ public class FTCAuto {
                         return;
                 }
 
-                // Takes care of the case where the SIGNAL_SLEEVE_LOCATION_CHOICE
+                // Takes care of the case where the TEAM_PROP_LOCATION_CHOICE
                 // action is the last action for the opmode in RobotConfig.xml.
-                if (executeTeamPropLocationActions) { // any steps specific to the signal sleeve location?
+                if (executeTeamPropLocationActions) { // any steps specific to the team prop location?
                     // Yes, execute all of those actions now.
                     for (RobotXMLElement insertedStep : teamPropLocationInsert) {
                         if (insertedStep.getRobotXMLElementName().equals("TEAM_PROP_LOCATION_CHOICE"))
@@ -609,7 +609,7 @@ public class FTCAuto {
                     //    linearOpMode.telemetry.addData("IMU pitch +- 2.5 deg from baseline: ", pitch);
                     //    linearOpMode.telemetry.update();
                     //}
-                    sleep(50);
+                    sleep(500);
                 }
 
                 break;

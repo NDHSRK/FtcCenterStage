@@ -2,11 +2,12 @@
 <ENABLE_PROCESSOR>
     <internal_webcam_id>rear_webcam</internal_webcam_id>
     <processor>april_tag</processor>
-<ENABLE_PROCESSOR>
+</ENABLE_PROCESSOR>
   
 <NAVIGATE_TO_APRIL_TAG>
+    <internal_webcam_id>rear_webcam</internal_webcam_id>
     <desired_tag_id>5</desired_tag_id>
-    <desired_distance_from_tag>17.0</desired_distance_from_tag>
+    <desired_distance_from_tag>12.0</desired_distance_from_tag>
     <direction>back</direction>
 </NAVIGATE_TO_APRIL_TAG>
 
