@@ -4,6 +4,13 @@ public class RobotConstantsCenterStage {
 
     public enum OpMode {
         // Autonomous OpModes
+        // For testing
+        RED_F2_LEFT, RED_F2_CENTER, RED_F2_RIGHT,
+        RED_F4_LEFT, RED_F4_CENTER, RED_F4_RIGHT,
+        BLUE_A2_LEFT, BLUE_A2_CENTER, BLUE_A2_RIGHT,
+        BLUE_A4_LEFT, BLUE_A4_CENTER, BLUE_A4_RIGHT,
+
+        // For production
         BLUE_A2, BLUE_A4, RED_F2, RED_F4,
         TEST, TEST_PRE_MATCH, AUTO_NO_DRIVE,
 
