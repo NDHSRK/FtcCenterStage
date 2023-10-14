@@ -34,6 +34,7 @@ import static android.os.SystemClock.sleep;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -90,6 +91,9 @@ public class AprilTagNavigation {
 
     @SuppressLint("DefaultLocale")
     public boolean driveToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
+        // Set the correct motor mode for running by power.
+        robot.driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         double drive; // Desired forward power/speed (-1 to +1)
         double strafe; // Desired strafe power/speed (-1 to +1)
         double turn; // Desired turning power/speed (-1 to +1)
@@ -124,6 +128,7 @@ public class AprilTagNavigation {
                 RobotLogCommon.d(TAG, "Tag Id " + pDesiredTagId + " not found within 1 sec");
                 linearOpMode.telemetry.addLine("Tag Id " + pDesiredTagId + " not found within 1 sec");
                 linearOpMode.telemetry.update();
+                robot.driveTrain.stopAllZeroPower();
                 return false;
             }
 
@@ -156,6 +161,7 @@ public class AprilTagNavigation {
                 linearOpMode.telemetry.addLine("In position: all AprilTag values < 1 degree");
                 linearOpMode.telemetry.update();
                 RobotLogCommon.d(TAG,"In position: all AprilTag values < 1 degree");
+                robot.driveTrain.stopAllZeroPower();
                 return true;
             }
 
@@ -179,6 +185,7 @@ public class AprilTagNavigation {
                     linearOpMode.telemetry.addLine("In position: no change in AprilTag values for 1 sec");
                     linearOpMode.telemetry.update();
                     RobotLogCommon.d(TAG,"In position: no change in AprilTag values for 1 sec");
+                    robot.driveTrain.stopAllZeroPower();
                     return true;
                 }
             } else {

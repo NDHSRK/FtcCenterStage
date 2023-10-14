@@ -127,7 +127,7 @@
         <actions>
 
             <FORWARD>
-                <distance>32.0</distance>
+                <distance>29.0</distance>
                 <velocity>.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </FORWARD>
@@ -140,6 +140,16 @@
 
             <DESKEW />
 
+            <FORWARD>
+                <distance>7.0</distance>
+                <velocity>.5</velocity>
+            </FORWARD>
+            
+            <BACK>
+                <distance>12.0</distance>
+                <velocity>.5</velocity>
+            </BACK>
+
             <ENABLE_PROCESSOR>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
@@ -147,7 +157,47 @@
 
             <NAVIGATE_TO_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <desired_tag_id>5</desired_tag_id>
+                <desired_tag_id>4</desired_tag_id>
+                <desired_distance_from_tag>12.0</desired_distance_from_tag>
+                <direction>back</direction>
+            </NAVIGATE_TO_APRIL_TAG>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <STOP />
+
+        </actions>
+    </OpMode>
+
+    <OpMode id="RED_F4_RIGHT">
+        <parameters>
+            <log_level>v</log_level>
+        </parameters>
+        <actions>
+
+            <STRAIGHT_BY>
+                <distance>30.0</distance>
+                <velocity>0.5</velocity>
+                <angle>-30.0</angle>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </STRAIGHT_BY>
+
+            <TURN>
+                <angle>90.0</angle>
+                <power>.5</power>
+                <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+            </TURN>
+
+            <ENABLE_PROCESSOR>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </ENABLE_PROCESSOR>
+
+            <NAVIGATE_TO_APRIL_TAG>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <desired_tag_id>6</desired_tag_id>
                 <desired_distance_from_tag>12.0</desired_distance_from_tag>
                 <direction>back</direction>
             </NAVIGATE_TO_APRIL_TAG>
