@@ -219,8 +219,8 @@ public class FTCAuto {
             }
         } finally {
             if (!keepIMUAndCamerasRunning) {
+                // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
                 if (robot.imuReader != null) { // if the IMU is configured in
-                    // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
                     RobotLogCommon.i(TAG, "In FTCAuto finally: close the imu reader");
                     robot.imuReader.stopIMUReader();
                 }

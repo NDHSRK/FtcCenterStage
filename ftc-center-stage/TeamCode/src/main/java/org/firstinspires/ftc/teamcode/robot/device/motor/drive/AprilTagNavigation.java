@@ -107,6 +107,10 @@ public class AprilTagNavigation {
         double previousHeadingError = 0;
         double previousYawError = 0;
 
+        //**TODO At the end of the motion log the AprilTag heading and yaw
+        // and the IMU heading and yaw and see if a deskew is needed. There
+        // may be other uses for this information during the motion.
+
         // Drive until the robot is positioned in front of the desired AprilTag
         // OR there is no AprilTag for us to work with.
         boolean logFirstDetection = true;

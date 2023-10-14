@@ -133,10 +133,6 @@ public class VisionPortalWebcam {
         return configuredWebcam.internalWebcamId;
     }
 
-    public VisionPortal.CameraState getCameraState() {
-        return visionPortal.getCameraState();
-    }
-
     // Adapted from the FTC SDK 9.0 sample RobotAutoDriveToAprilTagOmni.
     /*
      * Manually set the camera gain and exposure.
@@ -174,15 +170,23 @@ public class VisionPortalWebcam {
     }
 
     public void enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
-        if (activeProcessorId == pProcessorId)
+        if (pProcessorId == RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS) {
+            RobotLogCommon.d(TAG, "Ignoring request to enable processor " + RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS);
+            return;
+        }
+
+        if (activeProcessorId == pProcessorId) {
+            RobotLogCommon.d(TAG, "Ignoring request to enable processor " + pProcessorId + " which is already active");
             return; // already enabled
+        }
 
         VisionProcessor processor = processors.get(pProcessorId);
         if (processor == null)
             throw new AutonomousRobotException(TAG, "Attempt to enable an uninitialized processor " + pProcessorId);
 
+        // In our application we only allow one processor at a time to be enabled.
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS) {
-            // A processor is already active, disable it.
+            RobotLogCommon.d(TAG, "The processor " + activeProcessorId + " is already active, disable it");
             VisionProcessor activeProcessor = processors.get(activeProcessorId);
             visionPortal.setProcessorEnabled(activeProcessor, false);
         }
@@ -193,8 +197,16 @@ public class VisionPortalWebcam {
     }
 
     public void disableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
-        if (activeProcessorId != pProcessorId)
+        if (pProcessorId == RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS) {
+            RobotLogCommon.d(TAG, "Ignoring request to disablethe  processor " + RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS);
+            return;
+        }
+
+        if (activeProcessorId != pProcessorId) {
+            RobotLogCommon.d(TAG, "Request to disable the processor " + pProcessorId + " which is not active");
+            RobotLogCommon.d(TAG, "The active processor is " + activeProcessorId);
             return; // already disabled
+        }
 
         VisionProcessor processor = processors.get(pProcessorId);
         if (processor == null)
@@ -206,11 +218,23 @@ public class VisionPortalWebcam {
     }
 
     public void stopStreaming() {
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            RobotLogCommon.d(TAG, "Ignoring request to stop streaming the webcam " + configuredWebcam.internalWebcamId);
+            RobotLogCommon.d(TAG, "The webcam is not streaming");
+            return;
+        }
+
         visionPortal.stopStreaming();
         RobotLogCommon.d(TAG, "Stop streaming the webcam " + configuredWebcam.internalWebcamId);
     }
 
     public void resumeStreaming() {
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+            RobotLogCommon.d(TAG, "Ignoring request to resume streaming the webcam " + configuredWebcam.internalWebcamId);
+            RobotLogCommon.d(TAG, "The webcam is already streaming");
+            return;
+        }
+
         visionPortal.resumeStreaming();
         RobotLogCommon.d(TAG, "Resume streaming the webcam " + configuredWebcam.internalWebcamId);
     }
@@ -219,6 +243,13 @@ public class VisionPortalWebcam {
     // To be called from the finally block of FTCAuto or any TeleOp
     // OpMode that uses the webcam.
     public void finalShutdown() {
+        // Shut down the active processor, if any. Stop streaming.
+        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS)
+            disableProcessor(activeProcessorId);
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+            visionPortal.stopStreaming();
+
         visionPortal.close();
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }
