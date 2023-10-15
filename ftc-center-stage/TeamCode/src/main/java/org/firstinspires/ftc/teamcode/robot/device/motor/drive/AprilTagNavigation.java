@@ -49,6 +49,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Objects;
 
 // Adapted from the FTC SDK 9.0 sample OpMode RobotAutoDriveToAprilTagOmni.
 public class AprilTagNavigation {
@@ -92,7 +93,7 @@ public class AprilTagNavigation {
     @SuppressLint("DefaultLocale")
     public boolean driveToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
         // Set the correct motor mode for running by power.
-        robot.driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Objects.requireNonNull(robot.driveTrain).setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         double drive; // Desired forward power/speed (-1 to +1)
         double strafe; // Desired strafe power/speed (-1 to +1)
@@ -100,16 +101,12 @@ public class AprilTagNavigation {
 
         // For stall detection.
         BigDecimal bd;
-        double currentRangeError = 0;
-        double currentHeadingError = 0;
-        double currentYawError = 0;
+        double currentRangeError;
+        double currentHeadingError;
+        double currentYawError;
         double previousRangeError = 0;
         double previousHeadingError = 0;
         double previousYawError = 0;
-
-        //**TODO At the end of the motion log the AprilTag heading and yaw
-        // and the IMU heading and yaw and see if a deskew is needed. There
-        // may be other uses for this information during the motion.
 
         // Drive until the robot is positioned in front of the desired AprilTag
         // OR there is no AprilTag for us to work with.
@@ -166,6 +163,7 @@ public class AprilTagNavigation {
                 linearOpMode.telemetry.update();
                 RobotLogCommon.d(TAG,"In position: all AprilTag values < 1 degree");
                 robot.driveTrain.stopAllZeroPower();
+                RobotLogCommon.d(TAG, "AprilTag yaw at end of motion " + yawError);
                 return true;
             }
 
@@ -190,6 +188,7 @@ public class AprilTagNavigation {
                     linearOpMode.telemetry.update();
                     RobotLogCommon.d(TAG,"In position: no change in AprilTag values for 1 sec");
                     robot.driveTrain.stopAllZeroPower();
+                    RobotLogCommon.d(TAG, "AprilTag yaw at end of motion " + currentYawError);
                     return true;
                 }
             } else {
@@ -232,7 +231,6 @@ public class AprilTagNavigation {
      * <p>
      * Positive Yaw is counter-clockwise
      */
-    // **TODO Make sure the motors are in the right mode ...
     private void moveRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
         double leftFrontPower = x - y - yaw;
@@ -258,7 +256,7 @@ public class AprilTagNavigation {
         powerMap.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, leftBackPower);
         powerMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, rightBackPower);
 
-        robot.driveTrain.setPowerAll(powerMap);
+        Objects.requireNonNull(robot.driveTrain).setPowerAll(powerMap);
         powerMap.clear();
     }
 

@@ -560,7 +560,12 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Navigating to AprilTag with id " + desiredTagId);
                 RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
                 RobotLogCommon.d(TAG, "Direction of travel " + directionString);
-                aprilTagNavigation.driveToAprilTag(desiredTagId, desiredDistanceFromTag, direction);
+                if (!aprilTagNavigation.driveToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
+                   RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
+                   return false;
+                }
+
+                deskew(); // make sure the robot is aligned with the desired heading
 
                 break;
             }
@@ -609,7 +614,7 @@ public class FTCAuto {
                     //    linearOpMode.telemetry.addData("IMU pitch +- 2.5 deg from baseline: ", pitch);
                     //    linearOpMode.telemetry.update();
                     //}
-                    sleep(500);
+                    sleep(500); // be careful - small sleep values flood the log
                 }
 
                 break;
@@ -859,12 +864,11 @@ public class FTCAuto {
             throw new AutonomousRobotException(TAG, "Deskew not allowed while asyncTurn is in progress");
 
         double currentHeading = robot.imuReader.getIMUHeading();
+        RobotLogCommon.d(TAG, "Current heading " + currentHeading);
         double degreeDifference = DEGREES.normalize(desiredHeading - currentHeading);
         if (Math.abs(degreeDifference) >= DriveTrainConstants.SKEW_THRESHOLD_DEGREES) {
-            RobotLogCommon.d(TAG, "De-skewing " + degreeDifference + " degrees");
             RobotLogCommon.d(TAG, "Desired heading " + desiredHeading);
-            RobotLogCommon.d(TAG, "Current heading before turn " + currentHeading);
-
+            RobotLogCommon.d(TAG, "De-skewing " + degreeDifference + " degrees");
             driveTrainMotion.turn(desiredHeading, currentHeading, 0.0, DriveTrainConstants.MINIMUM_TURN_POWER, 0.0, DriveTrainConstants.TurnNormalization.NORMALIZED);
         }
     }
