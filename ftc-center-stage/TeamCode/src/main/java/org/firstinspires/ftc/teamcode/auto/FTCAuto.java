@@ -110,7 +110,6 @@ public class FTCAuto {
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
 
-        //**TODO TEST this ...
         //!! 10/9/2023 Very important - I made an enquiry on the FTC Forum about Driver
         // Station camera streams when more than one webcam is in the configuration.
         // The answer came back that second camera's stream is the one that is displayed
@@ -124,7 +123,7 @@ public class FTCAuto {
             if (rearWebcamConfiguration != null) {
                 VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
                 rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
-                visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+                //**TODO 10/17/23 temp visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
             }
 
             // Since the first task in Autonomous is to find the Team Prop, start the front webcam

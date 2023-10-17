@@ -55,7 +55,7 @@
           <optical_center_x>301.424062225</optical_center_x>
           <optical_center_y>234.042415697</optical_center_y>
         </webcam_calibration_for_apriltags>
-      </webcam>
+      </webcam>s
       <webcam>
         <internal_id>rear_webcam</internal_id>
         <!-- BRIO PY rear -->
