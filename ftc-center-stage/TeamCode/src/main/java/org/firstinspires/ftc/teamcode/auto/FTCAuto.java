@@ -16,6 +16,8 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
@@ -28,10 +30,13 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamImageProvider;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -39,6 +44,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -125,6 +131,36 @@ public class FTCAuto {
                 VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
                 frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
                 visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+
+                //**TODO TEMP
+                /*
+                // Create the processors for the front webcam.
+                VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+
+                VisionProcessor aprilTagProcessorFront = new AprilTagProcessor.Builder()
+                        .setDrawAxes(false) // 10/17/23 uncommented - now false
+                        .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
+                        .setDrawTagOutline(false) // 10/17/23 changed to false
+                        .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                        //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                        .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+
+                        // == CAMERA CALIBRATION ==
+                        // If you do not manually specify calibration parameters, the SDK will attempt
+                        // to load a predefined calibration for your camera.
+                        // ... these parameters are fx, fy, cx, cy.
+                        //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+                        .setLensIntrinsics(frontWebcamConfiguration.cameraCalibration.focalLengthX,
+                                frontWebcamConfiguration.cameraCalibration.focalLengthY,
+                                frontWebcamConfiguration.cameraCalibration.opticalCenterX,
+                                frontWebcamConfiguration.cameraCalibration.opticalCenterY)
+                        .build();
+
+                ArrayList<VisionProcessor> frontWebcamProcessors = new ArrayList<>(Arrays.asList(webcamFrameProcessor, aprilTagProcessorFront));
+                //**TODO add to front configuredWebcam
+                // Construct FrontWebcamContainer
+                //**TODO end TEMP
+                 */
             }
 
             // If the rear-facing webcam is in the configuration start it now with
@@ -135,6 +171,34 @@ public class FTCAuto {
                 VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
                 rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
                 visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+
+                //**TODO TEMP
+                /*
+                // Create the processor for the rear webcam.
+                VisionProcessor aprilTagProcessorRear = new AprilTagProcessor.Builder()
+                        .setDrawAxes(false) // 10/17/23 uncommented - now false
+                        .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
+                        .setDrawTagOutline(false) // 10/17/23 changed to false
+                        .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                        //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                        .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+
+                        // == CAMERA CALIBRATION ==
+                        // If you do not manually specify calibration parameters, the SDK will attempt
+                        // to load a predefined calibration for your camera.
+                        // ... these parameters are fx, fy, cx, cy.
+                        //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+                        .setLensIntrinsics(rearWebcamConfiguration.cameraCalibration.focalLengthX,
+                                rearWebcamConfiguration.cameraCalibration.focalLengthY,
+                                rearWebcamConfiguration.cameraCalibration.opticalCenterX,
+                                rearWebcamConfiguration.cameraCalibration.opticalCenterY)
+                        .build();
+
+                ArrayList<VisionProcessor> rearWebcamProcessors = new ArrayList<>(Arrays.asList(aprilTagProcessorRear));
+                //**TODO add to rear configuredWebcam
+                // Construct RearWebcamContainer
+                //**TODO end TEMP
+                 */
             }
         }
 

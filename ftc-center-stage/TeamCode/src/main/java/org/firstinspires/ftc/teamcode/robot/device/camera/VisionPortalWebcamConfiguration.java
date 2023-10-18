@@ -2,35 +2,38 @@ package org.firstinspires.ftc.teamcode.robot.device.camera;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.vision.VisionProcessor;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 // Configuration parameters for all webcams.
 public class VisionPortalWebcamConfiguration {
-    // Note: all fields originate in RobotConfig.xml except for webcamName and
-    // visionPortalWebcam, which can only be added after we access the FTC
-    // HardwareMap in FTCRobot and construct the visionPortalWebcam, respectively.
     public static class ConfiguredWebcam {
-        private WebcamName webcamName;
-        private VisionPortalWebcam visionPortalWebcam;
+        // The final fields originate in RobotConfig.xml.
         public final RobotConstantsCenterStage.InternalWebcamId internalWebcamId;
         public final String serialNumber;
         public final int resolutionWidth;
         public final int resolutionHeight;
-        public final ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processors;
+        public final ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIdentifiers;
         public final CameraCalibration cameraCalibration;
- 
+
+        // The non-final fields all have setters which are called during initialization.
+        private WebcamName webcamName;
+        private VisionPortalWebcam visionPortalWebcam;
+        private EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> processors;
+
         public ConfiguredWebcam(RobotConstantsCenterStage.InternalWebcamId pCameraId,
                                 String pSerialNumber,
                                 int pResolutionWidth,
                                 int pResolutionHeight,
-                                ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessors,
+                                ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessorIdentifierss,
                                 CameraCalibration pCameraCalibration) {
             internalWebcamId = pCameraId;
             serialNumber = pSerialNumber;
             resolutionWidth = pResolutionWidth;
             resolutionHeight = pResolutionHeight;
-            processors = pProcessors;
+            processorIdentifiers = pProcessorIdentifierss;
             cameraCalibration = pCameraCalibration;
         }
 
@@ -48,6 +51,14 @@ public class VisionPortalWebcamConfiguration {
 
         public VisionPortalWebcam getVisionPortalWebcam() {
             return visionPortalWebcam;
+        }
+
+        public void setProcessors(EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pProcessors) {
+            processors = pProcessors;
+        }
+
+        public EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> getProcessors() {
+            return processors;
         }
     }
 
