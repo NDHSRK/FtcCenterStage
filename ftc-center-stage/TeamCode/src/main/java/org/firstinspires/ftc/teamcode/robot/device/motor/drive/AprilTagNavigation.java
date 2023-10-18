@@ -110,13 +110,15 @@ public class AprilTagNavigation {
 
         // Drive until the robot is positioned in front of the desired AprilTag
         // OR there is no AprilTag for us to work with.
+        List<AprilTagDetection> currentDetections;
+        AprilTagDetection desiredTag;
         boolean logFirstDetection = true;
         ElapsedTime stallTimer = new ElapsedTime();
         stallTimer.reset(); // start
-        while (true) {
+        while (linearOpMode.opModeIsActive()) {
             // Step through the list of detected tags and look for a matching tag.
-            AprilTagDetection desiredTag = null;
-            List<AprilTagDetection> currentDetections = webcam.getAprilTagData(1000);
+            desiredTag = null;
+            currentDetections = webcam.getAprilTagData(1000);
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.metadata != null && detection.id == pDesiredTagId) {
                     desiredTag = detection;
@@ -220,6 +222,8 @@ public class AprilTagNavigation {
             moveRobot(drive, strafe, turn);
             sleep(10);
         }
+
+        return false;
     }
 
     /**

@@ -61,9 +61,9 @@ public class VisionPortalWebcam {
                     }
                     case APRIL_TAG: {
                         VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-                                //.setDrawAxes(false)
-                                //.setDrawCubeProjection(false)
-                                .setDrawTagOutline(true)
+                                .setDrawAxes(false) // 10/17/23 uncommented - now false
+                                .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
+                                .setDrawTagOutline(false) // 10/17/23 changed to false
                                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                                 //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
@@ -256,8 +256,11 @@ public class VisionPortalWebcam {
 
     //**TODO Find a way not to hardcode the methods for getting the results from
     // the processors attached to the current webcam: possible but it would mean
-    // moving all methods related to processors to another class.Not worth the
-    // architectural change at this point (10/11/2023).
+    // moving all methods related to processors to another class. Not worth the
+    // architectural change at this point (10/11/2023). The solution is to "favor
+    // composition over inheritance" - this VisionPortalWebcam class will be
+    // constructed with its processors and then passed in to the constructors
+    // of a WebcamFrameAccessor and an AprilTagAccessor.
     public Pair<Mat, Date> getVisionPortalWebcamData(int pTimeoutMs) {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
             throw new AutonomousRobotException(TAG, "WEBCAM_FRAME is not the active processor");

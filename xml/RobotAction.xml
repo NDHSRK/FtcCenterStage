@@ -24,14 +24,64 @@
             <!-- **TODO So here try both cameras in the configuration but immediately
                  disable and stop streaming the front camera. Then see if this OpMode
                  recognizes the AprilTag and runs to completion without crashing the
-                 RC at the end of the run. -->
+                 RC at the end of the run. 10/17/23 NO CRASH -->
             <!-- **TODO If this works then try stopping streaming on the *rear* camera
                  before taking a picture with the front webcam. Then disable its
                  processor and stop streaming before *resuming* streaming and enabling
                  the AprilTag processor on the rear camera. If this
                  does *not* work then do *not* even start the rear camera until we
                  have stopped streaming the front camera. This way the two cameras
-                 will never be in a streaming state at the same time. -->
+                 will never be in a streaming state at the same time. 10/17/23 this
+                 DID CRASH at the very end - but produced log files. -->
+
+                 <STOP_WEBCAM_STREAMING>
+                    <internal_webcam_id>rear_webcam</internal_webcam_id>
+                </STOP_WEBCAM_STREAMING>
+
+                <SLEEP>
+                    <ms>1000</ms>
+                </SLEEP>
+
+                 <FIND_TEAM_PROP>
+                    <image_parameters>
+                        <image_source>front_webcam</image_source>
+                        <resolution>
+                            <width>640</width>
+                            <height>480</height>
+                        </resolution>
+                        <image_roi>
+                            <x>50</x>
+                            <y>270</y>
+                            <width>530</width>
+                            <height>145</height>
+                        </image_roi>
+                    </image_parameters>
+                    <team_prop_recognition>
+                        <recognition_path>color_channel_bright_spot</recognition_path>
+                        <!-- These values are relative to the image ROI -->
+                        <!-- Note: the left_window may enclose the LEFT_SPIKE
+                                                     or the CENTER_SPIKE, depending on the robot's
+                                                     starting position. For RED_F2 the left_window
+                                                     encloses the LEFT_SPIKE. -->
+                        <left_window>
+                            <x>0</x>
+                            <y>0</y>
+                            <width>360</width>
+                            <height>145</height>
+                            <prop_location>CENTER_SPIKE</prop_location>
+                        </left_window>
+                        <right_window>
+                            <!-- x starts at left_window.x + left_window.width -->
+                            <width>170</width>
+                            <!-- y is the same as that of the left_window -->
+                            <!-- height is the same as that of the left_window -->
+                            <prop_location>RIGHT_SPIKE</prop_location>
+                        </right_window>
+                        <team_prop_npos>
+                            <prop_location>LEFT_SPIKE</prop_location>
+                        </team_prop_npos>
+                    </team_prop_recognition>
+                </FIND_TEAM_PROP>
                  
             <DISABLE_PROCESSOR>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
@@ -41,6 +91,14 @@
             <STOP_WEBCAM_STREAMING>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM_STREAMING>
+
+            <RESUME_WEBCAM_STREAMING>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </RESUME_WEBCAM_STREAMING>
+           
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
 
             <ENABLE_PROCESSOR>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -118,6 +176,14 @@
             <log_level>v</log_level>
         </parameters>
         <actions>
+          
+            <STOP_WEBCAM_STREAMING>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </STOP_WEBCAM_STREAMING>
+
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
 
             <!-- RED_F4 -->
             <FIND_TEAM_PROP>
@@ -161,6 +227,15 @@
                 </team_prop_recognition>
             </FIND_TEAM_PROP>
 
+            <DISABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>webcam_frame</processor>
+            </DISABLE_PROCESSOR>
+
+            <STOP_WEBCAM_STREAMING>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM_STREAMING>
+
             <TEAM_PROP_LOCATION_CHOICE>
                 <LEFT_SPIKE>
                     <FORWARD>
@@ -186,6 +261,14 @@
                         <distance>12.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
+                  
+            <RESUME_WEBCAM_STREAMING>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </RESUME_WEBCAM_STREAMING>
+           
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
 
                     <ENABLE_PROCESSOR>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -215,12 +298,20 @@
                     </TURN>
 
                     <DESKEW />
+                 
+                    <RESUME_WEBCAM_STREAMING>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                    </RESUME_WEBCAM_STREAMING>
 
                     <ENABLE_PROCESSOR>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <processor>april_tag</processor>
                     </ENABLE_PROCESSOR>
-
+                   
+                    <SLEEP>
+                        <ms>1000</ms>
+                    </SLEEP>
+                    
                     <NAVIGATE_TO_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <desired_tag_id>5</desired_tag_id>
@@ -242,6 +333,14 @@
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
+                 
+            <RESUME_WEBCAM_STREAMING>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </RESUME_WEBCAM_STREAMING>
+           
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
 
                     <ENABLE_PROCESSOR>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>

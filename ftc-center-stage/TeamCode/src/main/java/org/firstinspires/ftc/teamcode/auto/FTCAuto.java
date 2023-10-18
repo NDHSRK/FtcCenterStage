@@ -116,16 +116,6 @@ public class FTCAuto {
         // during init. So start the AprilTag camera first and the Team Prop camera
         // second.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-            // If the rear-facing webcam is in the configuration start it now with
-            // its processor(s) disabled. It may be configured out during debugging.
-            VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
-                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
-            if (rearWebcamConfiguration != null) {
-                VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
-                rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
-                //**TODO 10/17/23 temp visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
-            }
-
             // Since the first task in Autonomous is to find the Team Prop, start the front webcam
             // with the processor for raw frames. The only time this camera might not be in the
             // configuration is during testing.
@@ -135,6 +125,16 @@ public class FTCAuto {
                 VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
                 frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
                 visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+            }
+
+            // If the rear-facing webcam is in the configuration start it now with
+            // its processor(s) disabled. It may be configured out during debugging.
+            VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
+                    robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM);
+            if (rearWebcamConfiguration != null) {
+                VisionPortalWebcam visionPortalRearWebcam = new VisionPortalWebcam(rearWebcamConfiguration);
+                rearWebcamConfiguration.setVisionPortalWebcam(visionPortalRearWebcam);
+                visionPortalRearWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
             }
         }
 
@@ -525,12 +525,31 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                List<AprilTagDetection> aprilTags = visionPortalWebcam.getAprilTagData(500);
-                if (aprilTags.isEmpty()) {
-                    linearOpMode.telemetry.addLine("No AprilTags found");
-                    linearOpMode.telemetry.update();
-                    RobotLogCommon.d(TAG, "No AprilTags found");
-                } else telemetryAprilTag(aprilTags);
+
+                ElapsedTime aprilTagTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+                aprilTagTimer.reset();
+                List<AprilTagDetection> currentDetections;
+                boolean aprilTagDetected;
+                while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
+                    aprilTagDetected = false;
+                    currentDetections = visionPortalWebcam.getAprilTagData(500);
+                    for (AprilTagDetection detection : currentDetections) {
+                        if (detection.metadata != null) {
+                            aprilTagDetected = true;
+                            break; // don't look any further.
+                        }
+                    }
+
+                    if (!aprilTagDetected) {
+                        linearOpMode.telemetry.addLine("No AprilTags found within 500m");
+                        linearOpMode.telemetry.update();
+                        RobotLogCommon.d(TAG, "No AprilTags found within 500ms");
+                    } else
+                        telemetryAprilTag(currentDetections);
+
+                    sleep(250); // be careful - small sleep values flood the log
+                }
+
                 break;
             }
 
@@ -560,8 +579,8 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
                 RobotLogCommon.d(TAG, "Direction of travel " + directionString);
                 if (!aprilTagNavigation.driveToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
-                   RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
-                   return false;
+                    RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
+                    return false;
                 }
 
                 deskew(); // make sure the robot is aligned with the desired heading
