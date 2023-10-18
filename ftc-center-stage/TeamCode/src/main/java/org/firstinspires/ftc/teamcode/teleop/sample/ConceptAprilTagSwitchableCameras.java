@@ -33,14 +33,18 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionPortal.CameraState;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.opencv.core.Mat;
 
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -65,6 +69,7 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
      * The variable to store our instance of the AprilTag processor.
      */
     private AprilTagProcessor aprilTag;
+    private WebcamFrameProcessor webcamFrameProcessor; //##PY added 10/18/23
 
     /**
      * The variable to store our instance of the vision portal.
@@ -74,6 +79,9 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        //##PY added 10/18/23
+        webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+
         initAprilTag();
 
         // Wait for the DS start button to be touched.
@@ -82,11 +90,16 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        int webcamFrameCount = 1;
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
                 telemetryCameraSwitching();
                 telemetryAprilTag();
+
+                //##PY added 10/5/23 add telemetry for webcam frames
+                Pair<Mat, Date> frameVal = webcamFrameProcessor.getWebcamFrame();
+                telemetry.addLine("Received raw webcam frame " + webcamFrameCount++);
 
                 // Push telemetry to the Driver Station.
                 telemetry.update();
@@ -126,7 +139,7 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
         // Create the vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
             .setCamera(switchableCamera)
-            .addProcessor(aprilTag)
+            .addProcessors(aprilTag, webcamFrameProcessor) //## added 10/18/2023
             .build();
 
     }   // end method initAprilTag()

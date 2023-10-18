@@ -104,7 +104,16 @@ public class MultiPortal extends LinearOpMode {
     AprilTagProcessor.Builder myAprilTagProcessorBuilder;
 
     // First, create an AprilTagProcessor.Builder.
+    /*
+    Logitech Brio - calibrated
+             <focal_length_x>627.419488832</focal_length_x>
+          <focal_length_y>627.419488832</focal_length_y>
+          <optical_center_x>301.424062225</optical_center_x>
+          <optical_center_y>234.042415697</optical_center_y>
+     */
     myAprilTagProcessorBuilder = new AprilTagProcessor.Builder();
+    myAprilTagProcessorBuilder.setLensIntrinsics(627.420, 627.420, 301.424, 234.0424);
+
     // Create each AprilTagProcessor by calling build.
     myAprilTagProcessor_1 = myAprilTagProcessorBuilder.build();
     myAprilTagProcessor_2 = myAprilTagProcessorBuilder.build();
@@ -127,7 +136,7 @@ public class MultiPortal extends LinearOpMode {
     }
     // Manage USB bandwidth of two camera streams, by adjusting resolution from default 640x480.
     // Set the camera resolution.
-    myVisionPortalBuilder.setCameraResolution(new Size(320, 240));
+    myVisionPortalBuilder.setCameraResolution(new Size(640, 480));
     // Manage USB bandwidth of two camera streams, by selecting Streaming Format.
     // Set the stream format.
     myVisionPortalBuilder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
@@ -157,7 +166,7 @@ public class MultiPortal extends LinearOpMode {
     }
     // Manage USB bandwidth of two camera streams, by adjusting resolution from default 640x480.
     // Set the camera resolution.
-    myVisionPortalBuilder.setCameraResolution(new Size(320, 240));
+    myVisionPortalBuilder.setCameraResolution(new Size(640, 480));
     // Manage USB bandwidth of two camera streams, by selecting Streaming Format.
     // Set the stream format.
     myVisionPortalBuilder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
@@ -188,17 +197,25 @@ public class MultiPortal extends LinearOpMode {
       // Temporarily stop the streaming session. This can save CPU
       // resources, with the ability to resume quickly when needed.
       myVisionPortal_1.stopStreaming();
+      telemetry.addLine("Webcam 1 (rear) stop streaming");
+      telemetry.update();
     } else if (gamepad1.dpad_up) {
       // Resume the streaming session if previously stopped.
       myVisionPortal_1.resumeStreaming();
+      telemetry.addLine("Webcam 1 (rear) resume streaming");
+      telemetry.update();
     }
     if (gamepad1.dpad_left) {
       // Temporarily stop the streaming session. This can save CPU
       // resources, with the ability to resume quickly when needed.
       myVisionPortal_2.stopStreaming();
+      telemetry.addLine("Webcam 2 (front) stop streaming");
+      telemetry.update();
     } else if (gamepad1.dpad_right) {
       // Resume the streaming session if previously stopped.
       myVisionPortal_2.resumeStreaming();
+      telemetry.addLine("Webcam 2 (front) resume streaming");
+      telemetry.update();
     }
   }
 

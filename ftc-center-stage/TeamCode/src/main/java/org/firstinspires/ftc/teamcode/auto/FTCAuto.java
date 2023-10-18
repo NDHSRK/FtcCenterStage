@@ -156,11 +156,15 @@ public class FTCAuto {
                                 frontWebcamConfiguration.cameraCalibration.opticalCenterY)
                         .build();
 
-                ArrayList<VisionProcessor> frontWebcamProcessors = new ArrayList<>(Arrays.asList(webcamFrameProcessor, aprilTagProcessorFront));
-                //**TODO add to front configuredWebcam
-                // Construct FrontWebcamContainer
+                        EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> frontWebcamProcessors =
+                          new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
+                          frontWebcamProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor);
+                          frontWebcamProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG, aprilTagProcessorFront);
+                          frontWebcamConfiguration.setProcessors(frontWebcamProcessors);
+                  */
+
+               // Construct FrontWebcamContainer; call frontWebcamConfiguration.setWebcamContainer
                 //**TODO end TEMP
-                 */
             }
 
             // If the rear-facing webcam is in the configuration start it now with
@@ -194,9 +198,12 @@ public class FTCAuto {
                                 rearWebcamConfiguration.cameraCalibration.opticalCenterY)
                         .build();
 
-                ArrayList<VisionProcessor> rearWebcamProcessors = new ArrayList<>(Arrays.asList(aprilTagProcessorRear));
-                //**TODO add to rear configuredWebcam
-                // Construct RearWebcamContainer
+                        EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> frontWebcamProcessors =
+                          new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
+                          frontWebcamProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor);
+                          frontWebcamProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG, aprilTagProcessorFront);
+                          frontWebcamConfiguration.setProcessors(frontWebcamProcessors);
+               // Construct RearWebcamContainer
                 //**TODO end TEMP
                  */
             }
@@ -288,10 +295,10 @@ public class FTCAuto {
                     robot.imuReader.stopIMUReader();
                 }
 
-                if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-                    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                    robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
-                }
+                //**TODO TEMP 10/18/23 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
+                //    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
+                 //   robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
+                //}
             }
         }
 
