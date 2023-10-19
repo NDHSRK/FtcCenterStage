@@ -27,9 +27,10 @@ import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.CameraFrameWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
-import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamImageProvider;
+import org.firstinspires.ftc.teamcode.robot.device.camera.CameraFrameProvider;
 import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
@@ -44,7 +45,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -122,8 +122,7 @@ public class FTCAuto {
         // during init. So start the AprilTag camera first and the Team Prop camera
         // second.
 
-        //**TODO Change of direction: start the front webcam with the webcam frame
-        // processor only.
+        // Start the front webcam with the webcam frame processor.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
             // Since the first task in Autonomous is to find the Team Prop, start the front webcam
             // with the processor for raw frames. The only time this camera might not be in the
@@ -131,46 +130,13 @@ public class FTCAuto {
             VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
-                VisionPortalWebcam visionPortalFrontWebcam = new VisionPortalWebcam(Objects.requireNonNull(frontWebcamConfiguration));
-                frontWebcamConfiguration.setVisionPortalWebcam(visionPortalFrontWebcam);
-                //**TODO frontWebcamConfiguration.setActiveProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-                visionPortalFrontWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-                openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
-
-                //**TODO TEMP
-                /*
-                // Create the processors for the front webcam.
                 VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-
-                VisionProcessor aprilTagProcessorFront = new AprilTagProcessor.Builder()
-                        .setDrawAxes(false) // 10/17/23 uncommented - now false
-                        .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
-                        .setDrawTagOutline(false) // 10/17/23 changed to false
-                        .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                        //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                        .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-
-                        // == CAMERA CALIBRATION ==
-                        // If you do not manually specify calibration parameters, the SDK will attempt
-                        // to load a predefined calibration for your camera.
-                        // ... these parameters are fx, fy, cx, cy.
-                        //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
-                        .setLensIntrinsics(frontWebcamConfiguration.cameraCalibration.focalLengthX,
-                                frontWebcamConfiguration.cameraCalibration.focalLengthY,
-                                frontWebcamConfiguration.cameraCalibration.opticalCenterX,
-                                frontWebcamConfiguration.cameraCalibration.opticalCenterY)
-                        .build();
-
-                        EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> frontWebcamProcessors =
-                          new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
-                          frontWebcamProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor);
-                          frontWebcamConfiguration.setProcessors(frontWebcamProcessors);
-                  */
-
-               // Construct FrontWebcamContainer; call frontWebcamConfiguration.setWebcamContainer
-                //**TODO end TEMP
+                CameraFrameWebcam cameraFrameWebcam = new CameraFrameWebcam(Objects.requireNonNull(frontWebcamConfiguration),
+                        Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor));
+                frontWebcamConfiguration.setVisionPortalWebcam(cameraFrameWebcam);
+                openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
             }
-                    }
+        }
 
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
     }
@@ -401,62 +367,56 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+                openWebcam = webcamId;
 
-                if (openWebcam == RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
+                VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
+                        robot.configuredWebcams.get(webcamId);
+                if (configuredWebcam == null)
+                    throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
+
+                if (openWebcam != RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
                     throw new AutonomousRobotException(TAG, "Attempt to start webcam " + webcamId + " but " + openWebcam + " is open");
 
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
 
-                //**TODO Change of direction: do not start the rear camera now - only
-                // start it after the front webcam for webcam frames has been closed.
-                // If the rear-facing webcam is in the configuration start it now with
-                // its processor(s) disabled. It may be configured out during debugging.
-                VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
-                        robot.configuredWebcams.get(webcamId);
-                if (configuredWebcam == null)
-                   throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
+                switch (processorId) {
+                    case WEBCAM_FRAME: {
+                        VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+                        CameraFrameWebcam cameraFrameWebcam = new CameraFrameWebcam(configuredWebcam,
+                                Pair.create(processorId, webcamFrameProcessor));
+                        configuredWebcam.setVisionPortalWebcam(cameraFrameWebcam);
+                        break;
+                    }
+                    case APRIL_TAG: {
+                        VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
+                                .setDrawAxes(false) // 10/17/23 uncommented - now false
+                                .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
+                                .setDrawTagOutline(false) // 10/17/23 changed to false
+                                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                                //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
 
-                //**TODO the configuredWebcam includes all processors that may be activated for
-                // the selected webcam - but not at the same time. NEED to tell VisionPortalWebcam
-                // which processor to activate; for now add a parameter to the VisionPortalWebcam
-                // constructor. In the future you won't need an EnumMap - just a Pair of processorId
-                // and processor. How to differentiate FrontWebcamFrameContainer vs FrontWebcamAprilTagContainer.
-                VisionPortalWebcam visionPortalWebcam = new VisionPortalWebcam(configuredWebcam);
-                configuredWebcam.setVisionPortalWebcam(visionPortalWebcam);
-                //**TODO TEMP visionPortalWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+                                // == CAMERA CALIBRATION ==
+                                // If you do not manually specify calibration parameters, the SDK will attempt
+                                // to load a predefined calibration for your camera.
+                                // ... these parameters are fx, fy, cx, cy.
+                                .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
+                                        configuredWebcam.cameraCalibration.focalLengthY,
+                                        configuredWebcam.cameraCalibration.opticalCenterX,
+                                        configuredWebcam.cameraCalibration.opticalCenterY)
+                                .build();
 
-                    //**TODO TEMP
-                /*
-                // Create the processor for the rear webcam.
-                VisionProcessor aprilTagProcessorRear = new AprilTagProcessor.Builder()
-                        .setDrawAxes(false) // 10/17/23 uncommented - now false
-                        .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
-                        .setDrawTagOutline(false) // 10/17/23 changed to false
-                        .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                        //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                        .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-
-                        // == CAMERA CALIBRATION ==
-                        // If you do not manually specify calibration parameters, the SDK will attempt
-                        // to load a predefined calibration for your camera.
-                        // ... these parameters are fx, fy, cx, cy.
-                        //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
-                        .setLensIntrinsics(rearWebcamConfiguration.cameraCalibration.focalLengthX,
-                                rearWebcamConfiguration.cameraCalibration.focalLengthY,
-                                rearWebcamConfiguration.cameraCalibration.opticalCenterX,
-                                rearWebcamConfiguration.cameraCalibration.opticalCenterY)
-                        .build();
-
-                        EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> rearWebcamProcessors =
-                          new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
-                          frontWebcamProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG, aprilTagProcessorFront);
-                          frontWebcamConfiguration.setProcessors(frontWebcamProcessors);
-               // Construct RearWebcamContainer
-                //**TODO end TEMP
-                 */
-                openWebcam = webcamId;
+                        AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
+                                Pair.create(processorId, aprilTagProcessor));
+                        aprilTagWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+                        configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
+                        break;
+                    }
+                    default:
+                        throw new AutonomousRobotException(TAG, "Invalid processor id " + processorId);
+                }
 
                 break;
             }
@@ -465,10 +425,17 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+
+                VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
+                        robot.configuredWebcams.get(webcamId);
+                if (configuredWebcam == null)
+                    throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
+
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to close webcam " + webcamId + " but it is not open");
 
-                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().finalShutdown();
+                configuredWebcam.getVisionPortalWebcam().finalShutdown();
+                configuredWebcam.setVisionPortalWebcam(null);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
                 RobotLogCommon.d(TAG, "Stopped webcam " + webcamIdString);
                 break;
@@ -505,11 +472,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to enable processor on webcam " + webcamId + " but it is not open");
 
-                String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
-                RobotConstantsCenterStage.ProcessorIdentifier processorId =
-                        RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
-                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().enableProcessor(processorId);
-                RobotLogCommon.d(TAG, "Enabled processor " + processorIdString + " on webcam " + webcamIdString);
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().enableProcessor();
+                RobotLogCommon.d(TAG, "Enabled processor on webcam " + webcamIdString);
                 break;
             }
 
@@ -520,11 +484,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to disable processor on webcam " + webcamId + " but it is not open");
 
-                String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
-                RobotConstantsCenterStage.ProcessorIdentifier processorId =
-                        RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
-                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().disableProcessor(processorId);
-                RobotLogCommon.d(TAG, "Disabled processor " + processorIdString + " on webcam " + webcamIdString);
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().disableProcessor();
+                RobotLogCommon.d(TAG, "Disabled processor on webcam " + webcamIdString);
                 break;
             }
 
@@ -538,10 +499,9 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
 
-                VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
+                CameraFrameWebcam cameraFrameWebcam = (CameraFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
 
-                VisionPortalWebcamImageProvider provider = new VisionPortalWebcamImageProvider(visionPortalWebcam);
+                CameraFrameProvider provider = new CameraFrameProvider(cameraFrameWebcam);
                 Pair<Mat, Date> image = provider.getImage();
                 if (image == null) {
                     RobotLogCommon.d(TAG, "Unable to get image from " + webcamIdString);
@@ -576,9 +536,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
 
-                VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                visionPortalWebcam.enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME);
-                VisionPortalWebcamImageProvider imageProvider = new VisionPortalWebcamImageProvider(visionPortalWebcam);
+                CameraFrameWebcam cameraFrameWebcam = (CameraFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                CameraFrameProvider imageProvider = new CameraFrameProvider(cameraFrameWebcam);
 
                 // Get the recognition path from the XML file.
                 String recognitionPathString = actionXPath.getRequiredText("team_prop_recognition/recognition_path");
@@ -656,7 +615,7 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
 
-                VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
 
                 ElapsedTime aprilTagTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
                 aprilTagTimer.reset();
@@ -664,7 +623,7 @@ public class FTCAuto {
                 boolean aprilTagDetected;
                 while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
                     aprilTagDetected = false;
-                    currentDetections = visionPortalWebcam.getAprilTagData(500);
+                    currentDetections = aprilTagWebcam.getAprilTagData(500);
                     for (AprilTagDetection detection : currentDetections) {
                         if (detection.metadata != null) {
                             aprilTagDetected = true;
@@ -699,8 +658,8 @@ public class FTCAuto {
                 if (aprilTagNavigation == null || aprilTagNavigation.getInternalWebcamId() !=
                         webcamId) {
                     RobotLogCommon.d(TAG, "Switching AprilTag navigation to " + webcamIdString);
-                    VisionPortalWebcam visionPortalWebcam = Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                    aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, visionPortalWebcam);
+                    AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                    aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagWebcam);
                 }
 
                 int desiredTagId = actionXPath.getRequiredInt("desired_tag_id");

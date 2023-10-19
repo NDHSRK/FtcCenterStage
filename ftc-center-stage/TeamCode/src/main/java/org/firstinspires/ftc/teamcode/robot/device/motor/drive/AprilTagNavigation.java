@@ -42,7 +42,7 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.math.BigDecimal;
@@ -74,12 +74,12 @@ public class AprilTagNavigation {
     private final RobotConstants.Alliance alliance;
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
-    private final VisionPortalWebcam webcam;
+    private final AprilTagWebcam webcam;
 
     private final EnumMap<FTCRobot.MotorId, Double> powerMap = new EnumMap<>(FTCRobot.MotorId.class);
 
     public AprilTagNavigation(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
-                              VisionPortalWebcam pWebcam) {
+                              AprilTagWebcam pWebcam) {
         alliance = pAlliance;
         linearOpMode = pLinearOpMode;
         robot = pRobot; // robot hardware
