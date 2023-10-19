@@ -116,12 +116,6 @@ public class FTCAuto {
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
 
-        //**TODO save comment !! 10/9/2023 Very important - I made an enquiry on the FTC Forum about Driver
-        // Station camera streams when more than one webcam is in the configuration.
-        // The answer came back that second camera's stream is the one that is displayed
-        // during init. So start the AprilTag camera first and the Team Prop camera
-        // second.
-
         // Start the front webcam with the webcam frame processor.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
             // Since the first task in Autonomous is to find the Team Prop, start the front webcam
@@ -131,7 +125,7 @@ public class FTCAuto {
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
                 VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-                CameraFrameWebcam cameraFrameWebcam = new CameraFrameWebcam(Objects.requireNonNull(frontWebcamConfiguration),
+                CameraFrameWebcam cameraFrameWebcam = new CameraFrameWebcam(frontWebcamConfiguration,
                         Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor));
                 frontWebcamConfiguration.setVisionPortalWebcam(cameraFrameWebcam);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
@@ -224,9 +218,10 @@ public class FTCAuto {
                     robot.imuReader.stopIMUReader();
                 }
 
-                //**TODO TEMP 10/18/23 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
+                //**TODO orderly shutdown was causing the Robot Controller to crash at this point.
+                // 10/18/23 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                 //    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                 //   robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
+                //   robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
                 //}
             }
         }
@@ -367,15 +362,16 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+
+                if (openWebcam != RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
+                    throw new AutonomousRobotException(TAG, "Attempt to start webcam " + webcamId + " but " + openWebcam + " is open");
+
                 openWebcam = webcamId;
 
                 VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
                         robot.configuredWebcams.get(webcamId);
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
-
-                if (openWebcam != RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
-                    throw new AutonomousRobotException(TAG, "Attempt to start webcam " + webcamId + " but " + openWebcam + " is open");
 
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
@@ -426,13 +422,13 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
+                if (openWebcam != webcamId)
+                    throw new AutonomousRobotException(TAG, "Attempt to close webcam " + webcamId + " but it is not open");
+
                 VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
                         robot.configuredWebcams.get(webcamId);
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
-
-                if (openWebcam != webcamId)
-                    throw new AutonomousRobotException(TAG, "Attempt to close webcam " + webcamId + " but it is not open");
 
                 configuredWebcam.getVisionPortalWebcam().finalShutdown();
                 configuredWebcam.setVisionPortalWebcam(null);

@@ -18,43 +18,56 @@
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </STRAIGHT_BY -->
 
-            <!-- If the front webcam is in the configuration it is always started
-                 and enabled. If the rear webcam is in the configuration it is
-                 started but not enabled. -->
-            <!-- **TODO So here try both cameras in the configuration but immediately
-                 disable and stop streaming the front camera. Then see if this OpMode
-                 recognizes the AprilTag and runs to completion without crashing the
-                 RC at the end of the run. 10/17/23 NO CRASH -->
-            <!-- **TODO If this works then try stopping streaming on the *rear* camera
-                 before taking a picture with the front webcam. Then disable its
-                 processor and stop streaming before *resuming* streaming and enabling
-                 the AprilTag processor on the rear camera. -->
-
-            <STOP_WEBCAM_STREAMING>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-            </STOP_WEBCAM_STREAMING>
-
             <TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM>
 
             <DISABLE_PROCESSOR>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
-                <processor>webcam_frame</processor>
             </DISABLE_PROCESSOR>
 
             <STOP_WEBCAM_STREAMING>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM_STREAMING>
 
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <!-- should time out -->
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
+
             <RESUME_WEBCAM_STREAMING>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
             </RESUME_WEBCAM_STREAMING>
 
             <ENABLE_PROCESSOR>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
             </ENABLE_PROCESSOR>
+
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+            
+            <!-- should succeed -->
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
+
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <STOP_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>                
+            </STOP_WEBCAM>
+
+            <START_WEBCAM>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>                
+            </START_WEBCAM>
 
             <FIND_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -69,7 +82,6 @@
 
             <DISABLE_PROCESSOR>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
             </DISABLE_PROCESSOR>
 
             <STOP_WEBCAM_STREAMING>
