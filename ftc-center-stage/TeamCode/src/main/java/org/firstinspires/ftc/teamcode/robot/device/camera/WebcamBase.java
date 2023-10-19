@@ -198,10 +198,8 @@ public abstract class WebcamBase {
         // Shut down the active processor, if any. Stop streaming.
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS)
             disableProcessor(activeProcessorId);
-
-        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
-            visionPortal.stopStreaming();
-
+        
+        visionPortal.stopStreaming();
         visionPortal.close();
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }

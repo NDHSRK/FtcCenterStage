@@ -33,10 +33,14 @@ import java.util.concurrent.TimeUnit;
 //
 // It is an application-wide assumption that there is only one instance of
 // this class and that its methods are called from a single thread.
+
+//**TODO 10/19/23 any changes affect the new architecture also ...
 public class VisionPortalWebcam {
     private static final String TAG = VisionPortalWebcam.class.getSimpleName();
 
     private final VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam;
+
+    //**TODO there may only be one active processor
     private final EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> processors =
             new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
     private int processorIndex = 0;
@@ -51,6 +55,7 @@ public class VisionPortalWebcam {
         // Note: all processors are attached to the same webcam.
         configuredWebcam = pConfiguredWebcam;
         VisionProcessor[] processorArray = new VisionProcessor[configuredWebcam.processorIdentifiers.size()];
+        //**TODO only start the activeProcessor
         pConfiguredWebcam.processorIdentifiers.forEach(processorId -> {
             switch (processorId) {
                     case WEBCAM_FRAME: {
@@ -247,9 +252,7 @@ public class VisionPortalWebcam {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS)
             disableProcessor(activeProcessorId);
 
-        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
-            visionPortal.stopStreaming();
-
+        visionPortal.stopStreaming();
         visionPortal.close();
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }

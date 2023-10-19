@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
+import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -15,25 +16,28 @@ public class VisionPortalWebcamConfiguration {
         public final String serialNumber;
         public final int resolutionWidth;
         public final int resolutionHeight;
+
+        // A webcam may support more than one processor but only one may be
+        // active at any given time.
         public final ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIdentifiers;
         public final CameraCalibration cameraCalibration;
 
         // The non-final fields all have setters which are called during initialization.
         private WebcamName webcamName;
         private VisionPortalWebcam visionPortalWebcam;
-        private EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> processors;
+        private Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> activeProcessor;
 
         public ConfiguredWebcam(RobotConstantsCenterStage.InternalWebcamId pCameraId,
                                 String pSerialNumber,
                                 int pResolutionWidth,
                                 int pResolutionHeight,
-                                ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessorIdentifierss,
+                                ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessorIdentifiers,
                                 CameraCalibration pCameraCalibration) {
             internalWebcamId = pCameraId;
             serialNumber = pSerialNumber;
             resolutionWidth = pResolutionWidth;
             resolutionHeight = pResolutionHeight;
-            processorIdentifiers = pProcessorIdentifierss;
+            processorIdentifiers = pProcessorIdentifiers;
             cameraCalibration = pCameraCalibration;
         }
 
@@ -53,12 +57,12 @@ public class VisionPortalWebcamConfiguration {
             return visionPortalWebcam;
         }
 
-        public void setProcessors(EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pProcessors) {
-            processors = pProcessors;
+        public void setActiveProcessor(Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pActiveProcessor) {
+            activeProcessor = pActiveProcessor;
         }
 
-        public EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> getProcessors() {
-            return processors;
+        public Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> getActiveProcessor() {
+            return activeProcessor;
         }
     }
 
