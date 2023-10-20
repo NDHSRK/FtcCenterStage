@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraFrameWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraFrameProvider;
 import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
@@ -603,6 +604,15 @@ public class FTCAuto {
                 break;
             }
 
+            //**TODO TEMP for testing 10/20/2023
+            case "TEST_MULTIPORTAL_SAMPLE": {
+                MultiPortalAuto multiPortalAuto = new MultiPortalAuto(linearOpMode,
+                        Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM)).getWebcamName(), // assume this is "Webcam 1"
+                        Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM)).getWebcamName()); // assume this is "Webcam 2"
+                multiPortalAuto.runOpMode();
+                break;
+            }
+
             // For testing: just look for AprilTags.
             case "FIND_APRIL_TAGS": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
@@ -617,7 +627,7 @@ public class FTCAuto {
                 aprilTagTimer.reset();
                 List<AprilTagDetection> currentDetections;
                 boolean aprilTagDetected;
-                while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
+                while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 5000) {
                     aprilTagDetected = false;
                     currentDetections = aprilTagWebcam.getAprilTagData(500);
                     for (AprilTagDetection detection : currentDetections) {

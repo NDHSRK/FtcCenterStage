@@ -43,11 +43,10 @@ public abstract class VisionPortalWebcam {
                 .setCamera(configuredWebcam.getWebcamName())
                 .setCameraResolution(new Size(configuredWebcam.resolutionWidth, configuredWebcam.resolutionHeight))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .addProcessor(pAssignedProcessor.second)
+
                 .enableLiveView(false) //##PY changed to false 10/5/23 - and must remain false
                 //.setAutoStopLiveView(false) //**TODO we're not using LiveView
-
-                // Set and enable the processor.
-                .addProcessor(pAssignedProcessor.second)
 
                 .build();
 
@@ -129,7 +128,7 @@ public abstract class VisionPortalWebcam {
         }
 
         visionPortal.setProcessorEnabled(activeProcessor, false);
-        activeProcessorEnabled = true;
+        activeProcessorEnabled = false;
         RobotLogCommon.d(TAG, "Disabling the processor " + activeProcessorId);
     }
 
@@ -160,10 +159,10 @@ public abstract class VisionPortalWebcam {
     // OpMode that uses the webcam.
     public void finalShutdown() {
         // Shut down the active processor. Stop streaming.
-        if (activeProcessorEnabled)
-            disableProcessor();
+        //**TODO if (activeProcessorEnabled)
+        //    disableProcessor();
         
-        visionPortal.stopStreaming();
+        //**TODO visionPortal.stopStreaming();
         visionPortal.close();
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }
