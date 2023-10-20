@@ -388,12 +388,16 @@ public class FTCAuto {
                     }
                     case APRIL_TAG: {
                         VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
+                                //**TODO 10/20/2023 the MultiPortal sample only includes
+                                // setLensIntrinsics
+                                /*
                                 .setDrawAxes(false) // 10/17/23 uncommented - now false
                                 .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
                                 .setDrawTagOutline(false) // 10/17/23 changed to false
                                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                                 //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                                 */
 
                                 // == CAMERA CALIBRATION ==
                                 // If you do not manually specify calibration parameters, the SDK will attempt
@@ -407,7 +411,7 @@ public class FTCAuto {
 
                         AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
                                 Pair.create(processorId, aprilTagProcessor));
-                        aprilTagWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+                        //**TODO 10/20/2023 the MultiPortal sample does not do this aprilTagWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
                         configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
                         break;
                     }

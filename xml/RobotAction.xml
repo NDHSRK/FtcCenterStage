@@ -30,7 +30,20 @@
                 <ms>1000</ms>
             </SLEEP>          
 
-            <TEST_MULTIPORTAL_SAMPLE />
+            <!-- TEST_MULTIPORTAL_SAMPLE / -->
+s           
+            <START_WEBCAM>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>                
+            </START_WEBCAM>
+
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <FIND_APRIL_TAGS>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </FIND_APRIL_TAGS>
 
         </actions>
     </OpMode>
