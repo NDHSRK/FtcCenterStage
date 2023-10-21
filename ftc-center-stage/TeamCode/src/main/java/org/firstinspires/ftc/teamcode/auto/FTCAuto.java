@@ -83,7 +83,6 @@ public class FTCAuto {
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
 
-    private AprilTagDetection desiredTag = null;
     private AprilTagNavigation aprilTagNavigation;
 
     // Main class for the autonomous run.
@@ -623,7 +622,7 @@ public class FTCAuto {
                 break;
             }
 
-            // For testing: just look for AprilTags.
+            // For testing: look for all AprilTags in a loop for 5 seconds.
             case "FIND_ALL_APRIL_TAGS": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
@@ -662,53 +661,58 @@ public class FTCAuto {
 
             // Look for a specific AprilTag
             case "FIND_APRIL_TAG": {
-                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
-                RobotConstantsCenterStage.InternalWebcamId webcamId =
-                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
-                if (openWebcam != webcamId)
-                    throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
-
-                int desiredTagId = actionXPath.getRequiredInt("tag_id");
-                int timeout = actionXPath.getRequiredInt("timeout_ms");
-
-                AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
-                desiredTag = null;
-
-                // Step through the list of detected tags and look for a matching tag.
-                for (AprilTagDetection detection : currentDetections) {
-                    if (detection.metadata != null && detection.id == desiredTagId) {
-                        desiredTag = detection;
-                        break; // don't look any further.
-                    }
-                }
-
-                // If we have not found the desired target, just give up.
-                if (desiredTag == null) {
-                    RobotLogCommon.d(TAG, "Tag Id " + desiredTagId + " not found within " + timeout + "ms");
-                    linearOpMode.telemetry.addLine("Tag Id " + desiredTagId + " not found within " + timeout + "ms");
-                    linearOpMode.telemetry.update();
-                    robot.driveTrain.stopAllZeroPower();
-                    return false;
-                }
-
-                String targetTagId = "Found AprilTag " + String.format("Id %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                String range = "Range " + String.format("%5.1f inches", desiredTag.ftcPose.range);
-                String bearing = "Bearing " + String.format("%3.0f degrees", desiredTag.ftcPose.bearing);
-                String yaw = "Yaw " + String.format("%3.0f degrees", desiredTag.ftcPose.yaw);
-
-                linearOpMode.telemetry.addLine(targetTagId);
-                linearOpMode.telemetry.update();
-
-                RobotLogCommon.d(TAG, targetTagId);
-                RobotLogCommon.d(TAG, range);
-                RobotLogCommon.d(TAG, bearing);
-                RobotLogCommon.d(TAG, yaw);
+                findAprilTag(actionXPath);
                 break;
             }
 
             // Locate a specific AprilTag and drive the robot into position
-            // in front of it.
+            // in front of it with the method we used in PowerPlay.
+            case "DRIVE_TO_APRIL_TAG": {
+                deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
+                AprilTagDetection desiredTag = findAprilTag(actionXPath);
+                if (desiredTag == null)
+                    return false; // we're lost without an AprilTag
+
+                double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
+                String directionString = actionXPath.getRequiredText("direction").toUpperCase();
+                DriveTrainConstants.Direction direction =
+                        DriveTrainConstants.Direction.valueOf(directionString);
+
+                RobotLogCommon.d(TAG, "Driving to AprilTag with id " + desiredTag.id);
+                RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
+                RobotLogCommon.d(TAG, "Direction of travel " + direction);
+
+                // Unlike the RobotAutoDriveToAprilTagOmni sample, which tracks the
+                // AprilTag in relation to the camera, we need the angle and distance
+                // from the center of the robot.
+
+                //**TODO STOPPED HERE 10/21/2023
+
+                // The deskew above should have taken care of the yaw but let's see
+                // what the AprilTag detector thinks it is.
+                RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + desiredTag.ftcPose.yaw);
+
+                double rangeError = desiredTag.ftcPose.range - desiredDistanceFromTag;
+                double headingError = desiredTag.ftcPose.bearing;
+
+
+
+                // We may be close enough.
+                if (Math.abs(rangeError) < 1.0 && Math.abs(headingError) < 1.0) {
+                    linearOpMode.telemetry.addLine("In position: all AprilTag values < 1 degree");
+                    linearOpMode.telemetry.update();
+                    RobotLogCommon.d(TAG,"In position: all AprilTag values < 1 degree");
+                    break;
+                }
+
+
+
+                break;
+            }
+
+            // Locate a specific AprilTag and drive the robot into position
+            // in front of it with the navigation method from the FTC sample
+            // RobotAutoDriveToAprilTagOmni.
             case "NAVIGATE_TO_APRIL_TAG": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
@@ -1059,6 +1063,51 @@ public class FTCAuto {
     // angles we sometimes want to keep the low velocity.
     private double smallAngleVelocity(double pAngle) {
         return Math.abs(pAngle) < 5.0 ? 0.5 : 0.3;
+    }
+
+    private AprilTagDetection findAprilTag(XPathAccess pActionXPath) throws XPathExpressionException {
+        String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
+        RobotConstantsCenterStage.InternalWebcamId webcamId =
+                RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+        if (openWebcam != webcamId)
+            throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
+
+        int desiredTagId = pActionXPath.getRequiredInt("tag_id");
+        int timeout = pActionXPath.getRequiredInt("timeout_ms");
+
+        AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+        List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
+        AprilTagDetection desiredTag = null;
+
+        // Step through the list of detected tags and look for a matching tag.
+        for (AprilTagDetection detection : currentDetections) {
+            if (detection.metadata != null && detection.id == desiredTagId) {
+                desiredTag = detection;
+                break; // don't look any further.
+            }
+        }
+
+        // If we have not found the desired target, just give up.
+        if (desiredTag == null) {
+            linearOpMode.telemetry.addLine("Tag Id " + desiredTagId + " not found within " + timeout + "ms");
+            linearOpMode.telemetry.update();
+            RobotLogCommon.d(TAG, "Tag Id " + desiredTagId + " not found within " + timeout + "ms");
+            return null;
+        }
+
+        String targetTagId = "Found AprilTag " + String.format("Id %d (%s)", desiredTag.id, desiredTag.metadata.name);
+        String range = "Range " + String.format("%5.1f inches", desiredTag.ftcPose.range);
+        String bearing = "Bearing " + String.format("%3.0f degrees", desiredTag.ftcPose.bearing);
+        String yaw = "Yaw " + String.format("%3.0f degrees", desiredTag.ftcPose.yaw);
+
+        linearOpMode.telemetry.addLine(targetTagId);
+        linearOpMode.telemetry.update();
+
+        RobotLogCommon.d(TAG, targetTagId);
+        RobotLogCommon.d(TAG, range);
+        RobotLogCommon.d(TAG, bearing);
+        RobotLogCommon.d(TAG, yaw);
+        return desiredTag;
     }
 }
 
