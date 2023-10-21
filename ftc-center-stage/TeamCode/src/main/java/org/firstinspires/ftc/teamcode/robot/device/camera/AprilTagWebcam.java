@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagSupplier {
+public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvider {
     private static final String TAG = AprilTagWebcam.class.getSimpleName();
 
     public AprilTagWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,

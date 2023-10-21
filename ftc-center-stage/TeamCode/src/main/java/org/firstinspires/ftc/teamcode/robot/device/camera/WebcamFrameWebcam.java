@@ -14,10 +14,10 @@ import org.opencv.core.Mat;
 import java.util.Date;
 import java.util.Objects;
 
-public class CameraFrameWebcam extends VisionPortalWebcam implements WebcamFrameSupplier {
-    private static final String TAG = CameraFrameWebcam.class.getSimpleName();
+public class WebcamFrameWebcam extends VisionPortalWebcam implements WebcamFrameProvider {
+    private static final String TAG = WebcamFrameWebcam.class.getSimpleName();
 
-    public CameraFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
+    public WebcamFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
                              Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pAssignedProcessor) {
         super(pConfiguredWebcam, pAssignedProcessor);
     }

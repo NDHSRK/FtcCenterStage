@@ -5,9 +5,9 @@ import org.opencv.core.Mat;
 
 import java.util.Date;
 
-public interface WebcamFrameSupplier {
+public interface WebcamFrameProvider {
 
     // Images must always be returned in the BGR format.
     // LocalDateTime requires minSdkVersion 26  public Pair<Mat, LocalDateTime> getImage() throws InterruptedException;
-    Pair<Mat, Date> getWebcamFrame(int pTimeoutMNs);
+    Pair<Mat, Date> getWebcamFrame(int pTimeoutMs);
 }

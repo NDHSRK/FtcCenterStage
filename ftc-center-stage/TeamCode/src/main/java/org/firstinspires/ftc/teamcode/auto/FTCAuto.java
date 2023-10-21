@@ -16,8 +16,6 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
@@ -28,10 +26,10 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
-import org.firstinspires.ftc.teamcode.robot.device.camera.CameraFrameWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
-import org.firstinspires.ftc.teamcode.robot.device.camera.CameraFrameProvider;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamImage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
@@ -126,9 +124,10 @@ public class FTCAuto {
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
                 VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-                CameraFrameWebcam cameraFrameWebcam = new CameraFrameWebcam(frontWebcamConfiguration,
+                WebcamFrameWebcam webcamFrameWebcam = new WebcamFrameWebcam(frontWebcamConfiguration,
                         Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor));
-                frontWebcamConfiguration.setVisionPortalWebcam(cameraFrameWebcam);
+                webcamFrameWebcam.waitForWebcamStart(2000);
+                frontWebcamConfiguration.setVisionPortalWebcam(webcamFrameWebcam);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
             }
         }
@@ -381,28 +380,14 @@ public class FTCAuto {
                 switch (processorId) {
                     case WEBCAM_FRAME: {
                         VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-                        CameraFrameWebcam cameraFrameWebcam = new CameraFrameWebcam(configuredWebcam,
+                        WebcamFrameWebcam webcamFrameWebcam = new WebcamFrameWebcam(configuredWebcam,
                                 Pair.create(processorId, webcamFrameProcessor));
-                        configuredWebcam.setVisionPortalWebcam(cameraFrameWebcam);
+                        configuredWebcam.setVisionPortalWebcam(webcamFrameWebcam);
                         break;
                     }
                     case APRIL_TAG: {
                         VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-                                //**TODO 10/20/2023 the MultiPortal sample only includes
-                                // setLensIntrinsics
-                                /*
-                                .setDrawAxes(false) // 10/17/23 uncommented - now false
-                                .setDrawCubeProjection(false) // 10/17/23 uncommented - now false
-                                .setDrawTagOutline(false) // 10/17/23 changed to false
-                                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                                //##PY .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-                                 */
-
-                                // == CAMERA CALIBRATION ==
-                                // If you do not manually specify calibration parameters, the SDK will attempt
-                                // to load a predefined calibration for your camera.
-                                // ... these parameters are fx, fy, cx, cy.
+                                // Follow the MultiPortal sample, which only includes setLensIntrinsics
                                 .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
                                         configuredWebcam.cameraCalibration.focalLengthY,
                                         configuredWebcam.cameraCalibration.opticalCenterX,
@@ -411,13 +396,35 @@ public class FTCAuto {
 
                         AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
                                 Pair.create(processorId, aprilTagProcessor));
-                        //**TODO 10/20/2023 the MultiPortal sample does not do this aprilTagWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
+                        //## The MultiPortal sample does not do this ...
+                        //aprilTagWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
                         configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
                         break;
                     }
                     default:
                         throw new AutonomousRobotException(TAG, "Invalid processor id " + processorId);
                 }
+
+                break;
+            }
+
+            case "WAIT_FOR_WEBCAM_START": {
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
+                RobotConstantsCenterStage.InternalWebcamId webcamId =
+                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+
+                int timeout = actionXPath.getRequiredInt("timeout_ms");
+
+                if (openWebcam != webcamId)
+                    throw new AutonomousRobotException(TAG, "Attempt to wait for the startup of webcam " + webcamId + " but it is not open");
+
+                VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
+                        robot.configuredWebcams.get(webcamId);
+                if (configuredWebcam == null)
+                    throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
+
+                if (!configuredWebcam.getVisionPortalWebcam().waitForWebcamStart(timeout))
+                    return false; // no webcam, just give up
 
                 break;
             }
@@ -500,9 +507,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
 
-                CameraFrameWebcam cameraFrameWebcam = (CameraFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-
-                CameraFrameProvider provider = new CameraFrameProvider(cameraFrameWebcam);
+                WebcamFrameWebcam webcamFrameWebcam = (WebcamFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                WebcamImage provider = new WebcamImage(webcamFrameWebcam);
                 Pair<Mat, Date> image = provider.getImage();
                 if (image == null) {
                     RobotLogCommon.d(TAG, "Unable to get image from " + webcamIdString);
@@ -537,8 +543,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
 
-                CameraFrameWebcam cameraFrameWebcam = (CameraFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                CameraFrameProvider imageProvider = new CameraFrameProvider(cameraFrameWebcam);
+                WebcamFrameWebcam webcamFrameWebcam = (WebcamFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                WebcamImage imageProvider = new WebcamImage(webcamFrameWebcam);
 
                 // Get the recognition path from the XML file.
                 String recognitionPathString = actionXPath.getRequiredText("team_prop_recognition/recognition_path");
@@ -618,7 +624,7 @@ public class FTCAuto {
             }
 
             // For testing: just look for AprilTags.
-            case "FIND_APRIL_TAGS": {
+            case "FIND_ALL_APRIL_TAGS": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
@@ -654,6 +660,18 @@ public class FTCAuto {
                 break;
             }
 
+            //**TODO implement ...
+            case "FIND_APRIL_TAG": {
+                /*
+                 <FIND_APRIL_TAG>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <tag_id>6</tag_id>
+                <timeout_ms>1000</timeout_ms>
+                </FIND_APRIL_TAG>
+                 */
+                break;
+            }
+
             // Locate a specific AprilTag and drive the robot into position
             // in front of it.
             case "NAVIGATE_TO_APRIL_TAG": {
@@ -672,7 +690,7 @@ public class FTCAuto {
                     aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagWebcam);
                 }
 
-                int desiredTagId = actionXPath.getRequiredInt("desired_tag_id");
+                int desiredTagId = actionXPath.getRequiredInt("tag_id");
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
 
                 String directionString = actionXPath.getRequiredText("direction").toUpperCase();

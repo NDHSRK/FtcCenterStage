@@ -44,7 +44,6 @@ public abstract class VisionPortalWebcam {
                 .setCameraResolution(new Size(configuredWebcam.resolutionWidth, configuredWebcam.resolutionHeight))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .addProcessor(pAssignedProcessor.second)
-
                 .enableLiveView(false) //##PY changed to false 10/5/23 - and must remain false
                 //.setAutoStopLiveView(false) //**TODO we're not using LiveView
 
@@ -53,21 +52,27 @@ public abstract class VisionPortalWebcam {
         if (visionPortal.getCameraState() == VisionPortal.CameraState.ERROR)
             throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
-        // Wait here with timeout until VisionPortal.CameraState.STREAMING.
         // The async camera startup happens behind the scenes in VisionPortalImpl.
+    }
+
+    // Wait here with timeout until VisionPortal.CameraState.STREAMING.
+    public boolean waitForWebcamStart(int pTimeoutMs) {
         RobotLogCommon.d(TAG, "Waiting for webcam " + configuredWebcam.internalWebcamId + " to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
         streamingTimer.reset(); // start
-        while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+        while (streamingTimer.milliseconds() < pTimeoutMs && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             sleep(50);
         }
 
         VisionPortal.CameraState cameraState = visionPortal.getCameraState();
         RobotLogCommon.d(TAG, "State of webcam " + configuredWebcam.internalWebcamId + ": " + cameraState);
-        if (cameraState != VisionPortal.CameraState.STREAMING)
-            throw new AutonomousRobotException(TAG, "Timed out waiting for webcam streaming to start");
+        if (cameraState != VisionPortal.CameraState.STREAMING) {
+            RobotLogCommon.d(TAG, "Timed out waiting for webcam streaming to start");
+            return false;
+        }
 
         activeProcessorEnabled = true;
+        return true;
     }
 
     public RobotConstantsCenterStage.InternalWebcamId getInternalWebcamId() {

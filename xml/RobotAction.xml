@@ -31,19 +31,34 @@
             </SLEEP>          
 
             <!-- TEST_MULTIPORTAL_SAMPLE / -->
-s           
+         
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <processor>april_tag</processor>                
             </START_WEBCAM>
 
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
-            <FIND_APRIL_TAGS>
+            <!-- //**TODO PROPAGATE to all OpModes ** -->
+            <WAIT_FOR_WEBCAM_START>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-            </FIND_APRIL_TAGS>
+                <timeout_ms>2000</timeout_ms>
+            </WAIT_FOR_WEBCAM_START>
+
+            <!-- FIND_ALL_APRIL_TAGS>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </FIND_ALL_APRIL_TAGS -->
+
+            <FIND_APRIL_TAG>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <tag_id>6</tag_id>
+                <timeout_ms>1000</timeout_ms>             
+            </FIND_APRIL_TAG>
+
+            <NAVIGATE_TO_APRIL_TAG>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <tag_id>6</tag_id>
+                <desired_distance_from_tag>12.0</desired_distance_from_tag>
+                <direction>back</direction>
+            </NAVIGATE_TO_APRIL_TAG>
 
         </actions>
     </OpMode>
@@ -79,7 +94,7 @@ s
 
             <NAVIGATE_TO_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <desired_tag_id>3</desired_tag_id>
+                <tag_id>3</tag_id>
                 <desired_distance_from_tag>12.0</desired_distance_from_tag>
                 <direction>back</direction>
             </NAVIGATE_TO_APRIL_TAG>
@@ -97,10 +112,6 @@ s
             <log_level>v</log_level>
         </parameters>
         <actions>
-
-            <STOP_WEBCAM_STREAMING>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-            </STOP_WEBCAM_STREAMING>
 
             <!-- RED_F4 -->
             <FIND_TEAM_PROP>
@@ -190,7 +201,7 @@ s
 
                     <NAVIGATE_TO_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <desired_tag_id>4</desired_tag_id>
+                        <tag_id>4</tag_id>
                         <desired_distance_from_tag>12.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </NAVIGATE_TO_APRIL_TAG>
@@ -227,7 +238,7 @@ s
 
                     <NAVIGATE_TO_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <desired_tag_id>5</desired_tag_id>
+                        <tag_id>5</tag_id>
                         <desired_distance_from_tag>12.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </NAVIGATE_TO_APRIL_TAG>
@@ -258,7 +269,7 @@ s
 
                     <NAVIGATE_TO_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <desired_tag_id>6</desired_tag_id>
+                        <tag_id>6</tag_id>
                         <desired_distance_from_tag>12.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </NAVIGATE_TO_APRIL_TAG>

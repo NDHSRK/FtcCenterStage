@@ -8,21 +8,21 @@ import java.util.Date;
 
 // This class provides compatibility with the IntelliJ project IJCenterStage,
 // which reads images from a file.
-public class CameraFrameProvider implements ImageProvider {
+public class WebcamImage implements ImageProvider {
 
-    private static final String TAG = CameraFrameProvider.class.getSimpleName();
+    private static final String TAG = WebcamImage.class.getSimpleName();
     
-    private final CameraFrameWebcam cameraFrameWebcam;
+    private final WebcamFrameWebcam webcamFrameWebcam;
 
-    public CameraFrameProvider(CameraFrameWebcam pCameraFrameWebcam) {
-        cameraFrameWebcam = pCameraFrameWebcam;
+    public WebcamImage(WebcamFrameWebcam pWebcamFrameWebcam) {
+        webcamFrameWebcam = pWebcamFrameWebcam;
     }
 
     //!! Warning - may return null if the timer expires without a frame.
     // LocalDateTime requires minSdkVersion 26  public Pair<Mat, LocalDateTime> getImage() throws InterruptedException;
     @Override
     public Pair<Mat, Date> getImage() {
-        Pair<Mat, Date> cameraFramData = cameraFrameWebcam.getWebcamFrame(1000);
+        Pair<Mat, Date> cameraFramData = webcamFrameWebcam.getWebcamFrame(1000);
         if (cameraFramData == null)
             RobotLogCommon.d(TAG, "Timed out waiting for a video frame from the vision Portal webcam");
 

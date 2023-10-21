@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode.teleop.sample;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -104,7 +106,7 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
     private DcMotor rightBackDrive   = null;  //  Used to control the right back drive wheel
 
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
-    private static final int DESIRED_TAG_ID = 5;     // Choose the tag you want to approach or set to -1 for ANY tag.
+    private static final int DESIRED_TAG_ID = 6;     // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
@@ -137,8 +139,9 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        if (USE_WEBCAM)
-            setManualExposure(6, 250);  // Use low exposure time to reduce motion blur
+        if (USE_WEBCAM) {
+            //**TODO 10/20/2023 try without this first setManualExposure(6, 250);  // Use low exposure time to reduce motion blur
+        }
 
         // Wait for driver to press start
         telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
@@ -153,6 +156,11 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
 
             // Step through the list of detected tags and look for a matching tag
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+            if (currentDetections.isEmpty()) {
+                telemetry.addLine("No detections");
+                telemetry.update();
+            }
+
             for (AprilTagDetection detection : currentDetections) {
                 if ((detection.metadata != null) &&
                     ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID))  ){
@@ -253,12 +261,24 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
      */
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
-        aprilTag = new AprilTagProcessor.Builder().build();
+        /*
+            Logitech Brio - calibrated at 640x480
+            <focal_length_x>627.419488832</focal_length_x>
+            <focal_length_y>627.419488832</focal_length_y>
+            <optical_center_x>301.424062225</optical_center_x>
+            <optical_center_y>234.042415697</optical_center_y>
+        */
+        // Logitech Brio - calibrated at 320x240
+        //     <camera cameraMaker="NA" cameraModel="NA" lense="NA" fx="313.17732159" fy="313.17732159" cx="147.313326878" cy="131.900495465" k1="0.270753223695" k2="-1.0832648498" p1="0.0105836682213" p2="-0.00389283894974" k3="1.36673433383" skew="0" name="NA NA (NA)"/>
+        aprilTag = new AprilTagProcessor.Builder().
+                setLensIntrinsics(313.177, 313.177, 147.313, 131.900).
+                build();
 
         // Create the vision portal by using a builder.
         if (USE_WEBCAM) {
             visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                    .setCameraResolution(new Size(320, 240)) //##PY use full default resolution
                     .addProcessor(aprilTag)
                     .build();
         } else {
