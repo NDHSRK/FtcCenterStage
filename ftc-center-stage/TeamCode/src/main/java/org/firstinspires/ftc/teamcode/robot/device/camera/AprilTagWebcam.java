@@ -29,8 +29,6 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
             throw new AutonomousRobotException(TAG, "APRIL_TAG is not the active processor");
 
         AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) activeProcessor;
-
-        //**TODO this code is common with FrontWebcamContainer - it can be static somewhere.
         List<AprilTagDetection> currentDetections = new ArrayList<>();
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start

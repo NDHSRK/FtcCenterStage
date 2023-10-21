@@ -83,6 +83,7 @@ public class FTCAuto {
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
 
+    private AprilTagDetection desiredTag = null;
     private AprilTagNavigation aprilTagNavigation;
 
     // Main class for the autonomous run.
@@ -413,8 +414,6 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                int timeout = actionXPath.getRequiredInt("timeout_ms");
-
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to wait for the startup of webcam " + webcamId + " but it is not open");
 
@@ -423,6 +422,7 @@ public class FTCAuto {
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
+                int timeout = actionXPath.getRequiredInt("timeout_ms");
                 if (!configuredWebcam.getVisionPortalWebcam().waitForWebcamStart(timeout))
                     return false; // no webcam, just give up
 
@@ -660,15 +660,50 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO implement ...
+            // Look for a specific AprilTag
             case "FIND_APRIL_TAG": {
-                /*
-                 <FIND_APRIL_TAG>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <tag_id>6</tag_id>
-                <timeout_ms>1000</timeout_ms>
-                </FIND_APRIL_TAG>
-                 */
+                String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
+                RobotConstantsCenterStage.InternalWebcamId webcamId =
+                        RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+                if (openWebcam != webcamId)
+                    throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
+
+                int desiredTagId = actionXPath.getRequiredInt("tag_id");
+                int timeout = actionXPath.getRequiredInt("timeout_ms");
+
+                AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
+                desiredTag = null;
+
+                // Step through the list of detected tags and look for a matching tag.
+                for (AprilTagDetection detection : currentDetections) {
+                    if (detection.metadata != null && detection.id == desiredTagId) {
+                        desiredTag = detection;
+                        break; // don't look any further.
+                    }
+                }
+
+                // If we have not found the desired target, just give up.
+                if (desiredTag == null) {
+                    RobotLogCommon.d(TAG, "Tag Id " + desiredTagId + " not found within " + timeout + "ms");
+                    linearOpMode.telemetry.addLine("Tag Id " + desiredTagId + " not found within " + timeout + "ms");
+                    linearOpMode.telemetry.update();
+                    robot.driveTrain.stopAllZeroPower();
+                    return false;
+                }
+
+                String targetTagId = "Found AprilTag " + String.format("Id %d (%s)", desiredTag.id, desiredTag.metadata.name);
+                String range = "Range " + String.format("%5.1f inches", desiredTag.ftcPose.range);
+                String bearing = "Bearing " + String.format("%3.0f degrees", desiredTag.ftcPose.bearing);
+                String yaw = "Yaw " + String.format("%3.0f degrees", desiredTag.ftcPose.yaw);
+
+                linearOpMode.telemetry.addLine(targetTagId);
+                linearOpMode.telemetry.update();
+
+                RobotLogCommon.d(TAG, targetTagId);
+                RobotLogCommon.d(TAG, range);
+                RobotLogCommon.d(TAG, bearing);
+                RobotLogCommon.d(TAG, yaw);
                 break;
             }
 
