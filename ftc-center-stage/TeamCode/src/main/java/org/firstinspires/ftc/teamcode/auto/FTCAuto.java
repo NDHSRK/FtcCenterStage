@@ -16,10 +16,12 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
+import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
+import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
@@ -83,6 +85,8 @@ public class FTCAuto {
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
 
+    private final BackdropParameters backdropParameters;
+
     private AprilTagNavigation aprilTagNavigation;
 
     // Main class for the autonomous run.
@@ -114,6 +118,10 @@ public class FTCAuto {
         TeamPropParametersXML teamPropParametersXML = new TeamPropParametersXML(xmlDirectory);
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
+
+        // Read the parameters for the backdrop from the xml file.
+        BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
+        backdropParameters = backdropParametersXML.getBackdropParameters();
 
         // Start the front webcam with the webcam frame processor.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
@@ -1074,6 +1082,7 @@ pAprilTagBackstop.offsetCameraLensFromRobotCenter, pDistanceFromCameraToAprilTag
         return Math.abs(pAngle) < 5.0 ? 0.5 : 0.3;
     }
 
+    @SuppressLint("DefaultLocale")
     private AprilTagDetection findAprilTag(XPathAccess pActionXPath) throws XPathExpressionException {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
