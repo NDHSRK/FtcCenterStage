@@ -697,7 +697,8 @@ public class FTCAuto {
 
                 // Unlike the RobotAutoDriveToAprilTagOmni sample, which tracks the
                 // AprilTag in relation to the camera, we need the angle and distance
-                // from the center of the robot.
+                // from the center of the robot, particularly if the camera is not
+                // centered on the robot.
                 double angleFromRobotCenterToAprilTag =
                         CameraToCenterCorrections.getCorrectedAngle(backdropParameters.distanceCameraLensToRobotCenter,
                                 backdropParameters.offsetCameraLensFromRobotCenter, desiredTag.ftcPose.range, desiredTag.ftcPose.bearing);
@@ -706,20 +707,44 @@ public class FTCAuto {
                         CameraToCenterCorrections.getCorrectedDistance(backdropParameters.distanceCameraLensToRobotCenter,
                                 backdropParameters.offsetCameraLensFromRobotCenter, desiredTag.ftcPose.range, desiredTag.ftcPose.bearing);
 
-                //**TODO STOPPED HERE 10/21/2023
-                // Strafe so that the robot is opposite the target AprilTag.
-                // Use distanceFromRobotCenterToAprilTag
-                // (hypotenuse) and angleFromRobotCenterToAprilTag to get the
-                // distance to strafe (opposite).
+                double distanceToMove;
+                if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
+                    // Strafe to place the center of the robot opposite the AprilTag.
+                    double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
+                    double distanceToStrafe = sinTheta * distanceFromRobotCenterToAprilTag;
+                    double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
 
-                // We may be close enough.
-                if (Math.abs(distanceFromRobotCenterToAprilTag) < 1.0 && Math.abs(angleFromRobotCenterToAprilTag) < 1.0) {
-                    linearOpMode.telemetry.addLine("In position: all AprilTag values < 1 degree");
-                    linearOpMode.telemetry.update();
-                    RobotLogCommon.d(TAG, "In position: all AprilTag values < 1 degree");
-                    break;
+                    // Set the direction to strafe. A positive angle indicates that the
+                    // tag is to the left of the center of the robot (clockwise). Take
+                    // into account the robot's direction of travel.
+                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
+                    double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
+
+                    //**TODO add in strafe percentage adjustment.
+                    int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
+                    driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
+                    RobotLogCommon.d(TAG, "Strafe towards the AprilTag " + distanceToStrafe + " inches at " + strafeDirection + " degrees");
+
+                    // Calculate the distance to move towards the backstop based on our triangle.
+                    // distanceFromRobotCenterToAprilTag (hypotenuse) squared = distanceToStrafe squared + adjacent squared.
+                    double adjacentSquared = Math.pow(distanceFromRobotCenterToAprilTag, 2) - Math.pow(distanceToStrafe, 2);
+                    double adjacent = Math.sqrt(adjacentSquared); // center of robot to AprilTag
+                    distanceToMove = adjacent - (backdropParameters.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                    RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
+                } else {
+                    distanceToMove = distanceFromRobotCenterToAprilTag - (backdropParameters.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                    RobotLogCommon.d(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
                 }
 
+                // Move the robot towards the backstop. Take into account the robot's direction of travel.
+                //**TODO add in distance percentage adjustment.
+                double moveAngle = (direction == DriveTrainConstants.Direction.FORWARD) ? 0.0 : -180.0;
+                double straightLineVelocity = shortDistanceVelocity(distanceToMove);
+                if (Math.abs(distanceToMove) >= 1.0) {
+                    RobotLogCommon.d(TAG, "Move robot towards the AprilTag " + distanceToMove + " inches");
+                    int targetClicks = (int) (Math.abs(distanceToMove) * robot.driveTrain.getClicksPerInch());
+                    driveTrainMotion.straight(targetClicks, moveAngle, straightLineVelocity, 0, desiredHeading);
+                }
 
                 break;
             }
