@@ -1,0 +1,62 @@
+<RobotConfig>
+
+  <TELEOP_SETTINGS>
+    <!-- In production the value is "off" but set to a
+         more detailed level during testing needed. -->
+    <log_level>off</log_level>
+    <!-- Settings for the velocity control buttons on the game controller. -->
+    <drive_train_velocity>
+      <high>1.0</high>
+      <medium>0.7</medium>
+      <low>.25</low>
+    </drive_train_velocity>
+  </TELEOP_SETTINGS>
+
+  <DRIVE_TRAIN  configured="no">
+    <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019" clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
+      <left_front_drive direction="REVERSE">lf</left_front_drive>
+      <right_front_drive direction="FORWARD">rf</right_front_drive>
+      <left_back_drive direction="REVERSE">lb</left_back_drive>
+      <right_back_drive direction="FORWARD">rb</right_back_drive>
+    </motors>
+  </DRIVE_TRAIN>
+
+  <!-- LED Ring -->
+  <!-- None defined; see FreightFrenzy -->
+
+  <!-- Sensors -->
+  <!-- None defined -->
+
+  <!-- start with one (forward facing webcam) with a single processor
+    for team prop detection via raw video frames.
+    Then add a processor for AprilTags. -->
+  <!-- later you may want two switchable webcams, one forward
+      facing and one rear facing. The forward facing webcam will
+      have the same two processors as above. The rear facing webcam
+      will have only an AprilTag processor. -->
+
+  <!-- There is a maximum of two webcams in a set. If there
+  are two webcams we will treat them as switchable. -->
+  <VISION_PORTAL_WEBCAM configured="yes">
+    <webcam_set>
+           <!-- StreamCam -->
+           <webcam>
+            <internal_id>front_webcam</internal_id>
+            <serial_number>EC2E0DA5</serial_number>
+            <resolution_width>640</resolution_width>
+            <resolution_height>480</resolution_height>
+            <processor_set>
+              <processor>webcam_frame</processor>
+              <processor>april_tag</processor>
+            </processor_set>
+            <webcam_calibration_for_apriltags>
+               <focal_length_x>622.001</focal_length_x>
+               <focal_length_y>622.001</focal_length_y>
+               <optical_center_x>319.803</optical_center_x>
+               <optical_center_y>241.251</optical_center_y>
+            </webcam_calibration_for_apriltags>     
+         </webcam>
+    </webcam_set>
+  </VISION_PORTAL_WEBCAM>
+
+</RobotConfig>

@@ -116,6 +116,8 @@ public class ConceptDoubleVision extends LinearOpMode {
                 myVisionPortal.setProcessorEnabled(webcamFrame, true);
             }
 
+            Toggle_camera_stream();
+
             sleep(20);
 
         }   // end while loop
@@ -132,8 +134,10 @@ public class ConceptDoubleVision extends LinearOpMode {
         // -----------------------------------------------------------------------------------------
 
         aprilTag = new AprilTagProcessor.Builder()
+                //##PY for Logitech StreamCam
+                .setLensIntrinsics(622.001, 622.001, 319.803, 241)
                 // ##PY for Logitech Brio from the 3DF Zephyr tool
-                .setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
+                //.setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
                 .build();
 
         // -----------------------------------------------------------------------------------------
@@ -151,7 +155,8 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setCameraResolution(new Size(640, 480))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .addProcessors(webcamFrame, aprilTag)
+                .addProcessor(webcamFrame)
+                .addProcessor(aprilTag)
                 .build();
 
     }   // end initDoubleVision()
@@ -190,5 +195,21 @@ public class ConceptDoubleVision extends LinearOpMode {
             telemetry.addLine("Frames captured " + ++framesCaptured);
 
     }   // end method telemetryWebcamFrame()
+
+     private void Toggle_camera_stream() {
+         // Manage USB bandwidth of two camera streams, by turning on or off.
+         if (gamepad1.a) {
+             // Temporarily stop the streaming session. This can save CPU
+             // resources, with the ability to resume quickly when needed.
+             myVisionPortal.stopStreaming();
+             telemetry.addLine("Stop streaming");
+             telemetry.update();
+         } else if (gamepad1.y) {
+             // Resume the streaming session if previously stopped.
+             myVisionPortal.resumeStreaming();
+             telemetry.addLine("Resume streaming");
+             telemetry.update();
+         }
+     }
 
 }   // end class
