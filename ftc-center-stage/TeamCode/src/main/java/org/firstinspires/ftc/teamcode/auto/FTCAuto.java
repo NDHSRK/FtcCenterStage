@@ -687,6 +687,15 @@ public class FTCAuto {
                 // from the center of the robot.
 
                 //**TODO STOPPED HERE 10/21/2023
+                /*
+                       double angleFromRobotCenterToAprilTag =
+       CameraToCenterCorrections.getCorrectedAngle(pAprilTagBackstop.distanceCameraLensToRobotCenter,
+       pAprilTagBackstop.offsetCameraLensFromRobotCenter, pDistanceFromCameraToAprilTag, pAngleFromCameraToAprilTag);
+
+// Get the distance from the center of the robot to the target AprilTag.
+double distanceFromRobotCenterToAprilTag = CameraToCenterCorrections.getCorrectedDistance(pAprilTagBackstop.distanceCameraLensToRobotCenter,
+pAprilTagBackstop.offsetCameraLensFromRobotCenter, pDistanceFromCameraToAprilTag, pAngleFromCameraToAprilTag);
+                 */
 
                 // The deskew above should have taken care of the yaw but let's see
                 // what the AprilTag detector thinks it is.
@@ -738,7 +747,7 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Navigating to AprilTag with id " + desiredTagId);
                 RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
                 RobotLogCommon.d(TAG, "Direction of travel " + directionString);
-                if (!aprilTagNavigation.driveToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
+                if (!aprilTagNavigation.navigateToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
                     RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
                     return false;
                 }

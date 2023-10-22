@@ -91,7 +91,7 @@ public class AprilTagNavigation {
     }
 
     @SuppressLint("DefaultLocale")
-    public boolean driveToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
+    public boolean navigateToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
         // Set the correct motor mode for running by power.
         Objects.requireNonNull(robot.driveTrain).setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
