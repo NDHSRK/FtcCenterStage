@@ -17,6 +17,7 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
+import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
@@ -690,38 +691,34 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
                 RobotLogCommon.d(TAG, "Direction of travel " + direction);
 
-                // Unlike the RobotAutoDriveToAprilTagOmni sample, which tracks the
-                // AprilTag in relation to the camera, we need the angle and distance
-                // from the center of the robot.
-
-                //**TODO STOPPED HERE 10/21/2023
-                /*
-                       double angleFromRobotCenterToAprilTag =
-       CameraToCenterCorrections.getCorrectedAngle(pAprilTagBackstop.distanceCameraLensToRobotCenter,
-       pAprilTagBackstop.offsetCameraLensFromRobotCenter, pDistanceFromCameraToAprilTag, pAngleFromCameraToAprilTag);
-
-// Get the distance from the center of the robot to the target AprilTag.
-double distanceFromRobotCenterToAprilTag = CameraToCenterCorrections.getCorrectedDistance(pAprilTagBackstop.distanceCameraLensToRobotCenter,
-pAprilTagBackstop.offsetCameraLensFromRobotCenter, pDistanceFromCameraToAprilTag, pAngleFromCameraToAprilTag);
-                 */
-
                 // The deskew above should have taken care of the yaw but let's see
                 // what the AprilTag detector thinks it is.
                 RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + desiredTag.ftcPose.yaw);
 
-                double rangeError = desiredTag.ftcPose.range - desiredDistanceFromTag;
-                double headingError = desiredTag.ftcPose.bearing;
+                // Unlike the RobotAutoDriveToAprilTagOmni sample, which tracks the
+                // AprilTag in relation to the camera, we need the angle and distance
+                // from the center of the robot.
+                double angleFromRobotCenterToAprilTag =
+                        CameraToCenterCorrections.getCorrectedAngle(backdropParameters.distanceCameraLensToRobotCenter,
+                                backdropParameters.offsetCameraLensFromRobotCenter, desiredTag.ftcPose.range, desiredTag.ftcPose.bearing);
 
+                double distanceFromRobotCenterToAprilTag =
+                        CameraToCenterCorrections.getCorrectedDistance(backdropParameters.distanceCameraLensToRobotCenter,
+                                backdropParameters.offsetCameraLensFromRobotCenter, desiredTag.ftcPose.range, desiredTag.ftcPose.bearing);
 
+                //**TODO STOPPED HERE 10/21/2023
+                // Strafe so that the robot is opposite the target AprilTag.
+                // Use distanceFromRobotCenterToAprilTag
+                // (hypotenuse) and angleFromRobotCenterToAprilTag to get the
+                // distance to strafe (opposite).
 
                 // We may be close enough.
-                if (Math.abs(rangeError) < 1.0 && Math.abs(headingError) < 1.0) {
+                if (Math.abs(distanceFromRobotCenterToAprilTag) < 1.0 && Math.abs(angleFromRobotCenterToAprilTag) < 1.0) {
                     linearOpMode.telemetry.addLine("In position: all AprilTag values < 1 degree");
                     linearOpMode.telemetry.update();
-                    RobotLogCommon.d(TAG,"In position: all AprilTag values < 1 degree");
+                    RobotLogCommon.d(TAG, "In position: all AprilTag values < 1 degree");
                     break;
                 }
-
 
 
                 break;

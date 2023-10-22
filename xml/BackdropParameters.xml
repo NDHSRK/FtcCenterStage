@@ -1,0 +1,9 @@
+    <backdrop_parameters>
+        <direction>back</direction>
+        <distance_camera_lens_to_robot_center>7.0</distance_camera_lens_to_robot_center>
+        <offset_camera_lens_from_robot_center>0.0</offset_camera_lens_from_robot_center>
+        <strafe_adjustment_percent>0.10</strafe_adjustment_percent>
+        <distance_adjustment_percent>0.10</distance_adjustment_percent>
+    </backdrop_parameters>
+
+    <!-- unlikely but may need pixel stack target also -->
