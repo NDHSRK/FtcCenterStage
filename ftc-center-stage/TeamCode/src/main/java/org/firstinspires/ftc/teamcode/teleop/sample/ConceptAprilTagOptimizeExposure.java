@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @TeleOp(name="Optimize AprilTag Exposure", group = "Concept")
-@Disabled
+//@Disabled
 public class ConceptAprilTagOptimizeExposure extends LinearOpMode
 {
     private VisionPortal visionPortal = null;        // Used to manage the video source.
@@ -159,7 +159,15 @@ public class ConceptAprilTagOptimizeExposure extends LinearOpMode
      */
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
-        aprilTag = new AprilTagProcessor.Builder().build();
+        aprilTag = new AprilTagProcessor.Builder()
+
+                // == CAMERA CALIBRATION ==
+                // If you do not manually specify calibration parameters, the SDK will attempt
+                // to load a predefined calibration for your camera.
+                // ... these parameters are fx, fy, cx, cy.
+                // ##PY for Logitech Brio from the 3DF Zephyr tool
+                .setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
+                .build();
 
         // Create the WEBCAM vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
