@@ -270,14 +270,16 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode {
         //     <camera cameraMaker="NA" cameraModel="NA" lense="NA" fx="313.17732159" fy="313.17732159" cx="147.313326878" cy="131.900495465" k1="0.270753223695" k2="-1.0832648498" p1="0.0105836682213" p2="-0.00389283894974" k3="1.36673433383" skew="0" name="NA NA (NA)"/>
         aprilTag = new AprilTagProcessor.Builder()
                 // ##PY for Logitech Brio from the 3DF Zephyr tool
-                .setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
+                //.setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
+                //#PY for Logitech C920 from the FTC file teamwebcamcalibrations.xml
+                .setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
                 .build();
 
         // Create the vision portal by using a builder.
         if (USE_WEBCAM) {
             visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .setCameraResolution(new Size(320, 240)) //##PY use full default resolution
+                    .setCameraResolution(new Size(640, 480)) //##PY use full default resolution
                     .addProcessor(aprilTag)
                     .build();
         } else {

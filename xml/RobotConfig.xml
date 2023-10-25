@@ -12,7 +12,7 @@
     </drive_train_velocity>
   </TELEOP_SETTINGS>
 
-  <DRIVE_TRAIN  configured="no">
+  <DRIVE_TRAIN  configured="yes">
     <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019" clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
       <left_front_drive direction="REVERSE">lf</left_front_drive>
       <right_front_drive direction="FORWARD">rf</right_front_drive>
@@ -40,11 +40,28 @@
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
       <webcam>
+        <internal_id>front_webcam</internal_id>
+        <!-- BRIO Notre Dame front -->
+        <serial_number>0E574C8B</serial_number>
+        <resolution_width>640</resolution_width>
+        <resolution_height>480</resolution_height>
+        <processor_set>
+          <processor>webcam_frame</processor>
+        </processor_set>
+        <!-- (optional) april tag calibration values should go here. -->
+        <webcam_calibration_for_apriltags>
+          <focal_length_x>627.419488832</focal_length_x>
+          <focal_length_y>627.419488832</focal_length_y>
+          <optical_center_x>301.424062225</optical_center_x>
+          <optical_center_y>234.042415697</optical_center_y>
+        </webcam_calibration_for_apriltags>
+      </webcam>s
+      <webcam>
         <internal_id>rear_webcam</internal_id>
         <!-- C920 -->
         <serial_number>1133:2277</serial_number>
-        <resolution_width>320</resolution_width>
-        <resolution_height>240</resolution_height>
+        <resolution_width>640</resolution_width>
+        <resolution_height>480</resolution_height>
         <processor_set>
           <!-- processor>webcam_frame</processor -->
           <processor>april_tag</processor>
@@ -55,7 +72,7 @@
           <optical_center_x>319.803</optical_center_x>
           <optical_center_y>241.251</optical_center_y>
         </webcam_calibration_for_apriltags>
-      </webcam> 
+      </webcam>   
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
 

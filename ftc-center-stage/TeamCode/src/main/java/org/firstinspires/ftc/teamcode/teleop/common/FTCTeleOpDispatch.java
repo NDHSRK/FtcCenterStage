@@ -25,7 +25,7 @@ public class FTCTeleOpDispatch {
     // needs to instantiate its worker class, e.g. TeleOpTakePicture, but the driver has
     // just selected the OpMode so two crucial classes have not yet been instantiated:
     // FTCRobot (for access to the hardware configuration) and, optionally, FTCAuto (for
-    // the ability to run autonomous OpModes in TeleOp). so the instantiation of the
+    // the ability to run autonomous OpModes in TeleOp). So the instantiation of the
     // worker class needs to be deferred. The Java Function interface gives us a way of
     // doing this. The caller is saying "please construct my worker class with arguments
     // that are created here in runTeleOp". Worker classes are generic in that they must

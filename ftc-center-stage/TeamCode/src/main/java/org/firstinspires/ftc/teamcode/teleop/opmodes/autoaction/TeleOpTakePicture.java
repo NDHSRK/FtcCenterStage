@@ -14,14 +14,9 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpWithAlliance;
 
 import java.util.logging.Level;
 
-public class TeleOpTakePicture implements TeleOpWithAlliance {
+public class TeleOpTakePicture extends TeleOpWithAlliance {
 
     private static final String TAG = TeleOpTakePicture.class.getSimpleName();
-
-    private final LinearOpMode linearOpMode;
-    private final FTCRobot robot;
-    @Nullable
-    private final FTCAuto ftcAuto;
 
     // Define buttons that return a boolean.
     private final FTCButton takePictureButton;
@@ -29,13 +24,10 @@ public class TeleOpTakePicture implements TeleOpWithAlliance {
     public TeleOpTakePicture(RobotConstants.Alliance pAlliance,
                              LinearOpMode pLinearOpMode, FTCRobot pRobot,
                              @Nullable FTCAuto pAutonomous) {
-        linearOpMode = pLinearOpMode;
-        robot = pRobot;
-        ftcAuto = pAutonomous;
+        super(pAlliance, pLinearOpMode, pRobot, pAutonomous);
 
         takePictureButton = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
     }
-
 
     @Override
     public void runTeleOp() throws Exception {
