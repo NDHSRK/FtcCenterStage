@@ -116,7 +116,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         //**TODO add all updates for Game Controller 1
 
         // Game Controller 2
-       //**TODO add all updates for Game Controller 1
+       //**TODO add all updates for Game Controller 2
     }
 
     // Execute the actions controlled by Player 1 and Player 2.
