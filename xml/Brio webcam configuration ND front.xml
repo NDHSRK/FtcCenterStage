@@ -11,7 +11,7 @@
         <webcam_calibration_for_apriltags>
           <focal_length_x>627.419488832</focal_length_x>
           <focal_length_y>627.419488832</focal_length_y>
-          <optical_center_x>301.424062225</optical_center_x>
-          <optical_center_y>234.042415697</optical_center_y>
+          <principal_point_x>301.424062225</principal_point_x>
+          <principal_point_y>234.042415697</principal_point_y>
         </webcam_calibration_for_apriltags>
       </webcam>

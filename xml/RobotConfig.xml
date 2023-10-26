@@ -49,16 +49,7 @@
   <!-- Sensors -->
   <!-- None defined -->
 
-  <!-- start with one (forward facing webcam) with a single processor
-    for team prop detection via raw video frames.
-    Then add a processor for AprilTags. -->
-  <!-- later you may want two switchable webcams, one forward
-      facing and one rear facing. The forward facing webcam will
-      have the same two processors as above. The rear facing webcam
-      will have only an AprilTag processor. -->
-
-  <!-- There is a maximum of two webcams in a set. If there
-  are two webcams we will treat them as switchable. -->
+  <!-- There is a maximum of two webcams in a set. -->
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
       <webcam>
@@ -74,8 +65,8 @@
         <webcam_calibration_for_apriltags>
           <focal_length_x>627.419488832</focal_length_x>
           <focal_length_y>627.419488832</focal_length_y>
-          <optical_center_x>301.424062225</optical_center_x>
-          <optical_center_y>234.042415697</optical_center_y>
+          <principal_point_x>301.424062225</principal_point_x>
+          <principal_point_y>234.042415697</principal_point_y>
         </webcam_calibration_for_apriltags>
       </webcam>s
       <webcam>
@@ -91,8 +82,8 @@
         <webcam_calibration_for_apriltags>
           <focal_length_x>622.001</focal_length_x>
           <focal_length_y>622.001</focal_length_y>
-          <optical_center_x>319.803</optical_center_x>
-          <optical_center_y>241.251</optical_center_y>
+          <principal_point_x>319.803</principal_point_x>
+          <principal_point_y>241.251</principal_point_y>
         </webcam_calibration_for_apriltags>
       </webcam>   
     </webcam_set>

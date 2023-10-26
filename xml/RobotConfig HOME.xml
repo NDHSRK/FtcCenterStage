@@ -20,6 +20,28 @@
       <right_back_drive direction="FORWARD">rb</right_back_drive>
     </motors>
   </DRIVE_TRAIN>
+  
+  <ELEVATOR configured="no">
+    <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001" clicks_per_motor_rev="537.7" rpm="312.0">
+      <left_motor direction="FORWARD">left_elevator</left_motor>
+      <right_motor direction="REVERSE">right_elevator</right_motor>
+    </dual_motors>
+    <velocity>1.0</velocity>
+    <positions>
+      <down>0</down>
+      <safe>140</safe>
+      <low_junction>90</low_junction>
+      <medium_junction>1293</medium_junction>
+      <high_junction>2490</high_junction>
+      <cone_one>0</cone_one> <!-- 0 values mean not used -->
+      <cone_two>0</cone_two>
+      <cone_three>0</cone_three>
+      <cone_four>0</cone_four>
+      <cone_five>655</cone_five>
+      <stack_clearance>1156</stack_clearance>
+      <relative_descent>300</relative_descent>
+    </positions>
+  </ELEVATOR>
 
   <!-- LED Ring -->
   <!-- None defined; see FreightFrenzy -->
@@ -27,16 +49,7 @@
   <!-- Sensors -->
   <!-- None defined -->
 
-  <!-- start with one (forward facing webcam) with a single processor
-    for team prop detection via raw video frames.
-    Then add a processor for AprilTags. -->
-  <!-- later you may want two switchable webcams, one forward
-      facing and one rear facing. The forward facing webcam will
-      have the same two processors as above. The rear facing webcam
-      will have only an AprilTag processor. -->
-
-  <!-- There is a maximum of two webcams in a set. If there
-  are two webcams we will treat them as switchable. -->
+  <!-- There is a maximum of two webcams in a set. -->
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
            <!-- StreamCam -->
@@ -52,8 +65,8 @@
             <webcam_calibration_for_apriltags>
                <focal_length_x>622.001</focal_length_x>
                <focal_length_y>622.001</focal_length_y>
-               <optical_center_x>319.803</optical_center_x>
-               <optical_center_y>241.251</optical_center_y>
+               <principal_point_x>319.803</principal_point_x>
+               <principal_point_y>241.251</principal_point_y>
             </webcam_calibration_for_apriltags>     
          </webcam>
     </webcam_set>

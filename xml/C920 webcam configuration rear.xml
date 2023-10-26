@@ -12,7 +12,7 @@
         <webcam_calibration_for_apriltags>
           <focal_length_x>622.001</focal_length_x>
           <focal_length_y>622.001</focal_length_y>
-          <optical_center_x>319.803</optical_center_x>
-          <optical_center_y>241.251</optical_center_y>
+          <principal_point_x>319.803</principal_point_x>
+          <principal_point_y>241.251</principal_point_y>
         </webcam_calibration_for_apriltags>
       </webcam>  
