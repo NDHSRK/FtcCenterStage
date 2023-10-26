@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.common.FTCErrorHandling;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
 import org.firstinspires.ftc.teamcode.teleop.common.ParallelDrive;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpWithAlliance;
 
@@ -20,18 +21,22 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private static final String TAG = CenterStageTeleOp.class.getSimpleName();
 
     // Define buttons that return a boolean.
-    private final FTCButton lowDriveTrainVelocity;
-    private final FTCButton highDriveTrainVelocity;
+    // private final FTCButton lowDriveTrainVelocity;
+    // private final FTCButton highDriveTrainVelocity;
 
-    private final FTCButton elevatorHeightLowJunction;
-    private final FTCButton elevatorHeightMediumJunction;
-    private final FTCButton elevatorHeightHighJunction;
-    private final FTCButton deliverCone;
-    private final FTCButton elevatorAndArmDown;
-    private final FTCButton elevatorAndArmSafe;
-    private final FTCButton elevatorManual;
-    private final FTCButton coneGrabberToggle;
-    private final FTCButton deliverConeWithCamera;
+    private final FTCButton hangUp;
+    private final FTCButton hangDown;
+    private final FTCButton toggleSpeed;
+    // private final FTCButton intake;
+    private final FTCButton slidesBoomUp;
+    private final FTCButton slidesBoomDown;
+    // private final FTCButton outtake;
+    private final FTCButton minimumGear;
+    private final FTCButton maximumGear;
+    private final FTCButton increaseGear;
+    private final FTCButton decreaseGear;
+    private final FTCButton launchByGearValue;
+    private final FTCButton zeroAll;
 
     // Drive train
     private double driveTrainVelocity;
@@ -54,24 +59,24 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         driveTrainVelocityLow = robot.teleOpSettings.driveTrainVelocityLow;
 
         // Gamepad 1
-        lowDriveTrainVelocity = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
-        highDriveTrainVelocity = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
+        hangDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
+        hangUp = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
+        toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
 
         // Gamepad 2
         // Bumpers
-        elevatorAndArmSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_RIGHT_BUMPER);
-        elevatorManual = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
+        slidesBoomDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_RIGHT_BUMPER);
+        slidesBoomUp = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
 
         // ABXY Buttons
-        deliverCone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
-        coneGrabberToggle = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_Y);
-        deliverConeWithCamera = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
+        launchByGearValue = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
+        zeroAll = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
 
         // D-Pad
-        elevatorHeightLowJunction = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
-        elevatorHeightMediumJunction = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
-        elevatorHeightHighJunction = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
-        elevatorAndArmDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_DOWN);
+        minimumGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
+        maximumGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
+        increaseGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
+        decreaseGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_DOWN);
 
         // Start the drive train in parallel.
         parallelDrive = new ParallelDrive(linearOpMode, robot.driveTrain, driveTrainVelocity);
@@ -111,8 +116,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private void updateButtons() {
 
         // Game Controller 1
-        lowDriveTrainVelocity.update();
-        highDriveTrainVelocity.update();
+//        lowDriveTrainVelocity.update();
+//        highDriveTrainVelocity.update();
         //**TODO add all updates for Game Controller 1
 
         // Game Controller 2
@@ -122,26 +127,26 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     // Execute the actions controlled by Player 1 and Player 2.
     // This method should be called once per cycle.
     private void updateActions() throws Exception {
-        updateDriveTrainVelocity();
-
-        if (velocityChanged())
-            parallelDrive.setVelocity(driveTrainVelocity);
-
-        //**TODO add all actions
+//        updateDriveTrainVelocity();
+//
+//        if (velocityChanged())
+//            parallelDrive.setVelocity(driveTrainVelocity);
+//
+//        //**TODO add all actions
     }
 
-    private void updateDriveTrainVelocity() {
-        if (highDriveTrainVelocity.is(FTCButton.State.HELD) && !lowDriveTrainVelocity.is(FTCButton.State.HELD)) {
-            driveTrainVelocity = driveTrainVelocityHigh;
-            //RobotLogCommon.v(TAG, "Drive Train is at HIGH velocity");
-        } else if (!highDriveTrainVelocity.is(FTCButton.State.HELD) && lowDriveTrainVelocity.is(FTCButton.State.HELD)) {
-            driveTrainVelocity = driveTrainVelocityLow;
-            //RobotLogCommon.v(TAG, "Drive Train is at LOW velocity");
-        } else {
-            driveTrainVelocity = driveTrainVelocityMedium;
-            //RobotLogCommon.v(TAG, "Drive Train is at MEDIUM velocity");
-        }
-    }
+//    private void updateDriveTrainVelocity() {
+//        if (highDriveTrainVelocity.is(FTCButton.State.HELD) && !lowDriveTrainVelocity.is(FTCButton.State.HELD)) {
+//            driveTrainVelocity = driveTrainVelocityHigh;
+//            //RobotLogCommon.v(TAG, "Drive Train is at HIGH velocity");
+//        } else if (!highDriveTrainVelocity.is(FTCButton.State.HELD) && lowDriveTrainVelocity.is(FTCButton.State.HELD)) {
+//            driveTrainVelocity = driveTrainVelocityLow;
+//            //RobotLogCommon.v(TAG, "Drive Train is at LOW velocity");
+//        } else {
+//            driveTrainVelocity = driveTrainVelocityMedium;
+//            //RobotLogCommon.v(TAG, "Drive Train is at MEDIUM velocity");
+//        }
+//    }
 
     private boolean velocityChanged() {
         if (driveTrainVelocity == previousDriveTrainVelocity)
