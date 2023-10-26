@@ -124,8 +124,10 @@ public class ConceptAprilTag extends LinearOpMode {
                 // If you do not manually specify calibration parameters, the SDK will attempt
                 // to load a predefined calibration for your camera.
                 // ... these parameters are fx, fy, cx, cy.
+                //##PY for Arducam 120fps Mono Global Shutter USB Camera, 720P OV9281 UVC Webcam Module
+                .setLensIntrinsics(539.024, 539.024, 316.450, 236.365)
                 //#PY for Logitech C920 from the FTC file teamwebcamcalibrations.xml
-                .setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
+                //.setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
                 // ##PY for Logitech Brio from the 3DF Zephyr tool
                 //.setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
                 .build();

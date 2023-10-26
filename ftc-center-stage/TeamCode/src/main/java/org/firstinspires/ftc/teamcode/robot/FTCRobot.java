@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
+import org.firstinspires.ftc.teamcode.robot.device.motor.ElevatorMotors;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.xml.sax.SAXException;
 
@@ -40,6 +41,11 @@ public class FTCRobot {
 
     public final TeleOpSettings teleOpSettings;
     public final DriveTrain driveTrain;
+
+    // Instantiate here in FTCRobot so that these objects
+    // can be shared between TeleOp and FTCAuto when it is
+    // embedded within TeleOp.
+    public final ElevatorMotors elevatorMotors;
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
@@ -100,6 +106,15 @@ public class FTCRobot {
                 driveTrain = new DriveTrain(hardwareMap, configXPath);
             else
                 driveTrain = null;
+
+            // Get the configuration for a dual-motor elevator.
+            configXPath = configXML.getPath("ELEVATOR");
+            String elevatorInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (elevatorInConfiguration.equals("yes")) {
+                elevatorMotors = new ElevatorMotors(hardwareMap, configXPath);
+            } else {
+                elevatorMotors = null;
+            }
 
             // In a competition the webcam(s) would be configured in and
             // used in Autonomous but not in TeleOp so we can't just check
