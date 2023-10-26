@@ -399,8 +399,8 @@ public class FTCAuto {
                                 // Follow the MultiPortal sample, which only includes setLensIntrinsics
                                 .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
                                         configuredWebcam.cameraCalibration.focalLengthY,
-                                        configuredWebcam.cameraCalibration.opticalCenterX,
-                                        configuredWebcam.cameraCalibration.opticalCenterY)
+                                        configuredWebcam.cameraCalibration.principalPointX,
+                                        configuredWebcam.cameraCalibration.principalPointY)
                                 .build();
 
                         AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,

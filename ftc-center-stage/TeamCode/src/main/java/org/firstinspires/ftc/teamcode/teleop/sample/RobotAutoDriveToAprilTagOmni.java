@@ -272,7 +272,9 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode {
                 // ##PY for Logitech Brio from the 3DF Zephyr tool
                 //.setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
                 //#PY for Logitech C920 from the FTC file teamwebcamcalibrations.xml
-                .setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
+                //.setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
+                //##PY for Logitech C920 from the 3DF Zephyr tool
+                .setLensIntrinsics(625.838, 625.838, 323.437, 240.373)
                 .build();
 
         // Create the vision portal by using a builder.

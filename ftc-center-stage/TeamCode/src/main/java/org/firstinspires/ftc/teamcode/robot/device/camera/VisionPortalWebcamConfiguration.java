@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
-import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.vision.VisionProcessor;
 
 import java.util.ArrayList;
 
@@ -60,15 +58,15 @@ public class VisionPortalWebcamConfiguration {
     public static class CameraCalibration {
           public final double focalLengthX;
           public final double focalLengthY;
-          public final double opticalCenterX;
-          public final double opticalCenterY;
+          public final double principalPointX;
+          public final double principalPointY;
 
           public CameraCalibration(double pFocalLengthX, double pFocalLengthY,
-                                   double pOpticalCenterX, double pOpticalCenterY) {
+                                   double pPrincipalPointX, double pPrincipalPointY) {
               focalLengthX = pFocalLengthX;
               focalLengthY = pFocalLengthY;
-              opticalCenterX = pOpticalCenterX;
-              opticalCenterY = pOpticalCenterY;
+              principalPointX = pPrincipalPointX;
+              principalPointY = pPrincipalPointY;
           }
     }
 

@@ -249,8 +249,8 @@ public class RobotConfigXML {
             /*
                <focal_length_x>627.41948883</focal_length_x>
                <focal_length_y>627.419488832</focal_length_y>
-               <optical_center_x>301.424062225</optical_center_x>
-               <optical_center_y>234.042415697</optical_center_y>
+               <principal_point_x>301.424062225</principal_point_x>
+               <principal_point_y>234.042415697</principal_point_y>
              */
             Node fx_node = calibration_node.getFirstChild();
             fx_node = XMLUtils.getNextElement(fx_node);
@@ -282,30 +282,30 @@ public class RobotConfigXML {
 
             Node cx_node = fy_node.getNextSibling();
             cx_node = XMLUtils.getNextElement(cx_node);
-            if (cx_node == null || !cx_node.getNodeName().equals("optical_center_x") ||
+            if (cx_node == null || !cx_node.getNodeName().equals("principal_point_x") ||
                     cx_node.getTextContent().isEmpty())
-                throw new AutonomousRobotException(TAG, "Element 'optical_center_x' not found");
+                throw new AutonomousRobotException(TAG, "Element 'principal_point_x' not found");
 
             String cxString = cx_node.getTextContent();
             double cx;
             try {
                 cx = Double.parseDouble(cxString);
             } catch (NumberFormatException nex) {
-                throw new AutonomousRobotException(TAG, "Invalid number format in element 'optical_center_x'");
+                throw new AutonomousRobotException(TAG, "Invalid number format in element 'principal_point_x'");
             }
 
             Node cy_node = cx_node.getNextSibling();
             cy_node = XMLUtils.getNextElement(cy_node);
-            if (cy_node == null || !cy_node.getNodeName().equals("optical_center_y") ||
+            if (cy_node == null || !cy_node.getNodeName().equals("principal_point_y") ||
                     cy_node.getTextContent().isEmpty())
-                throw new AutonomousRobotException(TAG, "Element 'optical_center_y' not found");
+                throw new AutonomousRobotException(TAG, "Element 'principal_point_y' not found");
 
             String cyString = cy_node.getTextContent();
             double cy;
             try {
                 cy = Double.parseDouble(cyString);
             } catch (NumberFormatException nex) {
-                throw new AutonomousRobotException(TAG, "Invalid number format in element 'optical_center_y'");
+                throw new AutonomousRobotException(TAG, "Invalid number format in element 'principal_point_y'");
             }
 
             calibration = new VisionPortalWebcamConfiguration.CameraCalibration(fx, fy, cx, cy);
