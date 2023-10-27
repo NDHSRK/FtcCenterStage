@@ -10,11 +10,9 @@
         </parameters>
         <actions>
 
-            <!-- Test exposure -->
-
-            <!-- TAKE_PICTURE_WEBCAM>
+            <TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
-            </TAKE_PICTURE_WEBCAM -->
+            </TAKE_PICTURE_WEBCAM>
 
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
@@ -26,7 +24,7 @@
 
             <!-- TEST_MULTIPORTAL_SAMPLE / -->
 
-            <START_WEBCAM>
+            <!-- START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
             </START_WEBCAM>
@@ -34,21 +32,21 @@
             <WAIT_FOR_WEBCAM_START>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <timeout_ms>2000</timeout_ms>
-            </WAIT_FOR_WEBCAM_START>
+            </WAIT_FOR_WEBCAM_START -->
 
-            <TURN>
+            <!-- TURN>
                 <angle>90.0</angle>
                 <power>.5</power>
                 <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
             </TURN>
 
-            <DESKEW />
+            <DESKEW / -->
 
-            <FIND_ALL_APRIL_TAGS>
+            <!-- FIND_ALL_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
             </FIND_ALL_APRIL_TAGS>
 
-            <!-- DRIVE_TO_APRIL_TAG>
+            <DRIVE_TO_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <tag_id>5</tag_id>
                 <timeout_ms>1000</timeout_ms>
