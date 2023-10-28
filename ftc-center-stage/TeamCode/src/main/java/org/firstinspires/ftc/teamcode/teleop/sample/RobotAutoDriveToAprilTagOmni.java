@@ -259,22 +259,17 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode {
      */
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
-        /*
-            Logitech Brio - calibrated at 640x480
-            <focal_length_x>627.419488832</focal_length_x>
-            <focal_length_y>627.419488832</focal_length_y>
-            <optical_center_x>301.424062225</optical_center_x>
-            <optical_center_y>234.042415697</optical_center_y>
-        */
-        // Logitech Brio - calibrated at 320x240
-        //     <camera cameraMaker="NA" cameraModel="NA" lense="NA" fx="313.17732159" fy="313.17732159" cx="147.313326878" cy="131.900495465" k1="0.270753223695" k2="-1.0832648498" p1="0.0105836682213" p2="-0.00389283894974" k3="1.36673433383" skew="0" name="NA NA (NA)"/>
-        aprilTag = new AprilTagProcessor.Builder()
-                // ##PY for Logitech Brio from the 3DF Zephyr tool
+       aprilTag = new AprilTagProcessor.Builder()
+               // Logitech Brio - calibrated at 320x240
+               // <camera cameraMaker="NA" cameraModel="NA" lense="NA" fx="313.17732159" fy="313.17732159" cx="147.313326878" cy="131.900495465" k1="0.270753223695" k2="-1.0832648498" p1="0.0105836682213" p2="-0.00389283894974" k3="1.36673433383" skew="0" name="NA NA (NA)"/>
+               // ##PY for Logitech Brio from the 3DF Zephyr tool
                 //.setLensIntrinsics(627.419488832, 627.419488832, 301.424062225, 234.042415697)
                 //#PY for Logitech C920 from the FTC file teamwebcamcalibrations.xml
                 //.setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
+                //##PY for Arducam 120fps Mono Global Shutter USB Camera, 720P OV9281 UVC Webcam Module
+                .setLensIntrinsics(539.024, 539.024, 316.450, 236.365)
                 //##PY for Logitech C920 from the 3DF Zephyr tool
-                .setLensIntrinsics(625.838, 625.838, 323.437, 240.373)
+                //.setLensIntrinsics(625.838, 625.838, 323.437, 240.373)
                 .build();
 
         // Create the vision portal by using a builder.

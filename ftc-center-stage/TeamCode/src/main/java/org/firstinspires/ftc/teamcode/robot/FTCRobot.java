@@ -13,7 +13,8 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
-import org.firstinspires.ftc.teamcode.robot.device.motor.ElevatorMotors;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.xml.sax.SAXException;
 
@@ -33,7 +34,7 @@ public class FTCRobot {
     // All motors on the robot for this year's game.
     public enum MotorId {
         LEFT_FRONT_DRIVE, RIGHT_FRONT_DRIVE, LEFT_BACK_DRIVE, RIGHT_BACK_DRIVE,
-        ELEVATOR_LEFT, ELEVATOR_RIGHT,
+        ELEVATOR_LEFT, ELEVATOR_RIGHT, BOOM,
         MOTOR_ID_NPOS // for error checking
     }
 
@@ -45,7 +46,8 @@ public class FTCRobot {
     // Instantiate here in FTCRobot so that these objects
     // can be shared between TeleOp and FTCAuto when it is
     // embedded within TeleOp.
-    public final ElevatorMotors elevatorMotors;
+    public final Elevator elevator;
+    public final Boom boom;
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
@@ -107,13 +109,22 @@ public class FTCRobot {
             else
                 driveTrain = null;
 
-            // Get the configuration for a dual-motor elevator.
+            // Get the configuration for the dual-motor elevator.
             configXPath = configXML.getPath("ELEVATOR");
             String elevatorInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
             if (elevatorInConfiguration.equals("yes")) {
-                elevatorMotors = new ElevatorMotors(hardwareMap, configXPath);
+                elevator = new Elevator(hardwareMap, configXPath);
             } else {
-                elevatorMotors = null;
+                elevator = null;
+            }
+
+            // Get the configuration for the boom.
+            configXPath = configXML.getPath("BOOM");
+            String boomInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (boomInConfiguration.equals("yes")) {
+                boom = new Boom(hardwareMap, configXPath);
+            } else {
+                boom = null;
             }
 
             // In a competition the webcam(s) would be configured in and

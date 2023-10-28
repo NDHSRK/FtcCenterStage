@@ -5,8 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
-import org.firstinspires.ftc.teamcode.robot.device.motor.ElevatorMotors;
-import org.firstinspires.ftc.teamcode.robot.device.motor.MotorCore;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
@@ -14,7 +13,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 //@Disabled
 public class DualMotorTest extends TeleOpBase {
 
-    private ElevatorMotors elevatorMotors;
+    private Elevator elevator;
     private DualMotorMotion dualMotorMotion;
 
     private FTCButton incrementButton;
@@ -32,8 +31,8 @@ public class DualMotorTest extends TeleOpBase {
     public void initialize() {
 
         // Set up for RUN_TO_POSITION and hold
-        elevatorMotors = robot.elevatorMotors;
-        dualMotorMotion = new DualMotorMotion(this, elevatorMotors);
+        elevator = robot.elevator;
+        dualMotorMotion = new DualMotorMotion(this, elevator);
 
         incrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y); // increment
         decrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A); // decrement
@@ -64,7 +63,7 @@ public class DualMotorTest extends TeleOpBase {
 
     private void updateIncrement() {
         if (incrementButton.is(FTCButton.State.TAP)) {
-            dualMotorMotion.moveDualMotors(cumulativeClicks += CLICKS_PER_MOVEMENT, elevatorMotors.velocity,
+            dualMotorMotion.moveDualMotors(cumulativeClicks += CLICKS_PER_MOVEMENT, elevator.velocity,
                     DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
@@ -72,14 +71,14 @@ public class DualMotorTest extends TeleOpBase {
 
     private void updateDecrement() {
         if (decrementButton.is(FTCButton.State.TAP)) {
-            dualMotorMotion.moveDualMotors(cumulativeClicks -= CLICKS_PER_MOVEMENT, elevatorMotors.velocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            dualMotorMotion.moveDualMotors(cumulativeClicks -= CLICKS_PER_MOVEMENT, elevator.velocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
     }
 
     private void updateEncoderTelemetry() {
-        telemetry.addData("current left", elevatorMotors.getCurrentPosition(FTCRobot.MotorId.ELEVATOR_LEFT));
-        telemetry.addData("current right", elevatorMotors.getCurrentPosition(FTCRobot.MotorId.ELEVATOR_RIGHT));
+        telemetry.addData("current left", elevator.getCurrentPosition(FTCRobot.MotorId.ELEVATOR_LEFT));
+        telemetry.addData("current right", elevator.getCurrentPosition(FTCRobot.MotorId.ELEVATOR_RIGHT));
         telemetry.update();
     }
 
