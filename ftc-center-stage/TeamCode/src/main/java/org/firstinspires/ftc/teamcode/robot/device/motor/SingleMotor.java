@@ -31,7 +31,7 @@ public abstract class SingleMotor extends MotorCore {
 
         // From the FTC example ConceptMotorBulkRead.java
         // Important Step 1:  Make sure you use DcMotorEx when you instantiate your motors.
-        DcMotorEx single_motor = pHardwareMap.get(DcMotorEx.class, pConfigXPath.getRequiredText("single_motor"));
+        DcMotorEx single_motor = pHardwareMap.get(DcMotorEx.class, pConfigXPath.getRequiredText("single_motor/id"));
        
         // Set the direction of the motor.
         single_motor.setDirection(DcMotor.Direction.valueOf(pConfigXPath.getRequiredText("single_motor/@direction")));
