@@ -720,7 +720,12 @@ public class FTCAuto {
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
 
-                    //**TODO add in strafe percentage adjustment.
+                    // Add in strafe percentage adjustment.
+                    if (backdropParameters.strafeAdjustmentPercent != 0.0) {
+                        distanceToStrafe += (distanceToStrafe * backdropParameters.strafeAdjustmentPercent);
+                        RobotLogCommon.d(TAG, "Adjusting distance to strafe by " + backdropParameters.strafeAdjustmentPercent);
+                    }
+
                     int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
                     driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
                     RobotLogCommon.d(TAG, "Strafe towards the AprilTag " + distanceToStrafe + " inches at " + strafeDirection + " degrees");
@@ -737,7 +742,12 @@ public class FTCAuto {
                 }
 
                 // Move the robot towards the backstop. Take into account the robot's direction of travel.
-                //**TODO add in distance percentage adjustment.
+                // Add in distance percentage adjustment.
+                if (backdropParameters.distanceAdjustmentPercent != 0.0) {
+                    distanceToMove += (distanceToMove * backdropParameters.distanceAdjustmentPercent);
+                    RobotLogCommon.d(TAG, "Adjusting distance to move by " + backdropParameters.distanceAdjustmentPercent);
+                }
+
                 double moveAngle = (direction == DriveTrainConstants.Direction.FORWARD) ? 0.0 : -180.0;
                 double straightLineVelocity = shortDistanceVelocity(distanceToMove);
                 if (Math.abs(distanceToMove) >= 1.0) {
