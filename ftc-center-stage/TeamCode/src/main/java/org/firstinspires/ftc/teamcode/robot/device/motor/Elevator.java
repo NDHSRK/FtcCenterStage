@@ -24,8 +24,9 @@ public class Elevator extends DualMotors {
 
     public final double velocity;
 
-    public final int rest;
+    public final int ground;
     public final int safe;
+    public final int clear;
     public final int level_1;
     public final int level_2;
     public final int level_3;
@@ -40,21 +41,26 @@ public class Elevator extends DualMotors {
 
          /*
            <positions>
-             <rest>0</rest>
+             <ground>0</ground>
              <safe>0</safe>
+             <clear>0</clear>
              <level_1>0</level_1>
              <level_2>0</Level_2>
              <level_3>0</level_3>
            </positions>
          */
 
-        rest = pConfigXPath.getRequiredInt("positions/rest");
-        if (rest < ELEVATOR_MIN_POSITION || rest > ELEVATOR_MAX_POSITION)
-            throw new AutonomousRobotException(TAG, "Elevator rest position is out of range");
+        ground = pConfigXPath.getRequiredInt("positions/ground");
+        if (ground < ELEVATOR_MIN_POSITION || ground > ELEVATOR_MAX_POSITION)
+            throw new AutonomousRobotException(TAG, "Elevator ground position is out of range");
 
         safe = pConfigXPath.getRequiredInt("positions/safe");
         if (safe < ELEVATOR_MIN_POSITION || safe > ELEVATOR_MAX_POSITION)
             throw new AutonomousRobotException(TAG, "Elevator safe position is out of range");
+
+        clear = pConfigXPath.getRequiredInt("positions/clear");
+        if (clear < ELEVATOR_MIN_POSITION || clear > ELEVATOR_MAX_POSITION)
+            throw new AutonomousRobotException(TAG, "Elevator clear position is out of range");
 
         level_1 = pConfigXPath.getRequiredInt("positions/level_1");
         if (level_1 < ELEVATOR_MIN_POSITION || level_1 > ELEVATOR_MAX_POSITION)

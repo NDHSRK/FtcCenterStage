@@ -43,8 +43,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     //**TODO How do you retract the boom?
     //**TODO Can you go up or down an elevator level without moving the boom?
-    private final FTCButton deliverPixelAtSelectedLevel; //**TODO changed from launchByGearValue
-    private final FTCButton resetGearValue;
+    private final FTCButton positionForDelivery; //**TODO changed from launchByGearValue
+    private final FTCButton goToSafe;
+    private final FTCButton goToGround;
 
     // Drive train
     private double driveTrainVelocity;
@@ -100,8 +101,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         intake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
 
         // ABXY Buttons
-        deliverPixelAtSelectedLevel = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
-        resetGearValue = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
+        positionForDelivery = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_Y);
+        goToSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
+        goToGround = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
 
         // D-Pad
         minimumGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
@@ -158,8 +160,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         maximumGear.update();
         increaseGear.update();
         decreaseGear.update();
-        resetGearValue.update();
-        deliverPixelAtSelectedLevel.update();
+        goToSafe.update();
+        positionForDelivery.update();
+        goToGround.update();
     }
 
     // Execute the actions controlled by Player 1 and Player 2.
@@ -227,8 +230,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateMaximumGear();
         updateIncreaseGear();
         updateDecreaseGear();
-        updateResetGearValue();
-        updateDeliverPixelAtSelectedLevel();
+        updateGoToSafe();
+        updatePositionForDelivery();
+        updateGoToGround();
     }
 
     private void updateToggleSpeed() {
@@ -276,8 +280,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
     }
 
-    private void updateResetGearValue() {
-        if (resetGearValue.is(FTCButton.State.TAP)) {
+    private void updateGoToSafe() {
+        if (goToSafe.is(FTCButton.State.TAP)) {
             gearValue = minElevatorLevel;
         }
     }
@@ -285,8 +289,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     // Move the elevator from its safe position to the position set by the
     // gear selection.
     // Automatically extend the pixel delivery boom.
-    private void updateDeliverPixelAtSelectedLevel() {
-        if (deliverPixelAtSelectedLevel.is(FTCButton.State.TAP)) {
+    private void updatePositionForDelivery() {
+        if (positionForDelivery.is(FTCButton.State.TAP)) {
             RobotLogCommon.v(TAG, "Entered updateDeliverPixelAtSelectedLevel");
 
             if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE ||
@@ -328,8 +332,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
     }
 
+    private void updateGoToGround() {
+        //**TODO
+    }
     private void updateRetractAndDescend() {
-        if (deliverPixelAtSelectedLevel.is(FTCButton.State.TAP)) { //**TODO WRONG!!
+        if (positionForDelivery.is(FTCButton.State.TAP)) { //**TODO WRONG!!
             RobotLogCommon.v(TAG, "Entered updateRetractAndDescend");
             if (currentElevatorLevel == Elevator.ElevatorLevel.REST || currentElevatorLevel == Elevator.ElevatorLevel.SAFE) {
                 RobotLogCommon.v(TAG, "Error: Attempted to updateRetractAndDescend while currentElevatorLevel is REST/SAFE");
