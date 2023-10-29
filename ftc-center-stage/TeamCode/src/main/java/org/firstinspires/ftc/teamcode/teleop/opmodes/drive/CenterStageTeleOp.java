@@ -44,7 +44,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     //**TODO How do you retract the boom?
     //**TODO Can you go up or down an elevator level without moving the boom?
     private final FTCButton deliverPixelAtSelectedLevel; //**TODO changed from launchByGearValue
-    private final FTCButton zeroAll; //**TODO rename
+    private final FTCButton resetGearValue;
 
     // Drive train
     private double driveTrainVelocity;
@@ -55,13 +55,14 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     // Asynchronous
     private enum AsyncAction {MOVE_ELEVATOR_AND_BOOM, POSITION_ELEVATOR_AND_BOOM_AFTER_DELIVERY, NONE}
+
     private AsyncAction asyncActionInProgress = AsyncAction.NONE;
-    
+
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.REST;
     private final Elevator.ElevatorLevel[] elevatorLevels = Elevator.ElevatorLevel.values();
-    private int minElevatorLevel = 0;
+    private final int minElevatorLevel = 0;
     private final int maxElevatorLevel = elevatorLevels.length - 1;
-    private final int gearValue = minElevatorLevel;
+    private int gearValue = minElevatorLevel;
     private final DualMotorMotion elevatorMotion;
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
@@ -71,12 +72,12 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private CompletableFuture<Void> asyncMoveBoom;
 
     public CenterStageTeleOp(RobotConstants.Alliance pAlliance,
-                                 LinearOpMode pLinearOpMode, FTCRobot pRobot,
-                                 @Nullable FTCAuto pAutonomous) {
-                                super(pAlliance, pLinearOpMode, pRobot, pAutonomous);
+                             LinearOpMode pLinearOpMode, FTCRobot pRobot,
+                             @Nullable FTCAuto pAutonomous) {
+        super(pAlliance, pLinearOpMode, pRobot, pAutonomous);
         RobotLogCommon.c(TAG, "Constructing CenterStageTeleOp");
         RobotLogCommon.setMostDetailedLogLevel(Objects.requireNonNull(robot.teleOpSettings, "robot.teleOpSettings unexpectedly null").logLevel);
- 
+
         driveTrainVelocityHigh = robot.teleOpSettings.driveTrainVelocityHigh;
         driveTrainVelocity = driveTrainVelocityHigh;
         previousDriveTrainVelocity = driveTrainVelocity;
@@ -100,7 +101,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         // ABXY Buttons
         deliverPixelAtSelectedLevel = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
-        zeroAll = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
+        resetGearValue = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
 
         // D-Pad
         minimumGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
@@ -147,17 +148,24 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         // Game Controller 1
         toggleSpeed.update();
-
-        //**TODO add all updates for Game Controller 1
+        hangUp.update();
+        hangDown.update();
 
         // Game Controller 2
-       //**TODO add all updates for Game Controller 2
+        intake.update();
+        outtake.update();
+        minimumGear.update();
+        maximumGear.update();
+        increaseGear.update();
+        decreaseGear.update();
+        resetGearValue.update();
+        deliverPixelAtSelectedLevel.update();
     }
 
     // Execute the actions controlled by Player 1 and Player 2.
     // This method should be called once per cycle.
     private void updateActions() throws Exception {
-        updateToggleSpeed ();
+        updateToggleSpeed();
 
         if (velocityChanged())
             parallelDrive.setVelocity(driveTrainVelocity);
@@ -183,10 +191,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                         Threading.getFutureCompletion(asyncMoveBoom);
 
-                        //**TODO */ Important: the cone grabber should be closed at this point.
-                        // Open it now that the elevator and cone arm are both in the
-                        // SAFE position.
-                        //Objects.requireNonNull(robot.coneGrabberServo, "robot.coneGrabberServo unexpectedly null").open();
+                        //**TODO any other actions?
 
                         asyncMoveElevator = null;
                         asyncMoveBoom = null;
@@ -210,32 +215,79 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
 
         //**TODO add all actions
+        // Game Controller 1
+        updateToggleSpeed();
+        // updateHangUp();
+        // updateHangDown();
+
+        // Game Controller 2
+        // updateIntake();
+        // updateOuttake();
+        updateMinimumGear();
+        updateMaximumGear();
+        updateIncreaseGear();
+        updateDecreaseGear();
+        updateResetGearValue();
+        updateDeliverPixelAtSelectedLevel();
     }
 
-private void updateToggleSpeed () {
+    private void updateToggleSpeed() {
         if (toggleSpeed.is(FTCButton.State.TAP)) {
             FTCToggleButton.ToggleState newToggleState = toggleSpeed.toggle();
             if (newToggleState == FTCToggleButton.ToggleState.A) {
                 driveTrainVelocity = driveTrainVelocityHigh;
-            }
-            else driveTrainVelocity = driveTrainVelocityLow;
+            } else driveTrainVelocity = driveTrainVelocityLow;
         }
-}
+    }
 
-private boolean velocityChanged() {
+    private boolean velocityChanged() {
         if (driveTrainVelocity == previousDriveTrainVelocity)
             return false;
 
         previousDriveTrainVelocity = driveTrainVelocity;
-                return true;
-}
+        return true;
+    }
+
+    private void updateMinimumGear() {
+        if (minimumGear.is(FTCButton.State.TAP)) {
+            gearValue = minElevatorLevel;
+        }
+    }
+
+    private void updateMaximumGear() {
+        if (maximumGear.is(FTCButton.State.TAP)) {
+            gearValue = maxElevatorLevel;
+        }
+    }
+
+    private void updateIncreaseGear() {
+        if (increaseGear.is(FTCButton.State.TAP)) {
+            if (gearValue == maxElevatorLevel)
+                return; // at max
+            ++gearValue;
+        }
+    }
+
+    private void updateDecreaseGear() {
+        if (decreaseGear.is(FTCButton.State.TAP)) {
+            if (gearValue == minElevatorLevel)
+                return; // at min
+            --gearValue;
+        }
+    }
+
+    private void updateResetGearValue() {
+        if (resetGearValue.is(FTCButton.State.TAP)) {
+            gearValue = minElevatorLevel;
+        }
+    }
 
     // Move the elevator from its safe position to the position set by the
     // gear selection.
     // Automatically extend the pixel delivery boom.
-    private void updatePixelDelivery() {
+    private void updateDeliverPixelAtSelectedLevel() {
         if (deliverPixelAtSelectedLevel.is(FTCButton.State.TAP)) {
-            RobotLogCommon.v(TAG, "Entered updatePixelDelivery");
+            RobotLogCommon.v(TAG, "Entered updateDeliverPixelAtSelectedLevel");
 
             if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE ||
                     asyncActionInProgress != AsyncAction.NONE) {
