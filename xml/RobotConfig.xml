@@ -7,8 +7,7 @@
     <!-- Settings for the velocity control buttons on the game controller. -->
     <drive_train_velocity>
       <high>1.0</high>
-      <medium>0.7</medium>
-      <low>.25</low>
+      <low>.30</low>
     </drive_train_velocity>
   </TELEOP_SETTINGS>
 
@@ -52,11 +51,12 @@
 
   <!-- Servos -->
   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <INTAKE configured="yes">
+  <INTAKE configured="no">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
       <left_controller direction="FORWARD">left_intake</left_controller>
       <right_controller direction="REVERSE">right_intake</right_controller>
     </servos>
+    <velocity>1.0</velocity>
   </INTAKE>
 
   <!-- LED Ring -->

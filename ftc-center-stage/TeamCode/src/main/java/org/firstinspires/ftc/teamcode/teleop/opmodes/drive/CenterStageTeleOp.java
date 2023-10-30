@@ -40,7 +40,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton maximumGear;
     private final FTCButton increaseGear;
     private final FTCButton decreaseGear;
-
     private final FTCButton positionForDelivery;
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
@@ -54,9 +53,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     // Asynchronous
     private enum AsyncAction {MOVE_ELEVATOR_UP_AND_BOOM_OUT, MOVE_ELEVATOR_DOWN_AND_BOOM_IN, NONE}
-
     private AsyncAction asyncActionInProgress = AsyncAction.NONE;
 
+    // Elevator
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
     private final Elevator.ElevatorLevel[] elevatorLevels = Elevator.ElevatorLevel.values();
     private final int minElevatorLevelForGear = Elevator.ElevatorLevel.CLEAR.ordinal();
@@ -66,6 +65,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
 
+    // Boom
     private Boom.BoomLevel currentBoomLevel = Boom.BoomLevel.REST;
     private final SingleMotorMotion boomMotion;
     private final double boomVelocity;
@@ -120,10 +120,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         try {
             // Safety check against the case where the driver hits the small stop
             // button during waitForStart(). We want to make sure that finally()
-            // still runs.
-            // 12/28/2022 From the FTC SDK documentation: "whether the OpMode is
-            // currently active. If this returns false, you should break out of
-            // the loop in your runOpMode() method and return to its caller.
+            // still runs. From the FTC SDK documentation for opModeIsActive():
+            // "If this method returns false after waitForStart() has previously
+            // been called, you should break out of any loops and allow the OpMode
+            // to exit at its earliest convenience."
             if (!linearOpMode.opModeIsActive()) {
                 //## Do *not* do this throw new AutonomousRobotException(TAG, "OpMode unexpectedly inactive in runTeleOp()");
                 RobotLogCommon.e(TAG, "OpMode unexpectedly inactive in runTeleOp()");
@@ -180,6 +180,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                     if (asyncMoveElevator.isDone() && asyncMoveBoom.isDone()) {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                         currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
+
                         asyncMoveElevator = null;
                         asyncMoveBoom = null;
                         asyncActionInProgress = AsyncAction.NONE;
