@@ -16,11 +16,11 @@ public class Elevator extends DualMotors {
     public static final String TAG = Elevator.class.getSimpleName();
 
     public enum ElevatorLevel {
-        REST, SAFE, LEVEL_1, LEVEL_2, LEVEL_3
+        GROUND, SAFE, CLEAR, LEVEL_1, LEVEL_2, LEVEL_3
     }
 
     public static final int ELEVATOR_MIN_POSITION = 0;
-    public static final int ELEVATOR_MAX_POSITION = 3500; //**TODO
+    public static final int ELEVATOR_MAX_POSITION = 7290;
 
     public final double velocity;
 

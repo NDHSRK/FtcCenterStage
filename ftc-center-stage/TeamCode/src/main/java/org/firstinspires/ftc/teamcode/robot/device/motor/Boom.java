@@ -17,7 +17,7 @@ public class Boom extends SingleMotor {
     }
 
     public static final int BOOM_MIN_POSITION = 0;
-    public static final int BOOM_MAX_POSITION = 3500; //**TODO
+    public static final int BOOM_MAX_POSITION = 2690;
  
     public final double velocity;
 
