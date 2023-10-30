@@ -50,6 +50,15 @@
     </positions>
   </BOOM>
 
+  <!-- Servos -->
+  <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
+  <INTAKE configured="yes">
+    <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
+      <left_controller direction="FORWARD">left_intake</left_controller>
+      <right_controller direction="REVERSE">right_intake</right_controller>
+    </servos>
+  </INTAKE>
+
   <!-- LED Ring -->
   <!-- None defined; see FreightFrenzy -->
 

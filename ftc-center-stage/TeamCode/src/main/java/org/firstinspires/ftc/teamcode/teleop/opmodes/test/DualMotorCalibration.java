@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
@@ -9,9 +10,9 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
-@TeleOp(name = "DualMotorTest", group = "Test")
-//@Disabled
-public class DualMotorTest extends TeleOpBase {
+@TeleOp(name = "DualMotorCalibration", group = "Test")
+@Disabled
+public class DualMotorCalibration extends TeleOpBase {
 
     private Elevator elevator;
     private DualMotorMotion dualMotorMotion;
