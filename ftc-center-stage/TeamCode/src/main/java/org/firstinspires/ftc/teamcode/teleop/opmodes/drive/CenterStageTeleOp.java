@@ -36,10 +36,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCToggleButton toggleSpeed;
     private final FTCButton intake;
     private final FTCButton outtake;
-    private final FTCButton minimumGear;
-    private final FTCButton maximumGear;
-    private final FTCButton increaseGear;
-    private final FTCButton decreaseGear;
+    private final FTCButton deliveryLevel1;
+    private final FTCButton deliveryLevel2;
+    private final FTCButton deliveryLevel3;
     private final FTCButton positionForDelivery;
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
@@ -57,10 +56,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     // Elevator
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
-    private final Elevator.ElevatorLevel[] elevatorLevels = Elevator.ElevatorLevel.values();
-    private final int minElevatorLevelForGear = Elevator.ElevatorLevel.CLEAR.ordinal();
-    private final int maxElevatorLevelForGear = Elevator.ElevatorLevel.LEVEL_3.ordinal();
-    private int gearValue = minElevatorLevelForGear;
     private final DualMotorMotion elevatorMotion;
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
@@ -105,11 +100,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         goToGround = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
 
         // D-Pad
-        minimumGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
-        maximumGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
-        increaseGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
-        decreaseGear = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_DOWN);
-
+        deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
+        deliveryLevel2 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
+        deliveryLevel3 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
         // Start the drive train in parallel.
         parallelDrive = new ParallelDrive(linearOpMode, robot.driveTrain, driveTrainVelocity);
         RobotLogCommon.c(TAG, "Finished constructing CenterStageTeleOp");
@@ -155,10 +148,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // Game Controller 2
         intake.update();
         outtake.update();
-        minimumGear.update();
-        maximumGear.update();
-        increaseGear.update();
-        decreaseGear.update();
+        deliveryLevel1.update();
+        deliveryLevel2.update();
+        deliveryLevel3.update();
         positionForDelivery.update();
         goToSafe.update();
         goToGround.update();
@@ -200,7 +192,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
                         asyncMoveElevator = null;
                         asyncMoveBoom = null;
-                        gearValue = minElevatorLevelForGear;
                         asyncActionInProgress = AsyncAction.NONE;
                         RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_DOWN_AND_BOOM_IN done");
                     } else // the elevator and/or the arm are still moving
@@ -228,11 +219,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // Game Controller 2
         //**TODO updateIntake();
         //**TODO updateOuttake();
-        updateMinimumGear();
-        updateMaximumGear();
-        updateIncreaseGear();
-        updateDecreaseGear();
-        updatePositionForDelivery();
+        updateDeliveryLevel1();
+        updateDeliveryLevel2();
+        updateDeliveryLevel3();
         updateGoToSafe();
         updateGoToGround();
     }
@@ -254,31 +243,21 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         return true;
     }
 
-    private void updateMinimumGear() {
-        if (minimumGear.is(FTCButton.State.TAP)) {
-            gearValue = minElevatorLevelForGear;
+    private void updateDeliveryLevel1() {
+        if (deliveryLevel1.is(FTCButton.State.TAP)) {
+            move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_1);
         }
     }
 
-    private void updateMaximumGear() {
-        if (maximumGear.is(FTCButton.State.TAP)) {
-            gearValue = maxElevatorLevelForGear;
+    private void updateDeliveryLevel2() {
+        if (deliveryLevel2.is(FTCButton.State.TAP)) {
+            move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_2);
         }
     }
 
-    private void updateIncreaseGear() {
-        if (increaseGear.is(FTCButton.State.TAP)) {
-            if (gearValue == maxElevatorLevelForGear)
-                return; // at max
-            ++gearValue;
-        }
-    }
-
-    private void updateDecreaseGear() {
-        if (decreaseGear.is(FTCButton.State.TAP)) {
-            if (gearValue == minElevatorLevelForGear)
-                return; // at min
-            --gearValue;
+    private void updateDeliveryLevel3() {
+        if (deliveryLevel3.is(FTCButton.State.TAP)) {
+            move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_3);
         }
     }
 
@@ -329,17 +308,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
-        }
-    }
-
-    // Move the elevator from its safe position to the position set by the
-    // gear selection. Automatically extend the pixel delivery boom.
-    private void updatePositionForDelivery() {
-        if (positionForDelivery.is(FTCButton.State.TAP)) {
-            RobotLogCommon.v(TAG, "Entered updatePositionForDelivery");
-
-            // Deliver to the selected level.
-            move_to_delivery_level(elevatorLevels[gearValue]);
         }
     }
 
