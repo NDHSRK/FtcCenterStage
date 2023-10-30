@@ -21,7 +21,7 @@ output.json
 
 # Keystore files
 *.jks
-*.keystore
+# PY - need this for clones *.keystore
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json

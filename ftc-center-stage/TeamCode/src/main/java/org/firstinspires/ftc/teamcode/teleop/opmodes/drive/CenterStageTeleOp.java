@@ -60,7 +60,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
     private final Elevator.ElevatorLevel[] elevatorLevels = Elevator.ElevatorLevel.values();
-    private final int minElevatorLevelForGear = Elevator.ElevatorLevel.SAFE.ordinal();
+    private final int minElevatorLevelForGear = Elevator.ElevatorLevel.CLEAR.ordinal();
     private final int maxElevatorLevelForGear = Elevator.ElevatorLevel.LEVEL_3.ordinal();
     private int gearValue = minElevatorLevelForGear;
     private final DualMotorMotion elevatorMotion;
@@ -180,12 +180,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 case MOVE_ELEVATOR_UP_AND_BOOM_OUT: {
                     if (asyncMoveElevator.isDone() && asyncMoveBoom.isDone()) {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
-                        currentBoomLevel= Threading.getFutureCompletion(asyncMoveBoom);
-                        gearValue = Elevator.ElevatorLevel.CLEAR.ordinal();
+                        currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
                         asyncMoveElevator = null;
                         asyncMoveBoom = null;
                         asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_AND_BOOM_FOR_DELIVERY done");
+                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_UP_AND_BOOM_OUT done");
                     } else // the elevator and/or the boom are still moving
                         return; // skip the updates below
                     break;
@@ -195,15 +194,15 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                         currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
 
-                        //**TODO any other actions?
-                        //** in async completion Move the elevator down to SAFE.
-
-
+                        // The elevator is at CLEAR; move it to SAFE.
+                        elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                        currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
 
                         asyncMoveElevator = null;
                         asyncMoveBoom = null;
+                        gearValue = minElevatorLevelForGear;
                         asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.v(TAG, "Async POSITION_ELEVATOR_AND_BOOM_AFTER_DELIVERY done");
+                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_DOWN_AND_BOOM_IN done");
                     } else // the elevator and/or the arm are still moving
                         return; // skip the updates below
                     break;
@@ -295,7 +294,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND) { // upward movement?
                 if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
-                  throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator from ground to safe when the boom is not at rest");
+                    throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator from ground to safe when the boom is not at rest");
 
                 elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
@@ -308,6 +307,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                     currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
                 } else { // moving down from levels 1, 2, 3
                     // Move the elevator down to CLEAR and the boom to REST simultaneously.
+                    // Then move the elevator down to SAFE.
                     async_move_elevator_down_and_boom_in(elevatorVelocity, boomVelocity);
                 }
             }
@@ -338,50 +338,62 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         if (positionForDelivery.is(FTCButton.State.TAP)) {
             RobotLogCommon.v(TAG, "Entered updatePositionForDelivery");
 
-            if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.v(TAG, "Error: current elevator level " + currentElevatorLevel + ", asyncActionInProgress " + asyncActionInProgress);
-                return;
+            // Deliver to the selected level.
+            move_to_delivery_level(elevatorLevels[gearValue]);
+        }
+    }
+
+    private void move_to_delivery_level(Elevator.ElevatorLevel pDeliverToLevel) {
+        if (asyncActionInProgress != AsyncAction.NONE) {
+            RobotLogCommon.d(TAG, "Request to move the elevator elevator to " + pDeliverToLevel + " but an operation is already in progress");
+            RobotLogCommon.v(TAG, "Current elevator level " + currentElevatorLevel + ", asyncActionInProgress " + asyncActionInProgress);
+            return;
+        }
+
+        // Validate the delivery level.
+        if (!(pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
+                pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2 ||
+                pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_3)) {
+            RobotLogCommon.v(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
+            return;
+        }
+
+        // Movement must start at the SAFE level and then go up to CLEAR
+        // before the boom can be deployed.
+        if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
+            RobotLogCommon.v(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
+            return;
+        }
+
+        if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
+            throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator to clear when the boom is not at rest");
+
+        //**TODO checkRakeLifterDown();
+
+        elevatorMotion.moveDualMotors(robot.elevator.clear, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+        currentElevatorLevel = Elevator.ElevatorLevel.CLEAR;
+
+        linearOpMode.telemetry.addLine("Position for delivery at " + pDeliverToLevel);
+        linearOpMode.telemetry.update();
+
+        switch (pDeliverToLevel) {
+            case LEVEL_1: {
+                async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1,
+                        Objects.requireNonNull(robot.boom).level_1, boomVelocity, Boom.BoomLevel.LEVEL_1);
+                break;
             }
-
-            // Can we deliver from the selected level?
-            Elevator.ElevatorLevel deliverToLevel = elevatorLevels[gearValue];
-            if (!(deliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
-                    deliverToLevel == Elevator.ElevatorLevel.LEVEL_2 ||
-                    deliverToLevel == Elevator.ElevatorLevel.LEVEL_3)) {
-                RobotLogCommon.v(TAG, "Invalid request to deliver at elevator " + deliverToLevel);
-                return;
+            case LEVEL_2: {
+                async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2,
+                        Objects.requireNonNull(robot.boom).level_2, boomVelocity, Boom.BoomLevel.LEVEL_2);
+                break;
             }
-
-            //**TODO checkRakeLifterDown();
-
-            // If the elevator is not at CLEAR then move it there.
-            if (currentElevatorLevel != Elevator.ElevatorLevel.CLEAR) {
-                if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
-                    throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator to clear when the boom is not at rest");
-
-                elevatorMotion.moveDualMotors(robot.elevator.clear, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-                currentElevatorLevel = Elevator.ElevatorLevel.CLEAR;
+            case LEVEL_3: {
+                async_move_elevator_up_and_boom_out(robot.elevator.level_3, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_3,
+                        Objects.requireNonNull(robot.boom).level_3, boomVelocity, Boom.BoomLevel.LEVEL_3);
+                break;
             }
-
-            switch (deliverToLevel) {
-                case LEVEL_1: {
-                    async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1,
-                            Objects.requireNonNull(robot.boom).level_1, boomVelocity, Boom.BoomLevel.LEVEL_1);
-                    break;
-                }
-                case LEVEL_2: {
-                    async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2,
-                            Objects.requireNonNull(robot.boom).level_2, boomVelocity, Boom.BoomLevel.LEVEL_2);
-                    break;
-                }
-                case LEVEL_3: {
-                    async_move_elevator_up_and_boom_out(robot.elevator.level_3, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_3,
-                            Objects.requireNonNull(robot.boom).level_3, boomVelocity, Boom.BoomLevel.LEVEL_3);
-                    break;
-                }
-                default:
-                    throw new AutonomousRobotException(TAG, "Invalid elevator level " + deliverToLevel);
-            }
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid elevator level " + pDeliverToLevel);
         }
     }
 
