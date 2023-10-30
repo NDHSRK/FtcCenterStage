@@ -14,8 +14,10 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConf
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
+import org.firstinspires.ftc.teamcode.robot.device.motor.DualSPARKMiniMotorControllers;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
+import org.firstinspires.ftc.teamcode.robot.device.motor.drive.Intake;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -48,6 +50,7 @@ public class FTCRobot {
     // embedded within TeleOp.
     public final Elevator elevator;
     public final Boom boom;
+    public final DualSPARKMiniMotorControllers intake;
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
@@ -89,11 +92,10 @@ public class FTCRobot {
                 configXPath = configXML.getPath("TELEOP_SETTINGS");
                 String logging_level = configXPath.getRequiredTextInRange("log_level", configXPath.validRange("d", "v", "vv", "off"));
                 double driveTrainVelocityHigh = configXPath.getRequiredDouble("drive_train_velocity/high");
-                double driveTrainVelocityMedium = configXPath.getRequiredDouble("drive_train_velocity/medium");
                 double driveTrainVelocityLow = configXPath.getRequiredDouble("drive_train_velocity/low");
 
                 teleOpSettings = new TeleOpSettings(logging_level,
-                        driveTrainVelocityHigh, driveTrainVelocityMedium, driveTrainVelocityLow);
+                        driveTrainVelocityHigh, driveTrainVelocityLow);
                 RobotLogCommon.c(TAG, "TeleOp configuration: log level " + teleOpSettings.logLevel);
             } else
                 teleOpSettings = null;
@@ -125,6 +127,15 @@ public class FTCRobot {
                 boom = new Boom(hardwareMap, configXPath);
             } else {
                 boom = null;
+            }
+
+            // Get the configuration for the intake/outtake.
+            configXPath = configXML.getPath("INTAKE");
+            String intakeInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (intakeInConfiguration.equals("yes")) {
+                intake = new Intake(hardwareMap, configXPath);
+            } else {
+                intake = null;
             }
 
             // In a competition the webcam(s) would be configured in and
@@ -160,7 +171,6 @@ public class FTCRobot {
                 GenericIMU genericIMU = new GenericIMU(hardwareMap);
                 imuReader = new IMUReader(genericIMU.getImu());
             }
-
         } catch (ParserConfigurationException | SAXException | XPathExpressionException |
                  IOException ex) {
             String eMessage = ex.getMessage() == null ? "**no error message**" : ex.getMessage();
@@ -206,10 +216,10 @@ public class FTCRobot {
     // Fields captured from RobotConfig.xml.
     public static class TeleOpSettings {
         public final Level logLevel;
-        public final double driveTrainVelocityHigh, driveTrainVelocityMedium, driveTrainVelocityLow;
+        public final double driveTrainVelocityHigh, driveTrainVelocityLow;
 
         public TeleOpSettings(String pLogLevel,
-                              double pDriveTrainVelocityHigh, double pDriveTrainVelocityMedium, double pDriveTrainVelocityLow) {
+                              double pDriveTrainVelocityHigh, double pDriveTrainVelocityLow) {
             switch (pLogLevel) {
                 case "off": {
                     logLevel = Level.OFF;
@@ -233,7 +243,6 @@ public class FTCRobot {
             }
 
             driveTrainVelocityHigh = pDriveTrainVelocityHigh;
-            driveTrainVelocityMedium = pDriveTrainVelocityMedium;
             driveTrainVelocityLow = pDriveTrainVelocityLow;
         }
     }

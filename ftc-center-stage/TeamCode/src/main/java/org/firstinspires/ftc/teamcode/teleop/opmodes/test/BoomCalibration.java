@@ -63,7 +63,7 @@ public class BoomCalibration extends TeleOpBase {
 
     private void updateIncrement() {
         if (incrementButton.is(FTCButton.State.TAP)) {
-            singleMotorMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_MOVEMENT, boom.velocity,
+            singleMotorMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_MOVEMENT, boom.getVelocity(),
                     SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
@@ -71,7 +71,7 @@ public class BoomCalibration extends TeleOpBase {
 
     private void updateDecrement() {
         if (decrementButton.is(FTCButton.State.TAP)) {
-            singleMotorMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_MOVEMENT, boom.velocity, SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            singleMotorMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_MOVEMENT, boom.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
     }

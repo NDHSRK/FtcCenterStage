@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
@@ -22,6 +23,7 @@ public abstract class DualMotors extends MotorCore {
 
     protected final FTCRobot.MotorId leftMotorId;
     protected final FTCRobot.MotorId rightMotorId;
+    private double velocity;
 
     public DualMotors(HardwareMap pHardwareMap, XPathAccess pConfigXPath, FTCRobot.MotorId pLeftMotorId, FTCRobot.MotorId pRightMotorId) throws XPathExpressionException {
         super(pConfigXPath, "dual_motors");
@@ -49,6 +51,10 @@ public abstract class DualMotors extends MotorCore {
 
         setZeroPowerBrakeAll();
         setModeAll(DcMotor.RunMode.RUN_USING_ENCODER); // defaults to velocity
+
+        velocity = pConfigXPath.getRequiredDouble("velocity");
+        if (velocity <= 0.0 || velocity > 1.0)
+            throw new AutonomousRobotException(TAG, "velocity out of range " + velocity);
     }
 
     public Pair<FTCRobot.MotorId, FTCRobot.MotorId> getMotorIds() {
@@ -72,8 +78,16 @@ public abstract class DualMotors extends MotorCore {
         setTargetPosition(rightMotorId, pPosition);
     }
 
-    public void setVelocityDual(EnumMap<FTCRobot.MotorId, Double> pVelocityMap) {
-        setVelocityAll(pVelocityMap);
+    public void setVelocityDual(FTCRobot.MotorId pLeftMotorId, FTCRobot.MotorId pRightMotorId, double pVelocity) {
+        EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
+        velocity = pVelocity;
+        velocityMap.put(pLeftMotorId, velocity);
+        velocityMap.put(pRightMotorId, velocity);
+        setVelocityAll(velocityMap);
+    }
+
+    public double getVelocity() {
+        return velocity;
     }
 
     public void stopVelocityDual() {

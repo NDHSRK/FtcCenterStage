@@ -31,7 +31,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private static final String TAG = CenterStageTeleOp.class.getSimpleName();
 
     // Define buttons that return a boolean.
-
     private final FTCButton hangUp;
     private final FTCButton hangDown;
     private final FTCToggleButton toggleSpeed;
@@ -84,8 +83,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         previousDriveTrainVelocity = driveTrainVelocity;
         driveTrainVelocityLow = robot.teleOpSettings.driveTrainVelocityLow;
 
-        elevatorVelocity = Objects.requireNonNull(robot.elevator).velocity;
-        boomVelocity = Objects.requireNonNull(robot.boom).velocity;
+        elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
+        boomVelocity = Objects.requireNonNull(robot.boom).getVelocity();
 
         elevatorMotion = new DualMotorMotion(linearOpMode, robot.elevator);
         boomMotion = new SingleMotorMotion(linearOpMode, robot.boom);

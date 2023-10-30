@@ -64,7 +64,7 @@ public class DualMotorCalibration extends TeleOpBase {
 
     private void updateIncrement() {
         if (incrementButton.is(FTCButton.State.TAP)) {
-            dualMotorMotion.moveDualMotors(cumulativeClicks += CLICKS_PER_MOVEMENT, elevator.velocity,
+            dualMotorMotion.moveDualMotors(cumulativeClicks += CLICKS_PER_MOVEMENT, elevator.getVelocity(),
                     DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
@@ -72,7 +72,7 @@ public class DualMotorCalibration extends TeleOpBase {
 
     private void updateDecrement() {
         if (decrementButton.is(FTCButton.State.TAP)) {
-            dualMotorMotion.moveDualMotors(cumulativeClicks -= CLICKS_PER_MOVEMENT, elevator.velocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            dualMotorMotion.moveDualMotors(cumulativeClicks -= CLICKS_PER_MOVEMENT, elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
     }

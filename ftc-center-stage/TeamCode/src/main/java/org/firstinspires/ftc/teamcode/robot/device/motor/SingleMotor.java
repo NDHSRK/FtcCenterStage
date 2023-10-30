@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
@@ -18,6 +19,7 @@ import javax.xml.xpath.XPathExpressionException;
 public abstract class SingleMotor extends MotorCore {
 
     protected final FTCRobot.MotorId motorId;
+    private double velocity;
 
     public SingleMotor(HardwareMap pHardwareMap, XPathAccess pConfigXPath, FTCRobot.MotorId pMotorId) throws XPathExpressionException {
         super(pConfigXPath, "single_motor");
@@ -42,6 +44,10 @@ public abstract class SingleMotor extends MotorCore {
 
         setZeroPowerBrake(pMotorId);
         setMode(pMotorId, DcMotor.RunMode.RUN_USING_ENCODER); // default to velocity
+
+        velocity = pConfigXPath.getRequiredDouble("velocity");
+        if (velocity <= 0.0 || velocity > 1.0)
+            throw new AutonomousRobotException(TAG, "velocity out of range " + velocity);
     }
 
     public FTCRobot.MotorId getMotorId() {
@@ -65,7 +71,12 @@ public abstract class SingleMotor extends MotorCore {
     }
 
     public void setVelocity(double pVelocity) {
-        setVelocity(motorId, pVelocity);
+        velocity = pVelocity;
+        setVelocity(motorId, velocity);
+    }
+
+    public double getVelocity() {
+        return velocity;
     }
 
     public boolean isBusy() {

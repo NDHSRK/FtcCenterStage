@@ -22,8 +22,6 @@ public class Elevator extends DualMotors {
     public static final int ELEVATOR_MIN_POSITION = 0;
     public static final int ELEVATOR_MAX_POSITION = 7290;
 
-    public final double velocity;
-
     public final int ground;
     public final int safe;
     public final int clear;
@@ -34,10 +32,6 @@ public class Elevator extends DualMotors {
     // There are two elevator motors that operate in tandem.
     public Elevator(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
         super(pHardwareMap, pConfigXPath, FTCRobot.MotorId.ELEVATOR_LEFT, FTCRobot.MotorId.ELEVATOR_RIGHT);
-
-        velocity = pConfigXPath.getRequiredDouble("velocity");
-        if (velocity <= 0.0 || velocity > 1.0)
-            throw new AutonomousRobotException(TAG, "velocity out of range " + velocity);
 
          /*
            <positions>
