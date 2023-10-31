@@ -21,7 +21,7 @@ public class ServoCalibration extends TeleOpBase {
     private FTCButton servoIncrementButton;
     private FTCButton servoDecrementButton;
     private double servoPosition = 0.5;
-    private static double servoPositionChange = 0.025;
+    private static double servoPositionChange = 0.1; // intake arm holder
             // 0.1; // hardcode for carrier
             // 0.01; // hardcode for the rake lifter
             // 0.05 hardcode for the claw
@@ -35,7 +35,7 @@ public class ServoCalibration extends TeleOpBase {
     public void initialize() {
 
         //** Hardcode servo to be tested here.
-        servo = hardwareMap.get(Servo.class, "swivel");
+        servo = hardwareMap.get(Servo.class, "pixel_stopper");
 
         servo.setPosition(servoPosition);
         sleep(1000);

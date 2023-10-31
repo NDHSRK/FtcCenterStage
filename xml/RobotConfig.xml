@@ -11,33 +11,36 @@
     </drive_train_velocity>
   </TELEOP_SETTINGS>
 
-  <DRIVE_TRAIN  configured="yes">
-    <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019" clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
+  <DRIVE_TRAIN configured="yes">
+    <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019"
+      clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
       <left_front_drive direction="REVERSE">lf</left_front_drive>
       <right_front_drive direction="FORWARD">rf</right_front_drive>
       <left_back_drive direction="REVERSE">lb</left_back_drive>
       <right_back_drive direction="FORWARD">rb</right_back_drive>
     </motors>
   </DRIVE_TRAIN>
-  
+
   <ELEVATOR configured="yes">
-    <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001" clicks_per_motor_rev="537.7" rpm="312.0">
+    <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001"
+      clicks_per_motor_rev="537.7" rpm="312.0">
       <left_motor direction="FORWARD">left_elevator</left_motor>
       <right_motor direction="REVERSE">right_elevator</right_motor>
     </dual_motors>
     <velocity>1.0</velocity>
     <positions>
       <ground>0</ground>
-      <safe>0</safe>
-      <clear>0</clear>
-      <level_1>0</level_1>
-      <level_2>0</level_2>
-      <level_3>0</level_3>
+      <safe>192</safe>
+      <clear>1996</clear>
+      <level_1>5995</level_1>
+      <level_2>8297</level_2>
+      <level_3>8297</level_3> <!-- 10/31/23 will not reach -->
     </positions>
   </ELEVATOR>
 
   <BOOM configured="yes">
-    <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014" clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
+    <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
+      clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
       <id>boom</id> <!-- id as configured on the robot -->
     </single_motor>
     <velocity>1.0</velocity>
@@ -51,13 +54,33 @@
 
   <!-- Servos -->
   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <INTAKE configured="no">
+  <INTAKE configured="yes">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
-      <left_controller direction="FORWARD">left_intake</left_controller>
-      <right_controller direction="REVERSE">right_intake</right_controller>
+      <left_controller direction="FORWARD">main_intake</left_controller>
+      <right_controller direction="REVERSE">front_intake</right_controller>
     </servos>
     <velocity>1.0</velocity>
   </INTAKE>
+
+  <INTAKE_ARM_HOLDER configured="yes">
+    <servo model="goBilda Dual Mode Servo 2000-0025-0003">
+      <id>intake_arm_holder</id>
+    </servo>
+    <positions>
+      <hold>0.5</hold>
+      <release>0.4</release>
+    </positions>
+    </INTAKE_ARM_HOLDER>
+  
+    <PIXEL_STOPPER configured="yes">
+      <servo model="goBilda Dual Mode Servo 2000-0025-0003">
+        <id>pixel_stopper</id>
+      </servo>
+      <positions>
+        <hold>0.5</hold>
+        <release>0.8</release>
+      </positions>
+    </PIXEL_STOPPER>
 
   <!-- LED Ring -->
   <!-- None defined; see FreightFrenzy -->
@@ -77,7 +100,7 @@
         <processor_set>
           <processor>webcam_frame</processor>
         </processor_set>
-      </webcam> 
+      </webcam>
       <webcam>
         <internal_id>rear_webcam</internal_id>
         <!-- Arducam OV9281 -->
@@ -94,8 +117,21 @@
           <principal_point_x>316.450</principal_point_x>
           <principal_point_y>236.365</principal_point_y>
         </webcam_calibration_for_apriltags>
-      </webcam>  
+      </webcam>
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
+
+  <!-- IMU -->
+  <!-- The IMU may not be configured out. -->
+  <IMU>
+    <!-- production robot -->
+    <logo_facing_direction>LEFT</logo_facing_direction>
+    <usb_facing_direction>UP</usb_facing_direction>
+    <!-- test robot 
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+
+    -->
+  </IMU>
 
 </RobotConfig>

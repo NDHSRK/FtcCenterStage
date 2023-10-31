@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.DualSPARKMiniMotorContr
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.Intake;
+import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmHolderServo;
+import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -51,6 +53,8 @@ public class FTCRobot {
     public final Elevator elevator;
     public final Boom boom;
     public final DualSPARKMiniMotorControllers intake;
+    public final IntakeArmHolderServo intakeArmHolderServo;
+    public final PixelStopperServo pixelStopperServo;
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
@@ -138,6 +142,24 @@ public class FTCRobot {
                 intake = null;
             }
 
+            // Get the configuration for the intake arm holder servo.
+            configXPath = configXML.getPath("INTAKE_ARM_HOLDER");
+            String intakeArmHolderInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (intakeArmHolderInConfiguration.equals("yes")) {
+                intakeArmHolderServo = new IntakeArmHolderServo(hardwareMap, configXPath);
+            } else {
+                intakeArmHolderServo = null;
+            }
+
+            // Get the configuration for the pixel stopper servo.
+            configXPath = configXML.getPath("PIXEL_STOPPER");
+            String stopperConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (stopperConfiguration.equals("yes")) {
+                pixelStopperServo = new PixelStopperServo(hardwareMap, configXPath);
+            } else {
+                pixelStopperServo = null;
+            }
+
             // In a competition the webcam(s) would be configured in and
             // used in Autonomous but not in TeleOp so we can't just check
             // the configuration file.
@@ -168,6 +190,8 @@ public class FTCRobot {
             if (pRunType == RobotConstants.RunType.TELEOP)
                 imuReader = null;
             else {
+                //**TODO send XPathAccess in to GenericIMU; parse out logo and usb directions
+                // configXPath = configXML.getPath("IMU");
                 GenericIMU genericIMU = new GenericIMU(hardwareMap);
                 imuReader = new IMUReader(genericIMU.getImu());
             }

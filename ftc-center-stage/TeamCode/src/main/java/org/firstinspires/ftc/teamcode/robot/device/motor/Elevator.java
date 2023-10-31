@@ -20,7 +20,7 @@ public class Elevator extends DualMotors {
     }
 
     public static final int ELEVATOR_MIN_POSITION = 0;
-    public static final int ELEVATOR_MAX_POSITION = 7290;
+    public static final int ELEVATOR_MAX_POSITION = 8700;
 
     public final int ground;
     public final int safe;

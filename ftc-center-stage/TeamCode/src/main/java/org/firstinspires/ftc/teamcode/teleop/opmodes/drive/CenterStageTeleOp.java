@@ -38,8 +38,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton outtake;
     private final FTCButton deliveryLevel1;
     private final FTCButton deliveryLevel2;
-    private final FTCButton deliveryLevel3;
-    private final FTCButton positionForDelivery;
+    //**TODO 10/31/23 disable for now private final FTCButton deliveryLevel3;
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
 
@@ -95,14 +94,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         intake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
 
         // ABXY Buttons
-        positionForDelivery = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_Y);
         goToSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
         goToGround = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
 
         // D-Pad
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
         deliveryLevel2 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
-        deliveryLevel3 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
+        //**TODO 10/31/23 disable for now deliveryLevel3 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
         // Start the drive train in parallel.
         parallelDrive = new ParallelDrive(linearOpMode, robot.driveTrain, driveTrainVelocity);
         RobotLogCommon.c(TAG, "Finished constructing CenterStageTeleOp");
@@ -122,6 +120,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 RobotLogCommon.e(TAG, "OpMode unexpectedly inactive in runTeleOp()");
                 return;
             }
+
+            // The intake arm holder must be down before the boom
+            // can move.
+            robot.intakeArmHolderServo.hold();
 
             //## The drive train thread must be started here because
             // only now does opModeIsActive() return true.
@@ -150,8 +152,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         outtake.update();
         deliveryLevel1.update();
         deliveryLevel2.update();
-        deliveryLevel3.update();
-        positionForDelivery.update();
+        //**TODO 10/31/23 disable for now deliveryLevel3.update();
         goToSafe.update();
         goToGround.update();
     }
@@ -221,7 +222,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         //**TODO updateOuttake();
         updateDeliveryLevel1();
         updateDeliveryLevel2();
-        updateDeliveryLevel3();
+        //**TODO 10/31/23 disable for now updateDeliveryLevel3();
         updateGoToSafe();
         updateGoToGround();
     }
@@ -255,11 +256,14 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
     }
 
+    //**TODO 10/31/23 disable for now
+    /*
     private void updateDeliveryLevel3() {
         if (deliveryLevel3.is(FTCButton.State.TAP)) {
             move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_3);
         }
     }
+    */
 
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {

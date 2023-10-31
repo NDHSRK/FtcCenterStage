@@ -57,12 +57,12 @@ public class IntakeTest extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        DcMotorSimple leftIntake = hardwareMap.get(DcMotorSimple.class, "left_intake");
-        DcMotorSimple rightIntake = hardwareMap.get(DcMotorSimple.class, "right_intake");
+        DcMotorSimple leftIntake = hardwareMap.get(DcMotorSimple.class, "front_intake");
+        DcMotorSimple rightIntake = hardwareMap.get(DcMotorSimple.class, "main_intake");
 
         // Set the direction of the SPARKminis.
         leftIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
