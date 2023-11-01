@@ -855,7 +855,7 @@ public class FTCAuto {
             }
 
             // Move the elevator to an absolute position and, for all positions
-            // other than "down", hold that position.
+            // other than "ground", hold that position.
             case "MOVE_ELEVATOR": {
                 move_elevator(actionXPath).call();
                 break;
@@ -1296,7 +1296,7 @@ public class FTCAuto {
     }
 
     // Hold the power to the elevator after every change in position except
-    // when the target position is "down".
+    // when the target position is "ground".
     private Callable<Void> move_elevator(Elevator.ElevatorLevel pElevatorTargetLevel) {
         Pair<Elevator.ElevatorLevel, Integer> elevatorLevel =
                 Pair.create(pElevatorTargetLevel, getTargetElevatorClickCount(pElevatorTargetLevel));
