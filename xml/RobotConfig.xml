@@ -27,14 +27,15 @@
       <left_motor direction="FORWARD">left_elevator</left_motor>
       <right_motor direction="REVERSE">right_elevator</right_motor>
     </dual_motors>
-    <velocity>1.0</velocity>
+    <velocity>0.5</velocity>
     <positions>
       <ground>0</ground>
       <safe>192</safe>
       <clear>1996</clear>
+      <autonomous>4300</autonomous>
       <level_1>5995</level_1>
       <level_2>8297</level_2>
-      <level_3>8297</level_3> <!-- 10/31/23 will not reach -->
+      <level_3>8297</level_3> <!-- 10/31/23 not used; will not reach -->
     </positions>
   </ELEVATOR>
 
@@ -43,12 +44,12 @@
       clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
       <id>boom</id> <!-- id as configured on the robot -->
     </single_motor>
-    <velocity>1.0</velocity>
+    <velocity>0.5</velocity>
     <positions>
       <rest>0</rest>
-      <level_1>0</level_1>
-      <level_2>0</level_2>
-      <level_3>0</level_3>
+      <level_1>995</level_1>
+      <level_2>596</level_2>
+      <level_3>596</level_3> <!-- 10/31/23 level_3 not used -->
     </positions>
   </BOOM>
 
@@ -56,10 +57,10 @@
   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
   <INTAKE configured="yes">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
-      <left_controller direction="FORWARD">main_intake</left_controller>
-      <right_controller direction="REVERSE">front_intake</right_controller>
+      <controller_1 direction="FORWARD">front_intake</controller_1>
+      <controller_2 direction="FORWARD">main_intake</controller_2>
     </servos>
-    <velocity>1.0</velocity>
+    <power>1.0</power>
   </INTAKE>
 
   <INTAKE_ARM_HOLDER configured="yes">
@@ -89,7 +90,7 @@
   <!-- None defined -->
 
   <!-- There is a maximum of two webcams in a set. -->
-  <VISION_PORTAL_WEBCAM configured="no">
+  <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
       <webcam>
         <internal_id>front_webcam</internal_id>
@@ -103,8 +104,8 @@
       </webcam>
       <webcam>
         <internal_id>rear_webcam</internal_id>
-        <!-- Arducam OV9281 -->
-        <serial_number>UC762</serial_number>
+        <!-- C920 -->
+        <serial_number>1133:2277</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>
@@ -112,12 +113,12 @@
           <processor>april_tag</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>
-          <focal_length_x>539.024</focal_length_x>
-          <focal_length_y>539.024</focal_length_y>
-          <principal_point_x>316.450</principal_point_x>
-          <principal_point_y>236.365</principal_point_y>
+          <focal_length_x>622.001</focal_length_x>
+          <focal_length_y>622.001</focal_length_y>
+          <principal_point_x>319.803</principal_point_x>
+          <principal_point_y>241.251</principal_point_y>
         </webcam_calibration_for_apriltags>
-      </webcam>
+      </webcam> 
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
 

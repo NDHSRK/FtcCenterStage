@@ -16,8 +16,8 @@ public abstract class DualSPARKMiniMotorControllers {
 
     private final String TAG = DualSPARKMiniMotorControllers.class.getSimpleName();
 
-    protected final DcMotorSimple leftController;
-    protected final DcMotorSimple rightController;
+    protected final DcMotorSimple controller1;
+    protected final DcMotorSimple controller2;
     private double power;
 
     public DualSPARKMiniMotorControllers(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
@@ -25,11 +25,11 @@ public abstract class DualSPARKMiniMotorControllers {
         RobotLogCommon.c(TAG, "Defining dual SPARKMini motor controllers");
         RobotLogCommon.c(TAG, "Controllers " + pConfigXPath.getRequiredText("servos/@model"));
 
-        leftController = pHardwareMap.get(DcMotorSimple.class, pConfigXPath.getRequiredText("servos/left_controller"));
-        leftController.setDirection(DcMotor.Direction.valueOf(pConfigXPath.getRequiredText("servos/left_controller/@direction")));
+        controller1 = pHardwareMap.get(DcMotorSimple.class, pConfigXPath.getRequiredText("servos/controller_1"));
+        controller1.setDirection(DcMotor.Direction.valueOf(pConfigXPath.getRequiredText("servos/controller_1/@direction")));
 
-        rightController = pHardwareMap.get(DcMotorSimple.class, pConfigXPath.getRequiredText("servos/right_controller"));
-        rightController.setDirection(DcMotor.Direction.valueOf(pConfigXPath.getRequiredText("servos/right_controller/@direction")));
+        controller2 = pHardwareMap.get(DcMotorSimple.class, pConfigXPath.getRequiredText("servos/controller_2"));
+        controller2.setDirection(DcMotor.Direction.valueOf(pConfigXPath.getRequiredText("servos/controller_2/@direction")));
 
         power = pConfigXPath.getRequiredDouble("power");
         if (power <= 0.0 || power > 1.0)
@@ -38,8 +38,8 @@ public abstract class DualSPARKMiniMotorControllers {
 
     public void setPower(double pPower) {
         power = pPower;
-        leftController.setPower(power);
-        rightController.setPower(pPower);
+        controller1.setPower(power);
+        controller2.setPower(power);
     }
 
     public double getPower() {
@@ -47,8 +47,8 @@ public abstract class DualSPARKMiniMotorControllers {
     }
 
     public void stop() {
-        leftController.setPower(0);
-        rightController.setPower(0);
+        controller1.setPower(0);
+        controller2.setPower(0);
     }
 
 }

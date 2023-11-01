@@ -5,13 +5,15 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
+
 public class GenericIMU {
 
     private static final String TAG = GenericIMU.class.getSimpleName();
 
     private IMU imu;
 
-    public GenericIMU(HardwareMap pHardwareMap) throws InterruptedException {
+    public GenericIMU(HardwareMap pHardwareMap, XPathAccess pXPath) throws InterruptedException {
         //# This initialization code is derived from the sample SensorIMUOrthogonal.
         // Retrieve and initialize the IMU.
         // This sample expects the IMU to be in a REV Hub and named "imu".

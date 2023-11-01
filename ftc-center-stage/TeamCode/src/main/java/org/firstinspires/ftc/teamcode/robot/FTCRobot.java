@@ -191,8 +191,8 @@ public class FTCRobot {
                 imuReader = null;
             else {
                 //**TODO send XPathAccess in to GenericIMU; parse out logo and usb directions
-                // configXPath = configXML.getPath("IMU");
-                GenericIMU genericIMU = new GenericIMU(hardwareMap);
+                configXPath = configXML.getPath("IMU");
+                GenericIMU genericIMU = new GenericIMU(hardwareMap, configXPath);
                 imuReader = new IMUReader(genericIMU.getImu());
             }
         } catch (ParserConfigurationException | SAXException | XPathExpressionException |

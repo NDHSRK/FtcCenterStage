@@ -54,6 +54,9 @@ public class IntakeTest extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        //**TODO See Intake class for different naming: controller_1 and controller_2
+        // because they really aren't left and right.
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).

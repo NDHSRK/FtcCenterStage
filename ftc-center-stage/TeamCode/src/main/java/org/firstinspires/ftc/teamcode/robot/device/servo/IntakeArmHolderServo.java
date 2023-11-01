@@ -11,8 +11,8 @@ import javax.xml.xpath.XPathExpressionException;
 public class IntakeArmHolderServo {
 
     public final Servo servo;
-    public final double hold;
-    public final double release;
+    private final double hold;
+    private final double release;
 
     public IntakeArmHolderServo(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
         String TAG = IntakeArmHolderServo.class.getSimpleName();

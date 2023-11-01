@@ -11,8 +11,8 @@ import javax.xml.xpath.XPathExpressionException;
 public class PixelStopperServo {
 
     public final Servo servo;
-    public final double hold;
-    public final double release;
+    private final double hold;
+    private final double release;
 
     public PixelStopperServo(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
         String TAG = PixelStopperServo.class.getSimpleName();

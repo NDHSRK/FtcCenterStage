@@ -367,6 +367,18 @@ public class FTCAuto {
                 break;
             }
 
+            case "RELEASE_INTAKE_HOLDER": {
+                robot.intakeArmHolderServo.release();
+                break;
+            }
+
+            case "PIXEL_STOPPER": {
+                //**TODO
+                // <operation>hold</operation>
+                // <operation>release</operation>
+                break;
+            }
+
             case "START_WEBCAM": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
