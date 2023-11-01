@@ -10,6 +10,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 public class PixelStopperServo {
 
+    public enum PixelServoState {HOLD, RELEASE};
     public final Servo servo;
     private final double hold;
     private final double release;

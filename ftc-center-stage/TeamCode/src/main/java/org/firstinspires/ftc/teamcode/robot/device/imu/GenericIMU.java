@@ -32,6 +32,7 @@ public class GenericIMU {
          *
          * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
+        //**TODO use XPath to get the logo_facing_direction and usb_facing_direction
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
 

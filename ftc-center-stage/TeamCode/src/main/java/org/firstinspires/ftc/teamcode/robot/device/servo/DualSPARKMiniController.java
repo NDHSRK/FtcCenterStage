@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robot.device.motor;
+package org.firstinspires.ftc.teamcode.robot.device.servo;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,15 +12,15 @@ import javax.xml.xpath.XPathExpressionException;
 
 // Support two Rev SPARKMini motor controllers that can be used in tandem in both
 // Autonomous and TeleOp.
-public abstract class DualSPARKMiniMotorControllers {
+public abstract class DualSPARKMiniController {
 
-    private final String TAG = DualSPARKMiniMotorControllers.class.getSimpleName();
+    private final String TAG = DualSPARKMiniController.class.getSimpleName();
 
     protected final DcMotorSimple controller1;
     protected final DcMotorSimple controller2;
     private double power;
 
-    public DualSPARKMiniMotorControllers(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
+    public DualSPARKMiniController(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
         // Get the configuration from RobotConfig.xml.
         RobotLogCommon.c(TAG, "Defining dual SPARKMini motor controllers");
         RobotLogCommon.c(TAG, "Controllers " + pConfigXPath.getRequiredText("servos/@model"));
@@ -36,10 +36,13 @@ public abstract class DualSPARKMiniMotorControllers {
             throw new AutonomousRobotException(TAG, "power out of range " + power);
     }
 
-    public void setPower(double pPower) {
-        power = pPower;
+    public void runWithCurrentPower() {
         controller1.setPower(power);
         controller2.setPower(power);
+    }
+
+    public void setPower(double pPower) {
+        power = Math.abs(pPower);
     }
 
     public double getPower() {

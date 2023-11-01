@@ -54,18 +54,19 @@ public class IntakeTest extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        //**TODO See Intake class for different naming: controller_1 and controller_2
-        // because they really aren't left and right.
-
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        DcMotorSimple leftIntake = hardwareMap.get(DcMotorSimple.class, "front_intake");
-        DcMotorSimple rightIntake = hardwareMap.get(DcMotorSimple.class, "main_intake");
+        /*
+          <controller_1 direction="FORWARD">front_intake</controller_1>
+          <controller_2 direction="FORWARD">main_intake</controller_2>
+         */
+        DcMotorSimple controller1 = hardwareMap.get(DcMotorSimple.class, "front_intake");
+        DcMotorSimple controller2 = hardwareMap.get(DcMotorSimple.class, "main_intake");
 
         // Set the direction of the SPARKminis.
-        leftIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        controller1.setDirection(DcMotorSimple.Direction.FORWARD);
+        controller2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -73,8 +74,8 @@ public class IntakeTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             double intakePower = -gamepad1.left_stick_y;
-            leftIntake.setPower(intakePower);
-            rightIntake.setPower(intakePower);
+            controller1.setPower(intakePower);
+            controller2.setPower(intakePower);
 
             // Show the power from the stick.
             telemetry.addData("Intake power", "value (%.2f)", intakePower);

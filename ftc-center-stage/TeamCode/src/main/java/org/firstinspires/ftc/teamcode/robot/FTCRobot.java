@@ -14,10 +14,12 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConf
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
-import org.firstinspires.ftc.teamcode.robot.device.motor.DualSPARKMiniMotorControllers;
+import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
-import org.firstinspires.ftc.teamcode.robot.device.motor.drive.Intake;
+import org.firstinspires.ftc.teamcode.robot.device.servo.Intake;
 import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmHolderServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.xml.sax.SAXException;
@@ -51,8 +53,10 @@ public class FTCRobot {
     // can be shared between TeleOp and FTCAuto when it is
     // embedded within TeleOp.
     public final Elevator elevator;
+    public final DualMotorMotion elevatorMotion;
     public final Boom boom;
-    public final DualSPARKMiniMotorControllers intake;
+    public final SingleMotorMotion boomMotion;
+    public final DualSPARKMiniController intake;
     public final IntakeArmHolderServo intakeArmHolderServo;
     public final PixelStopperServo pixelStopperServo;
 
@@ -120,8 +124,10 @@ public class FTCRobot {
             String elevatorInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
             if (elevatorInConfiguration.equals("yes")) {
                 elevator = new Elevator(hardwareMap, configXPath);
+                elevatorMotion = new DualMotorMotion(pLinearOpMode, elevator);
             } else {
                 elevator = null;
+                elevatorMotion = null;
             }
 
             // Get the configuration for the boom.
@@ -129,8 +135,10 @@ public class FTCRobot {
             String boomInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
             if (boomInConfiguration.equals("yes")) {
                 boom = new Boom(hardwareMap, configXPath);
+                boomMotion = new SingleMotorMotion(pLinearOpMode, boom);
             } else {
                 boom = null;
+                boomMotion = null;
             }
 
             // Get the configuration for the intake/outtake.

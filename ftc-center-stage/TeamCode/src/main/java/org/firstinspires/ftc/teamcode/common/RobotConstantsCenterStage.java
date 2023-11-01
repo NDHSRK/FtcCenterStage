@@ -12,7 +12,7 @@ public class RobotConstantsCenterStage {
 
         // For production
         BLUE_A2, BLUE_A4, RED_F2, RED_F4,
-        TEST, TEST_PRE_MATCH, AUTO_NO_DRIVE,
+        TEST, TEST_ELEVATOR, TEST_PRE_MATCH, AUTO_NO_DRIVE,
 
         // TeleOp OpModes
         TELEOP_NO_DRIVE,

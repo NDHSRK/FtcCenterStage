@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
 import androidx.annotation.Nullable;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
 import org.firstinspires.ftc.teamcode.teleop.common.ParallelDrive;
@@ -55,15 +57,15 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     // Elevator
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
-    private final DualMotorMotion elevatorMotion;
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
 
     // Boom
     private Boom.BoomLevel currentBoomLevel = Boom.BoomLevel.REST;
-    private final SingleMotorMotion boomMotion;
     private final double boomVelocity;
     private CompletableFuture<Boom.BoomLevel> asyncMoveBoom;
+
+    private PixelStopperServo.PixelServoState pixelServoState;
 
     public CenterStageTeleOp(RobotConstants.Alliance pAlliance,
                              LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -79,9 +81,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
         boomVelocity = Objects.requireNonNull(robot.boom).getVelocity();
-
-        elevatorMotion = new DualMotorMotion(linearOpMode, robot.elevator);
-        boomMotion = new SingleMotorMotion(linearOpMode, robot.boom);
 
         // Gamepad 1
         hangDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
@@ -123,7 +122,12 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             // The intake arm holder must be down before the boom
             // can move.
-            robot.intakeArmHolderServo.hold();
+            robot.intakeArmHolderServo.release(); // needed only once
+
+            // The initial state of the pixel stopper must be "held".
+            // This will change to "released" before outtake.
+            robot.pixelStopperServo.hold();
+            pixelServoState = PixelStopperServo.PixelServoState.HOLD;
 
             //## The drive train thread must be started here because
             // only now does opModeIsActive() return true.
@@ -188,7 +192,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                         currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
 
                         // The elevator is at CLEAR; move it to SAFE.
-                        elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                        robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                         currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
 
                         asyncMoveElevator = null;
@@ -218,8 +222,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         //**TODO updateHangDown();
 
         // Game Controller 2
-        //**TODO updateIntake();
-        //**TODO updateOuttake();
+        updateIntake();
+        updateOuttake();
         updateDeliveryLevel1();
         updateDeliveryLevel2();
         //**TODO 10/31/23 disable for now updateDeliveryLevel3();
@@ -242,6 +246,50 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         previousDriveTrainVelocity = driveTrainVelocity;
         return true;
+    }
+
+    private void updateIntake() {
+        if (intake.is(FTCButton.State.TAP)) {
+            // Take care of the case where someone hits the intake button twice in succession.
+            if (pixelServoState != PixelStopperServo.PixelServoState.HOLD) {
+              robot.pixelStopperServo.hold();
+              pixelServoState = PixelStopperServo.PixelServoState.HOLD;
+             }
+
+            //**TODO how long to supply power to the Intake?
+            ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+            intakeTimer.reset();
+            robot.intake.runWithCurrentPower();
+            while (linearOpMode.opModeIsActive() && intakeTimer.time() < 2000) {
+                linearOpMode.sleep(50);
+            }
+
+            // Get ready for the next outtake.
+            robot.pixelStopperServo.release();
+            pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+        }
+    }
+
+    private void updateOuttake() {
+        if (outtake.is(FTCButton.State.TAP)) {
+            // Take care of the case where someone hits the outtake button twice in succession.
+            if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
+                robot.pixelStopperServo.release();
+                pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+            }
+
+            //**TODO for outtake how long to supply power to the servo?
+            ElapsedTime outtakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+            outtakeTimer.reset();
+            robot.intake.runWithCurrentPower();
+            while (linearOpMode.opModeIsActive() && outtakeTimer.time() < 2000) {
+                linearOpMode.sleep(50);
+            }
+
+            // Get ready for the next intake.
+            robot.pixelStopperServo.hold();
+            pixelServoState = PixelStopperServo.PixelServoState.HOLD;
+        }
     }
 
     private void updateDeliveryLevel1() {
@@ -279,14 +327,14 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
                     throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator from ground to safe when the boom is not at rest");
 
-                elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
             } else { // downward movement
                 if (currentElevatorLevel == Elevator.ElevatorLevel.CLEAR) {
                     if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
                         throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator from clear to safe when the boom is not at rest");
 
-                    elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                    robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                     currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
                 } else { // moving down from levels 1, 2, 3
                     // Move the elevator down to CLEAR and the boom to REST simultaneously.
@@ -310,7 +358,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             if (!(currentElevatorLevel == Elevator.ElevatorLevel.CLEAR || currentElevatorLevel == Elevator.ElevatorLevel.SAFE))
                 throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator to ground from " + currentElevatorLevel);
 
-            elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
         }
     }
@@ -340,9 +388,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
             throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator to clear when the boom is not at rest");
 
-        //**TODO checkRakeLifterDown();
-
-        elevatorMotion.moveDualMotors(robot.elevator.clear, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+        robot.elevatorMotion.moveDualMotors(robot.elevator.clear, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
         currentElevatorLevel = Elevator.ElevatorLevel.CLEAR;
 
         linearOpMode.telemetry.addLine("Position for delivery at " + pDeliverToLevel);
@@ -376,15 +422,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             return;
         }
 
-        //**TODO checkRakeLifterDown();
-
         Callable<Elevator.ElevatorLevel> callableMoveElevatorUp = () -> {
-            elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            robot.elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             return pElevatorLevelOnCompletion;
         };
 
         Callable<Boom.BoomLevel> callableMoveBoom = () -> {
-            boomMotion.moveSingleMotor(pBoomPosition, pBoomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            robot.boomMotion.moveSingleMotor(pBoomPosition, pBoomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             return pBoomLevelOnCompletion;
         };
 
@@ -407,15 +451,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_3)) // sanity check
             throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator down from a level that is not 1, 2, or 3");
 
-        //**TODO checkRakeLifterDown();
-
         Callable<Boom.BoomLevel> callableMoveBoom = () -> {
-            boomMotion.moveSingleMotor(robot.boom.rest, pBoomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+            robot.boomMotion.moveSingleMotor(robot.boom.rest, pBoomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
             return Boom.BoomLevel.REST;
         };
 
         Callable<Elevator.ElevatorLevel> callableMoveElevatorDown = () -> {
-            elevatorMotion.moveDualMotors(robot.elevator.clear, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            robot.elevatorMotion.moveDualMotors(robot.elevator.clear, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             return Elevator.ElevatorLevel.CLEAR;
         };
 

@@ -34,6 +34,10 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamImage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
+import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
+import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
@@ -89,6 +93,9 @@ public class FTCAuto {
     private final BackdropParameters backdropParameters;
 
     private AprilTagNavigation aprilTagNavigation;
+
+    private CompletableFuture<Void> asyncMoveElevator;
+    private CompletableFuture<Void> asyncMoveBoom;
 
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -364,18 +371,6 @@ public class FTCAuto {
             // Straighten out the robot by turning to the desired heading.
             case "DESKEW": {
                 deskew();
-                break;
-            }
-
-            case "RELEASE_INTAKE_HOLDER": {
-                robot.intakeArmHolderServo.release();
-                break;
-            }
-
-            case "PIXEL_STOPPER": {
-                //**TODO
-                // <operation>hold</operation>
-                // <operation>release</operation>
                 break;
             }
 
@@ -809,6 +804,102 @@ public class FTCAuto {
                 break;
             }
 
+            case "RELEASE_INTAKE_HOLDER": {
+                robot.intakeArmHolderServo.release();
+                break;
+            }
+
+            case "PIXEL_STOPPER": {
+                //**TODO
+                // <position>hold</position>
+                // <position>release</position>
+                break;
+            }
+
+            case "INTAKE": {
+                //**TODO
+                //<duration_ms>
+                break;
+            }
+
+            case "OUTTAKE": {
+                //**TODO
+                //<duration_ms>
+                break;
+            }
+
+            // Move the elevator to an absolute position and, for all positions
+            // other than "down", hold that position.
+            case "MOVE_ELEVATOR": {
+                move_elevator(actionXPath).call();
+                break;
+            }
+
+            case "ASYNC_MOVE_ELEVATOR": {
+                String operation = actionXPath.getRequiredTextInRange("operation", actionXPath.validRange("start", "wait"));
+                switch (operation) {
+                    case "start": {
+                        if (asyncMoveElevator != null) // Prevent double initialization
+                            throw new AutonomousRobotException(TAG, "asyncMoveElevator is already in progress");
+
+                        Callable<Void> callableMoveElevator = move_elevator(actionXPath);
+                        asyncMoveElevator = Threading.launchAsync(callableMoveElevator);
+                        break;
+                    }
+
+                    // Wait for the elevator move to complete.
+                    case "wait": {
+                        if (asyncMoveElevator == null)
+                            throw new AutonomousRobotException(TAG, "In wait: asyncMoveElevator has not been initalized");
+
+                        RobotLogCommon.d(TAG, "asyncMoveElevator: wait");
+                        Threading.getFutureCompletion(asyncMoveElevator);
+                        RobotLogCommon.d(TAG, "Async move elevator: complete");
+                        asyncMoveElevator = null;
+                        break;
+                    }
+
+                    default:
+                        throw new AutonomousRobotException(TAG, "Invalid asynchronous move elevator operation: " + operation);
+                }
+                break;
+            }
+
+            // All positions hold power except for DOWN.
+            case "MOVE_BOOM": {
+                move_boom(actionXPath).call();
+                break;
+            }
+
+            case "ASYNC_MOVE_BOOM": {
+                String operation = actionXPath.getRequiredTextInRange("operation", actionXPath.validRange("start", "wait"));
+                switch (operation) {
+                    case "start": {
+                        if (asyncMoveBoom != null) // Prevent double initialization
+                            throw new AutonomousRobotException(TAG, "asyncMoveBoom is already in progress");
+                        Callable<Void> callableMoveBoom = move_boom(actionXPath);
+                        asyncMoveBoom = Threading.launchAsync(callableMoveBoom);
+                        break;
+                    }
+
+                    // Wait for the boom move to complete.
+                    case "wait": {
+                        if (asyncMoveBoom == null)
+                            throw new AutonomousRobotException(TAG, "In wait: asyncMoveBoom has not been initalized");
+
+                        RobotLogCommon.d(TAG, "asyncMoveBoom: wait");
+                        Threading.getFutureCompletion(asyncMoveBoom);
+                        RobotLogCommon.d(TAG, "Async move boom: complete");
+                        asyncMoveBoom = null;
+                        break;
+                    }
+
+                    default:
+                        throw new AutonomousRobotException(TAG, "Invalid asynchronous move boom up operation: " + operation);
+                }
+                break;
+            }
+
             case "SLEEP": { // I want sleep :)
                 int sleepMs = actionXPath.getRequiredInt("ms");
                 sleepInLoop(sleepMs);
@@ -1170,6 +1261,119 @@ public class FTCAuto {
         RobotLogCommon.d(TAG, bearing);
         RobotLogCommon.d(TAG, yaw);
         return desiredTag;
+    }
+
+    private Callable<Void> move_elevator(XPathAccess pActionXPath) throws XPathExpressionException {
+        String position = pActionXPath.getRequiredText("position").toUpperCase();
+        Elevator.ElevatorLevel targetLevel = Elevator.ElevatorLevel.valueOf(position);
+        return move_elevator(targetLevel);
+    }
+
+    // Hold the power to the elevator after every change in position except
+    // when the target position is "down".
+    private Callable<Void> move_elevator(Elevator.ElevatorLevel pElevatorTargetLevel) {
+        Pair<Elevator.ElevatorLevel, Integer> elevatorLevel =
+                Pair.create(pElevatorTargetLevel, getTargetElevatorClickCount(pElevatorTargetLevel));
+
+        return () -> {
+            DualMotorMotion.DualMotorAction elevatorAction = DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY; // default
+            if (elevatorLevel.first == Elevator.ElevatorLevel.GROUND)
+                elevatorAction = DualMotorMotion.DualMotorAction.MOVE_AND_STOP;
+
+            robot.elevatorMotion.moveDualMotors(elevatorLevel.second, Objects.requireNonNull(robot.elevator, "robot.elevatorMotors unexpectedly null").getVelocity(),
+                    elevatorAction);
+            return null;
+        };
+    }
+
+    // Hold the power to the boom after every change in position except
+    // when the target position is "rest".
+    private Callable<Void> move_boom(XPathAccess pActionXPath) throws XPathExpressionException {
+        String position = pActionXPath.getRequiredText("position").toUpperCase();
+        Boom.BoomLevel targetPosition = Boom.BoomLevel.valueOf(position);
+        return move_boom(targetPosition);
+    }
+
+    private Callable<Void> move_boom(Boom.BoomLevel pTargetPosition) {
+        Pair<Boom.BoomLevel, Integer> position =
+                Pair.create(pTargetPosition, getBoomClickCount(pTargetPosition));
+
+        return () -> {
+            SingleMotorMotion.MotorAction boomAction = SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY; // default
+            if (position.first == Boom.BoomLevel.REST)
+                boomAction = SingleMotorMotion.MotorAction.MOVE_AND_STOP;
+
+            robot.boomMotion.moveSingleMotor(position.second, Objects.requireNonNull(robot.boom, "robot.boom unexpectedly null").getVelocity(),
+                    boomAction);
+            return null;
+        };
+    }
+
+    private Integer getTargetElevatorClickCount(Elevator.ElevatorLevel pRequestedLevel) {
+        int absoluteEncoderValue;
+
+        switch (pRequestedLevel) {
+            case GROUND: {
+                absoluteEncoderValue = robot.elevator.ground;
+                break;
+            }
+            case SAFE: {
+                absoluteEncoderValue = robot.elevator.safe;
+                break;
+            }
+            case CLEAR: {
+                absoluteEncoderValue = robot.elevator.clear;
+                break;
+            }
+            case AUTONOMOUS: {
+                absoluteEncoderValue = robot.elevator.autonomous;
+                break;
+            }
+            case LEVEL_1: {
+                absoluteEncoderValue = robot.elevator.level_1;
+                break;
+            }
+            case LEVEL_2: {
+                absoluteEncoderValue = robot.elevator.level_2;
+                break;
+            }
+            case LEVEL_3: {
+                absoluteEncoderValue = robot.elevator.level_3;
+                break;
+            }
+
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid request to move elevator up to " + pRequestedLevel);
+        }
+
+        return absoluteEncoderValue;
+    }
+
+    private Integer getBoomClickCount(Boom.BoomLevel pRequestedPosition) {
+        int absoluteEncoderValue;
+
+        switch (pRequestedPosition) {
+            case REST: {
+                absoluteEncoderValue = robot.boom.rest;
+                break;
+            }
+            case LEVEL_1: {
+                absoluteEncoderValue = robot.boom.level_1;
+                break;
+            }
+            case LEVEL_2: {
+                absoluteEncoderValue = robot.boom.level_2;
+                break;
+            }
+            case LEVEL_3: {
+                absoluteEncoderValue = robot.boom.level_3;
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid boom position");
+        }
+
+        return absoluteEncoderValue;
     }
 }
 
