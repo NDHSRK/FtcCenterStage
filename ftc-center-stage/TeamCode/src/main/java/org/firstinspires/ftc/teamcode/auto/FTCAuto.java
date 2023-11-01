@@ -41,6 +41,8 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
+import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
+import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -72,6 +74,7 @@ public class FTCAuto {
     private final RobotConstants.Alliance alliance;
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
+    private PixelStopperServo.PixelServoState pixelServoState;
     private final String workingDirectory;
     private final RobotActionXMLCenterStage actionXML;
 
@@ -107,6 +110,11 @@ public class FTCAuto {
         alliance = pAlliance;
         linearOpMode = pLinearOpMode; // FTC context
         robot = pRobot; // robot hardware
+
+        // The initial state of the pixel stopper must be "held".
+        // This will change to "released" before outtake.
+        robot.pixelStopperServo.hold();
+        pixelServoState = PixelStopperServo.PixelServoState.HOLD;
 
         // Get the directory for the various configuration files.
         workingDirectory = WorkingDirectory.getWorkingDirectory();
@@ -810,21 +818,39 @@ public class FTCAuto {
             }
 
             case "PIXEL_STOPPER": {
-                //**TODO
-                // <position>hold</position>
-                // <position>release</position>
+                String positionString = actionXPath.getRequiredText("position").toUpperCase();
+                PixelStopperServo.PixelServoState position =
+                        PixelStopperServo.PixelServoState.valueOf(positionString);
+                if (position == PixelStopperServo.PixelServoState.HOLD)
+                    robot.pixelStopperServo.hold(); // hold for outtake
+                else
+                    robot.pixelStopperServo.release(); // release for intake
                 break;
             }
 
             case "INTAKE": {
-                //**TODO
-                //<duration_ms>
-                break;
+                int duration = actionXPath.getRequiredInt("duration_ms");
+                //**TODO implement INTAKE
+                throw new AutonomousRobotException(TAG, "INTAKE not yet implemented");
+                //break;
             }
 
             case "OUTTAKE": {
-                //**TODO
-                //<duration_ms>
+                int duration = actionXPath.getRequiredInt("duration_ms");
+                // Take care of the case where someone hits the outtake button twice in succession.
+                if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
+                    robot.pixelStopperServo.release();
+                    pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+                }
+
+                ElapsedTime outtakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+                outtakeTimer.reset();
+                robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.NEGATIVE);
+                while (linearOpMode.opModeIsActive() && outtakeTimer.time() < duration) {
+                    linearOpMode.sleep(50);
+                }
+
+                robot.intake.stop();
                 break;
             }
 

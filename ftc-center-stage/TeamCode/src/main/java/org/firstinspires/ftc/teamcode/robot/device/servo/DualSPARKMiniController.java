@@ -16,6 +16,8 @@ public abstract class DualSPARKMiniController {
 
     private final String TAG = DualSPARKMiniController.class.getSimpleName();
 
+    public enum PowerDirection {POSITIVE, NEGATIVE};
+
     protected final DcMotorSimple controller1;
     protected final DcMotorSimple controller2;
     private double power;
@@ -36,9 +38,10 @@ public abstract class DualSPARKMiniController {
             throw new AutonomousRobotException(TAG, "power out of range " + power);
     }
 
-    public void runWithCurrentPower() {
-        controller1.setPower(power);
-        controller2.setPower(power);
+    public void runWithCurrentPower(PowerDirection pPowerDirection) {
+        int powerDirection = pPowerDirection == PowerDirection.POSITIVE ? 1 : -1; // positive = intake, negative = outtake
+        controller1.setPower(power * powerDirection);
+        controller2.setPower(power * powerDirection);
     }
 
     public void setPower(double pPower) {

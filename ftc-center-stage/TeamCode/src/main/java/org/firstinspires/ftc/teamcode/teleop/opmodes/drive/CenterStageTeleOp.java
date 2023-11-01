@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
@@ -259,10 +260,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             //**TODO how long to supply power to the Intake?
             ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
             intakeTimer.reset();
-            robot.intake.runWithCurrentPower();
+            robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
             while (linearOpMode.opModeIsActive() && intakeTimer.time() < 2000) {
                 linearOpMode.sleep(50);
             }
+            robot.intake.stop();
 
             // Get ready for the next outtake.
             robot.pixelStopperServo.release();
@@ -281,10 +283,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             //**TODO for outtake how long to supply power to the servo?
             ElapsedTime outtakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
             outtakeTimer.reset();
-            robot.intake.runWithCurrentPower();
+            robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.NEGATIVE);
             while (linearOpMode.opModeIsActive() && outtakeTimer.time() < 2000) {
                 linearOpMode.sleep(50);
             }
+            robot.intake.stop();
 
             // Get ready for the next intake.
             robot.pixelStopperServo.hold();
