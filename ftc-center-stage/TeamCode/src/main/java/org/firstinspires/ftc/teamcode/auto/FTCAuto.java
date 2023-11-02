@@ -238,6 +238,7 @@ public class FTCAuto {
                 }
             }
         } finally {
+            //**TODO failsafe
             if (!keepIMUAndCamerasRunning) {
                 // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
                 if (robot.imuReader != null) { // if the IMU is configured in
@@ -830,18 +831,18 @@ public class FTCAuto {
                 PixelStopperServo.PixelServoState position =
                         PixelStopperServo.PixelServoState.valueOf(positionString);
                 if (position == PixelStopperServo.PixelServoState.HOLD) {
-                    robot.pixelStopperServo.hold(); // hold for outtake
+                    robot.pixelStopperServo.hold(); // hold for intake of pixels from the front
                     pixelServoState = PixelStopperServo.PixelServoState.HOLD;
-                } else
-                    robot.pixelStopperServo.release();
-                pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
-                { // release for intake
+                } else {
+                    robot.pixelStopperServo.release(); // release for outtake of pixels out the back
+                    pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
                 break;
             }
 
             //## Note: Intake without the stopper results in outtake out
             // the back.
+                //**TODO misnomer -> EJECT_PIXEL_TO_THE_REAR
             case "INTAKE": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
                 if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
@@ -849,34 +850,18 @@ public class FTCAuto {
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
-                ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-                intakeTimer.reset();
-                robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
-                while (linearOpMode.opModeIsActive() && intakeTimer.time() < duration) {
-                    linearOpMode.sleep(50);
-                }
-
-                robot.intake.stop();
+                if (!runIntakeOuttake(DualSPARKMiniController.PowerDirection.POSITIVE, duration))
+                    return false;
                 break;
             }
 
             //## Note: OUTTAKE is for outtake out the front.
             case "OUTTAKE": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
-                // Take care of the case where someone hits the outtake button twice in succession.
-                if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
-                    robot.pixelStopperServo.release();
-                    pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
-                }
 
-                ElapsedTime outtakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-                outtakeTimer.reset();
-                robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.NEGATIVE);
-                while (linearOpMode.opModeIsActive() && outtakeTimer.time() < duration) {
-                    linearOpMode.sleep(50);
-                }
-
-                robot.intake.stop();
+                // The position of the pixel stopper does not matter.
+                if (!runIntakeOuttake(DualSPARKMiniController.PowerDirection.NEGATIVE, duration))
+                    return false;
                 break;
             }
 
@@ -1357,7 +1342,7 @@ public class FTCAuto {
 
     private Callable<Boom.BoomLevel> move_boom(Boom.BoomLevel pTargetPosition) {
         Pair<Boom.BoomLevel, Integer> position =
-                Pair.create(pTargetPosition, getBoomClickCount(pTargetPosition));
+                Pair.create(pTargetPosition, getTargetBoomClickCount(pTargetPosition));
 
         return () -> {
             SingleMotorMotion.MotorAction boomAction = SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY; // default
@@ -1410,7 +1395,7 @@ public class FTCAuto {
         return absoluteEncoderValue;
     }
 
-    private Integer getBoomClickCount(Boom.BoomLevel pRequestedPosition) {
+    private Integer getTargetBoomClickCount(Boom.BoomLevel pRequestedPosition) {
         int absoluteEncoderValue;
 
         switch (pRequestedPosition) {
@@ -1477,8 +1462,51 @@ public class FTCAuto {
             linearOpMode.sleep(50);
         }
 
-        return linearOpMode.opModeIsActive() ? true : false;
+        robot.intake.stop();
+        return linearOpMode.opModeIsActive();
     }
 
+    // General purpose failsafe actions with the goal of making sure the
+    // boom is at REST and the elevator is at GROUND.
+    private void failsafeBoomAndElevator() {
+        if (robot.boom != null) {
+            RobotLogCommon.i(TAG, "Beginning failsafe actions");
+
+            // Take care of the boom first.
+            if (asyncMoveBoom != null) {
+                RobotLogCommon.d(TAG, "asyncMoveBoom is active in failsafe; there's nothing we can do");
+                return;
+            }
+
+            if (currentBoomLevel != Boom.BoomLevel.REST) {
+                robot.boomMotion.moveSingleMotor(getTargetBoomClickCount(Boom.BoomLevel.REST), Objects.requireNonNull(robot.boom, "robot.boom unexpectedly null").getVelocity(),
+                        SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+            } else
+                RobotLogCommon.d(TAG, "The boom is already at the REST level");
+        }
+
+        if (robot.elevator == null) {
+            RobotLogCommon.d(TAG, "The is not in the current configuration");
+            return;
+        }
+
+        // Now the elevator.
+        if (asyncMoveElevator != null) {
+            RobotLogCommon.d(TAG, "asyncMoveElevator is active in failsafe; there's nothing we can do");
+            return;
+        }
+
+        if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND) {
+            RobotLogCommon.d(TAG, "The elevator is already at the GROUND level");
+            return;
+        }
+
+        // Since the boom is already at REST we can move the elevator
+        // all the way to GROUND.
+        robot.elevatorMotion.moveDualMotors(getTargetElevatorClickCount(Elevator.ElevatorLevel.GROUND), Objects.requireNonNull(robot.elevator, "robot.elevatorMotors unexpectedly null").getVelocity(),
+                DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
+
+        RobotLogCommon.i(TAG, "Done with failsafe actions");
+    }
 }
 
