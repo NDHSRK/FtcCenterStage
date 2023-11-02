@@ -60,7 +60,7 @@
       <controller_1 direction="FORWARD">front_intake</controller_1>
       <controller_2 direction="FORWARD">main_intake</controller_2>
     </servos>
-    <power>1.0</power>
+    <power>0.5</power>
   </INTAKE>
 
   <INTAKE_ARM_HOLDER configured="yes">

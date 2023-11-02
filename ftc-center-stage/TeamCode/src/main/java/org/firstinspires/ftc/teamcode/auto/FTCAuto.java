@@ -97,6 +97,9 @@ public class FTCAuto {
 
     private AprilTagNavigation aprilTagNavigation;
 
+    private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
+    private Boom.BoomLevel currentBoomLevel = Boom.BoomLevel.REST;
+
     private CompletableFuture<Void> asyncMoveElevator;
     private CompletableFuture<Void> asyncMoveBoom;
 
@@ -821,18 +824,34 @@ public class FTCAuto {
                 String positionString = actionXPath.getRequiredText("position").toUpperCase();
                 PixelStopperServo.PixelServoState position =
                         PixelStopperServo.PixelServoState.valueOf(positionString);
-                if (position == PixelStopperServo.PixelServoState.HOLD)
+                if (position == PixelStopperServo.PixelServoState.HOLD) {
                     robot.pixelStopperServo.hold(); // hold for outtake
+                    pixelServoState = PixelStopperServo.PixelServoState.HOLD;
+                }
                 else
-                    robot.pixelStopperServo.release(); // release for intake
+                    robot.pixelStopperServo.release();
+                pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+                { // release for intake
+                }
                 break;
             }
 
             case "INTAKE": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
-                //**TODO implement INTAKE
-                throw new AutonomousRobotException(TAG, "INTAKE not yet implemented");
-                //break;
+                if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
+                    robot.pixelStopperServo.release();
+                    pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+                }
+
+                ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+                intakeTimer.reset();
+                robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
+                while (linearOpMode.opModeIsActive() && intakeTimer.time() < duration) {
+                    linearOpMode.sleep(50);
+                }
+
+                robot.intake.stop();
+                break;
             }
 
             case "OUTTAKE": {
@@ -923,6 +942,13 @@ public class FTCAuto {
                     default:
                         throw new AutonomousRobotException(TAG, "Invalid asynchronous move boom up operation: " + operation);
                 }
+                break;
+            }
+
+            //**TODO need to set elevator and boom positions after each movement.
+            // Need to return the position from both Callables
+            case "AUTONOMOUS_DELIVER_PIXEL_TO_BACKSTOP": {
+                int duration = actionXPath.getRequiredInt("duration_ms");
                 break;
             }
 

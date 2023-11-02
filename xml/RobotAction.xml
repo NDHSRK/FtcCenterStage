@@ -10,7 +10,101 @@
         </parameters>
         <actions>
 
-            <TAKE_PICTURE_WEBCAM>
+            <!-- test delivery of purple pixel
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP -->
+           
+            <RELEASE_INTAKE_HOLDER />
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <!-- go to CLEAR automatically -->
+            <MOVE_ELEVATOR>
+                <position>CLEAR</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>start</operation>
+                <position>AUTONOMOUS</position>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>start</operation>
+                <position>LEVEL_1</position>
+            </ASYNC_MOVE_BOOM>
+
+            <!-- Wait for operations to complete :) -->
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>wait</operation>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>wait</operation>
+            </ASYNC_MOVE_BOOM>
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <!-- not needed for delivery to the spike -->
+            <!-- but needed for delivery to the backstop -->
+            <PIXEL_STOPPER>
+                <position>release</position>
+            </PIXEL_STOPPER>
+
+            <INTAKE>
+             <duration_ms>1000</duration_ms>   
+            </INTAKE>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>start</operation>
+                <position>CLEAR</position>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>start</operation>
+                <position>REST</position>
+            </ASYNC_MOVE_BOOM>
+
+            <!-- Wait for operations to complete :) -->
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>wait</operation>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>wait</operation>
+            </ASYNC_MOVE_BOOM>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>GROUND</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <!-- TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM>
 
@@ -20,7 +114,7 @@
 
             <SLEEP>
                 <ms>1000</ms>
-            </SLEEP>
+            </SLEEP -->
 
             <!-- TEST_MULTIPORTAL_SAMPLE / -->
 
@@ -76,7 +170,7 @@
         </parameters>
         <actions>
             
-            <RELEASE_INTAKE_ARM_HOLDER />
+            <RELEASE_INTAKE_HOLDER />
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -119,7 +213,7 @@
             </SLEEP>
 
             <MOVE_ELEVATOR>
-                <position>DOWN</position>
+                <position>GROUND</position>
             </MOVE_ELEVATOR>
 
         </actions>
@@ -131,7 +225,7 @@
         </parameters>
         <actions>
 
-            <RELEASE_INTAKE_ARM_HOLDER />
+            <RELEASE_INTAKE_HOLDER />
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -403,9 +497,95 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>10.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
+
+                               
+            <RELEASE_INTAKE_HOLDER />
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <!-- go to CLEAR automatically -->
+            <MOVE_ELEVATOR>
+                <position>CLEAR</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>start</operation>
+                <position>AUTONOMOUS</position>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>start</operation>
+                <position>LEVEL_1</position>
+            </ASYNC_MOVE_BOOM>
+
+            <!-- Wait for operations to complete :) -->
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>wait</operation>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>wait</operation>
+            </ASYNC_MOVE_BOOM>
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <!-- not needed for delivery to the spike -->
+            <!-- but needed for delivery to the backstop -->
+            <PIXEL_STOPPER>
+                <position>release</position>
+            </PIXEL_STOPPER>
+
+            <INTAKE>
+             <duration_ms>1000</duration_ms>   
+            </INTAKE>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>start</operation>
+                <position>CLEAR</position>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>start</operation>
+                <position>REST</position>
+            </ASYNC_MOVE_BOOM>
+
+            <!-- Wait for operations to complete :) -->
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>wait</operation>
+            </ASYNC_MOVE_ELEVATOR>
+            <ASYNC_MOVE_BOOM>
+                <operation>wait</operation>
+            </ASYNC_MOVE_BOOM>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>GROUND</position>
+            </MOVE_ELEVATOR>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
 
                 </CENTER_SPIKE>
 
