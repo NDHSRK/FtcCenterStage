@@ -78,9 +78,9 @@ public abstract class DualMotors extends MotorCore {
         setTargetPosition(rightMotorId, pPosition);
     }
 
+    //**TODO misnamed - means run with configured velocity
     public void setVelocityDual(FTCRobot.MotorId pLeftMotorId, FTCRobot.MotorId pRightMotorId, double pVelocity) {
         EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
-        velocity = pVelocity;
         velocityMap.put(pLeftMotorId, velocity);
         velocityMap.put(pRightMotorId, velocity);
         setVelocityAll(velocityMap);

@@ -70,8 +70,8 @@ public abstract class SingleMotor extends MotorCore {
         setTargetPosition(motorId, pPosition);
     }
 
+    //**TODO misnamed - means run with configured velocity
     public void setVelocity(double pVelocity) {
-        velocity = pVelocity;
         setVelocity(motorId, velocity);
     }
 
