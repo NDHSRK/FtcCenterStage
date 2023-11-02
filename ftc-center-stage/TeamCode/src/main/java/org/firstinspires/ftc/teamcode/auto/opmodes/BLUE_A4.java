@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
-@Autonomous(name = "BLUE_A4_RIGHT", group = "TeamCode")
+@Autonomous(name = "BLUE_A4", group = "TeamCode")
 //@Disabled
-public class BLUE_A4_RIGHT extends LinearOpMode {
+public class BLUE_A4 extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         FTCAutoDispatch.runAuto(RobotConstants.RunType.AUTONOMOUS,
-                RobotConstantsCenterStage.OpMode.BLUE_A4_RIGHT,
+                RobotConstantsCenterStage.OpMode.BLUE_A4,
                 RobotConstants.Alliance.BLUE, this);
     }
 }

@@ -238,7 +238,8 @@ public class FTCAuto {
                 }
             }
         } finally {
-            //**TODO failsafe
+            failsafeBoomAndElevator();
+
             if (!keepIMUAndCamerasRunning) {
                 // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
                 if (robot.imuReader != null) { // if the IMU is configured in
@@ -699,7 +700,6 @@ public class FTCAuto {
                 deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
                 AprilTagDetection desiredTag = findAprilTag(actionXPath);
                 if (desiredTag == null)
-                    //**TODO call failSafe to set the elevator to GROUND or just do it here
                     return false; // we're lost without an AprilTag
 
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
@@ -809,7 +809,6 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Direction of travel " + directionString);
                 if (!aprilTagNavigation.navigateToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
                     RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
-                    //**TODO call failSafe to set the elevator to GROUND
                     return false;
                 }
 
@@ -1466,8 +1465,8 @@ public class FTCAuto {
         return linearOpMode.opModeIsActive();
     }
 
-    // General purpose failsafe actions with the goal of making sure the
-    // boom is at REST and the elevator is at GROUND.
+    // Failsafe with the goal of making sure the boom
+    // is at REST and the elevator is at GROUND.
     private void failsafeBoomAndElevator() {
         if (robot.boom != null) {
             RobotLogCommon.i(TAG, "Beginning failsafe actions");
