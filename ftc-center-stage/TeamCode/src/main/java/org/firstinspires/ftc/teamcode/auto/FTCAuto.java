@@ -604,7 +604,7 @@ public class FTCAuto {
                 // window is the same as that of the left window.
                 spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT, Pair.create(new Rect(left_x + left_width, left_y, right_width, left_height), team_prop_in_right_window));
 
-                // Set the shipping hub level to infer if the Shipping Hub Element is either the left or right window.
+                // Set the spike location to infer if the Team Prop is neither in the left nor right window.
                 RobotConstantsCenterStage.TeamPropLocation team_prop_npos = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/team_prop_npos/prop_location").toUpperCase());
                 spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0), team_prop_npos));
                 teamPropParameters.setSpikeWindows(spikeWindows);
@@ -855,8 +855,7 @@ public class FTCAuto {
                 break;
             }
 
-            //## Note: OUTTAKE is for outtake out the front.
-            case "OUTTAKE": {
+            case "DELIVER_PIXEL_TO_SPIKE": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
 
                 // The position of the pixel stopper does not matter.
@@ -937,7 +936,6 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO test pixel delivery to backstop
             // Need to return the position from both Callables
             case "DELIVER_PIXEL_TO_BACKSTOP": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
