@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
-import org.firstinspires.ftc.teamcode.robot.device.servo.Intake;
+import org.firstinspires.ftc.teamcode.robot.device.servo.PixelIO;
 import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmHolderServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.xml.sax.SAXException;
@@ -56,7 +56,7 @@ public class FTCRobot {
     public final DualMotorMotion elevatorMotion;
     public final Boom boom;
     public final SingleMotorMotion boomMotion;
-    public final DualSPARKMiniController intake;
+    public final DualSPARKMiniController pixelIO;
     public final IntakeArmHolderServo intakeArmHolderServo;
     public final PixelStopperServo pixelStopperServo;
 
@@ -145,9 +145,9 @@ public class FTCRobot {
             configXPath = configXML.getPath("INTAKE");
             String intakeInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
             if (intakeInConfiguration.equals("yes")) {
-                intake = new Intake(hardwareMap, configXPath);
+                pixelIO = new PixelIO(hardwareMap, configXPath);
             } else {
-                intake = null;
+                pixelIO = null;
             }
 
             // Get the configuration for the intake arm holder servo.

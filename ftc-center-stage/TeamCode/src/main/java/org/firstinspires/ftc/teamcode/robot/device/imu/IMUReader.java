@@ -55,6 +55,10 @@ public class IMUReader {
         RobotLogCommon.i(TAG, "Wait for CountDownLatch done; IMU reader thread is running");
     }
 
+    public void resetIMUYaw() {
+        imu.resetYaw(); // necessary because sometimes the yaw carries over after a restart
+    }
+
     // To be called from the finally block of FTCAuto.
     public void stopIMUReader() throws IOException, InterruptedException, TimeoutException {
         if (!imuActivated)

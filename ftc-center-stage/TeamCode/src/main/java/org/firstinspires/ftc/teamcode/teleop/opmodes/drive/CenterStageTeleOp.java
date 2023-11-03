@@ -253,7 +253,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         return true;
     }
 
-    // Take pixels in from the front
+    // Take pixels in from the front.
     private void updateIntake() {
         if (intake.is(FTCButton.State.TAP)) {
             // Take care of the case where someone hits the intake button twice in succession.
@@ -262,14 +262,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 pixelServoState = PixelStopperServo.PixelServoState.HOLD;
             }
 
-            //**TODO how long to supply power to the Intake?
             ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
             intakeTimer.reset();
-            robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
-            while (linearOpMode.opModeIsActive() && intakeTimer.time() < 1000) {
+            robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
+            while (linearOpMode.opModeIsActive() && intakeTimer.time() < 500) {
                 linearOpMode.sleep(50);
             }
-            robot.intake.stop();
+            robot.pixelIO.stop();
 
             // Get ready for the next outtake.
             robot.pixelStopperServo.release();
@@ -286,14 +285,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
             }
 
-            //**TODO for outtake how long to supply power to the servo?
             ElapsedTime outtakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
             outtakeTimer.reset();
-            robot.intake.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
+            robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
             while (linearOpMode.opModeIsActive() && outtakeTimer.time() < 1000) {
                 linearOpMode.sleep(50);
             }
-            robot.intake.stop();
+            robot.pixelIO.stop();
 
             // Get ready for the next intake.
             robot.pixelStopperServo.hold();

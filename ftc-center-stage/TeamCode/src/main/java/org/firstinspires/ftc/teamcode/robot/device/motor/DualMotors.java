@@ -23,7 +23,7 @@ public abstract class DualMotors extends MotorCore {
 
     protected final FTCRobot.MotorId leftMotorId;
     protected final FTCRobot.MotorId rightMotorId;
-    private double velocity;
+    private double velocity; // This is the configured velocity from RobotConfig.xml
 
     public DualMotors(HardwareMap pHardwareMap, XPathAccess pConfigXPath, FTCRobot.MotorId pLeftMotorId, FTCRobot.MotorId pRightMotorId) throws XPathExpressionException {
         super(pConfigXPath, "dual_motors");
@@ -78,11 +78,10 @@ public abstract class DualMotors extends MotorCore {
         setTargetPosition(rightMotorId, pPosition);
     }
 
-    //**TODO misnamed - means run with configured velocity
-    public void setVelocityDual(FTCRobot.MotorId pLeftMotorId, FTCRobot.MotorId pRightMotorId, double pVelocity) {
+    public void setVelocityDual(double pVelocity) {
         EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
-        velocityMap.put(pLeftMotorId, velocity);
-        velocityMap.put(pRightMotorId, velocity);
+        velocityMap.put(leftMotorId, pVelocity);
+        velocityMap.put(rightMotorId, pVelocity);
         setVelocityAll(velocityMap);
     }
 

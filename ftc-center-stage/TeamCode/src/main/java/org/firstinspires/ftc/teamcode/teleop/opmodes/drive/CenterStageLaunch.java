@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCTeleOpDispatch;
 
-@TeleOp(name = "PowerPlay", group = "Drive")
+@TeleOp(name = "CenterStage", group = "Drive")
 //@Disabled
 public class CenterStageLaunch extends LinearOpMode {
     public void runOpMode() throws InterruptedException {

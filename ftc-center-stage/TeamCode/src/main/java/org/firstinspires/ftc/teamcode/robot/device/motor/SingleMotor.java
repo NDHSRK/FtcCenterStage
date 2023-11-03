@@ -19,7 +19,7 @@ import javax.xml.xpath.XPathExpressionException;
 public abstract class SingleMotor extends MotorCore {
 
     protected final FTCRobot.MotorId motorId;
-    private double velocity;
+    private double velocity; // This is the configured velocity from RobotConfig.xml
 
     public SingleMotor(HardwareMap pHardwareMap, XPathAccess pConfigXPath, FTCRobot.MotorId pMotorId) throws XPathExpressionException {
         super(pConfigXPath, "single_motor");
@@ -70,9 +70,8 @@ public abstract class SingleMotor extends MotorCore {
         setTargetPosition(motorId, pPosition);
     }
 
-    //**TODO misnamed - means run with configured velocity
     public void setVelocity(double pVelocity) {
-        setVelocity(motorId, velocity);
+        setVelocity(motorId, pVelocity);
     }
 
     public double getVelocity() {

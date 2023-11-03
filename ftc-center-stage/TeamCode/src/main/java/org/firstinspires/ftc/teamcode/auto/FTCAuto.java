@@ -188,6 +188,7 @@ public class FTCAuto {
             }
 
             RobotLogCommon.i(TAG, "FTCAuto runRobot()");
+            robot.imuReader.resetIMUYaw();
             RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuReader.getIMUHeading());
 
             // Extract data from
@@ -1456,12 +1457,12 @@ public class FTCAuto {
     private boolean runIntakeOuttake(DualSPARKMiniController.PowerDirection pPowerDirection, int pDurationMS) {
         ElapsedTime ioTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ioTimer.reset();
-        robot.intake.runWithCurrentPower(pPowerDirection);
+        robot.pixelIO.runWithCurrentPower(pPowerDirection);
         while (linearOpMode.opModeIsActive() && ioTimer.time() < pDurationMS) {
             linearOpMode.sleep(50);
         }
 
-        robot.intake.stop();
+        robot.pixelIO.stop();
         return linearOpMode.opModeIsActive();
     }
 

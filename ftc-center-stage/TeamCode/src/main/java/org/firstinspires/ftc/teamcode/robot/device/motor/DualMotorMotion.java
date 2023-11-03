@@ -57,13 +57,14 @@ public class DualMotorMotion {
         double velocity = Math.abs(pVelocity); // velocity is always positive; position determines direction
         RobotLogCommon.d(TAG, "Move dual motors to position " + pTargetPosition + ", at velocity " + velocity);
 
+        //**TODO not used??
         EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
 
         dualMotors.setTargetPositions(pTargetPosition);
         dualMotors.setModeDual(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Start moving.
-        dualMotors.setVelocityDual(motorIds.first, motorIds.second, velocity);
+        dualMotors.setVelocityDual(pVelocity);
 
         // Keep moving until one of the motors has reached its target position.
         try {
