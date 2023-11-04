@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.teleop.sample;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -49,7 +50,7 @@ import org.firstinspires.ftc.teamcode.common.FTCErrorHandling;
  * @see Telemetry
  */
 @TeleOp(name = "Concept: Telemetry", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptTelemetry extends LinearOpMode {
 
     @Override

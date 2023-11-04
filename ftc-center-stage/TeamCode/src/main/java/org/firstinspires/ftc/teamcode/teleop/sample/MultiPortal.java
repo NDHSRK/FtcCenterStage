@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop.sample;
 
 import android.util.Size;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -19,7 +21,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.opencv.core.Mat;
 
 @TeleOp(name = "MultiPortal")
-//@Disabled
+@Disabled
 public class MultiPortal extends LinearOpMode {
 
   VisionPortal.Builder myVisionPortalBuilder;

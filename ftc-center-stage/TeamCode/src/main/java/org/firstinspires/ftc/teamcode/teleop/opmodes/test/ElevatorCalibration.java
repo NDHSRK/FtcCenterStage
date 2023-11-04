@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
 @TeleOp(name = "ElevatorCalibration", group = "Test")
-//@Disabled
+@Disabled
 public class ElevatorCalibration extends TeleOpBase {
 
     private Elevator elevator;

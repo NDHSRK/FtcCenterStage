@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.teleop.sample;
 import android.annotation.SuppressLint;
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -51,7 +52,7 @@ import java.util.List;
 // WebcamFrameProcessor.
 
 @TeleOp(name = "Concept: Double Vision", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptDoubleVision extends LinearOpMode {
 
     /**
