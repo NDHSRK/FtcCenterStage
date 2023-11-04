@@ -37,6 +37,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton hangDown;
     private final FTCToggleButton toggleSpeed;
     private final FTCButton intake;
+    private final FTCButton reverseIntake;
+    private boolean intakeInProgress = false;
     private final FTCButton outtake;
     private final FTCButton deliveryLevel1;
     private final FTCButton deliveryLevel2;
@@ -96,6 +98,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // ABXY Buttons
         goToSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
         goToGround = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
+        reverseIntake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_Y);
 
         // D-Pad
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
@@ -156,6 +159,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         // Game Controller 2
         intake.update();
+        reverseIntake.update();
         outtake.update();
         deliveryLevel1.update();
         deliveryLevel2.update();
@@ -227,7 +231,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         //**TODO updateHangDown();
 
         // Game Controller 2
-        updateIntake();
+        updateIntake2(); //**TODO experimental
+        updateReverseIntake();
         updateOuttake();
         updateDeliveryLevel1();
         updateDeliveryLevel2();
@@ -253,6 +258,29 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         return true;
     }
 
+    // Continuous intake.
+    private void updateIntake2() {
+        if (intake.is(FTCButton.State.TAP) || intake.is(FTCButton.State.HELD)) {
+            if (intake.is(FTCButton.State.TAP)) { // first time
+                intakeInProgress = true;
+
+                // Take care of the case where someone hits the intake button twice in succession.
+                if (pixelServoState != PixelStopperServo.PixelServoState.HOLD) {
+                    robot.pixelStopperServo.hold();
+                    pixelServoState = PixelStopperServo.PixelServoState.HOLD;
+                }
+
+                robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
+            }
+        }
+        else {
+            if (intakeInProgress) {
+                intakeInProgress = false;
+                robot.pixelIO.stop();
+            }
+        }
+    }
+
     // Take pixels in from the front.
     private void updateIntake() {
         if (intake.is(FTCButton.State.TAP)) {
@@ -269,10 +297,18 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 linearOpMode.sleep(50);
             }
             robot.pixelIO.stop();
+        }
+    }
 
-            // Get ready for the next outtake.
-            robot.pixelStopperServo.release();
-            pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+    private void updateReverseIntake() {
+        if (reverseIntake.is(FTCButton.State.TAP)) {
+            ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+            intakeTimer.reset();
+            robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.NEGATIVE);
+            while (linearOpMode.opModeIsActive() && intakeTimer.time() < 1000) {
+                linearOpMode.sleep(50);
+            }
+            robot.pixelIO.stop();
         }
     }
 
