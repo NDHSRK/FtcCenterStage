@@ -17,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+//**TODO 11/04/23 May be obsolete if bizarre turning problems disappear.
 // Class that continuously reads IMU data and posts the results.
 //## Not designed as a Singleton and not intended that an instance
 //## of this class be shared between threads.

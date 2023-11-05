@@ -84,7 +84,7 @@ public class FTCAuto {
     private CompletableFuture<Void> asyncStraight;
     private CompletableFuture<Double> asyncTurn;
 
-    private boolean keepIMUAndCamerasRunning = false;
+    private boolean keepCamerasRunning = false;
 
     // Image recognition.
     private final TeamPropParameters teamPropParameters;
@@ -166,7 +166,7 @@ public class FTCAuto {
     // under TeleOp it is necessary *not* to shut down the camera(s) at the end of
     // runOpMode.
     public void runRobotWithCameras(RobotConstantsCenterStage.OpMode pOpMode) throws Exception {
-        keepIMUAndCamerasRunning = true;
+        keepCamerasRunning = true;
         runRobot(pOpMode);
     }
 
@@ -188,8 +188,8 @@ public class FTCAuto {
             }
 
             RobotLogCommon.i(TAG, "FTCAuto runRobot()");
-            robot.imuReader.resetIMUYaw();
-            RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuReader.getIMUHeading());
+            robot.imuDirect.resetIMUYaw();
+            RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuDirect.getIMUHeading());
 
             // Extract data from
             // the parsed XML file for the selected OpMode only.
@@ -241,13 +241,7 @@ public class FTCAuto {
         } finally {
             failsafeBoomAndElevator();
 
-            if (!keepIMUAndCamerasRunning) {
-                // Shut down the IMU and the cameras. This is the normal path for an Autonomous run.
-                if (robot.imuReader != null) { // if the IMU is configured in
-                    RobotLogCommon.i(TAG, "In FTCAuto finally: close the imu reader");
-                    robot.imuReader.stopIMUReader();
-                }
-
+            if (!keepCamerasRunning) {
                 //**TODO orderly shutdown was causing the Robot Controller to crash at this point.
                 // 10/18/23 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                 //    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
@@ -975,9 +969,9 @@ public class FTCAuto {
                 imuTimer.reset();
 
                 while (linearOpMode.opModeIsActive() && imuTimer.time() < 10000) {
-                    heading = robot.imuReader.getIMUHeading();
-                    pitch = robot.imuReader.getIMUPitch();
-                    roll = robot.imuReader.getIMURoll();
+                    heading = robot.imuDirect.getIMUHeading();
+                    pitch = robot.imuDirect.getIMUPitch();
+                    roll = robot.imuDirect.getIMURoll();
 
                     String logString = "heading " + heading + ", pitch " + pitch + ", roll " + roll;
                     RobotLogCommon.d(TAG, "IMU " + logString);
@@ -1167,7 +1161,7 @@ public class FTCAuto {
 
     // Return a Callable that can be used to turn the robot directly or can be launched
     // to turn the robot asynchronously.
-    private Callable<Double> turn(XPathAccess pActionXPath) throws XPathExpressionException, IOException, InterruptedException, TimeoutException {
+    private Callable<Double> turn(XPathAccess pActionXPath) throws XPathExpressionException {
         if (asyncTurn != null) // Prevent double initialization
             throw new AutonomousRobotException(TAG, "turn: asyncTurn is active");
 
@@ -1185,7 +1179,7 @@ public class FTCAuto {
         // If the requested post-turn heading is RELATIVE_TO_START then we have to
         // adjust the angle. So if the requested angle is -90 and the current
         // heading is 30 then the turn will be -120.
-        double currentHeading = robot.imuReader.getIMUHeading();
+        double currentHeading = robot.imuDirect.getIMUHeading();
         if (postTurnHeading == DriveTrainConstants.PostTurnHeading.RELATIVE_TO_START) {
             angle = angle - currentHeading;
             RobotLogCommon.d(TAG, "Turn is relative to the starting position of the robot");
@@ -1223,9 +1217,9 @@ public class FTCAuto {
             RobotLogCommon.d(TAG, "TURN ramp down reset to " + rampDownAtAngleRemaining);
         }
 
-        final double finalRampDownAtAngleRemaining = rampDownAtAngleRemaining; // reqired for lambda
+        final double finalRampDownAtAngleRemaining = rampDownAtAngleRemaining; // required for lambda
         final double finalAngle = angle;
-        return () -> driveTrainMotion.turn(desiredHeading, robot.imuReader.getIMUHeading(), finalAngle, power, finalRampDownAtAngleRemaining, turnNormalization);
+        return () -> driveTrainMotion.turn(desiredHeading, robot.imuDirect.getIMUHeading(), finalAngle, power, finalRampDownAtAngleRemaining, turnNormalization);
     }
 
     // Straighten out the robot by turning to the desired heading.
@@ -1237,7 +1231,7 @@ public class FTCAuto {
         if (asyncTurn != null)
             throw new AutonomousRobotException(TAG, "Deskew not allowed while asyncTurn is in progress");
 
-        double currentHeading = robot.imuReader.getIMUHeading();
+        double currentHeading = robot.imuDirect.getIMUHeading();
         RobotLogCommon.d(TAG, "Current heading " + currentHeading);
         double degreeDifference = DEGREES.normalize(desiredHeading - currentHeading);
         if (Math.abs(degreeDifference) >= DriveTrainConstants.SKEW_THRESHOLD_DEGREES) {

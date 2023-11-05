@@ -157,7 +157,7 @@ public class DriveTrainMotion {
                 }
                 */
 
-                currentHeading = Objects.requireNonNull(robot.imuReader).getIMUHeading();
+                currentHeading = Objects.requireNonNull(robot.imuDirect).getIMUHeading();
                 steer = applyStraightLinePID(pDesiredHeading, currentHeading, allDriveMotors,
                         driveTrainPID, rampDownFactor);
 
@@ -271,7 +271,7 @@ public class DriveTrainMotion {
                 // If the robot has reached the turn window, e.g. 2 degrees, stop here.
                 // Otherwise keep turning.
                 previousCurrentHeading = currentHeading;
-                currentHeading = robot.imuReader.getIMUHeading();
+                currentHeading = robot.imuDirect.getIMUHeading();
                 degreeDifference = Headings.normalize(currentHeading - previousCurrentHeading, -180, 180);
                 degreesTurned += degreeDifference;
                 remainingAngle = turnData.actualTurn - degreesTurned;
@@ -305,7 +305,7 @@ public class DriveTrainMotion {
         // In case of any unforeseen conditions always stop the motors.
         finally {
             robot.driveTrain.stopAllZeroPower();
-            RobotLogCommon.d(TAG, "IMU heading after turn " + String.format("%.2f", robot.imuReader.getIMUHeading()));
+            RobotLogCommon.d(TAG, "IMU heading after turn " + String.format("%.2f", robot.imuDirect.getIMUHeading()));
         }
     }
 

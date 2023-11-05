@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
-import org.firstinspires.ftc.teamcode.robot.device.imu.IMUReader;
+import org.firstinspires.ftc.teamcode.robot.device.imu.IMUDirect;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
@@ -62,7 +62,7 @@ public class FTCRobot {
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
-    public final IMUReader imuReader;
+    public final IMUDirect imuDirect;
 
     public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType) throws InterruptedException {
         hardwareMap = pLinearOpMode.hardwareMap;
@@ -196,12 +196,12 @@ public class FTCRobot {
             // In a competition the IMU would be configured in and
             // used in Autonomous but not in TeleOp.
             if (pRunType == RobotConstants.RunType.TELEOP)
-                imuReader = null;
+                imuDirect = null;
             else {
                 //**TODO send XPathAccess in to GenericIMU; parse out logo and usb directions
                 configXPath = configXML.getPath("IMU");
                 GenericIMU genericIMU = new GenericIMU(hardwareMap, configXPath);
-                imuReader = new IMUReader(genericIMU.getImu());
+                imuDirect = new IMUDirect(genericIMU.getImu());
             }
         } catch (ParserConfigurationException | SAXException | XPathExpressionException |
                  IOException ex) {
