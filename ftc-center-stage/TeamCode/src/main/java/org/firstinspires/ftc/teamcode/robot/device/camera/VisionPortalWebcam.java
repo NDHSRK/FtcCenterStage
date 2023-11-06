@@ -44,7 +44,9 @@ public abstract class VisionPortalWebcam {
                 .setCameraResolution(new Size(configuredWebcam.resolutionWidth, configuredWebcam.resolutionHeight))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .addProcessor(pAssignedProcessor.second)
-                .enableLiveView(false) //##PY changed to false 10/5/23 - and must remain false
+                //**TODO 11/06/23 need to enable LiveView for testing with scrcpy
+                .enableLiveView(true)
+                //.enableLiveView(false) //##PY changed to false 10/5/23 - and must remain false
                 //.setAutoStopLiveView(false) //**TODO we're not using LiveView
 
                 .build();

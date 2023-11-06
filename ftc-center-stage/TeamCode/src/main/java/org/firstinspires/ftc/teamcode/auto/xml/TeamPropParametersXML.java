@@ -190,53 +190,8 @@ public class TeamPropParametersXML {
                 new TeamPropParameters.ColorChannelCirclesParameters(grayParameters,
                         houghCirclesFunctionCallParameters, maxCircles);
 
-        // Point to <color_channel_features>
-        Node features_node = circles_node.getNextSibling();
-        features_node = XMLUtils.getNextElement(features_node);
-        if ((features_node == null) || !features_node.getNodeName().equals("color_channel_features"))
-            throw new AutonomousRobotException(TAG, "Element 'color_channel_features' not found");
-
-        // Point to <gray_parameters>
-        Node features_gray_node = features_node.getFirstChild();
-        features_gray_node = XMLUtils.getNextElement(features_gray_node);
-        if ((features_gray_node == null) || !gray_parameters_node.getNodeName().equals("gray_parameters"))
-            throw new AutonomousRobotException(TAG, "Element 'gray_parameters' under 'color_channel_features' not found");
-
-        VisionParameters.GrayParameters featuresGrayParameters = ImageXML.parseGrayParameters(features_gray_node);
-
-        // Point to <max_corners>
-        Node max_corners_node = features_gray_node.getNextSibling();
-        max_corners_node = XMLUtils.getNextElement(max_corners_node);
-        if ((max_corners_node == null) || !max_corners_node.getNodeName().equals("max_corners") || max_corners_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'max_corners' not found or empty");
-
-        String maxCornersText = max_corners_node.getTextContent();
-        int maxCorners;
-        try {
-            maxCorners = Integer.parseInt(maxCornersText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_corners'");
-        }
-
-        // Point to <quality_level>
-        Node quality_level_node = max_corners_node.getNextSibling();
-        quality_level_node = XMLUtils.getNextElement(quality_level_node);
-        if ((quality_level_node == null) || !quality_level_node.getNodeName().equals("quality_level") || quality_level_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'quality_level' not found or empty");
-
-        String qualityLevelText = quality_level_node.getTextContent();
-        double qualityLevel;
-        try {
-            qualityLevel = Double.parseDouble(qualityLevelText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'quality_level'");
-        }
-
-        TeamPropParameters.ColorChannelFeaturesParameters colorChannelFeaturesParameters =
-                new TeamPropParameters.ColorChannelFeaturesParameters(featuresGrayParameters, maxCorners, qualityLevel);
-
         // Point to <color_channel_contours>
-        Node contours_node = features_node.getNextSibling();
+        Node contours_node = circles_node.getNextSibling();
         contours_node = XMLUtils.getNextElement(contours_node);
         if ((contours_node == null) || !contours_node.getNodeName().equals("color_channel_contours"))
             throw new AutonomousRobotException(TAG, "Element 'color_channel_contours' not found");
@@ -320,7 +275,7 @@ public class TeamPropParametersXML {
         TeamPropParameters.BrightSpotParameters brightSpotParameters =
                 new TeamPropParameters.BrightSpotParameters(brightSpotGrayParameters, blurKernel);
 
-        return new TeamPropParameters(colorChannelCirclesParameters, colorChannelFeaturesParameters,
+        return new TeamPropParameters(colorChannelCirclesParameters,
                 colorChannelContoursParameters, brightSpotParameters);
     }
 

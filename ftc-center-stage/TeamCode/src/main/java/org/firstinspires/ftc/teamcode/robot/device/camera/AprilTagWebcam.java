@@ -33,11 +33,12 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
-            currentDetections = Objects.requireNonNull(aprilTagProcessor).getDetections();
-            if (!currentDetections.isEmpty())
+            //**TODO 11/6/23 try getFreshDetections
+            currentDetections = Objects.requireNonNull(aprilTagProcessor).getFreshDetections();
+            if (currentDetections != null && !currentDetections.isEmpty())
                 break;
             else {
-                RobotLogCommon.v(TAG, "No available AprilTag");
+                RobotLogCommon.v(TAG, "No available AprilTags");
                 sleep(50);
             }
         }

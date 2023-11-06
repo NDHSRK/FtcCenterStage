@@ -116,8 +116,10 @@ public class FTCAuto {
 
         // The initial state of the pixel stopper must be "held".
         // This will change to "released" before outtake.
-        robot.pixelStopperServo.hold();
-        pixelServoState = PixelStopperServo.PixelServoState.HOLD;
+        if (robot.pixelStopperServo != null) { // may be null during testing
+            robot.pixelStopperServo.hold();
+            pixelServoState = PixelStopperServo.PixelServoState.HOLD;
+        }
 
         // Get the directory for the various configuration files.
         workingDirectory = WorkingDirectory.getWorkingDirectory();
@@ -660,7 +662,7 @@ public class FTCAuto {
                 aprilTagTimer.reset();
                 List<AprilTagDetection> currentDetections;
                 boolean aprilTagDetected;
-                while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 5000) {
+                while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
                     aprilTagDetected = false;
                     currentDetections = aprilTagWebcam.getAprilTagData(500);
                     for (AprilTagDetection detection : currentDetections) {
@@ -671,7 +673,7 @@ public class FTCAuto {
                     }
 
                     if (!aprilTagDetected) {
-                        linearOpMode.telemetry.addLine("No AprilTags found within 500m");
+                        linearOpMode.telemetry.addLine("No AprilTags found within 500ms");
                         linearOpMode.telemetry.update();
                         RobotLogCommon.d(TAG, "No AprilTags found within 500ms");
                     } else
@@ -1478,7 +1480,7 @@ public class FTCAuto {
         }
 
         if (robot.elevator == null) {
-            RobotLogCommon.d(TAG, "The is not in the current configuration");
+            RobotLogCommon.d(TAG, "The elevator is not in the current configuration");
             return;
         }
 

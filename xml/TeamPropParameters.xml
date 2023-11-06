@@ -29,16 +29,6 @@
     </criteria>
   </color_channel_circles>
 
-  <color_channel_features>
-    <!-- Need gray parameters for the median; threshold is not used. -->
-    <gray_parameters>
-      <median_target>150</median_target>
-      <threshold_low>0</threshold_low>
-    </gray_parameters>
-    <max_corners>20</max_corners>
-    <quality_level>0.05</quality_level>
-  </color_channel_features>
-
   <!-- For use with OpenCV findContours -->
   <color_channel_contours>
     <gray_parameters>

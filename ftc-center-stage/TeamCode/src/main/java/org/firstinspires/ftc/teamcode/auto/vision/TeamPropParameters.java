@@ -10,7 +10,6 @@ import java.util.EnumMap;
 public class TeamPropParameters {
 
     public final ColorChannelCirclesParameters colorChannelCirclesParameters;
-    public final ColorChannelFeaturesParameters colorChannelFeaturesParameters;
     public final ColorChannelContoursParameters colorChannelContoursParameters;
     public final BrightSpotParameters brightSpotParameters;
 
@@ -18,11 +17,9 @@ public class TeamPropParameters {
             new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
 
     public TeamPropParameters(ColorChannelCirclesParameters pColorChannelCirclesParameters,
-                              ColorChannelFeaturesParameters pColorChannelFeaturesParameters,
                               ColorChannelContoursParameters pColorChannelContoursParameters,
                               BrightSpotParameters pBrightSpotParameters) {
         colorChannelCirclesParameters = pColorChannelCirclesParameters;
-        colorChannelFeaturesParameters = pColorChannelFeaturesParameters;
         colorChannelContoursParameters = pColorChannelContoursParameters;
         brightSpotParameters = pBrightSpotParameters;
     }
