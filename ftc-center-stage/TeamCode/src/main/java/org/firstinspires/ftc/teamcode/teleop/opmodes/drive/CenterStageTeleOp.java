@@ -33,6 +33,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private static final String TAG = CenterStageTeleOp.class.getSimpleName();
 
     // Define buttons that return a boolean.
+
+    //**TODO Need a button for flyDrone, method call flyDrone.update()
+    // under updateButtons() and action method updateFlyDrone() under
+    // updateActions().
+
     private final FTCButton hangUp;
     private final FTCButton hangDown;
     private final FTCToggleButton toggleSpeed;
@@ -231,7 +236,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         //**TODO updateHangDown();
 
         // Game Controller 2
-        updateIntake2(); //**TODO experimental
+        updateIntake2(); //**TODO experimental - but worked in Meet 0 11/04/23
         updateReverseIntake();
         updateOuttake();
         updateDeliveryLevel1();

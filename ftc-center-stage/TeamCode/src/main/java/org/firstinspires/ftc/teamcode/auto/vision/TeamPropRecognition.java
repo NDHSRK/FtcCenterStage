@@ -58,10 +58,6 @@ public class TeamPropRecognition {
             case COLOR_CHANNEL_CIRCLES: {
                 return colorChannelCirclesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelCirclesParameters);
             }
-            //**TODO 10/12/23 DO NOT USE - see comments in IJCenterStage
-           // case COLOR_CHANNEL_FEATURES: {
-           //     return colorChannelFeaturesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelFeaturesParameters);
-           // }
             case COLOR_CHANNEL_CONTOURS: {
                 return colorChannelContoursPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelContoursParameters);
             }
@@ -175,65 +171,6 @@ public class TeamPropRecognition {
         }
 
         return lookThroughWindows(propOut, centerOfLargestCircle, pOutputFilenamePreamble);
-    }
-
-    //**TODO DO NOT USE: goodFeaturesToTrack always returns something -
-    // even when no Team Prop if present.
-    private TeamPropReturn colorChannelFeaturesPath(Mat pImageROI, String pOutputFilenamePreamble,
-                                                    TeamPropParameters.ColorChannelFeaturesParameters pFeaturesParameters) {
-        Mat split = splitChannels(pImageROI, pFeaturesParameters.grayParameters, pOutputFilenamePreamble);
-
-        // Apply a 2d filter to sharpen the image. It does help -
-        // it reduces the number of spurious features.
-        Mat sharp = sharpen(split, pOutputFilenamePreamble);
-
-        MatOfPoint corners = new MatOfPoint();
-        Imgproc.goodFeaturesToTrack(sharp, corners, pFeaturesParameters.maxCorners, pFeaturesParameters.qualityLevel, 0, new Mat(), 2, false, 0.04);
-        Mat featuresOut = pImageROI.clone();
-        for (int i = 0; i < corners.height(); i++) {
-            Imgproc.circle(featuresOut, new Point(corners.get(i, 0)), 3, new Scalar(0, 255, 0));
-        }
-
-        // For convenience convert the MatOfPoint into a List,
-        // sort it separately by the x-coordinate of the Points
-        // and then the y-coordinates of the Points, and make
-        // a composite median Point.
-        List<Point> cornersListX = corners.toList();
-        cornersListX.sort(Comparator.comparing(point -> point.x));
-        List<Point> cornersListY = new ArrayList<>(cornersListX);
-        cornersListY.sort(Comparator.comparing(point -> point.y));
-
-        int size = cornersListX.size();
-        RobotLogCommon.d(TAG, "Number of features " + size);
-
-        if (size == 0) {
-            Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
-            RobotLogCommon.d(TAG, "No features found");
-            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
-        }
-
-        double compositeMedianFeatureX;
-        if (size % 2 == 0)
-            compositeMedianFeatureX = (cornersListX.get(size / 2).x + cornersListX.get(size / 2 - 1).x) / 2;
-        else
-            compositeMedianFeatureX = cornersListX.get(size / 2).x;
-
-        double compositeMedianFeatureY;
-        if (size % 2 == 0)
-            compositeMedianFeatureY = (cornersListY.get(size / 2).y + cornersListY.get(size / 2 - 1).y) / 2;
-        else
-            compositeMedianFeatureY = cornersListY.get(size / 2).y;
-
-        Point compositePoint = new Point(compositeMedianFeatureX, compositeMedianFeatureY);
-        RobotLogCommon.d(TAG, "Composite features median x " + compositeMedianFeatureX + " y " +
-                compositeMedianFeatureY);
-        Imgproc.circle(featuresOut, compositePoint, 7, new Scalar(0, 255, 255), 4);
-
-        String featuresFilename = pOutputFilenamePreamble + "_FEATURES.png";
-        RobotLogCommon.d(TAG, "Writing " + featuresFilename);
-        Imgcodecs.imwrite(featuresFilename, featuresOut);
-
-        return lookThroughWindows(featuresOut, compositePoint, pOutputFilenamePreamble);
     }
 
     // The inverted red channel of a blue ball has very

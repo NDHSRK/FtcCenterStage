@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.robot.device.imu.IMUDirect;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.servo.DroneLauncherServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
@@ -59,6 +60,8 @@ public class FTCRobot {
     public final DualSPARKMiniController pixelIO;
     public final IntakeArmHolderServo intakeArmHolderServo;
     public final PixelStopperServo pixelStopperServo;
+
+    public final DroneLauncherServo droneLauncherServo;
 
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
 
@@ -168,6 +171,15 @@ public class FTCRobot {
                 pixelStopperServo = null;
             }
 
+            // Get the configuration for the pixel stopper servo.
+            configXPath = configXML.getPath("DRONE_LAUNCHER");
+            String launcherConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (launcherConfiguration.equals("yes")) {
+                droneLauncherServo = new DroneLauncherServo(hardwareMap, configXPath);
+            } else {
+                droneLauncherServo = null;
+            }
+
             // In a competition the webcam(s) would be configured in and
             // used in Autonomous but not in TeleOp so we can't just check
             // the configuration file.
@@ -198,7 +210,7 @@ public class FTCRobot {
             if (pRunType == RobotConstants.RunType.TELEOP)
                 imuDirect = null;
             else {
-                //**TODO send XPathAccess in to GenericIMU; parse out logo and usb directions
+                // Send XPath access in to GenericIMU; parse out logo and usb directions.
                 configXPath = configXML.getPath("IMU");
                 GenericIMU genericIMU = new GenericIMU(hardwareMap, configXPath);
                 imuDirect = new IMUDirect(genericIMU.getImu());

@@ -4,16 +4,19 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 
-public class GenericIMU {
+import javax.xml.xpath.XPathExpressionException;
 
+public class GenericIMU {
     private static final String TAG = GenericIMU.class.getSimpleName();
 
     private IMU imu;
 
-    public GenericIMU(HardwareMap pHardwareMap, XPathAccess pXPath) throws InterruptedException {
+    public GenericIMU(HardwareMap pHardwareMap, XPathAccess pXPath) throws InterruptedException, XPathExpressionException {
         //# This initialization code is derived from the sample SensorIMUOrthogonal.
         // Retrieve and initialize the IMU.
         // This sample expects the IMU to be in a REV Hub and named "imu".
@@ -27,15 +30,14 @@ public class GenericIMU {
          * All directions are relative to the robot, and left/right is as-viewed from behind the robot.
          */
 
-        /* The next two lines define Hub orientation.
-         * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
-         *
-         * To Do:  EDIT these two lines to match YOUR mounting configuration.
-         */
+        RobotLogCommon.c(TAG, "IMU configuration from RobotConfig.xml");
+        String logoFacingString = pXPath.getRequiredText("logo_facing_direction");
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.valueOf(logoFacingString);
+        RobotLogCommon.d(TAG, "IMU logo facing direction " + logoFacingString);
 
-        //**TODO use XPath to get the logo_facing_direction and usb_facing_direction
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        String usbFacingString = pXPath.getRequiredText("usb_facing_direction");
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.valueOf(usbFacingString);
+        RobotLogCommon.d(TAG, "IMU USB facing direction " + usbFacingString);
 
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 

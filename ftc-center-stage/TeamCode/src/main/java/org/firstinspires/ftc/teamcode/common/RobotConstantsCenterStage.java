@@ -42,7 +42,7 @@ public class RobotConstantsCenterStage {
     }
 
     public enum TeamPropRecognitionPath {
-        COLOR_CHANNEL_CIRCLES, COLOR_CHANNEL_FEATURES, COLOR_CHANNEL_CONTOURS,
+        COLOR_CHANNEL_CIRCLES, COLOR_CHANNEL_CONTOURS,
         COLOR_CHANNEL_BRIGHT_SPOT, GRAYSCALE_BRIGHT_SPOT
     }
 
