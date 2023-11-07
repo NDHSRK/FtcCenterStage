@@ -9,6 +9,10 @@
             <log_level>v</log_level>
         </parameters>
         <actions>
+           
+            <STOP_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM>
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -26,15 +30,21 @@
                 <timeout_ms>2000</timeout_ms>
             </WAIT_FOR_WEBCAM_START>
 
-            <FIND_APRIL_TAG>
+            <DESKEW/>
+
+            <!-- FIND_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <tag_id>5</tag_id>
                 <timeout_ms>1000</timeout_ms>
             </FIND_APRIL_TAG>
 
-            <!-- FIND_ALL_APRIL_TAGS>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP -->           
+
+            <FIND_ALL_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>                
-            </FIND_ALL_APRIL_TAGS -->
+            </FIND_ALL_APRIL_TAGS>
 
             <!-- TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
