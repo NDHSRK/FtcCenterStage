@@ -45,7 +45,7 @@ public class DriveTrain extends MotorCore {
             put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, rb);
         }};
 
-        // Set the run mode for the drive train.
+        // Set the default run mode for the drive train.
         /*
             From https://docs.revrobotics.com/rev-control-system/programming/using-encoder-feedback
             In RUN_USING_ENCODER mode, you should set a velocity (measured in ticks per second),
@@ -78,6 +78,17 @@ public class DriveTrain extends MotorCore {
         velocityMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, rbVelocity);
 
         setVelocityAll(velocityMap);
+    }
+
+    public void driveAllByPower(double pLeftFrontPower, double pRightFrontPower,
+                                double pLeftBackPower, double pRightBackPower) {
+        EnumMap<FTCRobot.MotorId, Double> powerMap = new EnumMap<>(FTCRobot.MotorId.class);
+        powerMap.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, pLeftFrontPower);
+        powerMap.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, pRightFrontPower);
+        powerMap.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, pLeftBackPower);
+        powerMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, pRightBackPower);
+
+        setPowerAll(powerMap);
     }
 
 }
