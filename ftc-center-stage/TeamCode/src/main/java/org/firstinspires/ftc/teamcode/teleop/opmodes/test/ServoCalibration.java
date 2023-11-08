@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 import java.util.Objects;
 
 @TeleOp(name = "ServoCalibration", group = "Test")
-@Disabled
+//@Disabled
 public class ServoCalibration extends TeleOpBase {
 
     private static final String TAG = ServoCalibration.class.getSimpleName();

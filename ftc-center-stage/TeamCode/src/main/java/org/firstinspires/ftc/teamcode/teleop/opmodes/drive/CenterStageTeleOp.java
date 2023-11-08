@@ -87,8 +87,14 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         previousDriveTrainVelocity = driveTrainVelocity;
         driveTrainVelocityLow = robot.teleOpSettings.driveTrainVelocityLow;
 
-        elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
-        boomVelocity = Objects.requireNonNull(robot.boom).getVelocity();
+        if (robot.elevator != null)
+            elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
+        else elevatorVelocity = 0.0;
+
+        if (robot.boom != null)
+            boomVelocity = Objects.requireNonNull(robot.boom).getVelocity();
+        else
+            boomVelocity = 0.0;
 
         // Gamepad 1
         hangDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
@@ -131,13 +137,16 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             // The intake arm holder must be down before the boom
             // can move.
-            robot.intakeArmHolderServo.release(); // needed only once
+            if (robot.intakeArmHolderServo != null)
+                robot.intakeArmHolderServo.release(); // needed only once
 
             // Set the initial state of the pixel stopper to HOLD
             // so that pixels can be taken in from the front.
             // This will change to RELEASE before outtake out the
             // back.
-            robot.pixelStopperServo.hold();
+            if (robot.pixelStopperServo != null)
+                robot.pixelStopperServo.hold();
+
             pixelServoState = PixelStopperServo.PixelServoState.HOLD;
 
             //## The drive train thread must be started here because
@@ -277,8 +286,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
                 robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
             }
-        }
-        else {
+        } else {
             if (intakeInProgress) {
                 intakeInProgress = false;
                 robot.pixelIO.stop();

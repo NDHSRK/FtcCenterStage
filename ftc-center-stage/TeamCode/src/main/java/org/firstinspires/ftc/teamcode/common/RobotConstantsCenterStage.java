@@ -74,7 +74,8 @@ public class RobotConstantsCenterStage {
     }
 
     // AprilTag identifiers
-    public enum FieldWallAprilTagIdentifier {
+    public enum AprilTagId {
+        TAG_ID_1, TAG_ID_2, TAG_ID_3, TAG_ID_4, TAG_ID_5, TAG_ID_6, // backdrop
         RED_ALLIANCE_AUDIENCE_WALL, RED_ALLIANCE_PIXEL_STACK,
         BLUE_ALLIANCE_AUDIENCE_WALL, BLUE_ALLIANCE_PIXEL_STACK
     }
