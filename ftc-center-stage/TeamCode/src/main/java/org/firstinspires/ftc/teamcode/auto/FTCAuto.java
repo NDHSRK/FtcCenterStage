@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
+import org.firstinspires.ftc.teamcode.auto.xml.BackdropAprilTagFailsafeXML;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
@@ -94,8 +95,10 @@ public class FTCAuto {
     private boolean executeTeamPropLocationActions = false;
 
     private final BackdropParameters backdropParameters;
-
     private AprilTagNavigation aprilTagNavigation;
+    private final BackdropAprilTagFailsafeXML backdropAprilTagFailsafeXML;
+    private final EnumMap<RobotConstantsCenterStage.AprilTagId, List<RobotXMLElement>> backdropAprilTagFailsafeData;
+    private final BackstopAprilTagFailsafeAction backdropAprilTagFailsafeAction;
 
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
     private Boom.BoomLevel currentBoomLevel = Boom.BoomLevel.REST;
@@ -143,6 +146,9 @@ public class FTCAuto {
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
         backdropParameters = backdropParametersXML.getBackdropParameters();
+        backdropAprilTagFailsafeXML = new BackdropAprilTagFailsafeXML(xmlDirectory);
+        backdropAprilTagFailsafeData = backdropAprilTagFailsafeXML.getFailsafeData();
+        backdropAprilTagFailsafeAction = new BackstopAprilTagFailsafeAction();
 
         // Start the front webcam with the webcam frame processor.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
@@ -695,22 +701,25 @@ public class FTCAuto {
             // in front of it with the method we used in PowerPlay.
             case "DRIVE_TO_APRIL_TAG": {
                 deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
-                AprilTagDetection desiredTag = findAprilTag(actionXPath);
-                if (desiredTag == null)
-                    return false; // we're lost without an AprilTag
+                Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findAprilTag(actionXPath);
+                if (detectionData.second == null) {
+                    if (!executeBackstopAprilTagFailsafeActions(detectionData.first))
+                        return false; // no sure path to the backstop
+                    else break;
+                }
 
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
                 String directionString = actionXPath.getRequiredText("direction").toUpperCase();
                 DriveTrainConstants.Direction direction =
                         DriveTrainConstants.Direction.valueOf(directionString);
 
-                RobotLogCommon.d(TAG, "Driving to AprilTag with id " + desiredTag.id);
+                RobotLogCommon.d(TAG, "Driving to AprilTag with id " + detectionData.second.id);
                 RobotLogCommon.d(TAG, "Stop at " + desiredDistanceFromTag + " from the tag");
                 RobotLogCommon.d(TAG, "Direction of travel " + direction);
 
                 // The deskew above should have taken care of the yaw but let's see
                 // what the AprilTag detector thinks it is.
-                RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + desiredTag.ftcPose.yaw);
+                RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + detectionData.second.ftcPose.yaw);
 
                 // Unlike the RobotAutoDriveToAprilTagOmni sample, which tracks the
                 // AprilTag in relation to the camera, we need the angle and distance
@@ -718,11 +727,11 @@ public class FTCAuto {
                 // centered on the robot.
                 double angleFromRobotCenterToAprilTag =
                         CameraToCenterCorrections.getCorrectedAngle(backdropParameters.distanceCameraLensToRobotCenter,
-                                backdropParameters.offsetCameraLensFromRobotCenter, desiredTag.ftcPose.range, desiredTag.ftcPose.bearing);
+                                backdropParameters.offsetCameraLensFromRobotCenter, detectionData.second.ftcPose.range, detectionData.second.ftcPose.bearing);
 
                 double distanceFromRobotCenterToAprilTag =
                         CameraToCenterCorrections.getCorrectedDistance(backdropParameters.distanceCameraLensToRobotCenter,
-                                backdropParameters.offsetCameraLensFromRobotCenter, desiredTag.ftcPose.range, desiredTag.ftcPose.bearing);
+                                backdropParameters.offsetCameraLensFromRobotCenter, detectionData.second.ftcPose.range, detectionData.second.ftcPose.bearing);
 
                 double distanceToMove;
                 if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
@@ -838,7 +847,7 @@ public class FTCAuto {
 
             //## Note: Intake without the stopper results in outtake out
             // the back.
-                //**TODO misnomer -> EJECT_PIXEL_TO_THE_REAR
+            //**TODO misnomer -> EJECT_PIXEL_TO_THE_REAR
             case "INTAKE": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
                 if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
@@ -1258,40 +1267,42 @@ public class FTCAuto {
     }
 
     @SuppressLint("DefaultLocale")
-    private AprilTagDetection findAprilTag(XPathAccess pActionXPath) throws XPathExpressionException {
+    private Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> findAprilTag(XPathAccess pActionXPath) throws XPathExpressionException {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
                 RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
         if (openWebcam != webcamId)
             throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
 
-        int desiredTagId = pActionXPath.getRequiredInt("tag_id");
+        String tagIdString = pActionXPath.getRequiredText("tag_id").toUpperCase();
+        RobotConstantsCenterStage.AprilTagId desiredTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
+
         int timeout = pActionXPath.getRequiredInt("timeout_ms");
 
         AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
         List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
-        AprilTagDetection desiredTag = null;
+        AprilTagDetection desiredDetection = null;
 
         // Step through the list of detected tags and look for a matching tag.
         for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null && detection.id == desiredTagId) {
-                desiredTag = detection;
+            if (detection.metadata != null && detection.id == desiredTagId.getNumericId()) {
+                desiredDetection = detection;
                 break; // don't look any further.
             }
         }
 
         // If we have not found the desired target, just give up.
-        if (desiredTag == null) {
+        if (desiredDetection == null) {
             linearOpMode.telemetry.addLine("Tag Id " + desiredTagId + " not found within " + timeout + "ms");
             linearOpMode.telemetry.update();
             RobotLogCommon.d(TAG, "Tag Id " + desiredTagId + " not found within " + timeout + "ms");
-            return null;
+            return Pair.create(desiredTagId, null);
         }
 
-        String targetTagId = "Found AprilTag " + String.format("Id %d (%s)", desiredTag.id, desiredTag.metadata.name);
-        String range = "Range " + String.format("%5.1f inches", desiredTag.ftcPose.range);
-        String bearing = "Bearing " + String.format("%3.0f degrees", desiredTag.ftcPose.bearing);
-        String yaw = "Yaw " + String.format("%3.0f degrees", desiredTag.ftcPose.yaw);
+        String targetTagId = "Found AprilTag " + String.format("Id %d (%s)", desiredDetection.id, desiredDetection.metadata.name);
+        String range = "Range " + String.format("%5.1f inches", desiredDetection.ftcPose.range);
+        String bearing = "Bearing " + String.format("%3.0f degrees", desiredDetection.ftcPose.bearing);
+        String yaw = "Yaw " + String.format("%3.0f degrees", desiredDetection.ftcPose.yaw);
 
         linearOpMode.telemetry.addLine(targetTagId);
         linearOpMode.telemetry.update();
@@ -1300,7 +1311,7 @@ public class FTCAuto {
         RobotLogCommon.d(TAG, range);
         RobotLogCommon.d(TAG, bearing);
         RobotLogCommon.d(TAG, yaw);
-        return desiredTag;
+        return Pair.create(desiredTagId, desiredDetection);
     }
 
     private Callable<Elevator.ElevatorLevel> move_elevator(XPathAccess pActionXPath) throws XPathExpressionException {
@@ -1501,6 +1512,143 @@ public class FTCAuto {
                 DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
 
         RobotLogCommon.i(TAG, "Done with failsafe actions");
+    }
+
+    // Based on FtcPowerPlay commit 04e2a57 of Jan. 5, 2023
+    // Run a collection of XML commands in case of recognition failure for
+    // an AprilTag on the backstop.
+    private boolean executeBackstopAprilTagFailsafeActions(RobotConstantsCenterStage.AprilTagId pTagId) throws Exception {
+
+        RobotLogCommon.d(TAG, "Running backstop AprilTag failsafe actions for " + pTagId);
+
+        // Check the robot's heading. Ideal for the backstop is -90 degrees for
+        // AprilTags 1, 2, 3 and 90 degrees for AprilTags 4, 5, 6. Correct an
+        // error of up to +-45 degrees in case the robot has been knocked off
+        // line. For AprilTags 1 - 3 correct to absolute heading -90, normalized;
+        // for AprilTags 4 - 6 correct to absolute heading +90, normalized.
+        double currentHeading = robot.imuDirect.getIMUHeading();
+        if (currentHeading > 45.0 || currentHeading < -45.0) {
+            RobotLogCommon.d(TAG, "Backstop failsafe: robot skew is out of range " + currentHeading);
+            return false;
+        }
+
+        //**TODO Also make sure that at least one AprilTag rectangle is in view.
+
+        List<RobotXMLElement> actions = backdropAprilTagFailsafeData.get(pTagId);
+        return backdropAprilTagFailsafeAction.runFailsafe(Objects.requireNonNull(actions));
+    }
+
+    // ---------------------------------------------------------------------
+    // Support a subset of the full XML command set so that the robot can attempt
+    // to move towards the backstop and deposit the yellow pixel.
+    // Keep backstop AprilTag failsafe handling separate from the rest of FTCAuto
+    // by putting it in a separate class. But it does duplicate some code from the
+    // main XML command loop.
+    private class BackstopAprilTagFailsafeAction {
+        private boolean runFailsafe(List<RobotXMLElement> pFailsafeActions) throws Exception {
+
+            // Follow the choreography specified in the backstop AprilTag failsafe XML file.
+            for (RobotXMLElement action : pFailsafeActions) {
+                if (!linearOpMode.opModeIsActive()) {
+                    RobotLogCommon.e(TAG, "OpMode inactive in runFailsafe()");
+                    return false; // better to just bail out
+                }
+
+                if (!executeFailsafeAction(action))
+                    return false;
+            }
+
+            //**TODO Also make sure that at least one AprilTag rectangle is in view.
+
+            RobotLogCommon.i(TAG, "Failsafe actions complete");
+            return true;
+        }
+
+        //===============================================================================================
+        //===============================================================================================
+
+        // Using the XML elements and attributes from the configuration file
+        // Failsafe.xml, execute the action.
+        @SuppressLint("DefaultLocale")
+        private boolean executeFailsafeAction(RobotXMLElement pAction) throws Exception {
+
+            // Set up XPath access to the current action.
+            XPathAccess actionXPath = new XPathAccess(pAction);
+            String actionName = pAction.getRobotXMLElementName().toUpperCase();
+            RobotLogCommon.d(TAG, "Executing failsafe action " + actionName);
+
+            switch (actionName) {
+
+                // The robot moves without rotation in a direction relative to
+                // the robot's current heading according to the "angle" parameter.
+                case "STRAIGHT_BY": {
+                    straight_by(actionXPath, () -> {
+                        try {
+                            return actionXPath.getRequiredDouble("angle");
+                        } catch (XPathExpressionException e) {
+                            String eMessage = e.getMessage() == null ? "**no error message**" : e.getMessage();
+                            throw new AutonomousRobotException(TAG, "XPath exception " + eMessage);
+                        }
+                    }).call();
+                    break;
+                }
+
+                // Specialization of STRAIGHT_BY.
+                case "FORWARD": {
+                    straight_by(actionXPath, () -> 0.0).call();
+                    break;
+                }
+
+                // Specialization of STRAIGHT_BY.
+                case "BACK": {
+                    straight_by(actionXPath, () -> -180.0).call();
+                    break;
+                }
+
+                // Specialization of STRAIGHT_BY.
+                case "STRAFE_LEFT": {
+                    straight_by(actionXPath, () -> 90.0).call();
+                    break;
+                }
+
+                // Specialization of STRAIGHT_BY.
+                case "STRAFE_RIGHT": {
+                    straight_by(actionXPath, () -> -90.0).call();
+                    break;
+                }
+
+                // With attributes for "@post_turn_heading" and "@turn_normalization".
+                case "TURN": {
+                    desiredHeading = turn(actionXPath).call();
+                    break;
+                }
+
+                // Straighten out the robot by turning to the desired heading.
+                case "DESKEW": {
+                    deskew();
+                    break;
+                }
+
+                case "SLEEP": { // I want sleep :)
+                    int sleepMs = actionXPath.getRequiredInt("ms");
+                    sleepInLoop(sleepMs);
+                    break;
+                }
+
+                // In testing this gives us a way to short-circuit a set
+                //  of actions without commenting out any XML.
+                case "STOP": {
+                    return false;
+                }
+
+                default: {
+                    throw new AutonomousRobotException(TAG, "No support for the action " + actionName);
+                }
+            }
+
+            // Action completed normally
+            return true;
+        }
     }
 }
 

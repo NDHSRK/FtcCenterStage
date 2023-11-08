@@ -4,13 +4,6 @@ public class RobotConstantsCenterStage {
 
     public enum OpMode {
         // Autonomous OpModes
-        // For testing
-        RED_F2_LEFT, RED_F2_CENTER, RED_F2_RIGHT,
-        RED_F4_LEFT, RED_F4_CENTER, RED_F4_RIGHT,
-        BLUE_A2_LEFT, BLUE_A2_CENTER, BLUE_A2_RIGHT,
-        BLUE_A4_LEFT, BLUE_A4_CENTER, BLUE_A4_RIGHT,
-
-        // For production
         BLUE_A2, BLUE_A4, RED_F2, RED_F4,
         TEST, TEST_ELEVATOR, TEST_PRE_MATCH, AUTO_NO_DRIVE,
 
@@ -59,11 +52,14 @@ public class RobotConstantsCenterStage {
 
         private final int blueBackdropAprilTagId;
         private final int redBackdropAprilTagId;
+
         TeamPropLocation(int pBlueBackdropAprilTagId, int pRedBackdropAprilTagId) {
             blueBackdropAprilTagId = pBlueBackdropAprilTagId;
             redBackdropAprilTagId = pRedBackdropAprilTagId;
         }
 
+        //**TODO See DRIVE_TO_APRIL_TAG, which uses the AprilTag id but could
+        // use the spike id + the alliance
         public int getBlueBackdropAprilTagId() {
             return blueBackdropAprilTagId;
         }
@@ -75,9 +71,18 @@ public class RobotConstantsCenterStage {
 
     // AprilTag identifiers
     public enum AprilTagId {
-        TAG_ID_1, TAG_ID_2, TAG_ID_3, TAG_ID_4, TAG_ID_5, TAG_ID_6, // backdrop
-        RED_ALLIANCE_AUDIENCE_WALL, RED_ALLIANCE_PIXEL_STACK,
-        BLUE_ALLIANCE_AUDIENCE_WALL, BLUE_ALLIANCE_PIXEL_STACK
+        TAG_ID_1(1), TAG_ID_2(2), TAG_ID_3(3),
+        TAG_ID_4(4), TAG_ID_5(5), TAG_ID_6(6);
+
+        private final int numericAprilTagId;
+
+        AprilTagId(int pNumericId) {
+            numericAprilTagId = pNumericId;
+        }
+
+        public int getNumericId() {
+            return numericAprilTagId;
+        }
     }
 
     // Reference implementation of the gold cube.

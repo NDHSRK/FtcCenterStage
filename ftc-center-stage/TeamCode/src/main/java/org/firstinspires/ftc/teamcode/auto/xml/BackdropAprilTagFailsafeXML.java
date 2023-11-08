@@ -68,7 +68,7 @@ public class BackdropAprilTagFailsafeXML {
     // in that here we parse all elements under the root <backdrop_apriltag_failsafe>
     // because we don't know in advance which will be needed as the robot moves through
     // its Autonomous choreography and encounters an AprilTag recognition problem.
-    public EnumMap<RobotConstantsCenterStage.AprilTagId, List<RobotXMLElement>> getBackdropAprilTagFailsafeData() throws XPathExpressionException {
+    public EnumMap<RobotConstantsCenterStage.AprilTagId, List<RobotXMLElement>> getFailsafeData() throws XPathExpressionException {
 
         RobotLogCommon.d(TAG, "Parsing XML BackdropAprilTagFailsafe");
 
