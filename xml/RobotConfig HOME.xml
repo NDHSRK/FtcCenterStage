@@ -5,10 +5,10 @@
          more detailed level during testing needed. -->
     <log_level>off</log_level>
     <!-- Settings for the velocity control buttons on the game controller. -->
-    <drive_train_velocity>
+    <drive_train_power>
       <high>1.0</high>
       <low>.30</low>
-    </drive_train_velocity>
+    </drive_train_power>
   </TELEOP_SETTINGS>
 
   <DRIVE_TRAIN configured="no">

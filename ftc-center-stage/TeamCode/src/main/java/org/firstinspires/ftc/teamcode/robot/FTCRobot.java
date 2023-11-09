@@ -102,11 +102,10 @@ public class FTCRobot {
             if (pRunType == RobotConstants.RunType.TELEOP || pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS) {
                 configXPath = configXML.getPath("TELEOP_SETTINGS");
                 String logging_level = configXPath.getRequiredTextInRange("log_level", configXPath.validRange("d", "v", "vv", "off"));
-                double driveTrainVelocityHigh = configXPath.getRequiredDouble("drive_train_velocity/high");
-                double driveTrainVelocityLow = configXPath.getRequiredDouble("drive_train_velocity/low");
+                double driveTrainPowerHigh = configXPath.getRequiredDouble("drive_train_power/high");
+                double driveTrainPowerLow = configXPath.getRequiredDouble("drive_train_power/low");
 
-                teleOpSettings = new TeleOpSettings(logging_level,
-                        driveTrainVelocityHigh, driveTrainVelocityLow);
+                teleOpSettings = new TeleOpSettings(logging_level, driveTrainPowerHigh, driveTrainPowerLow);
                 RobotLogCommon.c(TAG, "TeleOp configuration: log level " + teleOpSettings.logLevel);
             } else
                 teleOpSettings = null;
@@ -260,10 +259,10 @@ public class FTCRobot {
     // Fields captured from RobotConfig.xml.
     public static class TeleOpSettings {
         public final Level logLevel;
-        public final double driveTrainVelocityHigh, driveTrainVelocityLow;
+        public final double driveTrainPowerHigh, driveTrainPowerLow;
 
         public TeleOpSettings(String pLogLevel,
-                              double pDriveTrainVelocityHigh, double pDriveTrainVelocityLow) {
+                              double pDriveTrainPowerHigh, double pDriveTrainPowerLow) {
             switch (pLogLevel) {
                 case "off": {
                     logLevel = Level.OFF;
@@ -286,8 +285,8 @@ public class FTCRobot {
                 }
             }
 
-            driveTrainVelocityHigh = pDriveTrainVelocityHigh;
-            driveTrainVelocityLow = pDriveTrainVelocityLow;
+            driveTrainPowerHigh = pDriveTrainPowerHigh;
+            driveTrainPowerLow = pDriveTrainPowerLow;
         }
     }
 

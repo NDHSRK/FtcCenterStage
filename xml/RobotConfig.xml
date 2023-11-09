@@ -5,10 +5,10 @@
          more detailed level during testing needed. -->
     <log_level>off</log_level>
     <!-- Settings for the velocity control buttons on the game controller. -->
-    <drive_train_velocity>
+    <drive_train_power>
       <high>1.0</high>
       <low>.30</low>
-    </drive_train_velocity>
+    </drive_train_power>
   </TELEOP_SETTINGS>
 
   <DRIVE_TRAIN configured="yes">
@@ -21,7 +21,7 @@
     </motors>
   </DRIVE_TRAIN>
 
-  <ELEVATOR configured="yes">
+  <ELEVATOR configured="no">
     <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001"
       clicks_per_motor_rev="537.7" rpm="312.0">
       <left_motor direction="FORWARD">left_elevator</left_motor>
@@ -39,7 +39,7 @@
     </positions>
   </ELEVATOR>
 
-  <BOOM configured="yes">
+  <BOOM configured="no">
     <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
       clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
       <id>boom</id> <!-- id as configured on the robot -->
@@ -55,7 +55,7 @@
 
   <!-- Servos -->
   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <INTAKE configured="yes">
+  <INTAKE configured="no">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
       <controller_1 direction="FORWARD">front_intake</controller_1>
       <controller_2 direction="FORWARD">main_intake</controller_2>
@@ -63,7 +63,7 @@
     <power>0.5</power>
   </INTAKE>
 
-  <INTAKE_ARM_HOLDER configured="yes">
+  <INTAKE_ARM_HOLDER configured="no">
     <servo model="goBilda Dual Mode Servo 2000-0025-0003">
       <id>intake_arm_holder</id>
     </servo>
@@ -73,7 +73,7 @@
     </positions>
     </INTAKE_ARM_HOLDER>
   
-    <PIXEL_STOPPER configured="yes">
+    <PIXEL_STOPPER configured="no">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">
         <id>pixel_stopper</id>
       </servo>
@@ -83,13 +83,13 @@
       </positions>
     </PIXEL_STOPPER>
      
-    <DRONE_LAUNCHER configured="yes">
+    <DRONE_LAUNCHER configured="no">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">
-        <id>drone_launcher</id>
+        <id>pixel_stopper</id>
       </servo>
       <positions>
-        <hold>0.0</hold>
-        <launch>0.1</launch>
+        <hold>0.5</hold>
+        <launch>0.8</launch>
       </positions>
     </DRONE_LAUNCHER>
 
@@ -103,19 +103,9 @@
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
       <webcam>
-        <internal_id>front_webcam</internal_id>
-        <!-- C920 -->
-        <serial_number>01D2B22F</serial_number>
-        <resolution_width>640</resolution_width>
-        <resolution_height>480</resolution_height>
-        <processor_set>
-          <processor>webcam_frame</processor>
-        </processor_set>
-      </webcam>
-      <webcam>
         <internal_id>rear_webcam</internal_id>
-        <!-- C920 -->
-        <serial_number>1133:2277</serial_number>
+        <!-- Arducam OV9281 -->
+        <serial_number>UC762</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>
@@ -123,10 +113,10 @@
           <processor>april_tag</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>
-          <focal_length_x>622.001</focal_length_x>
-          <focal_length_y>622.001</focal_length_y>
-          <principal_point_x>319.803</principal_point_x>
-          <principal_point_y>241.251</principal_point_y>
+          <focal_length_x>539.024</focal_length_x>
+          <focal_length_y>539.024</focal_length_y>
+          <principal_point_x>316.450</principal_point_x>
+          <principal_point_y>236.365</principal_point_y>
         </webcam_calibration_for_apriltags>
       </webcam> 
     </webcam_set>
@@ -135,13 +125,12 @@
   <!-- IMU -->
   <!-- The IMU may not be configured out. -->
   <IMU>
-    <!-- production robot -->
+    <!-- production robot >
     <logo_facing_direction>LEFT</logo_facing_direction>
+    <usb_facing_direction>UP</usb_facing_direction  -->
+    <!-- test robot -->
+    <logo_facing_direction>FORWARD</logo_facing_direction>
     <usb_facing_direction>UP</usb_facing_direction>
-    <!-- test robot 
-        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection.UP;
-    -->
   </IMU>
 
 </RobotConfig>

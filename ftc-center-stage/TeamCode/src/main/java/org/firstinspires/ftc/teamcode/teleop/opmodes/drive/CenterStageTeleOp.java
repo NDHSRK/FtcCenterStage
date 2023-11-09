@@ -33,11 +33,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private static final String TAG = CenterStageTeleOp.class.getSimpleName();
 
     // Define buttons that return a boolean.
-
-    //**TODO Need a button for droneLaunch, method call droneLaunch.update()
-    // under updateButtons() and action method updateFlyDrone() under
-    // updateActions().
-
     private final FTCButton hangUp;
     private final FTCButton hangDown;
     private final FTCToggleButton toggleSpeed;
@@ -53,10 +48,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton launchDrone;
 
     // Drive train
-    private double driveTrainVelocity;
-    private double previousDriveTrainVelocity;
-    private final double driveTrainVelocityHigh;
-    private final double driveTrainVelocityLow;
+    //**TODO change all velocity -> power, including RobotConfig.xml
+    private double driveTrainPower;
+    private double previousDriveTrainPower;
+    private final double driveTrainPowerHigh;
+    private final double driveTrainPowerLow;
     private final ParallelDrive parallelDrive;
 
     // Asynchronous
@@ -83,10 +79,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         RobotLogCommon.c(TAG, "Constructing CenterStageTeleOp");
         RobotLogCommon.setMostDetailedLogLevel(Objects.requireNonNull(robot.teleOpSettings, "robot.teleOpSettings unexpectedly null").logLevel);
 
-        driveTrainVelocityHigh = robot.teleOpSettings.driveTrainVelocityHigh;
-        driveTrainVelocity = driveTrainVelocityHigh;
-        previousDriveTrainVelocity = driveTrainVelocity;
-        driveTrainVelocityLow = robot.teleOpSettings.driveTrainVelocityLow;
+        driveTrainPowerHigh = robot.teleOpSettings.driveTrainPowerHigh;
+        driveTrainPower = driveTrainPowerHigh;
+        previousDriveTrainPower = driveTrainPower;
+        driveTrainPowerLow = robot.teleOpSettings.driveTrainPowerLow;
 
         if (robot.elevator != null)
             elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
@@ -117,8 +113,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
         deliveryLevel2 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
         //**TODO 10/31/23 disable for now deliveryLevel3 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
+
         // Start the drive train in parallel.
-        parallelDrive = new ParallelDrive(linearOpMode, robot.driveTrain, driveTrainVelocity);
+        parallelDrive = new ParallelDrive(linearOpMode, robot.driveTrain, driveTrainPower);
         RobotLogCommon.c(TAG, "Finished constructing CenterStageTeleOp");
     }
 
@@ -193,8 +190,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private void updateActions() throws Exception {
         updateToggleSpeed();
 
-        if (velocityChanged())
-            parallelDrive.setPower(driveTrainVelocity);
+        if (driveTrainPowerChanged()) {
+            parallelDrive.setPower(driveTrainPower);
+        }
 
         // If an asynchronous action is in progress do not allow any
         // actions other than those related to the drive train.
@@ -246,7 +244,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
 
         // Game Controller 1
-        updateToggleSpeed();
         //**TODO updateHangUp();
         //**TODO updateHangDown();
         updateLaunchDrone();
@@ -266,16 +263,18 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         if (toggleSpeed.is(FTCButton.State.TAP)) {
             FTCToggleButton.ToggleState newToggleState = toggleSpeed.toggle();
             if (newToggleState == FTCToggleButton.ToggleState.A) {
-                driveTrainVelocity = driveTrainVelocityHigh;
-            } else driveTrainVelocity = driveTrainVelocityLow;
+                driveTrainPower = driveTrainPowerHigh;
+            } else {
+                driveTrainPower = driveTrainPowerLow;
+           }
         }
     }
 
-    private boolean velocityChanged() {
-        if (driveTrainVelocity == previousDriveTrainVelocity)
+    private boolean driveTrainPowerChanged() {
+        if (driveTrainPower == previousDriveTrainPower)
             return false;
 
-        previousDriveTrainVelocity = driveTrainVelocity;
+        previousDriveTrainPower = driveTrainPower;
         return true;
     }
 
