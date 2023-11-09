@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop.common;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.ftcdevcommon.AutoWorker;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
@@ -29,7 +30,6 @@ public class ParallelDrive {
     private final LinearOpMode linear;
     private final DriveTrain driveTrain;
     private boolean driveTrainActivated = false;
-    private final DriveStick driveStick;
 
     // Thread-related.
     private CountDownLatch countDownLatch;
@@ -42,7 +42,10 @@ public class ParallelDrive {
     public ParallelDrive(LinearOpMode pLinear, DriveTrain pDriveTrain, double pInitialPower) {
         linear = pLinear;
         driveTrain = pDriveTrain;
-        driveStick = new DriveStick(linear, driveTrain);
+
+        // Override the default run mode for driving by the game
+        // controller.
+        driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         power.set(pInitialPower);
     }
 
@@ -110,8 +113,8 @@ public class ParallelDrive {
                         driveTrain.setPowerAll(powerMap);
                     }
                 } else {
-                    // The driver has manipulated the stick(s) but a non-interruptible
-                    // operation may be in process; do not move the robot.
+                    // If the driver has manipulated the stick(s) but a non-interruptible
+                    // operation is in process do not move the robot.
                     if (driveLock.tryLock()) {
                         try {
                             robotHasMoved = true;

@@ -10,22 +10,6 @@ import java.util.EnumMap;
 
 public class DriveStick {
 
-    private final LinearOpMode linear;
-    private final DriveTrain driveTrain;
-
-    public DriveStick(LinearOpMode pLinear, DriveTrain pDriveTrain) {
-        linear = pLinear;
-        driveTrain = pDriveTrain;
-
-        // Override the default run mode for driving by the game
-        // controller.
-        driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    public void updateDrive(double pPowerFactor) {
-        driveTrain.setPowerAll(updateDrivePower(linear, pPowerFactor));
-    }
-
     // Return sanitized drive train power values ready for transmission
     // to the robot.
     public static EnumMap<FTCRobot.MotorId, Double> updateDrivePower(LinearOpMode pLinear, double pPowerFactor) {

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.teleop.common.DriveStick;
@@ -9,13 +11,10 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
 @TeleOp(group = "Drive")
-//@Disabled
+@Disabled
 public class BasicDrive extends TeleOpBase {
 
     private static final String TAG = BasicDrive.class.getSimpleName();
-
-    //**TODO prove out DriveStick2 before moving changes into ParallelDrive.
-    private DriveStick driveStick;
 
     private FTCToggleButton toggleHalfPower;
     private double driveMotorPower = 1.0;
@@ -28,7 +27,7 @@ public class BasicDrive extends TeleOpBase {
     @Override
     public void initialize() {
         toggleHalfPower = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
-        driveStick = new DriveStick(this, robot.driveTrain);
+        robot.driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
    @Override
@@ -49,7 +48,7 @@ public class BasicDrive extends TeleOpBase {
     // Execute the action(s) controlled by Player 1.  This method
     // should be called once per cycle.
     private void updatePlayerOne() {
-        driveStick.updateDrive(driveMotorPower);
+        robot.driveTrain.setPowerAll(DriveStick.updateDrivePower(this, driveMotorPower));
         togglePowerLevel();
     }
 
