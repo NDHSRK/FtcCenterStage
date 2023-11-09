@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.ftcdevcommon.AutoWorker;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
+import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.motor.MotionUtils;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
@@ -27,6 +29,7 @@ public class ParallelDrive {
     private final LinearOpMode linear;
     private final DriveTrain driveTrain;
     private boolean driveTrainActivated = false;
+    private final DriveStick driveStick;
 
     // Thread-related.
     private CountDownLatch countDownLatch;
@@ -34,12 +37,13 @@ public class ParallelDrive {
     private CompletableFuture<Void> driveTrainFuture;
 
     public final Lock driveLock = new ReentrantLock();
-    private final AtomicReference<Double> velocity = new AtomicReference<>();
+    private final AtomicReference<Double> power = new AtomicReference<>();
 
-    public ParallelDrive(LinearOpMode pLinear, DriveTrain pDriveTrain, double pInitialVelocity) {
+    public ParallelDrive(LinearOpMode pLinear, DriveTrain pDriveTrain, double pInitialPower) {
         linear = pLinear;
         driveTrain = pDriveTrain;
-        velocity.set(pInitialVelocity);
+        driveStick = new DriveStick(linear, driveTrain);
+        power.set(pInitialPower);
     }
 
     // Start the drive train thread.
@@ -73,8 +77,8 @@ public class ParallelDrive {
         Threading.getFutureCompletion(driveTrainFuture);
     }
 
-    public void setVelocity(double pVelocity) {
-        velocity.set(pVelocity);
+    public void setPower(double pPower) {
+        power.set(pPower);
     }
 
     // Activates the drive train according to buttons on Gamepad 1.
@@ -90,35 +94,28 @@ public class ParallelDrive {
             RobotLogCommon.i(TAG, "In drive train thread");
             countDownLatch.countDown(); // signal that I'm running
 
+            EnumMap<FTCRobot.MotorId, Double> powerMap;
             while (linear.opModeIsActive() && !stopThreadRequested()) {
-                double currentVelocityFactor = velocity.get();
-                // up on the gamepad stick is negative
-                // change to straight power from Math.pow(gamepad1..., 3);
-                double directionX = linear.gamepad1.left_stick_x;
-                double directionY = -linear.gamepad1.left_stick_y;
-                double directionR = linear.gamepad1.right_stick_x;
-
-                double lfv = MotionUtils.clip(directionY + directionR + directionX, 0.0);
-                double rfv = MotionUtils.clip(directionY - directionR - directionX, 0.0);
-                double lbv = MotionUtils.clip(directionY + directionR - directionX, 0.0);
-                double rbv = MotionUtils.clip(directionY - directionR + directionX, 0.0);
+                powerMap = DriveStick.updateDrivePower(linear, power.get());
 
                 // If the sticks are idle but the robot has previously moved,
-                // set the velocity to 0 once. There's no reason to repeatedly
-                // set 0 velocity.
-                if (lfv == 0.0 && rfv == 0.0 && lbv == 0.0 && rbv == 0.0) {
+                // set the power to 0 once. There's no reason to repeatedly
+                // set 0 power.
+                if (powerMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE) == 0.0 &&
+                        powerMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE) == 0.0 &&
+                        powerMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE) == 0.0 &&
+                        powerMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE) == 0.0) {
                     if (robotHasMoved) {
                         robotHasMoved = false;
-                        driveTrain.driveAllByVelocity(lfv * currentVelocityFactor, rfv * currentVelocityFactor, lbv * currentVelocityFactor, rbv * currentVelocityFactor);
+                        driveTrain.setPowerAll(powerMap);
                     }
-                }
-                else {
+                } else {
                     // The driver has manipulated the stick(s) but a non-interruptible
                     // operation may be in process; do not move the robot.
                     if (driveLock.tryLock()) {
                         try {
                             robotHasMoved = true;
-                            driveTrain.driveAllByVelocity(lfv * currentVelocityFactor, rfv * currentVelocityFactor, lbv * currentVelocityFactor, rbv * currentVelocityFactor);
+                            driveTrain.setPowerAll(powerMap);
                         } finally {
                             driveLock.unlock();
                         }

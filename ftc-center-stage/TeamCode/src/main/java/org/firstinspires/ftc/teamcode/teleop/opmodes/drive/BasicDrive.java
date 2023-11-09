@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.teleop.common.DriveStick;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
@@ -11,15 +9,16 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
 @TeleOp(group = "Drive")
-@Disabled
+//@Disabled
 public class BasicDrive extends TeleOpBase {
 
     private static final String TAG = BasicDrive.class.getSimpleName();
 
+    //**TODO prove out DriveStick2 before moving changes into ParallelDrive.
     private DriveStick driveStick;
 
-    private FTCToggleButton toggleHalfVelocity;
-    private double driveMotorVelocity = 1.0;
+    private FTCToggleButton toggleHalfPower;
+    private double driveMotorPower = 1.0;
 
     @Override
     public RobotConstants.RunType getRunType() {
@@ -28,7 +27,7 @@ public class BasicDrive extends TeleOpBase {
 
     @Override
     public void initialize() {
-        toggleHalfVelocity = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        toggleHalfPower = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
         driveStick = new DriveStick(this, robot.driveTrain);
     }
 
@@ -44,27 +43,26 @@ public class BasicDrive extends TeleOpBase {
     // Update the state of the active buttons. This method should be
     // called once per cycle.
     private void updateButtons() {
-        toggleHalfVelocity.update();
+        toggleHalfPower.update();
     }
 
     // Execute the action(s) controlled by Player 1.  This method
     // should be called once per cycle.
     private void updatePlayerOne() {
-        driveStick.updateDrive(driveMotorVelocity);
-        toggleVelocity();
+        driveStick.updateDrive(driveMotorPower);
+        togglePowerLevel();
     }
 
     private void updatePlayerTwo() {
         // Placeholder
     }
 
-    private void toggleVelocity() {
-        if (toggleHalfVelocity.is(FTCButton.State.TAP)) {
-            RobotLogCommon.v(TAG, "Entered updateToggleVelocity");
-            if (toggleHalfVelocity.toggle() == FTCToggleButton.ToggleState.A)
-                driveMotorVelocity = 1.0;
+    private void togglePowerLevel() {
+        if (toggleHalfPower.is(FTCButton.State.TAP)) {
+            if (toggleHalfPower.toggle() == FTCToggleButton.ToggleState.A)
+                driveMotorPower = 1.0;
             else
-                driveMotorVelocity = 0.5;
+                driveMotorPower = 0.5;
         }
     }
 

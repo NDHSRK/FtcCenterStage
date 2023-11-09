@@ -34,7 +34,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     // Define buttons that return a boolean.
 
-    //**TODO Need a button for flyDrone, method call flyDrone.update()
+    //**TODO Need a button for droneLaunch, method call droneLaunch.update()
     // under updateButtons() and action method updateFlyDrone() under
     // updateActions().
 
@@ -50,6 +50,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     //**TODO 10/31/23 disable for now private final FTCButton deliveryLevel3;
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
+    private final FTCButton launchDrone;
 
     // Drive train
     private double driveTrainVelocity;
@@ -100,6 +101,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         hangDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
         hangUp = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
+        launchDrone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
 
         // Gamepad 2
         // Bumpers
@@ -149,6 +151,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             pixelServoState = PixelStopperServo.PixelServoState.HOLD;
 
+            if (robot.droneLauncherServo != null)
+                robot.droneLauncherServo.hold();
+
             //## The drive train thread must be started here because
             // only now does opModeIsActive() return true.
             parallelDrive.startDriveTrain();
@@ -170,6 +175,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         toggleSpeed.update();
         hangUp.update();
         hangDown.update();
+        launchDrone.update();
 
         // Game Controller 2
         intake.update();
@@ -188,7 +194,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateToggleSpeed();
 
         if (velocityChanged())
-            parallelDrive.setVelocity(driveTrainVelocity);
+            parallelDrive.setPower(driveTrainVelocity);
 
         // If an asynchronous action is in progress do not allow any
         // actions other than those related to the drive train.
@@ -243,6 +249,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateToggleSpeed();
         //**TODO updateHangUp();
         //**TODO updateHangDown();
+        updateLaunchDrone();
 
         // Game Controller 2
         updateIntake2(); //**TODO experimental - but worked in Meet 0 11/04/23
@@ -422,6 +429,12 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
+        }
+    }
+
+    private void updateLaunchDrone() {
+        if (launchDrone.is(FTCButton.State.TAP)) {
+            robot.droneLauncherServo.launch();
         }
     }
 
