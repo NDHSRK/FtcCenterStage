@@ -251,7 +251,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateLaunchDrone();
 
         // Game Controller 2
-        updateIntake(); //**TODO experimental - but worked in Meet 0 11/04/23
+        updateIntake();
         updateReverseIntake();
         updateOuttake();
         updateDeliveryLevel1();
@@ -375,7 +375,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
                     robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                     currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
-                } else { // moving down from levels 1, 2, 3
+                } else { // moving down from levels 1 or 2
                     // Move the elevator down to CLEAR and the boom to REST simultaneously.
                     // Then move the elevator down to SAFE.
                     async_move_elevator_down_and_boom_in(elevatorVelocity, boomVelocity);
@@ -419,8 +419,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         // Validate the delivery level.
         if (!(pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
-                pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2 ||
-                pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_3)) {
+                pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2)) {
             RobotLogCommon.v(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
             return;
         }
@@ -452,11 +451,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             case LEVEL_2: {
                 async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2,
                         Objects.requireNonNull(robot.boom).level_2, boomVelocity, Boom.BoomLevel.LEVEL_2);
-                break;
-            }
-            case LEVEL_3: {
-                async_move_elevator_up_and_boom_out(robot.elevator.level_3, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_3,
-                        Objects.requireNonNull(robot.boom).level_3, boomVelocity, Boom.BoomLevel.LEVEL_3);
                 break;
             }
             default: {
@@ -498,9 +492,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
 
         if (!(currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_1 ||
-                currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2 ||
-                currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_3)) { // sanity check
-            RobotLogCommon.d(TAG, "Illegal attempt to move the elevator down from a level that is not 1, 2, or 3");
+                currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2)) { // sanity check
+            RobotLogCommon.d(TAG, "Illegal attempt to move the elevator down from a level that is not 1 or 2");
             return; // crashing may leave the boom and/or elevator in an indeterminate state
         }
 
