@@ -30,15 +30,13 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamImage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
-import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamImage;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
-import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
@@ -102,10 +100,8 @@ public class FTCAuto {
     private final BackstopAprilTagFailsafeAction backdropAprilTagFailsafeAction;
 
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
-    private Boom.BoomLevel currentBoomLevel = Boom.BoomLevel.REST;
 
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
-    private CompletableFuture<Boom.BoomLevel> asyncMoveBoom;
 
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -248,7 +244,7 @@ public class FTCAuto {
                 }
             }
         } finally {
-            failsafeBoomAndElevator();
+            failsafeElevator();
 
             if (!keepCamerasRunning) {
                 //**TODO orderly shutdown was causing the Robot Controller to crash at this point.
@@ -913,41 +909,6 @@ public class FTCAuto {
                 break;
             }
 
-            // All positions hold power except for REST.
-            case "MOVE_BOOM": {
-                currentBoomLevel = move_boom(actionXPath).call();
-                break;
-            }
-
-            case "ASYNC_MOVE_BOOM": {
-                String operation = actionXPath.getRequiredTextInRange("operation", actionXPath.validRange("start", "wait"));
-                switch (operation) {
-                    case "start": {
-                        if (asyncMoveBoom != null) // Prevent double initialization
-                            throw new AutonomousRobotException(TAG, "asyncMoveBoom is already in progress");
-                        Callable<Boom.BoomLevel> callableMoveBoom = move_boom(actionXPath);
-                        asyncMoveBoom = Threading.launchAsync(callableMoveBoom);
-                        break;
-                    }
-
-                    // Wait for the boom move to complete.
-                    case "wait": {
-                        if (asyncMoveBoom == null)
-                            throw new AutonomousRobotException(TAG, "In wait: asyncMoveBoom has not been initalized");
-
-                        RobotLogCommon.d(TAG, "asyncMoveBoom: wait");
-                        currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
-                        RobotLogCommon.d(TAG, "Async move boom: complete");
-                        asyncMoveBoom = null;
-                        break;
-                    }
-
-                    default:
-                        throw new AutonomousRobotException(TAG, "Invalid asynchronous move boom up operation: " + operation);
-                }
-                break;
-            }
-
             // Need to return the position from both Callables
             case "DELIVER_PIXEL_TO_BACKSTOP": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
@@ -1371,29 +1332,6 @@ public class FTCAuto {
         };
     }
 
-    // Hold the power to the boom after every change in position except
-    // when the target position is "rest".
-    private Callable<Boom.BoomLevel> move_boom(XPathAccess pActionXPath) throws XPathExpressionException {
-        String position = pActionXPath.getRequiredText("position").toUpperCase();
-        Boom.BoomLevel targetPosition = Boom.BoomLevel.valueOf(position);
-        return move_boom(targetPosition);
-    }
-
-    private Callable<Boom.BoomLevel> move_boom(Boom.BoomLevel pTargetPosition) {
-        Pair<Boom.BoomLevel, Integer> position =
-                Pair.create(pTargetPosition, getTargetBoomClickCount(pTargetPosition));
-
-        return () -> {
-            SingleMotorMotion.MotorAction boomAction = SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY; // default
-            if (position.first == Boom.BoomLevel.REST)
-                boomAction = SingleMotorMotion.MotorAction.MOVE_AND_STOP;
-
-            robot.boomMotion.moveSingleMotor(position.second, Objects.requireNonNull(robot.boom, "robot.boom unexpectedly null").getVelocity(),
-                    boomAction);
-            return position.first;
-        };
-    }
-
     private Integer getTargetElevatorClickCount(Elevator.ElevatorLevel pRequestedLevel) {
         int absoluteEncoderValue;
 
@@ -1434,60 +1372,22 @@ public class FTCAuto {
         return absoluteEncoderValue;
     }
 
-    private Integer getTargetBoomClickCount(Boom.BoomLevel pRequestedPosition) {
-        int absoluteEncoderValue;
-
-        switch (pRequestedPosition) {
-            case REST: {
-                absoluteEncoderValue = robot.boom.rest;
-                break;
-            }
-            case LEVEL_1: {
-                absoluteEncoderValue = robot.boom.level_1;
-                break;
-            }
-            case LEVEL_2: {
-                absoluteEncoderValue = robot.boom.level_2;
-                break;
-            }
-            case LEVEL_3: {
-                absoluteEncoderValue = robot.boom.level_3;
-                break;
-            }
-            default:
-                throw new AutonomousRobotException(TAG, "Invalid boom position");
-        }
-
-        return absoluteEncoderValue;
-    }
-
     private boolean deliver_pixel_to_backstop(int pDuration) {
-        // Neither async elevator nor async boom may be in progress.
+        // Asynchronous elevator movement may not be in progress.
         if (asyncMoveElevator != null)
             throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
-
-        if (asyncMoveBoom != null)
-            throw new AutonomousRobotException(TAG, "asyncMoveBoom is in progress");
 
         // Set the correct servo positions for delivery to the backstop.
         robot.intakeArmHolderServo.release();
         robot.pixelStopperServo.release();
 
-        // Movement must start at the SAFE level and then go up to CLEAR
-        // (at least) before the boom can be deployed.
+        // Movement must start at the SAFE level.
         if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
             throw new AutonomousRobotException(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-
-        if (currentBoomLevel != Boom.BoomLevel.REST) // sanity check
-            throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator to clear or beyond when the boom is not at rest");
 
         // Directly move the elevator up to its AUTONOMOUS level.
         robot.elevatorMotion.moveDualMotors(robot.elevator.autonomous, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
         currentElevatorLevel = Elevator.ElevatorLevel.AUTONOMOUS;
-
-        // Move the boom out to level 1, which is right for Autonomous.
-        robot.boomMotion.moveSingleMotor(robot.boom.level_1, Objects.requireNonNull(robot.boom, "robot.boom unexpectedly null").getVelocity(),
-                SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
 
         // Run the outtake in the positive direction, which delivers out the back.
         return runIntakeOuttake(DualSPARKMiniController.PowerDirection.POSITIVE, pDuration);
@@ -1505,31 +1405,14 @@ public class FTCAuto {
         return linearOpMode.opModeIsActive();
     }
 
-    // Failsafe with the goal of making sure the boom
-    // is at REST and the elevator is at GROUND.
-    private void failsafeBoomAndElevator() {
-        if (robot.boom != null) {
-            RobotLogCommon.i(TAG, "Beginning failsafe actions");
-
-            // Take care of the boom first.
-            if (asyncMoveBoom != null) {
-                RobotLogCommon.d(TAG, "asyncMoveBoom is active in failsafe; there's nothing we can do");
-                return;
-            }
-
-            if (currentBoomLevel != Boom.BoomLevel.REST) {
-                robot.boomMotion.moveSingleMotor(getTargetBoomClickCount(Boom.BoomLevel.REST), Objects.requireNonNull(robot.boom, "robot.boom unexpectedly null").getVelocity(),
-                        SingleMotorMotion.MotorAction.MOVE_AND_STOP);
-            } else
-                RobotLogCommon.d(TAG, "The boom is already at the REST level");
-        }
-
+    // Failsafe with the goal of making sure that the
+    // elevator is at GROUND.
+    private void failsafeElevator() {
         if (robot.elevator == null) {
             RobotLogCommon.d(TAG, "The elevator is not in the current configuration");
             return;
         }
 
-        // Now the elevator.
         if (asyncMoveElevator != null) {
             RobotLogCommon.d(TAG, "asyncMoveElevator is active in failsafe; there's nothing we can do");
             return;
@@ -1540,8 +1423,7 @@ public class FTCAuto {
             return;
         }
 
-        // Since the boom is already at REST we can move the elevator
-        // all the way to GROUND.
+        // Simply move the elevator to GROUND.
         robot.elevatorMotion.moveDualMotors(getTargetElevatorClickCount(Elevator.ElevatorLevel.GROUND), Objects.requireNonNull(robot.elevator, "robot.elevatorMotors unexpectedly null").getVelocity(),
                 DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
 
