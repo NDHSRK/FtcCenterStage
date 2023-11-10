@@ -48,7 +48,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton launchDrone;
 
     // Drive train
-    //**TODO change all velocity -> power, including RobotConfig.xml
     private double driveTrainPower;
     private double previousDriveTrainPower;
     private final double driveTrainPowerHigh;
@@ -84,6 +83,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         previousDriveTrainPower = driveTrainPower;
         driveTrainPowerLow = robot.teleOpSettings.driveTrainPowerLow;
 
+        // These peripherals can be null in testing if they have been
+        // configured out.
         if (robot.elevator != null)
             elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
         else elevatorVelocity = 0.0;
@@ -160,7 +161,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 updateActions();
             }
         } finally {
-            //**TODO At least move the boom to REST.
+            // At least move the boom to REST.
+            if (robot.boom != null && currentBoomLevel != Boom.BoomLevel.REST) {
+                robot.boomMotion.moveSingleMotor(robot.boom.rest, boomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+            }
         }
     }
 

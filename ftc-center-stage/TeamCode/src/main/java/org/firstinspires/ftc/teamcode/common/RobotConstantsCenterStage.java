@@ -58,8 +58,8 @@ public class RobotConstantsCenterStage {
             redBackdropAprilTagId = pRedBackdropAprilTagId;
         }
 
-        //**TODO See DRIVE_TO_APRIL_TAG, which uses the AprilTag id but could
-        // use the spike id + the alliance
+        //## The FTCAuto action DRIVE_TO_APRIL_TAG uses the AprilTag id but could
+        // use the alliance and the spike id to call one of the methods here.
         public int getBlueBackdropAprilTagId() {
             return blueBackdropAprilTagId;
         }

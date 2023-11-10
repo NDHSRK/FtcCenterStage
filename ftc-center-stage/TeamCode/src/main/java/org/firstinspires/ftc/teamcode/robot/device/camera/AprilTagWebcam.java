@@ -24,12 +24,13 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
         super(pConfiguredWebcam, pAssignedProcessor);
     }
 
+    // Returns an empty List if no AprilTag detections are available.
     public List<AprilTagDetection> getAprilTagData(int pTimeoutMs) {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
             throw new AutonomousRobotException(TAG, "APRIL_TAG is not the active processor");
 
         AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) activeProcessor;
-        List<AprilTagDetection> currentDetections = new ArrayList<>();
+        List<AprilTagDetection> currentDetections = null;
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
@@ -43,7 +44,7 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
             }
         }
 
-        return currentDetections;
+        return currentDetections == null ? new ArrayList<>() : currentDetections;
     }
 
 }

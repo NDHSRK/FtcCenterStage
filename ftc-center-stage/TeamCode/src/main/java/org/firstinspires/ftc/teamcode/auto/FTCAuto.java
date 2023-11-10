@@ -53,6 +53,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
@@ -693,7 +694,9 @@ public class FTCAuto {
 
             // Look for a specific AprilTag
             case "FIND_APRIL_TAG": {
-                findAprilTag(actionXPath);
+                String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
+                RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
+                findBackdropAprilTag(targetTagId, actionXPath);
                 break;
             }
 
@@ -701,12 +704,16 @@ public class FTCAuto {
             // in front of it with the method we used in PowerPlay.
             case "DRIVE_TO_APRIL_TAG": {
                 deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
-                Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findAprilTag(actionXPath);
-                if (detectionData.second == null) {
-                    if (!executeBackstopAprilTagFailsafeActions(detectionData.first))
+
+                String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
+                RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
+
+                Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findBackdropAprilTag(targetTagId, actionXPath);
+                if (detectionData.second == null)
                         return false; // no sure path to the backstop
-                    else break;
-                }
+
+                //**TODO If the backstop AprilTag that was found is not our target tag
+                // then infer the position of the target rtag.
 
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
                 String directionString = actionXPath.getRequiredText("direction").toUpperCase();
@@ -1267,51 +1274,78 @@ public class FTCAuto {
     }
 
     @SuppressLint("DefaultLocale")
-    private Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> findAprilTag(XPathAccess pActionXPath) throws XPathExpressionException {
+    private Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> findBackdropAprilTag(RobotConstantsCenterStage.AprilTagId pTargetTagId, XPathAccess pActionXPath) throws XPathExpressionException {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
                 RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
         if (openWebcam != webcamId)
             throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
 
-        String tagIdString = pActionXPath.getRequiredText("tag_id").toUpperCase();
-        RobotConstantsCenterStage.AprilTagId desiredTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
-
         int timeout = pActionXPath.getRequiredInt("timeout_ms");
 
         AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
         List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
-        AprilTagDetection desiredDetection = null;
+        AprilTagDetection targetDetection = null;
+        AprilTagDetection backupDetection = null;
+        double smallestBackupAngle = 360.0; // impossibly high
 
         // Step through the list of detected tags and look for a matching tag.
         for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null && detection.id == desiredTagId.getNumericId()) {
-                desiredDetection = detection;
-                break; // don't look any further.
+            if (detection.metadata != null) {
+                if (detection.id == pTargetTagId.getNumericId()) {
+                    targetDetection = detection;
+                    break; // don't look any further.
+                }
+                else {
+                    if (Math.abs(detection.ftcPose.bearing) < smallestBackupAngle) {
+                        smallestBackupAngle = detection.ftcPose.bearing;
+                        backupDetection = detection;
+                    }
+                }
             }
         }
 
-        // If we have not found the desired target, just give up.
-        if (desiredDetection == null) {
-            linearOpMode.telemetry.addLine("Tag Id " + desiredTagId + " not found within " + timeout + "ms");
+        // If we have found the target AprilTag return it now.
+        if (targetDetection != null) {
+            String targetTagString = "Found target AprilTag " + String.format("Id %d (%s)", targetDetection.id, targetDetection.metadata.name);
+            String range = "Range " + String.format("%5.1f inches", targetDetection.ftcPose.range);
+            String bearing = "Bearing " + String.format("%3.0f degrees", targetDetection.ftcPose.bearing);
+            String yaw = "Yaw " + String.format("%3.0f degrees", targetDetection.ftcPose.yaw);
+
+            linearOpMode.telemetry.addLine(targetTagString);
             linearOpMode.telemetry.update();
-            RobotLogCommon.d(TAG, "Tag Id " + desiredTagId + " not found within " + timeout + "ms");
-            return Pair.create(desiredTagId, null);
+
+            RobotLogCommon.d(TAG, targetTagString);
+            RobotLogCommon.d(TAG, range);
+            RobotLogCommon.d(TAG, bearing);
+            RobotLogCommon.d(TAG, yaw);
+            return Pair.create(pTargetTagId, targetDetection);
         }
 
-        String targetTagId = "Found AprilTag " + String.format("Id %d (%s)", desiredDetection.id, desiredDetection.metadata.name);
-        String range = "Range " + String.format("%5.1f inches", desiredDetection.ftcPose.range);
-        String bearing = "Bearing " + String.format("%3.0f degrees", desiredDetection.ftcPose.bearing);
-        String yaw = "Yaw " + String.format("%3.0f degrees", desiredDetection.ftcPose.yaw);
+        // If we have not found the target target, see if we've found one of
+        // the other AprilTags to use as a backup.
+        if (backupDetection == null) {
+            linearOpMode.telemetry.addLine("No AprilTags found within " + timeout + "ms");
+            linearOpMode.telemetry.update();
+            RobotLogCommon.d(TAG, "No AprilTags found within " + timeout + "ms");
+            return Pair.create(pTargetTagId, null);
+        }
 
-        linearOpMode.telemetry.addLine(targetTagId);
+        // Found a backup detection.
+        RobotConstantsCenterStage.AprilTagId backupTagId = RobotConstantsCenterStage.AprilTagId.valueOf(new DecimalFormat("0").format(backupDetection.id));
+        String backupTagString = "Found backup AprilTag " + String.format("Id %d (%s)", backupDetection.id, backupDetection.metadata.name);
+        String range = "Range " + String.format("%5.1f inches", backupDetection.ftcPose.range);
+        String bearing = "Bearing " + String.format("%3.0f degrees", backupDetection.ftcPose.bearing);
+        String yaw = "Yaw " + String.format("%3.0f degrees", backupDetection.ftcPose.yaw);
+
+        linearOpMode.telemetry.addLine(backupTagString);
         linearOpMode.telemetry.update();
 
-        RobotLogCommon.d(TAG, targetTagId);
+        RobotLogCommon.d(TAG, backupTagString);
         RobotLogCommon.d(TAG, range);
         RobotLogCommon.d(TAG, bearing);
         RobotLogCommon.d(TAG, yaw);
-        return Pair.create(desiredTagId, desiredDetection);
+        return Pair.create(backupTagId, backupDetection);
     }
 
     private Callable<Elevator.ElevatorLevel> move_elevator(XPathAccess pActionXPath) throws XPathExpressionException {
@@ -1521,18 +1555,10 @@ public class FTCAuto {
 
         RobotLogCommon.d(TAG, "Running backstop AprilTag failsafe actions for " + pTagId);
 
-        // Check the robot's heading. Ideal for the backstop is -90 degrees for
-        // AprilTags 1, 2, 3 and 90 degrees for AprilTags 4, 5, 6. Correct an
-        // error of up to +-45 degrees in case the robot has been knocked off
-        // line. For AprilTags 1 - 3 correct to absolute heading -90, normalized;
-        // for AprilTags 4 - 6 correct to absolute heading +90, normalized.
-        double currentHeading = robot.imuDirect.getIMUHeading();
-        if (currentHeading > 45.0 || currentHeading < -45.0) {
-            RobotLogCommon.d(TAG, "Backstop failsafe: robot skew is out of range " + currentHeading);
-            return false;
-        }
-
-        //**TODO Also make sure that at least one AprilTag rectangle is in view.
+        //**TODO Make sure that at least one AprilTag rectangle is in view
+        // the infer the position of the target AprilTag from the AprilTag
+        // with the smallest angle. Remove/archive BackdropAprilTagFailsafeXML.java
+        // and all related files and classes.
 
         List<RobotXMLElement> actions = backdropAprilTagFailsafeData.get(pTagId);
         return backdropAprilTagFailsafeAction.runFailsafe(Objects.requireNonNull(actions));
