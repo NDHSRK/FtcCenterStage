@@ -21,13 +21,13 @@
     </motors>
   </DRIVE_TRAIN>
 
-  <ELEVATOR configured="no">
+  <ELEVATOR configured="yes">
     <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001"
       clicks_per_motor_rev="537.7" rpm="312.0">
       <left_motor direction="FORWARD">left_elevator</left_motor>
       <right_motor direction="REVERSE">right_elevator</right_motor>
     </dual_motors>
-    <velocity>0.5</velocity>
+    <velocity>1.0</velocity>
     <positions>
       <ground>0</ground>
       <safe>192</safe>
@@ -55,7 +55,7 @@
 
   <!-- Servos -->
   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <INTAKE configured="no">
+  <INTAKE configured="yes">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
       <controller_1 direction="FORWARD">front_intake</controller_1>
       <controller_2 direction="FORWARD">main_intake</controller_2>
@@ -63,7 +63,7 @@
     <power>0.5</power>
   </INTAKE>
 
-  <INTAKE_ARM_HOLDER configured="no">
+  <INTAKE_ARM_HOLDER configured="yes">
     <servo model="goBilda Dual Mode Servo 2000-0025-0003">
       <id>intake_arm_holder</id>
     </servo>
@@ -73,7 +73,7 @@
     </positions>
     </INTAKE_ARM_HOLDER>
   
-    <PIXEL_STOPPER configured="no">
+    <PIXEL_STOPPER configured="yes">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">
         <id>pixel_stopper</id>
       </servo>
@@ -83,7 +83,7 @@
       </positions>
     </PIXEL_STOPPER>
      
-    <DRONE_LAUNCHER configured="no">
+    <DRONE_LAUNCHER configured="yes">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">
         <id>pixel_stopper</id>
       </servo>

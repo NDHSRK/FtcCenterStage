@@ -132,12 +132,14 @@ public class FTCRobot {
                 elevatorMotion = null;
             }
 
+            //**TODO 11/10/23 Slated for removal.
             // Get the configuration for the boom.
             configXPath = configXML.getPath("BOOM");
             String boomInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
             if (boomInConfiguration.equals("yes")) {
-                boom = new Boom(hardwareMap, configXPath);
-                boomMotion = new SingleMotorMotion(pLinearOpMode, boom);
+                //boom = new Boom(hardwareMap, configXPath);
+                //boomMotion = new SingleMotorMotion(pLinearOpMode, boom);
+                throw new AutonomousRobotException(TAG, "Unsupported peripheral: boom");
             } else {
                 boom = null;
                 boomMotion = null;

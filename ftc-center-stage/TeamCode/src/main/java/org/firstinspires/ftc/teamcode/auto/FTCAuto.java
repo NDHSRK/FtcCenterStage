@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import static android.os.SystemClock.sleep;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage.AprilTagId.getEnumValue;
 
 import android.annotation.SuppressLint;
 
@@ -51,7 +52,6 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
@@ -1293,7 +1293,7 @@ public class FTCAuto {
         }
 
         // Found a backup detection.
-        RobotConstantsCenterStage.AprilTagId backupTagId = RobotConstantsCenterStage.AprilTagId.valueOf(new DecimalFormat("0").format(backupDetection.id));
+        RobotConstantsCenterStage.AprilTagId backupTagId = getEnumValue(backupDetection.id);
         String backupTagString = "Found backup AprilTag " + String.format("Id %d (%s)", backupDetection.id, backupDetection.metadata.name);
         String range = "Range " + String.format("%5.1f inches", backupDetection.ftcPose.range);
         String bearing = "Bearing " + String.format("%3.0f degrees", backupDetection.ftcPose.bearing);

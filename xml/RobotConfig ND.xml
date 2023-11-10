@@ -27,7 +27,7 @@
       <left_motor direction="FORWARD">left_elevator</left_motor>
       <right_motor direction="REVERSE">right_elevator</right_motor>
     </dual_motors>
-    <velocity>0.5</velocity>
+    <velocity>1.0</velocity>
     <positions>
       <ground>0</ground>
       <safe>192</safe>
