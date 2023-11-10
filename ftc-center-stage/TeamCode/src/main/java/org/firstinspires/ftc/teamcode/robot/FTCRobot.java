@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelIO;
-import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmHolderServo;
+import org.firstinspires.ftc.teamcode.robot.device.servo.PixelIOHolderServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.xml.sax.SAXException;
 
@@ -58,7 +58,7 @@ public class FTCRobot {
     public final Boom boom;
     public final SingleMotorMotion boomMotion;
     public final DualSPARKMiniController pixelIO;
-    public final IntakeArmHolderServo intakeArmHolderServo;
+    public final PixelIOHolderServo pixelIOHolderServo;
     public final PixelStopperServo pixelStopperServo;
 
     public final DroneLauncherServo droneLauncherServo;
@@ -145,22 +145,22 @@ public class FTCRobot {
                 boomMotion = null;
             }
 
-            // Get the configuration for the intake/outtake.
-            configXPath = configXML.getPath("INTAKE");
-            String intakeInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
-            if (intakeInConfiguration.equals("yes")) {
+            // Get the configuration for pixel intake/outtake.
+            configXPath = configXML.getPath("PIXEL_IO");
+            String pixelIOInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (pixelIOInConfiguration.equals("yes")) {
                 pixelIO = new PixelIO(hardwareMap, configXPath);
             } else {
                 pixelIO = null;
             }
 
-            // Get the configuration for the intake arm holder servo.
-            configXPath = configXML.getPath("INTAKE_ARM_HOLDER");
-            String intakeArmHolderInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
-            if (intakeArmHolderInConfiguration.equals("yes")) {
-                intakeArmHolderServo = new IntakeArmHolderServo(hardwareMap, configXPath);
+            // Get the configuration for the pixel IO holder servo.
+            configXPath = configXML.getPath("PIXEL_IO_HOLDER");
+            String holderInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (holderInConfiguration.equals("yes")) {
+                pixelIOHolderServo = new PixelIOHolderServo(hardwareMap, configXPath);
             } else {
-                intakeArmHolderServo = null;
+                pixelIOHolderServo = null;
             }
 
             // Get the configuration for the pixel stopper servo.

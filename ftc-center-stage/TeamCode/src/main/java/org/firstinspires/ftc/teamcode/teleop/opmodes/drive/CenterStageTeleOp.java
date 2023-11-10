@@ -124,8 +124,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
             // The intake arm holder must be down before the TeleOp
             // can start.
-            if (robot.intakeArmHolderServo != null) // will only be null in testing
-                robot.intakeArmHolderServo.release(); // needed only once
+            if (robot.pixelIOHolderServo != null) // will only be null in testing
+                robot.pixelIOHolderServo.release(); // needed only once
 
             // Set the initial state of the pixel stopper to HOLD
             // so that pixels can be taken in from the front.

@@ -54,16 +54,16 @@
   </BOOM>
 
   <!-- Servos -->
-  <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <INTAKE configured="yes">
+   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
+   <PIXEL_IO configured="yes">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
       <controller_1 direction="FORWARD">front_intake</controller_1>
       <controller_2 direction="FORWARD">main_intake</controller_2>
     </servos>
     <power>0.5</power>
-  </INTAKE>
+  </PIXEL_IO>
 
-  <INTAKE_ARM_HOLDER configured="yes">
+  <PIXEL_IO_HOLDER configured="yes">
     <servo model="goBilda Dual Mode Servo 2000-0025-0003">
       <id>intake_arm_holder</id>
     </servo>
@@ -71,7 +71,7 @@
       <hold>0.5</hold>
       <release>0.4</release>
     </positions>
-    </INTAKE_ARM_HOLDER>
+    </PIXEL_IO_HOLDER>
   
     <PIXEL_STOPPER configured="yes">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">

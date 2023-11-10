@@ -818,15 +818,6 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO INTAKE and OUTTAKE are misnomers - intake actually
-            // delivers out the back when the stopper is out of the way (released).
-            // POSITIVE = intake from the front or delivery out the back
-            // NEGATIVE = outtake out the front
-            case "RELEASE_INTAKE_HOLDER": {
-                robot.intakeArmHolderServo.release();
-                break;
-            }
-
             case "PIXEL_STOPPER": {
                 String positionString = actionXPath.getRequiredText("position").toUpperCase();
                 PixelStopperServo.PixelServoState position =
@@ -841,17 +832,17 @@ public class FTCAuto {
                 break;
             }
 
-            //## Note: Intake without the stopper results in outtake out
-            // the back.
-            //**TODO misnomer -> EJECT_PIXEL_TO_THE_REAR
-            case "INTAKE": {
+            //## Note: For testing: running PixelIO in the intake direction
+            // without the stopper results in ejecting the pixel out the
+            // back.
+            case "EJECT_PIXEL_TO_THE_REAR": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
                 if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
                     robot.pixelStopperServo.release();
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
-                if (!runIntakeOuttake(DualSPARKMiniController.PowerDirection.POSITIVE, duration))
+                if (!runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, duration))
                     return false;
                 break;
             }
@@ -860,7 +851,7 @@ public class FTCAuto {
                 int duration = actionXPath.getRequiredInt("duration_ms");
 
                 // The position of the pixel stopper does not matter.
-                if (!runIntakeOuttake(DualSPARKMiniController.PowerDirection.NEGATIVE, duration))
+                if (!runPixelIO(DualSPARKMiniController.PowerDirection.NEGATIVE, duration))
                     return false;
                 break;
             }
@@ -1371,7 +1362,7 @@ public class FTCAuto {
             throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
 
         // Set the correct servo positions for delivery to the backstop.
-        robot.intakeArmHolderServo.release();
+        robot.pixelIOHolderServo.release();
         robot.pixelStopperServo.release();
 
         // Movement must start at the SAFE level.
@@ -1383,10 +1374,10 @@ public class FTCAuto {
         currentElevatorLevel = Elevator.ElevatorLevel.AUTONOMOUS;
 
         // Run the outtake in the positive direction, which delivers out the back.
-        return runIntakeOuttake(DualSPARKMiniController.PowerDirection.POSITIVE, pDuration);
+        return runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, pDuration);
     }
 
-    private boolean runIntakeOuttake(DualSPARKMiniController.PowerDirection pPowerDirection, int pDurationMS) {
+    private boolean runPixelIO(DualSPARKMiniController.PowerDirection pPowerDirection, int pDurationMS) {
         ElapsedTime ioTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ioTimer.reset();
         robot.pixelIO.runWithCurrentPower(pPowerDirection);

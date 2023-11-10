@@ -8,14 +8,14 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 
 import javax.xml.xpath.XPathExpressionException;
 
-public class IntakeArmHolderServo {
+public class PixelIOHolderServo {
 
     public final Servo servo;
     private final double hold;
     private final double release;
 
-    public IntakeArmHolderServo(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
-        String TAG = IntakeArmHolderServo.class.getSimpleName();
+    public PixelIOHolderServo(HardwareMap pHardwareMap, XPathAccess pConfigXPath) throws XPathExpressionException {
+        String TAG = PixelIOHolderServo.class.getSimpleName();
 
         // Get the configuration from RobotConfig.xml.
         RobotLogCommon.c(TAG, "Intake/Outtake Servo configuration from RobotConfig.xml");
