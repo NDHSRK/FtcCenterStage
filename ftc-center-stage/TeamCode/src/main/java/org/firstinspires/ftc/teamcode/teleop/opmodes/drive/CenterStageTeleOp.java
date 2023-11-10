@@ -11,10 +11,8 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.auto.FTCAuto;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
-import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
@@ -55,7 +53,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final ParallelDrive parallelDrive;
 
     // Asynchronous
-    private enum AsyncAction {MOVE_ELEVATOR_UP_AND_BOOM_OUT, MOVE_ELEVATOR_DOWN_AND_BOOM_IN, NONE}
+    private enum AsyncAction {MOVE_ELEVATOR_UP, MOVE_ELEVATOR_DOWN_TO_SAFE, NONE}
 
     private AsyncAction asyncActionInProgress = AsyncAction.NONE;
 
@@ -63,11 +61,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
-
-    // Boom
-    private Boom.BoomLevel currentBoomLevel = Boom.BoomLevel.REST;
-    private final double boomVelocity;
-    private CompletableFuture<Boom.BoomLevel> asyncMoveBoom;
 
     private PixelStopperServo.PixelServoState pixelServoState;
 
@@ -88,11 +81,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         if (robot.elevator != null)
             elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
         else elevatorVelocity = 0.0;
-
-        if (robot.boom != null)
-            boomVelocity = Objects.requireNonNull(robot.boom).getVelocity();
-        else
-            boomVelocity = 0.0;
 
         // Gamepad 1
         hangDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
@@ -134,16 +122,16 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 return;
             }
 
-            // The intake arm holder must be down before the boom
-            // can move.
-            if (robot.intakeArmHolderServo != null)
+            // The intake arm holder must be down before the TeleOp
+            // can start.
+            if (robot.intakeArmHolderServo != null) // will only be null in testing
                 robot.intakeArmHolderServo.release(); // needed only once
 
             // Set the initial state of the pixel stopper to HOLD
             // so that pixels can be taken in from the front.
             // This will change to RELEASE before outtake out the
             // back.
-            if (robot.pixelStopperServo != null)
+            if (robot.pixelStopperServo != null) // will only be null in testing
                 robot.pixelStopperServo.hold();
 
             pixelServoState = PixelStopperServo.PixelServoState.HOLD;
@@ -160,10 +148,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 updateActions();
             }
         } finally {
-            // At least move the boom to REST.
-            if (robot.boom != null && currentBoomLevel != Boom.BoomLevel.REST) {
-                robot.boomMotion.moveSingleMotor(robot.boom.rest, boomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
-            }
+            RobotLogCommon.d(TAG, "In finally() block");
         }
     }
 
@@ -200,33 +185,23 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // actions other than those related to the drive train.
         try {
             switch (asyncActionInProgress) {
-                case MOVE_ELEVATOR_UP_AND_BOOM_OUT: {
-                    if (asyncMoveElevator.isDone() && asyncMoveBoom.isDone()) {
+                case MOVE_ELEVATOR_UP: {
+                    if (asyncMoveElevator.isDone()) {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
-                        currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
-
                         asyncMoveElevator = null;
-                        asyncMoveBoom = null;
                         asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_UP_AND_BOOM_OUT done");
-                    } else // the elevator and/or the boom are still moving
+                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_UP done");
+                    } else // the elevator is still moving
                         return; // skip the updates below
                     break;
                 }
-                case MOVE_ELEVATOR_DOWN_AND_BOOM_IN: {
-                    if (asyncMoveElevator.isDone() && asyncMoveBoom.isDone()) {
+                case MOVE_ELEVATOR_DOWN_TO_SAFE: {
+                    if (asyncMoveElevator.isDone()) {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
-                        currentBoomLevel = Threading.getFutureCompletion(asyncMoveBoom);
-
-                        // The elevator is at CLEAR; move it to SAFE.
-                        robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-                        currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
-
                         asyncMoveElevator = null;
-                        asyncMoveBoom = null;
                         asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_DOWN_AND_BOOM_IN done");
-                    } else // the elevator and/or the arm are still moving
+                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_DOWN done");
+                    } else // the elevator is still moving
                         return; // skip the updates below
                     break;
                 }
@@ -236,7 +211,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
                 default: {
                     RobotLogCommon.d(TAG, "Invalid async action " + asyncActionInProgress);
-                    return; // crashing may leave the boom and/or elevator in an indeterminate state
+                    return; // crashing may leave the elevator in an indeterminate state
                 }
             }
         } catch (TimeoutException | IOException ex) {
@@ -267,7 +242,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 driveTrainPower = driveTrainPowerHigh;
             } else {
                 driveTrainPower = driveTrainPowerLow;
-           }
+            }
         }
     }
 
@@ -351,7 +326,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
             if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.v(TAG, "Error: current elevator level " + currentElevatorLevel + ", asyncActionInProgress " + asyncActionInProgress);
+                RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToSafe()");
                 return;
             }
 
@@ -359,27 +334,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 return; // already there
 
             if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND) { // upward movement?
-                if (currentBoomLevel != Boom.BoomLevel.REST) { // sanity check
-                    RobotLogCommon.d(TAG, "Illegal attempt to move the elevator from ground to safe when the boom is not at rest");
-                    return; // crashing may leave the boom and/or elevator in an indeterminate state
-                }
-
                 robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
             } else { // downward movement
-                if (currentElevatorLevel == Elevator.ElevatorLevel.CLEAR) {
-                    if (currentBoomLevel != Boom.BoomLevel.REST) { // sanity check
-                        RobotLogCommon.d(TAG, "Illegal attempt to move the elevator from clear to safe when the boom is not at rest");
-                        return; // crashing may leave the boom and/or elevator in an indeterminate state
-                    }
-
-                    robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-                    currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
-                } else { // moving down from levels 1 or 2
-                    // Move the elevator down to CLEAR and the boom to REST simultaneously.
-                    // Then move the elevator down to SAFE.
-                    async_move_elevator_down_and_boom_in(elevatorVelocity, boomVelocity);
-                }
+                async_move_elevator_down_to_safe(elevatorVelocity);
             }
         }
     }
@@ -387,16 +345,16 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private void updateGoToGround() {
         if (goToGround.is(FTCButton.State.TAP)) {
             if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.v(TAG, "Error: current elevator level " + currentElevatorLevel + ", asyncActionInProgress " + asyncActionInProgress);
+                RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToGround()");
                 return;
             }
 
             if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND)
                 return; // already there
 
-            if (!(currentElevatorLevel == Elevator.ElevatorLevel.CLEAR || currentElevatorLevel == Elevator.ElevatorLevel.SAFE)) {
+            if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
                 RobotLogCommon.d(TAG, "Illegal attempt to move the elevator to ground from " + currentElevatorLevel);
-                return; // crashing may leave the boom and/or elevator in an indeterminate state
+                return; // crashing may leave the elevator in an indeterminate state
             }
 
             robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
@@ -412,8 +370,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private void move_to_delivery_level(Elevator.ElevatorLevel pDeliverToLevel) {
         if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.d(TAG, "Request to move the elevator elevator to " + pDeliverToLevel + " but an operation is already in progress");
-            RobotLogCommon.v(TAG, "Current elevator level " + currentElevatorLevel + ", asyncActionInProgress " + asyncActionInProgress);
+            RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
             return;
         }
 
@@ -424,44 +381,32 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             return;
         }
 
-        // Movement must start at the SAFE level and then go up to CLEAR
-        // before the boom can be deployed.
+        // Movement must start at the SAFE level.
         if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
             RobotLogCommon.v(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
             return;
         }
-
-        if (currentBoomLevel != Boom.BoomLevel.REST) { // sanity check
-            RobotLogCommon.d(TAG, "Illegal attempt to move the elevator to clear when the boom is not at rest");
-            return; // crashing may leave the boom and/or elevator in an indeterminate state
-        }
-
-        robot.elevatorMotion.moveDualMotors(robot.elevator.clear, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-        currentElevatorLevel = Elevator.ElevatorLevel.CLEAR;
 
         linearOpMode.telemetry.addLine("Position for delivery at " + pDeliverToLevel);
         linearOpMode.telemetry.update();
 
         switch (pDeliverToLevel) {
             case LEVEL_1: {
-                async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1,
-                        Objects.requireNonNull(robot.boom).level_1, boomVelocity, Boom.BoomLevel.LEVEL_1);
+                async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);
                 break;
             }
             case LEVEL_2: {
-                async_move_elevator_up_and_boom_out(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2,
-                        Objects.requireNonNull(robot.boom).level_2, boomVelocity, Boom.BoomLevel.LEVEL_2);
+                async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
                 break;
             }
             default: {
                 RobotLogCommon.d(TAG, "Invalid elevator level " + pDeliverToLevel);
-                // crashing may leave the boom and/or elevator in an indeterminate state
+                // crashing may leave the elevator in an indeterminate state
             }
         }
     }
 
-    private void async_move_elevator_up_and_boom_out(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion,
-                                                     int pBoomPosition, double pBoomVelocity, Boom.BoomLevel pBoomLevelOnCompletion) {
+    private void async_move_elevator_up(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
             return;
@@ -472,20 +417,12 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             return pElevatorLevelOnCompletion;
         };
 
-        Callable<Boom.BoomLevel> callableMoveBoom = () -> {
-            robot.boomMotion.moveSingleMotor(pBoomPosition, pBoomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
-            return pBoomLevelOnCompletion;
-        };
-
-        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_UP_AND_BOOM_OUT;
+        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_UP;
         RobotLogCommon.v(TAG, "Async move elevator up in progress");
         asyncMoveElevator = Threading.launchAsync(callableMoveElevatorUp);
-        RobotLogCommon.v(TAG, "Async arm out in progress");
-        asyncMoveBoom = Threading.launchAsync(callableMoveBoom);
-        RobotLogCommon.v(TAG, "Async move elevator up and boom out in progress");
     }
 
-    private void async_move_elevator_down_and_boom_in(double pElevatorVelocity, double pBoomVelocity) {
+    private void async_move_elevator_down_to_safe(double pElevatorVelocity) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
             return;
@@ -494,23 +431,17 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         if (!(currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_1 ||
                 currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2)) { // sanity check
             RobotLogCommon.d(TAG, "Illegal attempt to move the elevator down from a level that is not 1 or 2");
-            return; // crashing may leave the boom and/or elevator in an indeterminate state
+            return; // crashing may leave the elevator in an indeterminate state
         }
 
-        Callable<Boom.BoomLevel> callableMoveBoom = () -> {
-            robot.boomMotion.moveSingleMotor(robot.boom.rest, pBoomVelocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
-            return Boom.BoomLevel.REST;
+        Callable<Elevator.ElevatorLevel> callableMoveElevatorDownToSafe = () -> {
+            robot.elevatorMotion.moveDualMotors(robot.elevator.safe, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            return Elevator.ElevatorLevel.SAFE;
         };
 
-        Callable<Elevator.ElevatorLevel> callableMoveElevatorDown = () -> {
-            robot.elevatorMotion.moveDualMotors(robot.elevator.clear, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-            return Elevator.ElevatorLevel.CLEAR;
-        };
-
-        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_DOWN_AND_BOOM_IN;
-        asyncMoveBoom = Threading.launchAsync(callableMoveBoom);
-        asyncMoveElevator = Threading.launchAsync(callableMoveElevatorDown);
-        RobotLogCommon.v(TAG, "Async move elevator down and retract boom in progress");
+        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_DOWN_TO_SAFE;
+        asyncMoveElevator = Threading.launchAsync(callableMoveElevatorDownToSafe);
+        RobotLogCommon.v(TAG, "Async move elevator down in progress");
     }
 
 }
