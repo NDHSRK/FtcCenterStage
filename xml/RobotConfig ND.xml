@@ -39,7 +39,7 @@
     </positions>
   </ELEVATOR>
 
-  <BOOM configured="yes">
+  <BOOM configured="no">
     <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
       clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
       <id>boom</id> <!-- id as configured on the robot -->

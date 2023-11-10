@@ -131,23 +131,7 @@
             </SLEEP>
 
             <MOVE_ELEVATOR>
-                <position>CLEAR</position>
-            </MOVE_ELEVATOR>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
                 <position>AUTONOMOUS</position>
-            </MOVE_ELEVATOR>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>CLEAR</position>
             </MOVE_ELEVATOR>
 
             <SLEEP>
@@ -184,57 +168,28 @@
                 <ms>1000</ms>
             </SLEEP>
 
-            <!-- go to CLEAR automatically -->
-            <MOVE_ELEVATOR>
-                <position>CLEAR</position>
-            </MOVE_ELEVATOR>
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
             <ASYNC_MOVE_ELEVATOR>
                 <operation>start</operation>
                 <position>LEVEL_1</position>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>start</operation>
-                <position>LEVEL_1</position>
-            </ASYNC_MOVE_BOOM>
 
             <!-- Wait for operations to complete :) -->
             <ASYNC_MOVE_ELEVATOR>
                 <operation>wait</operation>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>wait</operation>
-            </ASYNC_MOVE_BOOM>
             <SLEEP>
                 <ms>1500</ms>
             </SLEEP>
 
             <ASYNC_MOVE_ELEVATOR>
                 <operation>start</operation>
-                <position>CLEAR</position>
+                <position>SAFE</position>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>start</operation>
-                <position>REST</position>
-            </ASYNC_MOVE_BOOM>
 
             <!-- Wait for operations to complete :) -->
             <ASYNC_MOVE_ELEVATOR>
                 <operation>wait</operation>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>wait</operation>
-            </ASYNC_MOVE_BOOM>
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>SAFE</position>
-            </MOVE_ELEVATOR>
             <SLEEP>
                 <ms>1000</ms>
             </SLEEP>
@@ -503,20 +458,13 @@
 
             <ASYNC_MOVE_ELEVATOR>
                 <operation>start</operation>
-                <position>CLEAR</position>
+                <position>SAFE</position>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>start</operation>
-                <position>REST</position>
-            </ASYNC_MOVE_BOOM>
 
             <!-- Wait for operations to complete :) -->
             <ASYNC_MOVE_ELEVATOR>
                 <operation>wait</operation>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>wait</operation>
-            </ASYNC_MOVE_BOOM>
 
             <MOVE_ELEVATOR>
                 <position>GROUND</position>
@@ -784,20 +732,13 @@
 
             <ASYNC_MOVE_ELEVATOR>
                 <operation>start</operation>
-                <position>CLEAR</position>
+                <position>SAFE</position>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>start</operation>
-                <position>REST</position>
-            </ASYNC_MOVE_BOOM>
-
+ 
             <!-- Wait for operations to complete :) -->
             <ASYNC_MOVE_ELEVATOR>
                 <operation>wait</operation>
             </ASYNC_MOVE_ELEVATOR>
-            <ASYNC_MOVE_BOOM>
-                <operation>wait</operation>
-            </ASYNC_MOVE_BOOM>
 
             <MOVE_ELEVATOR>
                 <position>GROUND</position>
