@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
-import org.firstinspires.ftc.teamcode.auto.xml.BackdropAprilTagFailsafeXML;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
@@ -95,9 +94,6 @@ public class FTCAuto {
 
     private final BackdropParameters backdropParameters;
     private AprilTagNavigation aprilTagNavigation;
-    private final BackdropAprilTagFailsafeXML backdropAprilTagFailsafeXML;
-    private final EnumMap<RobotConstantsCenterStage.AprilTagId, List<RobotXMLElement>> backdropAprilTagFailsafeData;
-    private final BackstopAprilTagFailsafeAction backdropAprilTagFailsafeAction;
 
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
 
@@ -143,9 +139,6 @@ public class FTCAuto {
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
         backdropParameters = backdropParametersXML.getBackdropParameters();
-        backdropAprilTagFailsafeXML = new BackdropAprilTagFailsafeXML(xmlDirectory);
-        backdropAprilTagFailsafeData = backdropAprilTagFailsafeXML.getFailsafeData();
-        backdropAprilTagFailsafeAction = new BackstopAprilTagFailsafeAction();
 
         // Start the front webcam with the webcam frame processor.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
@@ -1430,133 +1423,5 @@ public class FTCAuto {
         RobotLogCommon.i(TAG, "Done with failsafe actions");
     }
 
-    // Based on FtcPowerPlay commit 04e2a57 of Jan. 5, 2023
-    // Run a collection of XML commands in case of recognition failure for
-    // an AprilTag on the backstop.
-    private boolean executeBackstopAprilTagFailsafeActions(RobotConstantsCenterStage.AprilTagId pTagId) throws Exception {
-
-        RobotLogCommon.d(TAG, "Running backstop AprilTag failsafe actions for " + pTagId);
-
-        //**TODO Make sure that at least one AprilTag rectangle is in view
-        // the infer the position of the target AprilTag from the AprilTag
-        // with the smallest angle. Remove/archive BackdropAprilTagFailsafeXML.java
-        // and all related files and classes.
-
-        List<RobotXMLElement> actions = backdropAprilTagFailsafeData.get(pTagId);
-        return backdropAprilTagFailsafeAction.runFailsafe(Objects.requireNonNull(actions));
-    }
-
-    // ---------------------------------------------------------------------
-    // Support a subset of the full XML command set so that the robot can attempt
-    // to move towards the backstop and deposit the yellow pixel.
-    // Keep backstop AprilTag failsafe handling separate from the rest of FTCAuto
-    // by putting it in a separate class. But it does duplicate some code from the
-    // main XML command loop.
-    private class BackstopAprilTagFailsafeAction {
-        private boolean runFailsafe(List<RobotXMLElement> pFailsafeActions) throws Exception {
-
-            // Follow the choreography specified in the backstop AprilTag failsafe XML file.
-            for (RobotXMLElement action : pFailsafeActions) {
-                if (!linearOpMode.opModeIsActive()) {
-                    RobotLogCommon.e(TAG, "OpMode inactive in runFailsafe()");
-                    return false; // better to just bail out
-                }
-
-                if (!executeFailsafeAction(action))
-                    return false;
-            }
-
-            //**TODO Also make sure that at least one AprilTag rectangle is in view.
-
-            RobotLogCommon.i(TAG, "Failsafe actions complete");
-            return true;
-        }
-
-        //===============================================================================================
-        //===============================================================================================
-
-        // Using the XML elements and attributes from the configuration file
-        // Failsafe.xml, execute the action.
-        @SuppressLint("DefaultLocale")
-        private boolean executeFailsafeAction(RobotXMLElement pAction) throws Exception {
-
-            // Set up XPath access to the current action.
-            XPathAccess actionXPath = new XPathAccess(pAction);
-            String actionName = pAction.getRobotXMLElementName().toUpperCase();
-            RobotLogCommon.d(TAG, "Executing failsafe action " + actionName);
-
-            switch (actionName) {
-
-                // The robot moves without rotation in a direction relative to
-                // the robot's current heading according to the "angle" parameter.
-                case "STRAIGHT_BY": {
-                    straight_by(actionXPath, () -> {
-                        try {
-                            return actionXPath.getRequiredDouble("angle");
-                        } catch (XPathExpressionException e) {
-                            String eMessage = e.getMessage() == null ? "**no error message**" : e.getMessage();
-                            throw new AutonomousRobotException(TAG, "XPath exception " + eMessage);
-                        }
-                    }).call();
-                    break;
-                }
-
-                // Specialization of STRAIGHT_BY.
-                case "FORWARD": {
-                    straight_by(actionXPath, () -> 0.0).call();
-                    break;
-                }
-
-                // Specialization of STRAIGHT_BY.
-                case "BACK": {
-                    straight_by(actionXPath, () -> -180.0).call();
-                    break;
-                }
-
-                // Specialization of STRAIGHT_BY.
-                case "STRAFE_LEFT": {
-                    straight_by(actionXPath, () -> 90.0).call();
-                    break;
-                }
-
-                // Specialization of STRAIGHT_BY.
-                case "STRAFE_RIGHT": {
-                    straight_by(actionXPath, () -> -90.0).call();
-                    break;
-                }
-
-                // With attributes for "@post_turn_heading" and "@turn_normalization".
-                case "TURN": {
-                    desiredHeading = turn(actionXPath).call();
-                    break;
-                }
-
-                // Straighten out the robot by turning to the desired heading.
-                case "DESKEW": {
-                    deskew();
-                    break;
-                }
-
-                case "SLEEP": { // I want sleep :)
-                    int sleepMs = actionXPath.getRequiredInt("ms");
-                    sleepInLoop(sleepMs);
-                    break;
-                }
-
-                // In testing this gives us a way to short-circuit a set
-                //  of actions without commenting out any XML.
-                case "STOP": {
-                    return false;
-                }
-
-                default: {
-                    throw new AutonomousRobotException(TAG, "No support for the action " + actionName);
-                }
-            }
-
-            // Action completed normally
-            return true;
-        }
-    }
 }
 
