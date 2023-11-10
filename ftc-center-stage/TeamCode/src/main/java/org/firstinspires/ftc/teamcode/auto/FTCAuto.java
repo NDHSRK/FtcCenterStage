@@ -713,7 +713,7 @@ public class FTCAuto {
                         return false; // no sure path to the backstop
 
                 //**TODO If the backstop AprilTag that was found is not our target tag
-                // then infer the position of the target rtag.
+                // then infer the position of the target tag.
 
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
                 String directionString = actionXPath.getRequiredText("direction").toUpperCase();

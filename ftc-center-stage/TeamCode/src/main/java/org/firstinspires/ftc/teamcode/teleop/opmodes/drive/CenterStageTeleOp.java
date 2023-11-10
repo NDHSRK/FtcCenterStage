@@ -42,7 +42,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton outtake;
     private final FTCButton deliveryLevel1;
     private final FTCButton deliveryLevel2;
-    //**TODO 10/31/23 disable for now private final FTCButton deliveryLevel3;
+
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
     private final FTCButton launchDrone;
@@ -113,7 +113,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // D-Pad
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
         deliveryLevel2 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
-        //**TODO 10/31/23 disable for now deliveryLevel3 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
 
         // Start the drive train in parallel.
         parallelDrive = new ParallelDrive(linearOpMode, robot.driveTrain, driveTrainPower);
@@ -184,7 +183,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         outtake.update();
         deliveryLevel1.update();
         deliveryLevel2.update();
-        //**TODO 10/31/23 disable for now deliveryLevel3.update();
         goToSafe.update();
         goToGround.update();
     }
@@ -253,12 +251,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateLaunchDrone();
 
         // Game Controller 2
-        updateIntake2(); //**TODO experimental - but worked in Meet 0 11/04/23
+        updateIntake(); //**TODO experimental - but worked in Meet 0 11/04/23
         updateReverseIntake();
         updateOuttake();
         updateDeliveryLevel1();
         updateDeliveryLevel2();
-        //**TODO 10/31/23 disable for now updateDeliveryLevel3();
         updateGoToSafe();
         updateGoToGround();
     }
@@ -283,7 +280,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
     // Continuous intake.
-    private void updateIntake2() {
+    private void updateIntake() {
         if (intake.is(FTCButton.State.TAP) || intake.is(FTCButton.State.HELD)) {
             if (intake.is(FTCButton.State.TAP)) { // first time
                 intakeInProgress = true;
@@ -301,25 +298,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 intakeInProgress = false;
                 robot.pixelIO.stop();
             }
-        }
-    }
-
-    // Take pixels in from the front.
-    private void updateIntake() {
-        if (intake.is(FTCButton.State.TAP)) {
-            // Take care of the case where someone hits the intake button twice in succession.
-            if (pixelServoState != PixelStopperServo.PixelServoState.HOLD) {
-                robot.pixelStopperServo.hold();
-                pixelServoState = PixelStopperServo.PixelServoState.HOLD;
-            }
-
-            ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-            intakeTimer.reset();
-            robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
-            while (linearOpMode.opModeIsActive() && intakeTimer.time() < 500) {
-                linearOpMode.sleep(50);
-            }
-            robot.pixelIO.stop();
         }
     }
 
@@ -369,15 +347,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_2);
         }
     }
-
-    //**TODO 10/31/23 disable for now
-    /*
-    private void updateDeliveryLevel3() {
-        if (deliveryLevel3.is(FTCButton.State.TAP)) {
-            move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_3);
-        }
-    }
-    */
 
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
