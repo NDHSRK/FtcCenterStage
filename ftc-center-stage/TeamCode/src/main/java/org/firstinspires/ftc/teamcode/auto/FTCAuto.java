@@ -699,7 +699,7 @@ public class FTCAuto {
 
                 Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findBackdropAprilTag(targetTagId, actionXPath);
                 if (detectionData.second == null)
-                        return false; // no sure path to the backstop
+                        return false; // no sure path to the backdrop
 
                 //**TODO If the backstop AprilTag that was found is not our target tag
                 // then infer the position of the target tag.

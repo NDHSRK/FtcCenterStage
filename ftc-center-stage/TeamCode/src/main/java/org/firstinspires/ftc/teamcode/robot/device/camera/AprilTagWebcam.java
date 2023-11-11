@@ -34,7 +34,8 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
-            //**TODO 11/6/23 try getFreshDetections
+            // The FTC samples use getDetections but we always want the
+            // //latest - so use getFreshDetections()
             currentDetections = Objects.requireNonNull(aprilTagProcessor).getFreshDetections();
             if (currentDetections != null && !currentDetections.isEmpty())
                 break;
