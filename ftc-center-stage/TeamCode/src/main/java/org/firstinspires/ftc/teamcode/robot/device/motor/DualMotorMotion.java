@@ -11,8 +11,6 @@ import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 
-import java.util.EnumMap;
-
 // Move two motors in tandem.
 public class DualMotorMotion {
 
@@ -56,9 +54,6 @@ public class DualMotorMotion {
 
         double velocity = Math.abs(pVelocity); // velocity is always positive; position determines direction
         RobotLogCommon.d(TAG, "Move dual motors to position " + pTargetPosition + ", at velocity " + velocity);
-
-        //**TODO not used??
-        EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
 
         dualMotors.setTargetPositions(pTargetPosition);
         dualMotors.setModeDual(DcMotor.RunMode.RUN_TO_POSITION);

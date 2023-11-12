@@ -44,9 +44,11 @@ public class AprilTagUtils {
                 pDistanceToRecognizedId, pAngleToRecognizedId);
     }
 
-    // Returns a Pair where first is the inferred distance to the target AprilTag and
-    // second is the inferred angle to the target AprilTag.
-    public static Pair<Double, Double> calculator(int targetAprilTag, int givenAprilTag, double distanceGivenApril, double angleGivenApril) {
+    // Returns a Pair where first is the inferred distance to the target AprilTag
+    // and second is the inferred angle to the target AprilTag.
+    // Credit to Notre Dame students Brandon Lim for the calculations and Sotiris
+    // Athenos for the IntelliJ test harness.
+    private static Pair<Double, Double> calculator(int targetAprilTag, int givenAprilTag, double distanceGivenApril, double angleGivenApril) {
 
         int sign = 1;
         int endsign = 1;
