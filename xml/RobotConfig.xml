@@ -54,8 +54,8 @@
   </BOOM>
 
   <!-- Servos -->
-  <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <PIXEL_IO configured="yes">
+   <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
+   <PIXEL_IO configured="yes">
     <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
       <controller_1 direction="FORWARD">front_intake</controller_1>
       <controller_2 direction="FORWARD">main_intake</controller_2>
@@ -83,13 +83,13 @@
       </positions>
     </PIXEL_STOPPER>
      
-    <DRONE_LAUNCHER configured="yes">
+    <DRONE_LAUNCHER configured="no">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">
-        <id>pixel_stopper</id>
+        <id>drone_launcher</id>
       </servo>
       <positions>
-        <hold>0.5</hold>
-        <launch>0.8</launch>
+        <hold>0.0</hold>
+        <launch>0.1</launch>
       </positions>
     </DRONE_LAUNCHER>
 
@@ -103,9 +103,19 @@
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
       <webcam>
+        <internal_id>front_webcam</internal_id>
+        <!-- C920 -->
+        <serial_number>01D2B22F</serial_number>
+        <resolution_width>640</resolution_width>
+        <resolution_height>480</resolution_height>
+        <processor_set>
+          <processor>webcam_frame</processor>
+        </processor_set>
+      </webcam>
+      <webcam>
         <internal_id>rear_webcam</internal_id>
-        <!-- Arducam OV9281 -->
-        <serial_number>UC762</serial_number>
+        <!-- C920 -->
+        <serial_number>1133:2277</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>
@@ -113,10 +123,10 @@
           <processor>april_tag</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>
-          <focal_length_x>539.024</focal_length_x>
-          <focal_length_y>539.024</focal_length_y>
-          <principal_point_x>316.450</principal_point_x>
-          <principal_point_y>236.365</principal_point_y>
+          <focal_length_x>622.001</focal_length_x>
+          <focal_length_y>622.001</focal_length_y>
+          <principal_point_x>319.803</principal_point_x>
+          <principal_point_y>241.251</principal_point_y>
         </webcam_calibration_for_apriltags>
       </webcam> 
     </webcam_set>
@@ -125,12 +135,13 @@
   <!-- IMU -->
   <!-- The IMU may not be configured out. -->
   <IMU>
-    <!-- production robot >
+    <!-- production robot -->
     <logo_facing_direction>LEFT</logo_facing_direction>
-    <usb_facing_direction>UP</usb_facing_direction  -->
-    <!-- test robot -->
-    <logo_facing_direction>FORWARD</logo_facing_direction>
     <usb_facing_direction>UP</usb_facing_direction>
+    <!-- test robot 
+        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.UsbFacingDirection.UP;
+    -->
   </IMU>
 
 </RobotConfig>
