@@ -390,6 +390,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         linearOpMode.telemetry.addLine("Position for delivery at " + pDeliverToLevel);
         linearOpMode.telemetry.update();
 
+        RobotLogCommon.d(TAG, "Moving elevator to level " + pDeliverToLevel + " at velocity " + elevatorVelocity);
         switch (pDeliverToLevel) {
             case LEVEL_1: {
                 async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);

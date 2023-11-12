@@ -78,7 +78,7 @@ public abstract class DualMotors extends MotorCore {
         setTargetPosition(rightMotorId, pPosition);
     }
 
-    public void setVelocityDual(double pVelocity) {
+    public void runDualMotorsAtVelocity(double pVelocity) {
         EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
         velocityMap.put(leftMotorId, pVelocity);
         velocityMap.put(rightMotorId, pVelocity);

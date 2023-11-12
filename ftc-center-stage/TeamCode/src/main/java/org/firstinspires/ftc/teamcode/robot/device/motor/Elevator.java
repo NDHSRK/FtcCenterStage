@@ -15,6 +15,7 @@ public class Elevator extends DualMotors {
 
     public static final String TAG = Elevator.class.getSimpleName();
 
+    //**TODO Remove CLEAR from all locations, including RobotConfig.xml - not needed without the boom
     public enum ElevatorLevel {
         GROUND, SAFE, CLEAR, AUTONOMOUS, LEVEL_1, LEVEL_2, LEVEL_3
     }

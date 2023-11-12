@@ -59,7 +59,7 @@ public class DualMotorMotion {
         dualMotors.setModeDual(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Start moving.
-        dualMotors.setVelocityDual(pVelocity);
+        dualMotors.runDualMotorsAtVelocity(pVelocity);
 
         // Keep moving until one of the motors has reached its target position.
         try {
