@@ -1344,8 +1344,8 @@ public class FTCAuto {
                 absoluteEncoderValue = robot.elevator.safe;
                 break;
             }
-            case CLEAR: {
-                absoluteEncoderValue = robot.elevator.clear;
+            case DRONE: {
+                absoluteEncoderValue = robot.elevator.drone;
                 break;
             }
             case AUTONOMOUS: {

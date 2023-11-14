@@ -5,16 +5,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
+import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
+
+//** To use this class just change the two lines marked with a comment
+//** beginning with //!! - these are crucial.
 
 @TeleOp(name = "SingleMotorCalibration", group = "Test")
 @Disabled
 public class SingleMotorCalibration extends TeleOpBase {
 
-    private Boom boom;
+    private SingleMotor singleMotor;
     private SingleMotorMotion singleMotorMotion;
 
     private FTCButton incrementButton;
@@ -31,9 +34,11 @@ public class SingleMotorCalibration extends TeleOpBase {
     @Override
     public void initialize() {
 
+        //!! The motor you want to test must be configured in via RobotConfig.xml.
+        //!! Get a reference to it from FTCRobot, e.g. singleMotor = robot.boom.
+
         // Set up for RUN_TO_POSITION and hold
-        boom = robot.boom;
-        singleMotorMotion = new SingleMotorMotion(this, boom);
+        singleMotorMotion = new SingleMotorMotion(this, singleMotor);
 
         incrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y); // increment
         decrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A); // decrement
@@ -64,7 +69,7 @@ public class SingleMotorCalibration extends TeleOpBase {
 
     private void updateIncrement() {
         if (incrementButton.is(FTCButton.State.TAP)) {
-            singleMotorMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_MOVEMENT, boom.getVelocity(),
+            singleMotorMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_MOVEMENT, singleMotor.getVelocity(),
                     SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
@@ -72,13 +77,15 @@ public class SingleMotorCalibration extends TeleOpBase {
 
     private void updateDecrement() {
         if (decrementButton.is(FTCButton.State.TAP)) {
-            singleMotorMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_MOVEMENT, boom.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            singleMotorMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_MOVEMENT, singleMotor.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             updateEncoderTelemetry();
         }
     }
 
+    //!! Change FTCRobot.MotorId.MOTOR_ID_NPOS to the enum value of the device under test,
+    // e.g. FTCRobot.MotorId.BOOM.
     private void updateEncoderTelemetry() {
-        telemetry.addData("current", boom.getCurrentPosition(FTCRobot.MotorId.BOOM));
+        telemetry.addData("current", singleMotor.getCurrentPosition(FTCRobot.MotorId.MOTOR_ID_NPOS));
         telemetry.update();
     }
 

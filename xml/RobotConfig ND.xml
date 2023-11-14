@@ -22,36 +22,22 @@
   </DRIVE_TRAIN>
 
   <ELEVATOR configured="yes">
-    <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001"
-      clicks_per_motor_rev="537.7" rpm="312.0">
+    <dual_motors model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
+    clicks_per_motor_rev="384.5" rpm="435.0">
       <left_motor direction="FORWARD">left_elevator</left_motor>
       <right_motor direction="REVERSE">right_elevator</right_motor>
     </dual_motors>
     <velocity>1.0</velocity>
     <positions>
       <ground>0</ground>
-      <safe>192</safe>
-      <clear>1996</clear>
-      <autonomous>4300</autonomous>
-      <level_1>5995</level_1>
-      <level_2>8297</level_2>
-      <level_3>8297</level_3> <!-- 10/31/23 not used; will not reach -->
+      <safe>95</safe>
+      <drone>2495</drone>
+      <autonomous>2995</autonomous>
+      <level_1>3398</level_1>
+      <level_2>4496</level_2>
+      <level_3>5596</level_3>
     </positions>
   </ELEVATOR>
-
-  <BOOM configured="no">
-    <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
-      clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
-      <id>boom</id> <!-- id as configured on the robot -->
-    </single_motor>
-    <velocity>0.5</velocity>
-    <positions>
-      <rest>0</rest>
-      <level_1>995</level_1>
-      <level_2>596</level_2>
-      <level_3>596</level_3> <!-- 10/31/23 level_3 not used -->
-    </positions>
-  </BOOM>
 
   <!-- Servos -->
    <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->

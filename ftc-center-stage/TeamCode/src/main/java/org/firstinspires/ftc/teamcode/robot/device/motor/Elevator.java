@@ -15,17 +15,16 @@ public class Elevator extends DualMotors {
 
     public static final String TAG = Elevator.class.getSimpleName();
 
-    //**TODO Remove CLEAR from all locations, including RobotConfig.xml - not needed without the boom
     public enum ElevatorLevel {
-        GROUND, SAFE, CLEAR, AUTONOMOUS, LEVEL_1, LEVEL_2, LEVEL_3
+        GROUND, SAFE, DRONE, AUTONOMOUS, LEVEL_1, LEVEL_2, LEVEL_3
     }
 
     public static final int ELEVATOR_MIN_POSITION = 0;
-    public static final int ELEVATOR_MAX_POSITION = 8700;
+    public static final int ELEVATOR_MAX_POSITION = 6200;
 
     public final int ground;
     public final int safe;
-    public final int clear;
+    public final int drone;
     public final int autonomous;
     public final int level_1;
     public final int level_2;
@@ -38,12 +37,12 @@ public class Elevator extends DualMotors {
          /*
            <positions>
              <ground>0</ground>
-             <safe>0</safe>
-             <clear>0</clear>
-             <autonomous>0</autonomous>
-             <level_1>0</level_1>
-             <level_2>0</Level_2>
-             <level_3>0</level_3>
+            <safe>95</safe>
+            <drone>2495</drone>
+            <autonomous>2995</autonomous>
+            <level_1>3398</level_1>
+            <level_2>4496</level_2>
+            <level_3>5596</level_3>
            </positions>
          */
 
@@ -55,9 +54,9 @@ public class Elevator extends DualMotors {
         if (safe < ELEVATOR_MIN_POSITION || safe > ELEVATOR_MAX_POSITION)
             throw new AutonomousRobotException(TAG, "Elevator safe position is out of range");
 
-        clear = pConfigXPath.getRequiredInt("positions/clear");
-        if (clear < ELEVATOR_MIN_POSITION || clear > ELEVATOR_MAX_POSITION)
-            throw new AutonomousRobotException(TAG, "Elevator clear position is out of range");
+        drone = pConfigXPath.getRequiredInt("positions/drone");
+        if (drone < ELEVATOR_MIN_POSITION || drone > ELEVATOR_MAX_POSITION)
+            throw new AutonomousRobotException(TAG, "Elevator drone position is out of range");
 
         autonomous = pConfigXPath.getRequiredInt("positions/autonomous");
         if (autonomous < ELEVATOR_MIN_POSITION || autonomous > ELEVATOR_MAX_POSITION)

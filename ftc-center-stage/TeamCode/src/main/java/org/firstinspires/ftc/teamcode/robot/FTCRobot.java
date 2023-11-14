@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUDirect;
-import org.firstinspires.ftc.teamcode.robot.device.motor.Boom;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DroneLauncherServo;
@@ -55,8 +54,6 @@ public class FTCRobot {
     // embedded within TeleOp.
     public final Elevator elevator;
     public final DualMotorMotion elevatorMotion;
-    public final Boom boom;
-    public final SingleMotorMotion boomMotion;
     public final DualSPARKMiniController pixelIO;
     public final PixelIOHolderServo pixelIOHolderServo;
     public final PixelStopperServo pixelStopperServo;
@@ -130,19 +127,6 @@ public class FTCRobot {
             } else {
                 elevator = null;
                 elevatorMotion = null;
-            }
-
-            //**TODO 11/10/23 Slated for removal.
-            // Get the configuration for the boom.
-            configXPath = configXML.getPath("BOOM");
-            String boomInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
-            if (boomInConfiguration.equals("yes")) {
-                //boom = new Boom(hardwareMap, configXPath);
-                //boomMotion = new SingleMotorMotion(pLinearOpMode, boom);
-                throw new AutonomousRobotException(TAG, "Unsupported peripheral: boom");
-            } else {
-                boom = null;
-                boomMotion = null;
             }
 
             // Get the configuration for pixel intake/outtake.

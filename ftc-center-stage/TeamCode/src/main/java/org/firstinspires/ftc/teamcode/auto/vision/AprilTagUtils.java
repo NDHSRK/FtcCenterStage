@@ -47,27 +47,15 @@ public class AprilTagUtils {
     // Returns a Pair where first is the inferred distance to the target AprilTag
     // and second is the inferred angle to the target AprilTag.
     // Credit to Notre Dame students Brandon Lim for the calculations and Sotiris
-    // Athenos for the IntelliJ test harness.
+    // Artenos for the IntelliJ test harness.
     private static Pair<Double, Double> calculator(int targetAprilTag, int givenAprilTag, double distanceGivenApril, double angleGivenApril) {
 
-        int sign = 1;
-        int endsign = 1;
-
-        //If the given AprilTag is left of the camera, the given AprilTag angle is returned as negative.
-        //As a result, we need to compensate by making it positive so the calculations can calculate the Angles and Sides of the right triangles.
-        if (targetAprilTag > givenAprilTag) {
-            sign = -1;
-        }
-
-        //It will give it a positive angle during the calculations if the target AprilTag is left of the given AprilTag as a result of unit circle properties because sine and cosine are both
-        //positive in quadrant 1 angles. However, since the AprilTag works with negative angles, we must make it negative.
-        if (targetAprilTag < givenAprilTag) {
-            endsign = -1;
-        }
+        int sign = targetAprilTag < givenAprilTag ? -1 : 1;
+        int endsign = targetAprilTag > givenAprilTag ? -1 : 1;
 
         //Math shown in the notebook
 
-        angleGivenApril = Math.toRadians(angleGivenApril);
+        angleGivenApril = sign * Math.toRadians(angleGivenApril);
         double c = distanceGivenApril * Math.sin(angleGivenApril);
         double f = (Math.abs(targetAprilTag - givenAprilTag) * 6) - c;
         double d = distanceGivenApril * Math.cos(angleGivenApril);

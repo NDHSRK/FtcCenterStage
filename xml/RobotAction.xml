@@ -10,41 +10,41 @@
         </parameters>
         <actions>
            
-            <STOP_WEBCAM>
+            <!-- STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
-            </STOP_WEBCAM>
+            </STOP_WEBCAM -->
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
             </START_WEBCAM>
 
-            <TURN>
-                <angle>90.0</angle>
-                <power>.5</power>
-                <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
-            </TURN>
-
             <WAIT_FOR_WEBCAM_START>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <timeout_ms>2000</timeout_ms>
             </WAIT_FOR_WEBCAM_START>
 
-            <DESKEW/>
-
             <!-- FIND_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <tag_id>tag_id_5</tag_id>
                 <timeout_ms>1000</timeout_ms>
-            </FIND_APRIL_TAG>
+            </FIND_APRIL_TAG -->
+
+            <DRIVE_TO_APRIL_TAG>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <tag_id>tag_id_5</tag_id>
+                <timeout_ms>1000</timeout_ms>
+                <desired_distance_from_tag>10.0</desired_distance_from_tag>
+                <direction>back</direction>
+            </DRIVE_TO_APRIL_TAG>
 
             <SLEEP>
                 <ms>1000</ms>
-            </SLEEP -->           
+            </SLEEP>           
 
-            <FIND_ALL_APRIL_TAGS>
+            <!-- FIND_ALL_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>                
-            </FIND_ALL_APRIL_TAGS>
+            </FIND_ALL_APRIL_TAGS -->
 
             <!-- TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
