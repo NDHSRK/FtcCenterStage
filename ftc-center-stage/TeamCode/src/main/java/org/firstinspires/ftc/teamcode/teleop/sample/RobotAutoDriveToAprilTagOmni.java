@@ -139,7 +139,7 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         if (USE_WEBCAM) {
-            //**TODO 10/23/23 setManualExposure(2, 250);  // Use low exposure time to reduce motion blur
+            //## 10/23/23 tried to little effect setManualExposure(2, 250);  // Use low exposure time to reduce motion blur
         }
 
         // Wait for driver to press start

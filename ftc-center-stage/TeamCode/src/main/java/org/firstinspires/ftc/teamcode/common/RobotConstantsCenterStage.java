@@ -4,23 +4,40 @@ public class RobotConstantsCenterStage {
 
     public enum OpMode {
         // Autonomous OpModes
-        BLUE_A2, BLUE_A4, RED_F2, RED_F4,
-        TEST, TEST_ELEVATOR, TEST_PRE_MATCH, AUTO_NO_DRIVE,
+        // BLUE_A2(OpModeType.AUTO_STARTING_POSITION),
+        BLUE_A4(OpModeType.COMPETITION),
+        // RED_F2(OpModeType.AUTO_STARTING_POSITION),
+        RED_F4(OpModeType.COMPETITION),
+
+        TEST(OpModeType.AUTO_TEST), TEST_PRE_MATCH(OpModeType.AUTO_TEST),
+        TEST_ELEVATOR(OpModeType.AUTO_TEST),
+        AUTO_NO_DRIVE(OpModeType.AUTO_TEST),
 
         // TeleOp OpModes
-        TELEOP_NO_DRIVE,
+        TELEOP_NO_DRIVE(OpModeType.TELEOP_TEST),
 
         // Pseudo OpModes for running Autonomous actions from within
         // TeleOp. These are not "real" OpMoces in that they don't
         // appear on the Driver Station but they are present in
         // RobotAction.xml.
-        TELEOP_TAKE_PICTURE_WEBCAM,
+        TELEOP_TAKE_PICTURE_WEBCAM(OpModeType.PSEUDO_OPMODE),
 
         // Pseudo OpModes for running EasyOpenCV webcam calibration
         // from TeleOp. These are also not "real" OpMoces in that
         // they don't appear on the Driver Station but they are
         // present in RobotAction.xml.
-        TEAM_PROP_CALIBRATION
+        TEAM_PROP_CALIBRATION(OpModeType.PSEUDO_OPMODE);
+
+        public enum OpModeType {COMPETITION, AUTO_TEST, TELEOP_TEST, PSEUDO_OPMODE}
+        private final OpModeType opModeType;
+
+        OpMode(OpModeType pOpModeType) {
+            opModeType = pOpModeType;
+        }
+
+        public OpModeType getOpModeType() {
+            return opModeType;
+        }
     }
 
     // The CameraId identifies each unique camera and its position on
@@ -35,7 +52,7 @@ public class RobotConstantsCenterStage {
     }
 
     public enum TeamPropRecognitionPath {
-        COLOR_CHANNEL_CIRCLES, COLOR_CHANNEL_CONTOURS,
+        COLOR_CHANNEL_CIRCLES, COLOR_CHANNEL_CONTOURS, COLOR_CHANNEL_PIXEL_COUNT,
         COLOR_CHANNEL_BRIGHT_SPOT, GRAYSCALE_BRIGHT_SPOT
     }
 

@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
+import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
@@ -77,6 +78,7 @@ public class FTCAuto {
     private PixelStopperServo.PixelServoState pixelServoState;
     private final String workingDirectory;
     private final RobotActionXMLCenterStage actionXML;
+    private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMappingXML.SpikeWindowData> collectedSpikeWindowData;
 
     private RobotConstantsCenterStage.InternalWebcamId openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
     private double desiredHeading = 0.0; // always normalized
@@ -136,6 +138,20 @@ public class FTCAuto {
         TeamPropParametersXML teamPropParametersXML = new TeamPropParametersXML(xmlDirectory);
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
+
+        //**TODO Make use of the spike window mapping - see IJCenterStageVision ...
+        // Note: if no COMPETITION or AUTO_TEST OpModes in RobotAction.XML contain
+        // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
+        SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
+                        collectedSpikeWindowData = spikeWindowMappingXML.collectSpikeWindowData();
+
+        // Note: if the current OpMode does not include an action of FIND_TEAM_PROP
+        // then a lookup on the OpMode will return null.
+       /*
+                if (opModeSpikeWindowData == null)
+                    throw new AutonomousRobotException(TAG, "Element 'FIND_TEAM_PROP' not found under OpMode TEST");
+
+         */
 
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);

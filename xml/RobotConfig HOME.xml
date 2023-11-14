@@ -11,87 +11,18 @@
     </drive_train_power>
   </TELEOP_SETTINGS>
 
-  <DRIVE_TRAIN configured="no">
-    <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019"
-      clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
-      <left_front_drive direction="REVERSE">lf</left_front_drive>
-      <right_front_drive direction="FORWARD">rf</right_front_drive>
-      <left_back_drive direction="REVERSE">lb</left_back_drive>
-      <right_back_drive direction="FORWARD">rb</right_back_drive>
-    </motors>
-  </DRIVE_TRAIN>
+  <DRIVE_TRAIN configured="no" />
 
-  <ELEVATOR configured="no">
-    <dual_motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5000-0002-0001"
-      clicks_per_motor_rev="537.7" rpm="312.0">
-      <left_motor direction="FORWARD">left_elevator</left_motor>
-      <right_motor direction="REVERSE">right_elevator</right_motor>
-    </dual_motors>
-    <velocity>0.5</velocity>
-    <positions>
-      <ground>0</ground>
-      <safe>192</safe>
-      <clear>1996</clear>
-      <autonomous>4300</autonomous>
-      <level_1>5995</level_1>
-      <level_2>8297</level_2>
-      <level_3>8297</level_3> <!-- 10/31/23 not used; will not reach -->
-    </positions>
-  </ELEVATOR>
-
-  <BOOM configured="no">
-    <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
-      clicks_per_motor_rev="384.5" rpm="435.0" direction="REVERSE">
-      <id>boom</id> <!-- id as configured on the robot -->
-    </single_motor>
-    <velocity>0.5</velocity>
-    <positions>
-      <rest>0</rest>
-      <level_1>995</level_1>
-      <level_2>596</level_2>
-      <level_3>596</level_3> <!-- 10/31/23 level_3 not used -->
-    </positions>
-  </BOOM>
+  <ELEVATOR configured="no" />
 
   <!-- Servos -->
-  <!-- The pixel intake/outtake consists of 2 servos that operate in tandem. -->
-  <PIXEL_IO configured="no">
-    <servos model="Rev Robotics SPARKmini Motor Controller REV-31-1230">
-      <controller_1 direction="FORWARD">front_intake</controller_1>
-      <controller_2 direction="FORWARD">main_intake</controller_2>
-    </servos>
-    <power>0.5</power>
-  </PIXEL_IO>
+  <PIXEL_IO configured="no" />
 
-  <PIXEL_IO_HOLDER configured="no">
-    <servo model="goBilda Dual Mode Servo 2000-0025-0003">
-      <id>intake_arm_holder</id>
-    </servo>
-    <positions>
-      <hold>0.5</hold>
-      <release>0.4</release>
-    </positions>
-    </PIXEL_IO_HOLDER>
-  
-    <PIXEL_STOPPER configured="no">
-      <servo model="goBilda Dual Mode Servo 2000-0025-0003">
-        <id>pixel_stopper</id>
-      </servo>
-      <positions>
-        <hold>0.5</hold>
-        <release>0.8</release>
-      </positions>
-    </PIXEL_STOPPER>
-     
-    <DRONE_LAUNCHER configured="no">
-      <servo model="goBilda Dual Mode Servo 2000-0025-0003">
-        <id>drone_launcher</id>
-      </servo>
-      <positions>
-        <hold>0.0</hold>
-        <launch>0.1</launch>
-      </positions>
-    </DRONE_LAUNCHER>
+  <PIXEL_IO_HOLDER configured="no" />
+
+  <PIXEL_STOPPER configured="no" />
+
+  <DRONE_LAUNCHER configured="no" />
 
   <!-- LED Ring -->
   <!-- None defined; see FreightFrenzy -->
@@ -102,22 +33,22 @@
   <!-- There is a maximum of two webcams in a set. -->
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
-           <!-- StreamCam -->
-           <webcam>
-            <internal_id>rear_webcam</internal_id>
-            <serial_number>EC2E0DA5</serial_number>
-            <resolution_width>640</resolution_width>
-            <resolution_height>480</resolution_height>
-            <processor_set>
-              <processor>april_tag</processor>
-            </processor_set>
-            <webcam_calibration_for_apriltags>
-               <focal_length_x>622.001</focal_length_x>
-               <focal_length_y>622.001</focal_length_y>
-               <principal_point_x>319.803</principal_point_x>
-               <principal_point_y>241.251</principal_point_y>
-            </webcam_calibration_for_apriltags>     
-         </webcam>
+      <!-- StreamCam -->
+      <webcam>
+        <internal_id>rear_webcam</internal_id>
+        <serial_number>EC2E0DA5</serial_number>
+        <resolution_width>640</resolution_width>
+        <resolution_height>480</resolution_height>
+        <processor_set>
+          <processor>april_tag</processor>
+        </processor_set>
+        <webcam_calibration_for_apriltags>
+          <focal_length_x>622.001</focal_length_x>
+          <focal_length_y>622.001</focal_length_y>
+          <principal_point_x>319.803</principal_point_x>
+          <principal_point_y>241.251</principal_point_y>
+        </webcam_calibration_for_apriltags>
+      </webcam>
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
 

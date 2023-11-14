@@ -96,9 +96,7 @@ public abstract class VisionPortalWebcam {
             while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING && streamingTimer.milliseconds() < pTimeoutMs) {
                 sleep(20);
             }
-
-            //**TODO leave in for testing but crashing is too dire for competition -
-            // just log, give up and return.
+            
             if (!webcamIsStreaming)
                 throw new AutonomousRobotException(TAG, "Timed out waiting for CameraState.STREAMING");
         }
