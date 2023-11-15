@@ -490,10 +490,10 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>140</x>
-                        <y>155</y>
-                        <width>485</width>
-                        <height>245</height>
+                        <x>149</x>
+                        <y>62</y>
+                        <width>477</width>
+                        <height>243</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
@@ -506,13 +506,13 @@
                     <left_window>
                         <x>0</x>
                         <y>0</y>
-                        <width>305</width>
-                        <height>245</height>
+                        <width>308</width>
+                        <height>243</height>
                         <prop_location>CENTER_SPIKE</prop_location>
                     </left_window>
                     <right_window>
                         <!-- x starts at left_window.x + left_window.width -->
-                        <width>175</width>
+                        <width>170</width>
                         <!-- y is the same as that of the left_window -->
                         <!-- height is the same as that of the left_window -->
                         <prop_location>RIGHT_SPIKE</prop_location>
@@ -572,10 +572,6 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <SLEEP>
-                        <ms>1000</ms>
-                    </SLEEP>
-
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <timeout_ms>1000</timeout_ms>
@@ -585,7 +581,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -602,23 +598,19 @@
 
                 <CENTER_SPIKE>
 
-                    <FORWARD>
-                        <distance>32.0</distance>
-                        <velocity>.5</velocity>
+                    <STRAIGHT_BY>
+                        <distance>34.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>-15.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </FORWARD>
-
-                    <BACK>
-                        <distance>4.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
+                    </STRAIGHT_BY>
 
                     <DELIVER_PIXEL_TO_SPIKE>
                         <duration_ms>350</duration_ms>
                     </DELIVER_PIXEL_TO_SPIKE>
 
                     <BACK>
-                        <distance>4.0</distance>
+                        <distance>5.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -635,10 +627,6 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <SLEEP>
-                        <ms>1000</ms>
-                    </SLEEP>
-
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <timeout_ms>1000</timeout_ms>
@@ -648,7 +636,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 

@@ -191,7 +191,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                         asyncMoveElevator = null;
                         asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_UP done");
+                        RobotLogCommon.d(TAG, "Async MOVE_ELEVATOR_UP done");
                     } else // the elevator is still moving
                         return; // skip the updates below
                     break;
@@ -201,7 +201,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                         asyncMoveElevator = null;
                         asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.v(TAG, "Async MOVE_ELEVATOR_DOWN done");
+                        RobotLogCommon.d(TAG, "Async MOVE_ELEVATOR_DOWN done");
                     } else // the elevator is still moving
                         return; // skip the updates below
                     break;
@@ -334,7 +334,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
             if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToSafe()");
+                RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToSafe()");
                 return;
             }
 
@@ -353,7 +353,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private void updateGoToGround() {
         if (goToGround.is(FTCButton.State.TAP)) {
             if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToGround()");
+                RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToGround()");
                 return;
             }
 
@@ -384,13 +384,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private boolean synch_move_elevator_to_drone_launch() {
         if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
+            RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
             return false;
         }
 
         // Movement must start at the SAFE level.
         if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
-            RobotLogCommon.v(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
+            RobotLogCommon.d(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
             return false;
         }
 
@@ -406,20 +406,20 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private boolean move_to_delivery_level(Elevator.ElevatorLevel pDeliverToLevel) {
         if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.v(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
+            RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
             return false;
         }
 
         // Validate the delivery level.
         if (!(pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
                 pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2)) {
-            RobotLogCommon.v(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
+            RobotLogCommon.d(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
             return false;
         }
 
         // Movement must start at the SAFE level.
         if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
-            RobotLogCommon.v(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
+            RobotLogCommon.d(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
             return false;
         }
 
@@ -457,7 +457,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         };
 
         asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_UP;
-        RobotLogCommon.v(TAG, "Async move elevator up in progress");
+        RobotLogCommon.d(TAG, "Async move elevator up in progress");
         asyncMoveElevator = Threading.launchAsync(callableMoveElevatorUp);
         return true;
     }
@@ -469,7 +469,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
 
         if (!(currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_1 ||
-                currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2)) { // sanity check
+                currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2 ||
+                currentElevatorLevel == Elevator.ElevatorLevel.DRONE)) { // sanity check
             RobotLogCommon.d(TAG, "Illegal attempt to move the elevator down from a level that is not 1 or 2");
             return false; // crashing may leave the elevator in an indeterminate state
         }
@@ -481,7 +482,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
         asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_DOWN_TO_SAFE;
         asyncMoveElevator = Threading.launchAsync(callableMoveElevatorDownToSafe);
-        RobotLogCommon.v(TAG, "Async move elevator down in progress");
+        RobotLogCommon.d(TAG, "Async move elevator down in progress");
         return true;
     }
 

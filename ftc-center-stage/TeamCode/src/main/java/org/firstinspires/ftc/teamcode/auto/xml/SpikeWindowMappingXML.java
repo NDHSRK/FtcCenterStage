@@ -18,6 +18,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
@@ -93,13 +94,16 @@ public class SpikeWindowMappingXML {
 
         // Get all OpModes but only process those with an OpModeType
         // of COMPETITION or AUTO_TEST.
+        SpikeWindowMappingXML.SpikeWindowData spikeDataOneOpMode;
         RobotConstantsCenterStage.OpMode[] allOpModes =
                 RobotConstantsCenterStage.OpMode.values();
         for (RobotConstantsCenterStage.OpMode oneOpMode : allOpModes) {
             if (oneOpMode.getOpModeType() == RobotConstantsCenterStage.OpMode.OpModeType.COMPETITION ||
                     oneOpMode.getOpModeType() == RobotConstantsCenterStage.OpMode.OpModeType.AUTO_TEST) {
                 RobotLogCommon.c(TAG, "Collecting Team Prop data for Autonomous OpMode " + oneOpMode);
-                spikeWindowData.put(oneOpMode, getSpikeWindowData(oneOpMode));
+                spikeDataOneOpMode = getSpikeWindowData(oneOpMode);
+                if (spikeDataOneOpMode != null)
+                    spikeWindowData.put(oneOpMode, getSpikeWindowData(oneOpMode));
             }
         }
 
@@ -165,8 +169,10 @@ public class SpikeWindowMappingXML {
         // Use XPath to locate the desired OpMode and its child element FIND_TEAM_PROP.
         String findTeamPropPath = "/RobotAction/OpMode[@id=" + "'" + pOpMode + "']" + "/actions/FIND_TEAM_PROP";
         Node find_team_propNode = (Node) xpath.evaluate(findTeamPropPath, document, XPathConstants.NODE);
-        if (find_team_propNode == null)
-            throw new AutonomousRobotException(TAG, "No path to " + pOpMode + "/FIND_TEAM_PROP");
+        if (find_team_propNode == null) {
+            // RobotLogCommon.d(TAG, "No path to " + pOpMode + "/FIND_TEAM_PROP");
+            return null;
+        }
 
         RobotLogCommon.c(TAG, "Extracting data from RobotAction.xml for " + findTeamPropPath);
 

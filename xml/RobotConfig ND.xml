@@ -69,7 +69,7 @@
       </positions>
     </PIXEL_STOPPER>
      
-    <DRONE_LAUNCHER configured="no">
+    <DRONE_LAUNCHER configured="yes">
       <servo model="goBilda Dual Mode Servo 2000-0025-0003">
         <id>drone_launcher</id>
       </servo>

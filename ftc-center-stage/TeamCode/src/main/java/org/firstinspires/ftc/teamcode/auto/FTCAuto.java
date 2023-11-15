@@ -79,6 +79,7 @@ public class FTCAuto {
     private final String workingDirectory;
     private final RobotActionXMLCenterStage actionXML;
     private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMappingXML.SpikeWindowData> collectedSpikeWindowData;
+    private SpikeWindowMappingXML.SpikeWindowData currentSpikeWindowData;
 
     private RobotConstantsCenterStage.InternalWebcamId openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
     private double desiredHeading = 0.0; // always normalized
@@ -145,14 +146,6 @@ public class FTCAuto {
         SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
                         collectedSpikeWindowData = spikeWindowMappingXML.collectSpikeWindowData();
 
-        // Note: if the current OpMode does not include an action of FIND_TEAM_PROP
-        // then a lookup on the OpMode will return null.
-       /*
-                if (opModeSpikeWindowData == null)
-                    throw new AutonomousRobotException(TAG, "Element 'FIND_TEAM_PROP' not found under OpMode TEST");
-
-         */
-
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
         backdropParameters = backdropParametersXML.getBackdropParameters();
@@ -205,6 +198,17 @@ public class FTCAuto {
             RobotLogCommon.i(TAG, "FTCAuto runRobot()");
             robot.imuDirect.resetIMUYaw();
             RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuDirect.getIMUHeading());
+
+            // Get the spike window data for the current OpMode.
+            // Note: if the current OpMode does not include an action of FIND_TEAM_PROP
+            // then a lookup on the OpMode will return null. This is legal for such
+            // OpModes as TEST_ELEVATOR.
+            if (!collectedSpikeWindowData.isEmpty())
+                currentSpikeWindowData = collectedSpikeWindowData.get(pOpMode);
+
+            if (currentSpikeWindowData != null)
+                RobotLogCommon.d(TAG, "Retrieved spike window data for OpMode " + pOpMode);
+            else RobotLogCommon.d(TAG, "No spike window data for OpMode " + pOpMode);
 
             // Extract data from
             // the parsed XML file for the selected OpMode only.
