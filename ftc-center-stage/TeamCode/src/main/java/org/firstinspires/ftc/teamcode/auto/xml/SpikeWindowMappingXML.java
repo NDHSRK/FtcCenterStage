@@ -190,11 +190,14 @@ public class SpikeWindowMappingXML {
         if ((recognition_node == null) || !recognition_node.getNodeName().equals("team_prop_recognition"))
             throw new AutonomousRobotException(TAG, "Element 'team_prop_recognition' not found");
 
-        // Drop down and skip the <recognition_path> element.
+        // Drop down to the <recognition_path> element.
         Node path_node = recognition_node.getFirstChild();
         path_node = XMLUtils.getNextElement(path_node);
-        if ((path_node == null) || !path_node.getNodeName().equals("recognition_path"))
+        if ((path_node == null) || !path_node.getNodeName().equals("recognition_path") || path_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'recognition_path' not found");
+
+        RobotConstantsCenterStage.TeamPropRecognitionPath recognitionPath =
+                RobotConstantsCenterStage.TeamPropRecognitionPath.valueOf(path_node.getTextContent().toUpperCase()) ;
 
         // Parse the <left_window> element.
         Node left_node = path_node.getNextSibling();
@@ -318,16 +321,19 @@ public class SpikeWindowMappingXML {
 
         spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0), nposLocation));
 
-        return new SpikeWindowData(imageParameters, spikeWindows);
+        return new SpikeWindowData(imageParameters, recognitionPath, spikeWindows);
     }
 
     public static class SpikeWindowData {
         public final VisionParameters.ImageParameters imageParameters;
+        public final RobotConstantsCenterStage.TeamPropRecognitionPath recognitionPath;
         public final EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows;
 
         public SpikeWindowData(VisionParameters.ImageParameters pImageParameters,
+                               RobotConstantsCenterStage.TeamPropRecognitionPath pRecognitionPath,
                                EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> pSpikeWindows) {
             imageParameters = pImageParameters;
+            recognitionPath = pRecognitionPath;
             spikeWindows = pSpikeWindows;
         }
     }

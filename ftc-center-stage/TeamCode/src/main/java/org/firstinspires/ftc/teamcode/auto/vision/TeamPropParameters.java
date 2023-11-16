@@ -1,35 +1,22 @@
 package org.firstinspires.ftc.teamcode.auto.vision;
 
-import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.opencv.core.Rect;
-
-import java.util.EnumMap;
-
-// Input parameters to barcode recognition.
+// Input parameters to Team Prop recognition.
 public class TeamPropParameters {
 
     public final ColorChannelCirclesParameters colorChannelCirclesParameters;
     public final ColorChannelContoursParameters colorChannelContoursParameters;
+    public final ColorChannelPixelCountParameters colorChannelPixelCountParameters;
     public final BrightSpotParameters brightSpotParameters;
-
-    private EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows =
-            new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
 
     public TeamPropParameters(ColorChannelCirclesParameters pColorChannelCirclesParameters,
                               ColorChannelContoursParameters pColorChannelContoursParameters,
-                              BrightSpotParameters pBrightSpotParameters) {
+                              ColorChannelPixelCountParameters pColorChannelPixelCountParameters,
+                              BrightSpotParameters pBrightSpotParameters
+                              ) {
         colorChannelCirclesParameters = pColorChannelCirclesParameters;
         colorChannelContoursParameters = pColorChannelContoursParameters;
+        colorChannelPixelCountParameters = pColorChannelPixelCountParameters;
         brightSpotParameters = pBrightSpotParameters;
-    }
-
-    public void setSpikeWindows(EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> pSpikeWindows) {
-        spikeWindows = pSpikeWindows;
-    }
-
-    public EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> getSpikeWindows() {
-        return spikeWindows;
     }
 
     public static class ColorChannelCirclesParameters {
@@ -90,6 +77,16 @@ public class TeamPropParameters {
             grayParameters = pGrayParameters;
             minArea = pMinArea;
             maxArea = pMaxArea;
+        }
+    }
+
+    public static class ColorChannelPixelCountParameters {
+        public final VisionParameters.GrayParameters grayParameters;
+        public final int minWhitePixelCount;
+
+        public ColorChannelPixelCountParameters(VisionParameters.GrayParameters pGrayParameters, int pMinWhitePixelCount) {
+            grayParameters = pGrayParameters;
+            minWhitePixelCount = pMinWhitePixelCount;
         }
     }
 

@@ -14,6 +14,9 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 // handling in one place.
 public class FTCAutoDispatch {
 
+    //## We can't send the OpMode in to the FTCAuto constructor because
+    // when we run FTCAuto from TeleOp we only use pseudo OpModes that
+    // are referenced after TeleOp has already started.
     public static void runAuto(RobotConstants.RunType pRunType,
                                RobotConstantsCenterStage.OpMode pOpMode,
                                RobotConstants.Alliance pAlliance,

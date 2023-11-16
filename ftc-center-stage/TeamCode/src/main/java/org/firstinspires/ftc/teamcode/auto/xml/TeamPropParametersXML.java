@@ -244,8 +244,46 @@ public class TeamPropParametersXML {
                 new TeamPropParameters.ColorChannelContoursParameters(contoursGrayParameters,
                         minArea, maxArea);
 
+        // Point to <color_channel_pixel_count>
+        Node pixel_count_node = contours_node.getNextSibling();
+        pixel_count_node = XMLUtils.getNextElement(pixel_count_node);
+        if ((pixel_count_node == null) || !pixel_count_node.getNodeName().equals("color_channel_pixel_count"))
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count' not found");
+
+        // Point to <gray_parameters>
+        Node pixel_count_gray_node = pixel_count_node.getFirstChild();
+        pixel_count_gray_node = XMLUtils.getNextElement(pixel_count_gray_node);
+        if ((pixel_count_gray_node == null) || !contours_gray_node.getNodeName().equals("gray_parameters"))
+            throw new AutonomousRobotException(TAG, "Element 'gray_parameters' under 'color_channel_pixel_count' not found");
+
+        VisionParameters.GrayParameters pixelCountGrayParameters = ImageXML.parseGrayParameters(pixel_count_gray_node);
+
+        // Point to the criteria for the pixel count.
+        Node pixel_count_criteria_node = pixel_count_gray_node.getNextSibling();
+        pixel_count_criteria_node = XMLUtils.getNextElement(pixel_count_criteria_node);
+        if (pixel_count_criteria_node == null)
+            throw new AutonomousRobotException(TAG, "Element 'criteria' under 'color_channel_pixel_count' not found");
+
+        // Parse the <min_white_pixel_count> element.
+        Node min_pixels_node = pixel_count_criteria_node.getFirstChild();
+        min_pixels_node = XMLUtils.getNextElement(min_pixels_node);
+        if (min_pixels_node == null || !min_pixels_node.getNodeName().equals("min_white_pixel_count") ||
+                min_pixels_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'min_white_pixel_count' not found or empty");
+
+        String minPixelsText = min_pixels_node.getTextContent();
+        int minPixelCount;
+        try {
+            minPixelCount = Integer.parseInt(minPixelsText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_white_pixel_count'");
+        }
+
+        TeamPropParameters.ColorChannelPixelCountParameters colorChannelPixelCountParameters =
+                new TeamPropParameters.ColorChannelPixelCountParameters(pixelCountGrayParameters, minPixelCount);
+
         // Point to <bright_spot>
-        Node bright_spot_node = contours_node.getNextSibling();
+        Node bright_spot_node = pixel_count_node.getNextSibling();
         bright_spot_node = XMLUtils.getNextElement(bright_spot_node);
         if ((bright_spot_node == null) || !bright_spot_node.getNodeName().equals("bright_spot"))
             throw new AutonomousRobotException(TAG, "Element 'bright_spot' not found");
@@ -276,7 +314,7 @@ public class TeamPropParametersXML {
                 new TeamPropParameters.BrightSpotParameters(brightSpotGrayParameters, blurKernel);
 
         return new TeamPropParameters(colorChannelCirclesParameters,
-                colorChannelContoursParameters, brightSpotParameters);
+                colorChannelContoursParameters, colorChannelPixelCountParameters, brightSpotParameters);
     }
 
 }

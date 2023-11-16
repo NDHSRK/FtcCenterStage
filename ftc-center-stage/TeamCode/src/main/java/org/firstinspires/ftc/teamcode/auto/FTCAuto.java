@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
-import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
 import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
@@ -33,9 +32,9 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
-import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
@@ -47,7 +46,6 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.opencv.core.Mat;
-import org.opencv.core.Rect;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.xml.sax.SAXException;
 
@@ -78,6 +76,7 @@ public class FTCAuto {
     private final String workingDirectory;
     private final RobotActionXMLCenterStage actionXML;
     private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMappingXML.SpikeWindowData> collectedSpikeWindowData;
+    private final SpikeWindowMappingXML spikeWindowMappingXML;
     private SpikeWindowMappingXML.SpikeWindowData currentSpikeWindowData;
 
     private RobotConstantsCenterStage.InternalWebcamId openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
@@ -139,10 +138,9 @@ public class FTCAuto {
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
 
-        //**TODO Make use of the spike window mapping - see IJCenterStageVision ...
-        // Note: if no COMPETITION or AUTO_TEST OpModes in RobotAction.XML contain
+        // Note: if no COMPETITION or AUTO_TEST OpModes in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
-        SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
+        spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
         collectedSpikeWindowData = spikeWindowMappingXML.collectSpikeWindowData();
 
         // Read the parameters for the backdrop from the xml file.
@@ -235,7 +233,7 @@ public class FTCAuto {
 
                 if (!executeTeamPropLocationActions) { // execute steps specific to team prop locations now?
                     // No, but executeAction may change that.
-                    if (!executeAction(action))
+                    if (!executeAction(action, pOpMode))
                         return;
                 }
 
@@ -250,7 +248,7 @@ public class FTCAuto {
                         if (!linearOpMode.opModeIsActive())
                             return; // better to just bail out
 
-                        if (!executeAction(insertedStep))
+                        if (!executeAction(insertedStep, pOpMode))
                             return;
                     }
                     teamPropLocationInsert.clear();
@@ -280,7 +278,7 @@ public class FTCAuto {
     // Using the XML elements and attributes from the configuration file
     // RobotAction.xml, execute the action.
     @SuppressLint("DefaultLocale")
-    private boolean executeAction(RobotXMLElement pAction) throws Exception {
+    private boolean executeAction(RobotXMLElement pAction, RobotConstantsCenterStage.OpMode pOpMode) throws Exception {
 
         // Set up XPath access to the current action.
         XPathAccess actionXPath = new XPathAccess(pAction);
@@ -576,10 +574,13 @@ public class FTCAuto {
             // Find the location of the Team Prop.
             case "FIND_TEAM_PROP": {
                 // Prepare for image recognition.
-                VisionParameters.ImageParameters teamPropImageParameters =
-                        actionXML.getImageParametersFromXPath(pAction, "image_parameters");
+                SpikeWindowMappingXML.SpikeWindowData opModeSpikeWindowData =
+                        spikeWindowMappingXML.collectSpikeWindowData(pOpMode);
 
-                String webcamIdString = teamPropImageParameters.image_source.toUpperCase();
+                if (opModeSpikeWindowData == null)
+                    throw new AutonomousRobotException(TAG, "Element 'FIND_TEAM_PROP' not found under OpMode " + pOpMode);
+
+                String webcamIdString = opModeSpikeWindowData.imageParameters.image_source;
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 if (openWebcam != webcamId)
@@ -588,42 +589,13 @@ public class FTCAuto {
                 RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
 
                 // Get the recognition path from the XML file.
-                String recognitionPathString = actionXPath.getRequiredText("team_prop_recognition/recognition_path");
                 RobotConstantsCenterStage.TeamPropRecognitionPath teamPropRecognitionPath =
-                        RobotConstantsCenterStage.TeamPropRecognitionPath.valueOf(recognitionPathString.toUpperCase());
-
+                        opModeSpikeWindowData.recognitionPath;
                 RobotLogCommon.d(TAG, "Recognition path " + teamPropRecognitionPath);
-
-                // Set the team prop recognition parameters for the current OpMode.
-                EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows =
-                        new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
-
-                // The left window onto the three spikes may be the leftmost spike or the
-                // center spike. The right window is always immediately to the right of the
-                // left window.
-                // Get the boundaries for the left window onto the spikes.
-                int left_x = actionXPath.getRequiredInt("team_prop_recognition/left_window/x");
-                int left_y = actionXPath.getRequiredInt("team_prop_recognition/left_window/y");
-                int left_width = actionXPath.getRequiredInt("team_prop_recognition/left_window/width");
-                int left_height = actionXPath.getRequiredInt("team_prop_recognition/left_window/height");
-                RobotConstantsCenterStage.TeamPropLocation team_prop_in_left_window = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/left_window/prop_location").toUpperCase());
-                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.LEFT, Pair.create(new Rect(left_x, left_y, left_width, left_height), team_prop_in_left_window));
-
-                // Get the boundaries for the right window onto the spikes.
-                int right_width = actionXPath.getRequiredInt("team_prop_recognition/right_window/width");
-                RobotConstantsCenterStage.TeamPropLocation team_prop_in_right_window = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/right_window/prop_location").toUpperCase());
-                // Note: the right window starts 1 pixel past the left element. The height of the right
-                // window is the same as that of the left window.
-                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT, Pair.create(new Rect(left_x + left_width, left_y, right_width, left_height), team_prop_in_right_window));
-
-                // Set the spike location to infer if the Team Prop is neither in the left nor right window.
-                RobotConstantsCenterStage.TeamPropLocation team_prop_npos = RobotConstantsCenterStage.TeamPropLocation.valueOf(actionXPath.getRequiredText("team_prop_recognition/team_prop_npos/prop_location").toUpperCase());
-                spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0), team_prop_npos));
-                teamPropParameters.setSpikeWindows(spikeWindows);
 
                 // Perform image recognition.
                 TeamPropReturn teamPropReturn =
-                        teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropImageParameters, teamPropParameters, teamPropRecognitionPath);
+                        teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropRecognitionPath, teamPropParameters, opModeSpikeWindowData);
 
                 RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
 
