@@ -9,12 +9,20 @@
             <log_level>v</log_level>
         </parameters>
         <actions>
-           
+
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
+
+            <STOP_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM>
+
             <!-- STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM -->
 
-            <START_WEBCAM>
+            <!-- START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
             </START_WEBCAM>
@@ -22,7 +30,7 @@
             <WAIT_FOR_WEBCAM_START>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <timeout_ms>2000</timeout_ms>
-            </WAIT_FOR_WEBCAM_START>
+            </WAIT_FOR_WEBCAM_START -->
 
             <!-- FIND_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -30,7 +38,7 @@
                 <timeout_ms>1000</timeout_ms>
             </FIND_APRIL_TAG -->
 
-            <DRIVE_TO_APRIL_TAG>
+            <!-- DRIVE_TO_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <tag_id>tag_id_5</tag_id>
                 <timeout_ms>1000</timeout_ms>
@@ -40,7 +48,7 @@
 
             <SLEEP>
                 <ms>1000</ms>
-            </SLEEP>           
+            </SLEEP -->
 
             <!-- FIND_ALL_APRIL_TAGS>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>                
@@ -204,6 +212,13 @@
         </actions>
     </OpMode>
 
+    <!-- All competition OpModes:
+        Moving closer to the backdrop helps with the accuracy
+        of our final approach. The AprilTag gives actual distances,
+        which we pass to the robot, but the robot never moves as
+        far as a given actual distance. In the OpModes below look
+        for a movement <BACK> after a turn towards the backdrop. -->
+
     <OpMode id="BLUE_A4">
         <parameters>
             <log_level>v</log_level>
@@ -219,10 +234,10 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>62</x>
-                        <y>150</y>
-                        <width>492</width>
-                        <height>225</height>
+                        <x>59</x>
+                        <y>127</y>
+                        <width>503</width>
+                        <height>224</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
@@ -235,13 +250,13 @@
                     <left_window>
                         <x>0</x>
                         <y>0</y>
-                        <width>160</width>
-                        <height>225</height>
+                        <width>175</width>
+                        <height>224</height>
                         <prop_location>LEFT_SPIKE</prop_location>
                     </left_window>
                     <right_window>
                         <!-- x starts at left_window.x + left_window.width -->
-                        <width>330</width>
+                        <width>328</width>
                         <!-- y is the same as that of the left_window -->
                         <!-- height is the same as that of the left_window -->
                         <prop_location>CENTER_SPIKE</prop_location>
@@ -267,10 +282,11 @@
 
             <TEAM_PROP_LOCATION_CHOICE>
                 <LEFT_SPIKE>
+
                     <STRAIGHT_BY>
-                        <distance>35.0</distance>
+                        <distance>45.0</distance>
                         <velocity>0.75</velocity>
-                        <angle>30.0</angle>
+                        <angle>25.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -284,65 +300,7 @@
                     </DELIVER_PIXEL_TO_SPIKE>
 
                     <BACK>
-                        <distance>4.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
-
-                    <TURN>
-                        <angle>-90.0</angle>
-                        <power>.5</power>
-                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
-                    </TURN>
-
-                    <DESKEW />
-
-                    <SLEEP>
-                        <ms>1000</ms>
-                    </SLEEP>
-
-                    <WAIT_FOR_WEBCAM_START>
-                        <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <timeout_ms>2000</timeout_ms>
-                    </WAIT_FOR_WEBCAM_START>
-
-                    <DRIVE_TO_APRIL_TAG>
-                        <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <tag_id>tag_id_1</tag_id>
-                        <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
-                        <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
-
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1000</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
-
-                    <STRAFE_LEFT>
-                        <distance>30.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
-
-                </LEFT_SPIKE>
-
-                <CENTER_SPIKE>
-
-                    <FORWARD>
-                        <distance>32.0</distance>
-                        <velocity>.5</velocity>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </FORWARD>
-
-                    <BACK>
-                        <distance>5.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
-
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>350</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
-
-                    <BACK>
-                        <distance>4.0</distance>
+                        <distance>6.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -359,9 +317,60 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <SLEEP>
-                        <ms>1000</ms>
-                    </SLEEP>
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>2000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_1</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1000</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <STRAFE_LEFT>
+                        <distance>40.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                </LEFT_SPIKE>
+
+                <CENTER_SPIKE>
+
+                    <STRAIGHT_BY>
+                        <distance>34.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>15.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>350</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <BACK>
+                        <distance>5.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <TURN>
+                        <angle>-90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <BACK>
+                        <distance>12.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -372,7 +381,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -421,10 +430,6 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <SLEEP>
-                        <ms>1000</ms>
-                    </SLEEP>
-
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <timeout_ms>1000</timeout_ms>
@@ -434,7 +439,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -443,7 +448,7 @@
                     </DELIVER_PIXEL_TO_BACKSTOP>
 
                     <STRAFE_LEFT>
-                        <distance>30.0</distance>
+                        <distance>10.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_LEFT>
 
@@ -490,10 +495,10 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>149</x>
-                        <y>62</y>
-                        <width>477</width>
-                        <height>243</height>
+                        <x>145</x>
+                        <y>115</y>
+                        <width>487</width>
+                        <height>254</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
@@ -506,13 +511,13 @@
                     <left_window>
                         <x>0</x>
                         <y>0</y>
-                        <width>308</width>
-                        <height>243</height>
+                        <width>318</width>
+                        <height>254</height>
                         <prop_location>CENTER_SPIKE</prop_location>
                     </left_window>
                     <right_window>
                         <!-- x starts at left_window.x + left_window.width -->
-                        <width>170</width>
+                        <width>169</width>
                         <!-- y is the same as that of the left_window -->
                         <!-- height is the same as that of the left_window -->
                         <prop_location>RIGHT_SPIKE</prop_location>
@@ -581,7 +586,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -654,9 +659,9 @@
                 <RIGHT_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>35.0</distance>
+                        <distance>45.0</distance>
                         <velocity>0.75</velocity>
-                        <angle>-30.0</angle>
+                        <angle>-25.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -670,7 +675,7 @@
                     </DELIVER_PIXEL_TO_SPIKE>
 
                     <BACK>
-                        <distance>4.0</distance>
+                        <distance>6.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -682,9 +687,10 @@
 
                     <DESKEW />
 
-                    <SLEEP>
-                        <ms>1000</ms>
-                    </SLEEP>
+                    <BACK>
+                        <distance>12.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -695,7 +701,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -704,7 +710,7 @@
                     </DELIVER_PIXEL_TO_BACKSTOP>
 
                     <STRAFE_RIGHT>
-                        <distance>30.0</distance>
+                        <distance>40.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_RIGHT>
 
@@ -722,7 +728,7 @@
                 <operation>start</operation>
                 <position>SAFE</position>
             </ASYNC_MOVE_ELEVATOR>
- 
+
             <!-- Wait for operations to complete :) -->
             <ASYNC_MOVE_ELEVATOR>
                 <operation>wait</operation>

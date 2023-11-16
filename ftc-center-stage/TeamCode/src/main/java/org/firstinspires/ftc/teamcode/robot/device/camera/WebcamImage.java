@@ -18,6 +18,7 @@ public class WebcamImage implements ImageProvider {
         webcamFrameWebcam = pWebcamFrameWebcam;
     }
 
+    //**TODO hardcodes the timeout - because IJ doesn't need it, but ...
     //!! Warning - may return null if the timer expires without a frame.
     // LocalDateTime requires minSdkVersion 26  public Pair<Mat, LocalDateTime> getImage() throws InterruptedException;
     @Override

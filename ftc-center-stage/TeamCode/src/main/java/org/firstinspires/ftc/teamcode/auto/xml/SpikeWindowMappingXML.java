@@ -79,7 +79,7 @@ public class SpikeWindowMappingXML {
     }
 
     // Collect spike window data (resolution, ROI, spike windows, etc.)
-    // for one Autonomous Opmode from RobotAction.xml. May return null
+    // for one Autonomous OpMode from RobotAction.xml. May return null
     // if the OpMode does not contain a <FIND_TEAM_PROP> element.
     public SpikeWindowData collectSpikeWindowData(RobotConstantsCenterStage.OpMode pOpMode) throws XPathExpressionException {
         RobotLogCommon.c(TAG, "Collecting Team Prop data for Autonomous OpMode " + pOpMode);
@@ -87,7 +87,7 @@ public class SpikeWindowMappingXML {
     }
 
     // Collect spike window data (resolution, ROI, spike windows, etc.)
-    // for all Autonomous competition Opmodes from RobotAction.xml.
+    // for all Autonomous competition OpModes from RobotAction.xml.
     public EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowData> collectSpikeWindowData() throws XPathExpressionException {
         EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowData> spikeWindowData =
                 new EnumMap<>(RobotConstantsCenterStage.OpMode.class);

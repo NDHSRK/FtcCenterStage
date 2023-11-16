@@ -144,7 +144,7 @@ public class FTCAuto {
         // Note: if no COMPETITION or AUTO_TEST OpModes in RobotAction.XML contain
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
         SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
-                        collectedSpikeWindowData = spikeWindowMappingXML.collectSpikeWindowData();
+        collectedSpikeWindowData = spikeWindowMappingXML.collectSpikeWindowData();
 
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
@@ -420,6 +420,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
 
+                //**TODO a WebcamFrameProcessor may already exist (see FTCAuto constructor)
                 switch (processorId) {
                     case WEBCAM_FRAME: {
                         VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
@@ -713,6 +714,13 @@ public class FTCAuto {
             // Locate a specific AprilTag and drive the robot into position
             // in front of it with the method we used in PowerPlay.
             case "DRIVE_TO_APRIL_TAG": {
+                if (asyncMoveElevator != null) // Prevent double initialization
+                    throw new AutonomousRobotException(TAG, "asyncMoveElevator is already in progress");
+
+                // Movement must start at the SAFE level.
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "Move to the AUTONOMOUS level may not start at elevator " + currentElevatorLevel);
+
                 deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
 
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
@@ -720,7 +728,7 @@ public class FTCAuto {
 
                 Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findBackdropAprilTag(targetTagId, actionXPath);
                 if (detectionData.second == null)
-                        return false; // no sure path to the backdrop
+                    return false; // no sure path to the backdrop
 
                 // If the backstop AprilTag that was found is not our target tag
                 // then infer the position of the target tag.
@@ -799,6 +807,11 @@ public class FTCAuto {
                     RobotLogCommon.d(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
                 }
 
+                // Start the elevator moving up to the AUTONOMOUS level asynchronously.
+                Callable<Elevator.ElevatorLevel> callableMoveElevator = move_elevator(Elevator.ElevatorLevel.AUTONOMOUS);
+                asyncMoveElevator = Threading.launchAsync(callableMoveElevator);
+                RobotLogCommon.d(TAG, "Start asynchronous elevator movement to the AUTONOMOUS level");
+
                 // Move the robot towards the backstop. Take into account the robot's direction of travel.
                 // Add in distance percentage adjustment.
                 if (backdropParameters.distanceAdjustmentPercent != 0.0) {
@@ -814,6 +827,10 @@ public class FTCAuto {
                     driveTrainMotion.straight(targetClicks, moveAngle, straightLineVelocity, 0, desiredHeading);
                 }
 
+                // Wait for the elevator movement to complete.
+                currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
+                RobotLogCommon.d(TAG, "Async move elevator: complete");
+                asyncMoveElevator = null;
                 break;
             }
 
@@ -906,6 +923,7 @@ public class FTCAuto {
                         if (asyncMoveElevator != null) // Prevent double initialization
                             throw new AutonomousRobotException(TAG, "asyncMoveElevator is already in progress");
 
+                        RobotLogCommon.d(TAG, "ASYNC_MOVE_ELEVATOR start");
                         Callable<Elevator.ElevatorLevel> callableMoveElevator = move_elevator(actionXPath);
                         asyncMoveElevator = Threading.launchAsync(callableMoveElevator);
                         break;
@@ -916,9 +934,9 @@ public class FTCAuto {
                         if (asyncMoveElevator == null)
                             throw new AutonomousRobotException(TAG, "In wait: asyncMoveElevator has not been initalized");
 
-                        RobotLogCommon.d(TAG, "asyncMoveElevator: wait");
+                        RobotLogCommon.d(TAG, "ASYNC_MOVE_ELEVATOR wait");
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
-                        RobotLogCommon.d(TAG, "Async move elevator: complete");
+                        RobotLogCommon.d(TAG, "ASYNC_MOVE_ELEVATOR wait complete");
                         asyncMoveElevator = null;
                         break;
                     }
@@ -929,7 +947,9 @@ public class FTCAuto {
                 break;
             }
 
-            // Need to return the position from both Callables
+            // Assumes the robot is in position in front of the target
+            // backstop and that the elevator is at the AUTONOOUS
+            // level.
             case "DELIVER_PIXEL_TO_BACKSTOP": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
                 if (!deliver_pixel_to_backstop(duration))
@@ -1073,6 +1093,7 @@ public class FTCAuto {
         String operation = pActionXPath.getRequiredTextInRange("operation", pActionXPath.validRange("start", "wait"));
         switch (operation) {
             case "start": {
+                RobotLogCommon.d(TAG, "async_straight_by start");
                 Callable<Void> callableDriveToPosition =
                         straight_by(pActionXPath, pAngle);
                 asyncStraight = Threading.launchAsync(callableDriveToPosition);
@@ -1084,10 +1105,10 @@ public class FTCAuto {
                 if (asyncStraight == null)
                     throw new AutonomousRobotException(TAG, "In wait: asyncStraight has not been initalized");
 
-                RobotLogCommon.d(TAG, "Async drive straight: wait");
+                RobotLogCommon.d(TAG, "async_straight_by wait");
                 Threading.getFutureCompletion(asyncStraight);
-                RobotLogCommon.d(TAG, "Async drive straight: complete");
                 asyncStraight = null;
+                RobotLogCommon.d(TAG, "async_straight_by wait complete");
                 break;
             }
 
@@ -1138,6 +1159,7 @@ public class FTCAuto {
             case "start": {
                 Callable<Double> callableTurn = turn(pActionXPath);
                 asyncTurn = Threading.launchAsync(callableTurn);
+                RobotLogCommon.d(TAG, "ASYNC_TURN start");
                 break;
             }
 
@@ -1146,9 +1168,8 @@ public class FTCAuto {
                 if (asyncTurn == null)
                     throw new AutonomousRobotException(TAG, "In wait: asyncTurn has not been initalized");
 
-                RobotLogCommon.d(TAG, "Async turn: wait");
+                RobotLogCommon.d(TAG, "ASYNC_TURN wait");
                 desiredHeading = Threading.getFutureCompletion(asyncTurn);
-                RobotLogCommon.d(TAG, "Async turn: complete");
                 asyncTurn = null;
                 break;
             }
@@ -1276,8 +1297,7 @@ public class FTCAuto {
                 if (detection.id == pTargetTagId.getNumericId()) {
                     targetDetection = detection;
                     break; // don't look any further.
-                }
-                else {
+                } else {
                     if (Math.abs(detection.ftcPose.bearing) < smallestBackupAngle) {
                         smallestBackupAngle = detection.ftcPose.bearing;
                         backupDetection = detection;
@@ -1392,22 +1412,21 @@ public class FTCAuto {
         return absoluteEncoderValue;
     }
 
+    // Assumes that the robot is located in front of the target
+    // AprilTag and that the elevator is at the AUTONOMOUS level.
     private boolean deliver_pixel_to_backstop(int pDuration) {
         // Asynchronous elevator movement may not be in progress.
         if (asyncMoveElevator != null)
             throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
 
+        // Check the elevator level.
+        if (currentElevatorLevel != Elevator.ElevatorLevel.AUTONOMOUS)
+            throw new AutonomousRobotException(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
+
         // Set the correct servo positions for delivery to the backstop.
         robot.pixelIOHolderServo.release();
         robot.pixelStopperServo.release();
-
-        // Movement must start at the SAFE level.
-        if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
-            throw new AutonomousRobotException(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-
-        // Directly move the elevator up to its AUTONOMOUS level.
-        robot.elevatorMotion.moveDualMotors(robot.elevator.autonomous, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-        currentElevatorLevel = Elevator.ElevatorLevel.AUTONOMOUS;
+        linearOpMode.sleep(500);
 
         // Run the outtake in the positive direction, which delivers out the back.
         return runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, pDuration);
