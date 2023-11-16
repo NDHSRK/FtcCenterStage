@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
+import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -63,7 +63,7 @@ public class ConceptDoubleVision extends LinearOpMode {
     /**
      * The variable to store our instance of the WebcamFrameProcessor.
      */
-    private WebcamFrameProcessor webcamFrame;
+    private RawFrameProcessor webcamFrame;
     private int framesCaptured = 0;
 
     /**
@@ -145,7 +145,7 @@ public class ConceptDoubleVision extends LinearOpMode {
         // WebcamFrame Configuration
         // -----------------------------------------------------------------------------------------
 
-        webcamFrame = new WebcamFrameProcessor.Builder()
+        webcamFrame = new RawFrameProcessor.Builder()
                 .build();
 
         // -----------------------------------------------------------------------------------------

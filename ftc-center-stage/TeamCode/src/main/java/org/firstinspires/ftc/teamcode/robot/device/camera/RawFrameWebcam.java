@@ -14,25 +14,25 @@ import org.opencv.core.Mat;
 import java.util.Date;
 import java.util.Objects;
 
-public class WebcamFrameWebcam extends VisionPortalWebcam implements WebcamFrameProvider {
-    private static final String TAG = WebcamFrameWebcam.class.getSimpleName();
+public class RawFrameWebcam extends VisionPortalWebcam implements ImageProvider {
+    private static final String TAG = RawFrameWebcam.class.getSimpleName();
 
-    public WebcamFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                             Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pAssignedProcessor) {
+    public RawFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
+                          Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pAssignedProcessor) {
         super(pConfiguredWebcam, pAssignedProcessor);
     }
 
-    public Pair<Mat, Date> getWebcamFrame(int pTimeoutMs) {
+    public Pair<Mat, Date> getImage() {
         if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
             throw new AutonomousRobotException(TAG, "WEBCAM_FRAME is not the active processor");
 
-        WebcamFrameProcessor webcamFrameProcessor = (WebcamFrameProcessor) activeProcessor;
+        RawFrameProcessor rawFrameProcessor = (RawFrameProcessor) activeProcessor;
 
         Pair<Mat, Date> frameVal = null;
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
-        while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
-            frameVal = Objects.requireNonNull(webcamFrameProcessor).getWebcamFrame();
+        while (dataAcquiredTimer.milliseconds() < 1000) {
+            frameVal = Objects.requireNonNull(rawFrameProcessor).getWebcamFrame();
             if (frameVal != null)
                 break;
             else {

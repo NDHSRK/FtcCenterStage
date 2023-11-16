@@ -36,8 +36,6 @@
 
 package org.firstinspires.ftc.teamcode.teleop.sample;
 
-import static android.os.SystemClock.sleep;
-
 import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -45,12 +43,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
+import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -73,7 +70,7 @@ public class WebcamFrameCapture extends LinearOpMode {
     {
         //## Image directory hardcoded; should be RobotConstants.imageDir
         String imageWorkingDirectory = WorkingDirectory.getWorkingDirectory() + "/images/";
-        WebcamFrameProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+        RawFrameProcessor rawFrameProcessor = new RawFrameProcessor.Builder().build();
         VisionPortal portal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .setCameraResolution(new Size(RESOLUTION_WIDTH, RESOLUTION_HEIGHT))
@@ -83,7 +80,7 @@ public class WebcamFrameCapture extends LinearOpMode {
                     .setAutoStopLiveView(false)
 
                     // Set and enable the processor.
-                    .addProcessor(webcamFrameProcessor)
+                    .addProcessor(rawFrameProcessor)
 
                     .build();
 
@@ -102,7 +99,7 @@ public class WebcamFrameCapture extends LinearOpMode {
                 frameToWrite = null;
                 dataAcquiredTimer.reset(); // start
                 while (dataAcquiredTimer.milliseconds() < 2000) {
-                    frameToWrite = webcamFrameProcessor.getWebcamFrame();
+                    frameToWrite = rawFrameProcessor.getWebcamFrame();
                     if (frameToWrite != null)
                         break;
                     else {

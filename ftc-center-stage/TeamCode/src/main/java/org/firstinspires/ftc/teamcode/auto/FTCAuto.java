@@ -34,9 +34,8 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameWebcam;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamImage;
+import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
+import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
@@ -159,11 +158,11 @@ public class FTCAuto {
             VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
-                VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-                WebcamFrameWebcam webcamFrameWebcam = new WebcamFrameWebcam(frontWebcamConfiguration,
+                VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
+                RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(frontWebcamConfiguration,
                         Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor));
-                webcamFrameWebcam.waitForWebcamStart(2000);
-                frontWebcamConfiguration.setVisionPortalWebcam(webcamFrameWebcam);
+                rawFrameWebcam.waitForWebcamStart(2000);
+                frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
             }
         }
@@ -426,10 +425,10 @@ public class FTCAuto {
 
                 switch (processorId) {
                     case WEBCAM_FRAME: {
-                        VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
-                        WebcamFrameWebcam webcamFrameWebcam = new WebcamFrameWebcam(configuredWebcam,
+                        VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
+                        RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(configuredWebcam,
                                 Pair.create(processorId, webcamFrameProcessor));
-                        configuredWebcam.setVisionPortalWebcam(webcamFrameWebcam);
+                        configuredWebcam.setVisionPortalWebcam(rawFrameWebcam);
                         break;
                     }
                     case APRIL_TAG: {
@@ -551,9 +550,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
 
-                WebcamFrameWebcam webcamFrameWebcam = (WebcamFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                WebcamImage provider = new WebcamImage(webcamFrameWebcam);
-                Pair<Mat, Date> image = provider.getImage();
+                RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                Pair<Mat, Date> image = rawFrameWebcam.getImage();
                 if (image == null) {
                     RobotLogCommon.d(TAG, "Unable to get image from " + webcamIdString);
                     linearOpMode.telemetry.addData("Take picture:", "unable to get image from " + webcamIdString);
@@ -587,8 +585,7 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
 
-                WebcamFrameWebcam webcamFrameWebcam = (WebcamFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
-                WebcamImage imageProvider = new WebcamImage(webcamFrameWebcam);
+                RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
 
                 // Get the recognition path from the XML file.
                 String recognitionPathString = actionXPath.getRequiredText("team_prop_recognition/recognition_path");
@@ -626,7 +623,7 @@ public class FTCAuto {
 
                 // Perform image recognition.
                 TeamPropReturn teamPropReturn =
-                        teamPropRecognition.recognizeTeamProp(imageProvider, teamPropImageParameters, teamPropParameters, teamPropRecognitionPath);
+                        teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropImageParameters, teamPropParameters, teamPropRecognitionPath);
 
                 RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
 

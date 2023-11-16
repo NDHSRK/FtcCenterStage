@@ -37,7 +37,7 @@ import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.robot.device.camera.WebcamFrameProcessor;
+import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionPortal.CameraState;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -69,7 +69,7 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
      * The variable to store our instance of the AprilTag processor.
      */
     private AprilTagProcessor aprilTag;
-    private WebcamFrameProcessor webcamFrameProcessor; //##PY added 10/18/23
+    private RawFrameProcessor rawFrameProcessor; //##PY added 10/18/23
 
     /**
      * The variable to store our instance of the vision portal.
@@ -80,7 +80,7 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
     public void runOpMode() {
 
         //##PY added 10/18/23
-        webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
+        rawFrameProcessor = new RawFrameProcessor.Builder().build();
 
         initAprilTag();
 
@@ -98,7 +98,7 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
                 telemetryAprilTag();
 
                 //##PY added 10/5/23 add telemetry for webcam frames
-                Pair<Mat, Date> frameVal = webcamFrameProcessor.getWebcamFrame();
+                Pair<Mat, Date> frameVal = rawFrameProcessor.getWebcamFrame();
                 telemetry.addLine("Received raw webcam frame " + webcamFrameCount++);
 
                 // Push telemetry to the Driver Station.
@@ -139,7 +139,7 @@ public class ConceptAprilTagSwitchableCameras extends LinearOpMode {
         // Create the vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
             .setCamera(switchableCamera)
-            .addProcessors(aprilTag, webcamFrameProcessor) //## added 10/18/2023
+            .addProcessors(aprilTag, rawFrameProcessor) //## added 10/18/2023
             .build();
 
     }   // end method initAprilTag()

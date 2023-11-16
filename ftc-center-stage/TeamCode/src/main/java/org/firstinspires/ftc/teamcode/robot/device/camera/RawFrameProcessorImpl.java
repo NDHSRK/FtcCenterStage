@@ -36,11 +36,8 @@
 
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
-import static android.os.SystemClock.sleep;
-
 import android.graphics.Canvas;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
@@ -48,13 +45,12 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 // Follow the class relationships of the AprilTag sample in which
 // AprilTagProcessorImpl inherits from AprilTagProcessorImpl.
-public class WebcamFrameProcessorImpl extends WebcamFrameProcessor {
-    private static final String TAG = WebcamFrameProcessorImpl.class.getSimpleName();
+public class RawFrameProcessorImpl extends RawFrameProcessor {
+    private static final String TAG = RawFrameProcessorImpl.class.getSimpleName();
 
     Mat bgrFrame = new Mat();
     private final AtomicReference<Pair<Mat, Date>> webcamFrame = new AtomicReference<>();

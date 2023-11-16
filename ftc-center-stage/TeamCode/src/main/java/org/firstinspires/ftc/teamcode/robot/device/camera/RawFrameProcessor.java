@@ -41,18 +41,17 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 // Follow the class relationships of the AprilTag sample in which
 // AprilTagProcessorImpl inherits from AprilTagProcessorImpl.
-public abstract class WebcamFrameProcessor implements VisionProcessor {
+public abstract class RawFrameProcessor implements VisionProcessor {
 
     public static class Builder {
         // Having a base class create an instance of a child class is
         // questionable but we'll follow the AprilTagProcessor, which
         // does exactly this.
-        public WebcamFrameProcessor build() {
-            return new WebcamFrameProcessorImpl();
+        public RawFrameProcessor build() {
+            return new RawFrameProcessorImpl();
         }
     }
 
