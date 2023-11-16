@@ -151,10 +151,11 @@ public class FTCAuto {
         backdropParameters = backdropParametersXML.getBackdropParameters();
 
         // Start the front webcam with the webcam frame processor.
+        // We can start a camera by using the <START_CAMERA> action in RobotAction.xml
+        // but since the first task in Autonomous is to find the Team Prop, we save
+        // time by starting the front webcam here with a processor for raw frames. The
+        // only time this camera might not be in the configuration is during testing.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-            // Since the first task in Autonomous is to find the Team Prop, start the front webcam
-            // with the processor for raw frames. The only time this camera might not be in the
-            // configuration is during testing.
             VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
@@ -416,11 +417,13 @@ public class FTCAuto {
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
+                //**TODO Do not start a camera that is already active (see FTCAuto constructor,
+                // which starts the front camera). Need EnumMap for activeCameras.
+
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
 
-                //**TODO a WebcamFrameProcessor may already exist (see FTCAuto constructor)
                 switch (processorId) {
                     case WEBCAM_FRAME: {
                         VisionProcessor webcamFrameProcessor = new WebcamFrameProcessor.Builder().build();
@@ -440,8 +443,6 @@ public class FTCAuto {
 
                         AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
                                 Pair.create(processorId, aprilTagProcessor));
-                        //## The MultiPortal sample does not do this ...
-                        //aprilTagWebcam.setManualExposure(6, 250, 1000); // Use low exposure time to reduce motion blur
                         configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
                         break;
                     }
