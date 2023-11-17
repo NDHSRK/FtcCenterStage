@@ -580,7 +580,7 @@ public class FTCAuto {
                 if (opModeSpikeWindowData == null)
                     throw new AutonomousRobotException(TAG, "Element 'FIND_TEAM_PROP' not found under OpMode " + pOpMode);
 
-                String webcamIdString = opModeSpikeWindowData.imageParameters.image_source;
+                String webcamIdString = opModeSpikeWindowData.imageParameters.image_source.toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 if (openWebcam != webcamId)
@@ -598,7 +598,6 @@ public class FTCAuto {
                         teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropRecognitionPath, teamPropParameters, opModeSpikeWindowData);
 
                 RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
-
                 if (teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_INTERNAL_ERROR ||
                         teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL) {
                     // Something went wrong during recognition but don't crash; use the default location of CENTER_SPIKE.
