@@ -50,7 +50,7 @@
   <color_channel_pixel_count>
     <gray_parameters>
       <median_target>150</median_target>
-      <threshold_low>220</threshold_low>
+      <threshold_low>200</threshold_low>
     </gray_parameters>
     <criteria>
       <min_white_pixel_count>3000</min_white_pixel_count>

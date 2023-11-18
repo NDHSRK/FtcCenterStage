@@ -64,7 +64,7 @@ public class RawFrameProcessorImpl extends RawFrameProcessor {
         // thread know that the first frame has been received. But this leads
         // to an inconsistency because the provided AprilTagProcessorImpl does
         // not provide any notifications in its init() and we'd have to change
-        // the source code to access a CountDownLatch there.
+        // the source code, which is illegal, to access a CountDownLatch there.
     }
  
     //## This is a callback; assume it's running on another thread.
