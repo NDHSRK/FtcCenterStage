@@ -20,6 +20,7 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
+import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
@@ -75,9 +76,9 @@ public class FTCAuto {
     private PixelStopperServo.PixelServoState pixelServoState;
     private final String workingDirectory;
     private final RobotActionXMLCenterStage actionXML;
-    private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMappingXML.SpikeWindowData> collectedSpikeWindowData;
+    private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private final SpikeWindowMappingXML spikeWindowMappingXML;
-    private SpikeWindowMappingXML.SpikeWindowData currentSpikeWindowData;
+    private SpikeWindowMapping currentSpikeWindowData;
 
     private RobotConstantsCenterStage.InternalWebcamId openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
     private double desiredHeading = 0.0; // always normalized
@@ -141,7 +142,7 @@ public class FTCAuto {
         // Note: if no COMPETITION or AUTO_TEST OpModes in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
         spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
-        collectedSpikeWindowData = spikeWindowMappingXML.collectSpikeWindowData();
+        collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
 
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
@@ -201,8 +202,8 @@ public class FTCAuto {
             // Note: if the current OpMode does not include an action of FIND_TEAM_PROP
             // then a lookup on the OpMode will return null. This is legal for such
             // OpModes as TEST_ELEVATOR.
-            if (!collectedSpikeWindowData.isEmpty())
-                currentSpikeWindowData = collectedSpikeWindowData.get(pOpMode);
+            if (!collectedSpikeWindowMapping.isEmpty())
+                currentSpikeWindowData = collectedSpikeWindowMapping.get(pOpMode);
 
             if (currentSpikeWindowData != null)
                 RobotLogCommon.d(TAG, "Retrieved spike window data for OpMode " + pOpMode);
@@ -275,10 +276,11 @@ public class FTCAuto {
     //===============================================================================================
     //===============================================================================================
 
-    // Using the XML elements and attributes from the configuration file
+    /** @noinspection BooleanMethodIsAlwaysInverted*/ // Using the XML elements and attributes from the configuration file
     // RobotAction.xml, execute the action.
     @SuppressLint("DefaultLocale")
     private boolean executeAction(RobotXMLElement pAction, RobotConstantsCenterStage.OpMode pOpMode) throws Exception {
+        boolean result = true;
 
         // Set up XPath access to the current action.
         XPathAccess actionXPath = new XPathAccess(pAction);
@@ -464,8 +466,10 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
                 int timeout = actionXPath.getRequiredInt("timeout_ms");
-                if (!configuredWebcam.getVisionPortalWebcam().waitForWebcamStart(timeout))
-                    return false; // no webcam, just give up
+                if (!configuredWebcam.getVisionPortalWebcam().waitForWebcamStart(timeout)) {
+                    result = false;
+                    break;// no webcam, just give up
+                }
 
                 break;
             }
@@ -574,13 +578,13 @@ public class FTCAuto {
             // Find the location of the Team Prop.
             case "FIND_TEAM_PROP": {
                 // Prepare for image recognition.
-                SpikeWindowMappingXML.SpikeWindowData opModeSpikeWindowData =
-                        spikeWindowMappingXML.collectSpikeWindowData(pOpMode);
+                SpikeWindowMapping opModeSpikeWindowMapping =
+                        spikeWindowMappingXML.collectSpikeWindowMapping(pOpMode);
 
-                if (opModeSpikeWindowData == null)
+                if (opModeSpikeWindowMapping == null)
                     throw new AutonomousRobotException(TAG, "Element 'FIND_TEAM_PROP' not found under OpMode " + pOpMode);
 
-                String webcamIdString = opModeSpikeWindowData.imageParameters.image_source.toUpperCase();
+                String webcamIdString = opModeSpikeWindowMapping.imageParameters.image_source.toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 if (openWebcam != webcamId)
@@ -590,12 +594,12 @@ public class FTCAuto {
 
                 // Get the recognition path from the XML file.
                 RobotConstantsCenterStage.TeamPropRecognitionPath teamPropRecognitionPath =
-                        opModeSpikeWindowData.recognitionPath;
+                        opModeSpikeWindowMapping.recognitionPath;
                 RobotLogCommon.d(TAG, "Recognition path " + teamPropRecognitionPath);
 
                 // Perform image recognition.
                 TeamPropReturn teamPropReturn =
-                        teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropRecognitionPath, teamPropParameters, opModeSpikeWindowData);
+                        teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropRecognitionPath, teamPropParameters, opModeSpikeWindowMapping);
 
                 RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
                 if (teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_INTERNAL_ERROR ||
@@ -696,8 +700,10 @@ public class FTCAuto {
                 RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
 
                 Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findBackdropAprilTag(targetTagId, actionXPath);
-                if (detectionData.second == null)
-                    return false; // no sure path to the backdrop
+                if (detectionData.second == null) {
+                    result = false;
+                    break;// no sure path to the backdrop
+                }
 
                 // If the backstop AprilTag that was found is not our target tag
                 // then infer the position of the target tag.
@@ -833,7 +839,8 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Direction of travel " + directionString);
                 if (!aprilTagNavigation.navigateToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
                     RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
-                    return false;
+                    result = false;
+                    break;
                 }
 
                 deskew(); // make sure the robot is aligned with the desired heading
@@ -864,8 +871,10 @@ public class FTCAuto {
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
-                if (!runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, duration))
-                    return false;
+                if (!runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, duration)) {
+                    result = false;
+                    break;
+                }
                 break;
             }
 
@@ -873,8 +882,10 @@ public class FTCAuto {
                 int duration = actionXPath.getRequiredInt("duration_ms");
 
                 // The position of the pixel stopper does not matter.
-                if (!runPixelIO(DualSPARKMiniController.PowerDirection.NEGATIVE, duration))
-                    return false;
+                if (!runPixelIO(DualSPARKMiniController.PowerDirection.NEGATIVE, duration)) {
+                    result = false;
+                    break;
+                }
                 break;
             }
 
@@ -921,8 +932,10 @@ public class FTCAuto {
             // level.
             case "DELIVER_PIXEL_TO_BACKSTOP": {
                 int duration = actionXPath.getRequiredInt("duration_ms");
-                if (!deliver_pixel_to_backstop(duration))
-                    return false; // stop Autonomous
+                if (!deliver_pixel_to_backstop(duration)) {
+                    result = false;
+                    break;// stop Autonomous
+                }
                 break;
             }
 
@@ -937,7 +950,8 @@ public class FTCAuto {
             // Shut down background threads, including the imu and the logger.
             case "STOP": {
                 sleep(1000);
-                return false;
+                result = false;
+                break;
             }
 
             // For testing: record the heading and pitch from the IMU for
@@ -982,7 +996,7 @@ public class FTCAuto {
         }
 
         // Action completed normally
-        return true;
+        return result;
     }
 
     // Sleeps but also tests if the OpMode is still active.

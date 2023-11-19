@@ -4,6 +4,7 @@ import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
+import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.opencv.core.Rect;
@@ -81,88 +82,39 @@ public class SpikeWindowMappingXML {
     // Collect spike window data (resolution, ROI, spike windows, etc.)
     // for one Autonomous OpMode from RobotAction.xml. May return null
     // if the OpMode does not contain a <FIND_TEAM_PROP> element.
-    public SpikeWindowData collectSpikeWindowData(RobotConstantsCenterStage.OpMode pOpMode) throws XPathExpressionException {
+    public SpikeWindowMapping collectSpikeWindowMapping(RobotConstantsCenterStage.OpMode pOpMode) throws XPathExpressionException {
         RobotLogCommon.c(TAG, "Collecting Team Prop data for Autonomous OpMode " + pOpMode);
-        return getSpikeWindowData(pOpMode);
+        return getSpikeWindowMapping(pOpMode);
     }
 
     // Collect spike window data (resolution, ROI, spike windows, etc.)
     // for all Autonomous competition OpModes from RobotAction.xml.
-    public EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowData> collectSpikeWindowData() throws XPathExpressionException {
-        EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowData> spikeWindowData =
+    public EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectSpikeWindowMapping() throws XPathExpressionException {
+        EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> spikeWindowMapping =
                 new EnumMap<>(RobotConstantsCenterStage.OpMode.class);
 
         // Get all OpModes but only process those with an OpModeType
         // of COMPETITION or AUTO_TEST.
-        SpikeWindowMappingXML.SpikeWindowData spikeDataOneOpMode;
+        SpikeWindowMapping spikeDataOneOpMode;
         RobotConstantsCenterStage.OpMode[] allOpModes =
                 RobotConstantsCenterStage.OpMode.values();
         for (RobotConstantsCenterStage.OpMode oneOpMode : allOpModes) {
             if (oneOpMode.getOpModeType() == RobotConstantsCenterStage.OpMode.OpModeType.COMPETITION ||
                     oneOpMode.getOpModeType() == RobotConstantsCenterStage.OpMode.OpModeType.AUTO_TEST) {
                 RobotLogCommon.c(TAG, "Collecting Team Prop data for Autonomous OpMode " + oneOpMode);
-                spikeDataOneOpMode = getSpikeWindowData(oneOpMode);
+                spikeDataOneOpMode = getSpikeWindowMapping(oneOpMode);
                 if (spikeDataOneOpMode != null)
-                    spikeWindowData.put(oneOpMode, getSpikeWindowData(oneOpMode));
+                    spikeWindowMapping.put(oneOpMode, getSpikeWindowMapping(oneOpMode));
             }
         }
 
-        return spikeWindowData;
+        return spikeWindowMapping;
     }
 
     // Find the requested opMode in the RobotAction.xml file.
     // Package and return all data associated with the
     // FIND_TEAM_PROP element under the OpMode.
-    // Example:
-    /*
-        <actions>
-            ...
-
-            <FIND_TEAM_PROP>
-                <image_parameters>
-                    <image_source>front_webcam</image_source>
-                    <resolution>
-                        <width>640</width>
-                        <height>480</height>
-                    </resolution>
-                    <image_roi>
-                        <x>62</x>
-                        <y>150</y>
-                        <width>492</width>
-                        <height>225</height>
-                    </image_roi>
-                </image_parameters>
-                <team_prop_recognition>
-                    <recognition_path>color_channel_circles</recognition_path>
-                    <!-- These values are relative to the image ROI -->
-                    <!-- Note: the left_window may enclose the LEFT_SPIKE
-                         or the CENTER_SPIKE, depending on the robot's
-                         starting position. For RED_F2 the left_window
-                         encloses the LEFT_SPIKE. -->
-                    <left_window>
-                        <x>0</x>
-                        <y>0</y>
-                        <width>160</width>
-                        <height>225</height>
-                        <prop_location>LEFT_SPIKE</prop_location>
-                    </left_window>
-                    <right_window>
-                        <!-- x starts at left_window.x + left_window.width -->
-                        <width>330</width>
-                        <!-- y is the same as that of the left_window -->
-                        <!-- height is the same as that of the left_window -->
-                        <prop_location>CENTER_SPIKE</prop_location>
-                    </right_window>
-                    <team_prop_npos>
-                        <prop_location>RIGHT_SPIKE</prop_location>
-                    </team_prop_npos>
-                </team_prop_recognition>
-            </FIND_TEAM_PROP>
-           ...
-
-         </actions>
-     */
-    private SpikeWindowData getSpikeWindowData(RobotConstantsCenterStage.OpMode pOpMode) throws XPathExpressionException {
+    private SpikeWindowMapping getSpikeWindowMapping(RobotConstantsCenterStage.OpMode pOpMode) throws XPathExpressionException {
         EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows =
                 new EnumMap<>(RobotConstantsCenterStage.SpikeLocationWindow.class);
 
@@ -206,33 +158,7 @@ public class SpikeWindowMappingXML {
             throw new AutonomousRobotException(TAG, "Element 'left_window' not found");
 
         // Drop down and parse the children of the <left_window>
-        Node left_x_node = left_node.getFirstChild();
-        left_x_node = XMLUtils.getNextElement(left_x_node);
-        if ((left_x_node == null) || !left_x_node.getNodeName().equals("x") || left_x_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'left_window/x' not found");
-
-        String leftXText = left_x_node.getTextContent();
-        int leftX;
-        try {
-            leftX = Integer.parseInt(leftXText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'left_window/x'");
-        }
-
-        Node left_y_node = left_x_node.getNextSibling();
-        left_y_node = XMLUtils.getNextElement(left_y_node);
-        if ((left_y_node == null) || !left_y_node.getNodeName().equals("y") || left_y_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'left_window/y' not found");
-
-        String leftYText = left_y_node.getTextContent();
-        int leftY;
-        try {
-            leftY = Integer.parseInt(leftYText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'left_window/y'");
-        }
-
-        Node left_width_node = left_y_node.getNextSibling();
+        Node left_width_node = left_node.getFirstChild();
         left_width_node = XMLUtils.getNextElement(left_width_node);
         if ((left_width_node == null) || !left_width_node.getNodeName().equals("width") || left_width_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'left_window/width' not found");
@@ -245,21 +171,8 @@ public class SpikeWindowMappingXML {
             throw new AutonomousRobotException(TAG, "Invalid number format in element 'left_window/width'");
         }
 
-        Node left_height_node = left_width_node.getNextSibling();
-        left_height_node = XMLUtils.getNextElement(left_height_node);
-        if ((left_height_node == null) || !left_height_node.getNodeName().equals("height") || left_height_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'left_window/height' not found");
-
-        String leftHeightText = left_height_node.getTextContent();
-        int leftHeight;
-        try {
-            leftHeight = Integer.parseInt(leftHeightText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'left_window/height'");
-        }
-
         // Parse the <prop_location> element.
-        Node left_prop_node = left_height_node.getNextSibling();
+        Node left_prop_node = left_width_node.getNextSibling();
         left_prop_node = XMLUtils.getNextElement(left_prop_node);
         if ((left_prop_node == null) || !left_prop_node.getNodeName().equals("prop_location") || left_prop_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'left_window/prop_location' not found");
@@ -268,7 +181,7 @@ public class SpikeWindowMappingXML {
         RobotConstantsCenterStage.TeamPropLocation leftPropLocation =
                 RobotConstantsCenterStage.TeamPropLocation.valueOf(leftPropLocationText);
 
-        spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.LEFT, Pair.create(new Rect(leftX, leftY, leftWidth, leftHeight), leftPropLocation));
+        spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.LEFT, Pair.create(new Rect(0, 0, leftWidth, imageParameters.image_roi.height), leftPropLocation));
 
         // Parse the <right_window> element.
         Node right_node = left_node.getNextSibling();
@@ -276,21 +189,8 @@ public class SpikeWindowMappingXML {
         if ((right_node == null) || !right_node.getNodeName().equals("right_window"))
             throw new AutonomousRobotException(TAG, "Element 'right_window' not found");
 
-        Node right_width_node = right_node.getFirstChild();
-        right_width_node = XMLUtils.getNextElement(right_width_node);
-        if ((right_width_node == null) || !right_width_node.getNodeName().equals("width") || right_width_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'right_window/width' not found");
-
-        String rightWidthText = right_width_node.getTextContent();
-        int rightWidth;
-        try {
-            rightWidth = Integer.parseInt(rightWidthText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'right_window/width'");
-        }
-
         // Parse the <prop_location> element.
-        Node right_prop_node = right_width_node.getNextSibling();
+        Node right_prop_node = right_node.getFirstChild();
         right_prop_node = XMLUtils.getNextElement(right_prop_node);
         if ((right_prop_node == null) || !right_prop_node.getNodeName().equals("prop_location") || right_prop_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'right_window/prop_location' not found");
@@ -301,7 +201,7 @@ public class SpikeWindowMappingXML {
 
         // Note: the right window starts 1 pixel past the left element. The height of the right
         // window is the same as that of the left window.
-        spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT, Pair.create(new Rect(leftX + leftWidth, leftY, rightWidth, leftHeight), rightPropLocation));
+        spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT, Pair.create(new Rect(leftWidth, 0, imageParameters.image_roi.width - leftWidth, imageParameters.image_roi.height), rightPropLocation));
 
         // Parse the <team_prop_npos> element.
         Node npos_node = right_node.getNextSibling();
@@ -321,21 +221,7 @@ public class SpikeWindowMappingXML {
 
         spikeWindows.put(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS, Pair.create(new Rect(0, 0, 0, 0), nposLocation));
 
-        return new SpikeWindowData(imageParameters, recognitionPath, spikeWindows);
-    }
-
-    public static class SpikeWindowData {
-        public final VisionParameters.ImageParameters imageParameters;
-        public final RobotConstantsCenterStage.TeamPropRecognitionPath recognitionPath;
-        public final EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> spikeWindows;
-
-        public SpikeWindowData(VisionParameters.ImageParameters pImageParameters,
-                               RobotConstantsCenterStage.TeamPropRecognitionPath pRecognitionPath,
-                               EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> pSpikeWindows) {
-            imageParameters = pImageParameters;
-            recognitionPath = pRecognitionPath;
-            spikeWindows = pSpikeWindows;
-        }
+        return new SpikeWindowMapping(imageParameters, recognitionPath, spikeWindows);
     }
 
 }

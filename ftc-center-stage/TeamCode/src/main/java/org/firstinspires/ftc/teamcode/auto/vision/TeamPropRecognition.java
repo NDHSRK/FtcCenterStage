@@ -5,11 +5,17 @@ import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
-import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.device.camera.ImageProvider;
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -38,10 +44,10 @@ public class TeamPropRecognition {
     public TeamPropReturn recognizeTeamProp(ImageProvider pImageProvider,
                                             RobotConstantsCenterStage.TeamPropRecognitionPath pTeamPropRecognitionPath,
                                             TeamPropParameters pTeamPropParameters,
-                                            SpikeWindowMappingXML.SpikeWindowData pSpikeWindowData) throws InterruptedException {
+                                            SpikeWindowMapping pSpikeWindowMapping) throws InterruptedException {
         RobotLogCommon.d(TAG, "In TeamPropRecognition.recognizeTeamProp");
 
-        spikeWindows = pSpikeWindowData.spikeWindows;
+        spikeWindows = pSpikeWindowMapping.spikeWindows;
 
         // LocalDateTime requires Android minSdkVersion 26  public Pair<Mat, LocalDateTime> getImage() throws InterruptedException;
         Pair<Mat, Date> teamPropImage = pImageProvider.getImage();
@@ -50,8 +56,8 @@ public class TeamPropRecognition {
 
         // The image is in BGR order (OpenCV imread from a file).
         String fileDate = TimeStamp.getDateTimeStamp(teamPropImage.second);
-        String outputFilenamePreamble = ImageUtils.createOutputFilePreamble(pSpikeWindowData.imageParameters.image_source, workingDirectory, fileDate);
-        Mat imageROI = ImageUtils.preProcessImage(teamPropImage.first, outputFilenamePreamble, pSpikeWindowData.imageParameters);
+        String outputFilenamePreamble = ImageUtils.createOutputFilePreamble(pSpikeWindowMapping.imageParameters.image_source, workingDirectory, fileDate);
+        Mat imageROI = ImageUtils.preProcessImage(teamPropImage.first, outputFilenamePreamble, pSpikeWindowMapping.imageParameters);
 
         RobotLogCommon.d(TAG, "Recognition path " + pTeamPropRecognitionPath);
         switch (pTeamPropRecognitionPath) {
@@ -113,7 +119,7 @@ public class TeamPropRecognition {
         if (circles.cols() == 0) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "No circles found; Team Prop location assumed as " + nposWindow.second);
-            SpikeWindowMapping.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
@@ -158,7 +164,7 @@ public class TeamPropRecognition {
         if (numberOfTeamPropsFound == 0) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "No circles passed the filters; Team Prop location assumed as " + nposWindow.second);
-            SpikeWindowMapping.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
@@ -174,7 +180,7 @@ public class TeamPropRecognition {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Number of circles (" + numberOfTeamPropsFound + ") " +
                     "exceeds the maximum of " + pColorChannelCirclesParameters.maxCircles);
-            SpikeWindowMapping.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL, nposWindow.second);
         }
 
@@ -265,7 +271,7 @@ public class TeamPropRecognition {
                 rightNonZeroCount < pColorChannelPixelCountParameters.minWhitePixelCount) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "White pixel counts for the left and right spike windows were under the threshold");
-            SpikeWindowMapping.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
@@ -282,7 +288,7 @@ public class TeamPropRecognition {
         }
 
         // Go with the right spike window.
-        Point rightSpikeWindowCentroid = new Point((rightSpikeWindowBoundary.x + rightSpikeWindowBoundary.width) / 2.0,
+        Point rightSpikeWindowCentroid = new Point(rightSpikeWindowBoundary.x + (rightSpikeWindowBoundary.width / 2.0),
                 (rightSpikeWindowBoundary.y + rightSpikeWindowBoundary.height) / 2.0);
         RobotLogCommon.d(TAG, "Center of right spike window " + rightSpikeWindowCentroid);
 
@@ -320,7 +326,7 @@ public class TeamPropRecognition {
         if (brightResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
-            SpikeWindowMapping.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
@@ -366,7 +372,7 @@ public class TeamPropRecognition {
         if (brightGrayResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
-            SpikeWindowMapping.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
         }
 
@@ -400,7 +406,7 @@ public class TeamPropRecognition {
             }
 
         // Draw the spike windows on the ROI with the circles.
-        SpikeWindowMapping.drawSpikeWindows(pPropOut, spikeWindows, pOutputFilenamePreamble);
+        SpikeWindowUtils.drawSpikeWindows(pPropOut, spikeWindows, pOutputFilenamePreamble);
 
         return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, foundLocation);
     }
