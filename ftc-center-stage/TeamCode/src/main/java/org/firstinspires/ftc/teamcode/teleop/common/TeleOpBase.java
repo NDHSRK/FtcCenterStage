@@ -9,8 +9,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 
 // Use this class in TeleOp test routines.
-// Note that the runOpMode method below initializes the robot hardware
-// and assumes that the drive train is present.
+// Note that the runOpMode method below initializes the robot hardware.
 public abstract class TeleOpBase extends LinearOpMode {
 
     private static final String TAG = "TeleOpBase";
@@ -39,6 +38,7 @@ public abstract class TeleOpBase extends LinearOpMode {
             telemetry.addData("Initialized!", "Ready to run");
             telemetry.update();
 
+            //**TODO Don't run if OpMode is not active, e.g. terminated in init.
             waitForStart();
             run(); // run derived class
         } catch (Exception ex) {

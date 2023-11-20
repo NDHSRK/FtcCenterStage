@@ -139,7 +139,7 @@ public class FTCAuto {
         teamPropParameters = teamPropParametersXML.getTeamPropParameters();
         teamPropRecognition = new TeamPropRecognition(pAlliance);
 
-        // Note: if no COMPETITION or AUTO_TEST OpModes in RobotAction.XML contains
+        // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
         spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
         collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
