@@ -4,9 +4,9 @@ public class RobotConstantsCenterStage {
 
     public enum OpMode {
         // Autonomous OpModes
-        // BLUE_A2(OpModeType.AUTO_STARTING_POSITION),
+        BLUE_A2(OpModeType.COMPETITION),
         BLUE_A4(OpModeType.COMPETITION),
-        // RED_F2(OpModeType.AUTO_STARTING_POSITION),
+        RED_F2(OpModeType.COMPETITION),
         RED_F4(OpModeType.COMPETITION),
 
         TEST(OpModeType.AUTO_TEST), TEST_PRE_MATCH(OpModeType.AUTO_TEST),
@@ -48,7 +48,7 @@ public class RobotConstantsCenterStage {
     }
 
     public enum ProcessorIdentifier {
-        WEBCAM_FRAME, APRIL_TAG, PROCESSOR_NPOS
+        RAW_FRAME, APRIL_TAG, SPIKE_WINDOW, PROCESSOR_NPOS
     }
 
     public enum TeamPropRecognitionPath {

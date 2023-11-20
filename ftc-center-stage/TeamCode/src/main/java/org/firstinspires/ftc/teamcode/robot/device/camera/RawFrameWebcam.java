@@ -23,7 +23,7 @@ public class RawFrameWebcam extends VisionPortalWebcam implements ImageProvider 
     }
 
     public Pair<Mat, Date> getImage() {
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME)
+        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME)
             throw new AutonomousRobotException(TAG, "WEBCAM_FRAME is not the active processor");
 
         RawFrameProcessor rawFrameProcessor = (RawFrameProcessor) activeProcessor;

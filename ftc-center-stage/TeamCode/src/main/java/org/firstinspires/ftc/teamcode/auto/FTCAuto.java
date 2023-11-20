@@ -159,7 +159,7 @@ public class FTCAuto {
             if (frontWebcamConfiguration != null) {
                 VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
                 RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(frontWebcamConfiguration,
-                        Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.WEBCAM_FRAME, webcamFrameProcessor));
+                        Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, webcamFrameProcessor));
                 rawFrameWebcam.waitForWebcamStart(2000);
                 frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
@@ -424,7 +424,7 @@ public class FTCAuto {
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
 
                 switch (processorId) {
-                    case WEBCAM_FRAME: {
+                    case RAW_FRAME: {
                         VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
                         RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(configuredWebcam,
                                 Pair.create(processorId, webcamFrameProcessor));
