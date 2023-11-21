@@ -7,7 +7,7 @@
     <!-- Settings for the velocity control buttons on the game controller. -->
     <drive_train_power>
       <high>1.0</high>
-      <low>.30</low>
+      <low>0.5</low>
     </drive_train_power>
   </TELEOP_SETTINGS>
 
@@ -23,7 +23,7 @@
 
   <ELEVATOR configured="yes">
     <dual_motors model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
-    clicks_per_motor_rev="384.5" rpm="435.0">
+      clicks_per_motor_rev="384.5" rpm="435.0">
       <left_motor direction="FORWARD">left_elevator</left_motor>
       <right_motor direction="REVERSE">right_elevator</right_motor>
     </dual_motors>

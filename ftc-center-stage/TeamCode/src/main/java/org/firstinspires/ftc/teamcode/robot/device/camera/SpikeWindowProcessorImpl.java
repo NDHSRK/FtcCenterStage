@@ -51,19 +51,15 @@ import java.util.concurrent.atomic.AtomicReference;
 // AprilTagProcessorImpl inherits from AprilTagProcessorImpl.
 public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
 
-    Mat bgrFrame = new Mat();
+    Mat workingFrame = new Mat();
     private final AtomicReference<SpikeWindowMapping> spikeWindowMapping = new AtomicReference<>();
 
     //## This is a callback. It definitely runs on another thread.
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-       // Init is called from VisionPortalImpl when the first frame for this
+        // Init is called from VisionPortalImpl when the first frame for this
         // processor has been received; the frame itself is not passed in
-        // here. It would be nice to use a CountDownLatch to let the main
-        // thread know that the first frame has been received. But this leads
-        // to an inconsistency because the provided AprilTagProcessorImpl does
-        // not provide any notifications in its init() and we'd have to change
-        // the source code, which is illegal, to access a CountDownLatch there.
+        // here.
     }
  
     //## This is a callback; assume it's running on another thread.
@@ -84,13 +80,13 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
         // From the EasyOpenCV readme:
         // **IMPORTANT NOTE:** EasyOpenCV delivers RGBA frames
         // So we need to convert to BGR for OpenCV here.
-        Imgproc.cvtColor(input, bgrFrame, Imgproc.COLOR_RGBA2BGR);
-        Mat imageROI = ImageUtils.preProcessImage(bgrFrame, null, currentSpikeWindowMapping.imageParameters);
-        SpikeWindowUtils.drawSpikeWindows(imageROI, currentSpikeWindowMapping.spikeWindows, null); //**TODO change drawSpikeWindows to accept a null output file preamble; 11/1723 done in IJ
+        Imgproc.cvtColor(input, workingFrame, Imgproc.COLOR_RGBA2BGR);
+        workingFrame = ImageUtils.preProcessImage(workingFrame, null, currentSpikeWindowMapping.imageParameters);
+        SpikeWindowUtils.drawSpikeWindows(workingFrame, currentSpikeWindowMapping.spikeWindows, null);
 
         // Return an RGB frame for the camera stream.        
-        Imgproc.cvtColor(bgrFrame, bgrFrame, Imgproc.COLOR_BGR2RGB);
-        return bgrFrame;
+        Imgproc.cvtColor(workingFrame, workingFrame, Imgproc.COLOR_BGR2RGB);
+        return workingFrame;
     }
 
     //## This is a callback.

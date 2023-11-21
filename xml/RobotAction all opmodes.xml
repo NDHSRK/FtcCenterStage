@@ -27,11 +27,23 @@
                 </image_parameters>
                 <team_prop_recognition>
                     <recognition_path>color_channel_bright_spot</recognition_path>
+                    <!-- These values are relative to the image ROI -->
+                    <!-- Note: the left_window may enclose the LEFT_SPIKE
+                         or the CENTER_SPIKE, depending on the robot's
+                         starting position. For RED_F2 the left_window
+                         encloses the LEFT_SPIKE. -->
                     <left_window>
+                        <x>0</x>
+                        <y>0</y>
                         <width>175</width>
+                        <height>224</height>
                         <prop_location>LEFT_SPIKE</prop_location>
                     </left_window>
                     <right_window>
+                        <!-- x starts at left_window.x + left_window.width -->
+                        <width>328</width>
+                        <!-- y is the same as that of the left_window -->
+                        <!-- height is the same as that of the left_window -->
                         <prop_location>CENTER_SPIKE</prop_location>
                     </right_window>
                     <team_prop_npos>
@@ -147,6 +159,50 @@
         which we pass to the robot, but the robot never moves as
         far as a given actual distance. In the OpModes below look
         for a movement <BACK> after a turn towards the backdrop. -->
+
+    <OpMode id="BLUE_A2">
+        <parameters>
+            <log_level>v</log_level>
+        </parameters>
+        <actions>
+
+            <!-- BLUE_A2 = RED_F4 -->
+            <FIND_TEAM_PROP>
+                <image_parameters>
+                    <image_source>front_webcam</image_source>
+                    <resolution>
+                        <width>640</width>
+                        <height>480</height>
+                    </resolution>
+                    <image_roi>
+                        <x>145</x>
+                        <y>115</y>
+                        <width>487</width>
+                        <height>254</height>
+                    </image_roi>
+                </image_parameters>
+                <team_prop_recognition>
+                    <recognition_path>color_channel_circles</recognition_path>
+                    <!-- These values are relative to the image ROI -->
+                    <!-- Note: the left_window may enclose the LEFT_SPIKE
+                                 or the CENTER_SPIKE, depending on the robot's
+                                 starting position. For RED_F2 the left_window
+                                 encloses the LEFT_SPIKE. -->
+                    <left_window>
+                        <width>318</width>
+                        <prop_location>CENTER_SPIKE</prop_location>
+                    </left_window>
+                    <right_window>
+                        <prop_location>RIGHT_SPIKE</prop_location>
+                    </right_window>
+                    <team_prop_npos>
+                        <prop_location>LEFT_SPIKE</prop_location>
+                    </team_prop_npos>
+                </team_prop_recognition>
+            </FIND_TEAM_PROP>
+
+        </actions>
+    </OpMode>
 
     <OpMode id="BLUE_A4">
         <parameters>
@@ -413,6 +469,50 @@
             </MOVE_ELEVATOR>
 
             <STOP />
+
+        </actions>
+    </OpMode>
+
+    <OpMode id="RED_F2">
+        <parameters>
+            <log_level>v</log_level>
+        </parameters>
+        <actions>
+
+            <!-- RED_F2 = BLUE_A4 -->
+            <FIND_TEAM_PROP>
+                <image_parameters>
+                    <image_source>front_webcam</image_source>
+                    <resolution>
+                        <width>640</width>
+                        <height>480</height>
+                    </resolution>
+                    <image_roi>
+                        <x>59</x>
+                        <y>127</y>
+                        <width>503</width>
+                        <height>224</height>
+                    </image_roi>
+                </image_parameters>
+                <team_prop_recognition>
+                    <recognition_path>color_channel_circles</recognition_path>
+                    <!-- These values are relative to the image ROI -->
+                    <!-- Note: the left_window may enclose the LEFT_SPIKE
+                         or the CENTER_SPIKE, depending on the robot's
+                         starting position. For RED_F2 the left_window
+                         encloses the LEFT_SPIKE. -->
+                    <left_window>
+                        <width>175</width>
+                        <prop_location>LEFT_SPIKE</prop_location>
+                    </left_window>
+                    <right_window>
+                        <prop_location>CENTER_SPIKE</prop_location>
+                    </right_window>
+                    <team_prop_npos>
+                        <prop_location>RIGHT_SPIKE</prop_location>
+                    </team_prop_npos>
+                </team_prop_recognition>
+            </FIND_TEAM_PROP>
 
         </actions>
     </OpMode>

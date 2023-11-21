@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
@@ -28,7 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 // alignment of the front camera to make sure that the
 // Team Prop is in view.
 @TeleOp(name = "SpikeWindowViewer", group = "Test")
-@Disabled
+//@Disabled
 public class SpikeWindowViewer extends TeleOpBase {
     private static final String TAG = SpikeWindowViewer.class.getSimpleName();
 
@@ -41,12 +42,14 @@ public class SpikeWindowViewer extends TeleOpBase {
 
     @Override
     public RobotConstants.RunType getRunType() {
-        return RobotConstants.RunType.TELEOP;
+        return RobotConstants.RunType.TELEOP_VISION_PREVIEW;
     }
 
     // In this OpMode all of the action takes place during init().
     @Override
     public void initialize() {
+        RobotLogCommon.d(TAG, "Initializing the SpikeWindowViewer");
+
         // Start the front webcam with the spike window processor.
         if (robot.configuredWebcams == null || robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM) == null)
             throw new AutonomousRobotException(TAG, "Front camera is not in the current configuration");
@@ -57,13 +60,16 @@ public class SpikeWindowViewer extends TeleOpBase {
         spikeWindowProcessor = new SpikeWindowProcessor.Builder().build();
         SpikeWindowWebcam spikeWindowWebcam = new SpikeWindowWebcam(frontWebcamConfiguration,
                 Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW, spikeWindowProcessor));
-        spikeWindowWebcam.waitForWebcamStart(2000);
-        frontWebcamConfiguration.setVisionPortalWebcam(spikeWindowWebcam);
 
-        String xmlDirectory = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
+        if (!spikeWindowWebcam.waitForWebcamStart(2000))
+            throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
+
+        frontWebcamConfiguration.setVisionPortalWebcam(spikeWindowWebcam);
+        RobotLogCommon.c(TAG, "SpikeWindowViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
+        String xmlDirectory = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
         try {
             SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
             collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
@@ -113,6 +119,8 @@ public class SpikeWindowViewer extends TeleOpBase {
 
     private void updateStartPositionF4Button() {
         if (startPositionF4Button.is(FTCButton.State.TAP)) {
+            RobotLogCommon.d(TAG, "DPAD button for F4 tapped");
+
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
             SpikeWindowMapping f4SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.RED_F4);
@@ -122,11 +130,14 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for F4 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(f4SpikeWindows);
+            RobotLogCommon.d(TAG, "Set spike window mapping for F4");
         }
     }
 
     private void updateStartPositionF2Button() {
         if (startPositionF2Button.is(FTCButton.State.TAP)) {
+            RobotLogCommon.d(TAG, "DPAD button for F2 tapped");
+
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
             SpikeWindowMapping f2SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.RED_F2);
@@ -136,11 +147,14 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for F2 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(f2SpikeWindows);
+            RobotLogCommon.d(TAG, "Set spike window mapping for F2");
         }
     }
 
     private void updateStartPositionA2Button() {
         if (startPositionA2Button.is(FTCButton.State.TAP)) {
+            RobotLogCommon.d(TAG, "DPAD button for A2 tapped");
+
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
             SpikeWindowMapping a2SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.BLUE_A2);
@@ -150,11 +164,14 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for A2 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a2SpikeWindows);
+            RobotLogCommon.d(TAG, "Set spike window mapping for A2");
         }
     }
 
     private void updateStartPositionA4Button() {
         if (startPositionA4Button.is(FTCButton.State.TAP)) {
+            RobotLogCommon.d(TAG, "DPAD button for A4 tapped");
+
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
             SpikeWindowMapping a4SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.BLUE_A4);
@@ -164,6 +181,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for A4 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a4SpikeWindows);
+            RobotLogCommon.d(TAG, "Set spike window mapping for A4");
         }
     }
 

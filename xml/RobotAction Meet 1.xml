@@ -27,11 +27,23 @@
                 </image_parameters>
                 <team_prop_recognition>
                     <recognition_path>color_channel_bright_spot</recognition_path>
+                    <!-- These values are relative to the image ROI -->
+                    <!-- Note: the left_window may enclose the LEFT_SPIKE
+                         or the CENTER_SPIKE, depending on the robot's
+                         starting position. For RED_F2 the left_window
+                         encloses the LEFT_SPIKE. -->
                     <left_window>
+                        <x>0</x>
+                        <y>0</y>
                         <width>175</width>
+                        <height>224</height>
                         <prop_location>LEFT_SPIKE</prop_location>
                     </left_window>
                     <right_window>
+                        <!-- x starts at left_window.x + left_window.width -->
+                        <width>328</width>
+                        <!-- y is the same as that of the left_window -->
+                        <!-- height is the same as that of the left_window -->
                         <prop_location>CENTER_SPIKE</prop_location>
                     </right_window>
                     <team_prop_npos>

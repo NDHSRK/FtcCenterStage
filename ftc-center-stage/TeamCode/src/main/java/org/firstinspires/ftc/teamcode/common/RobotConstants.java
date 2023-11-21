@@ -11,7 +11,8 @@ public class RobotConstants {
 
     public enum RunType {
         AUTONOMOUS, TELEOP,
-        TELEOP_WITH_EMBEDDED_AUTONOMOUS
+        TELEOP_WITH_EMBEDDED_AUTONOMOUS,
+        TELEOP_VISION_PREVIEW
     }
 
     public enum Alliance {

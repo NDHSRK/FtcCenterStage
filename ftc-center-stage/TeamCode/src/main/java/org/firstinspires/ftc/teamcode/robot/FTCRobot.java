@@ -96,7 +96,8 @@ public class FTCRobot {
             XPathAccess configXPath;
 
             // If we're running a TeleOp OpMode, get the TeleOp settings.
-            if (pRunType == RobotConstants.RunType.TELEOP || pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS) {
+            if (pRunType == RobotConstants.RunType.TELEOP || pRunType == RobotConstants.RunType.TELEOP_WITH_EMBEDDED_AUTONOMOUS ||
+                    pRunType == RobotConstants.RunType.TELEOP_VISION_PREVIEW) {
                 configXPath = configXML.getPath("TELEOP_SETTINGS");
                 String logging_level = configXPath.getRequiredTextInRange("log_level", configXPath.validRange("d", "v", "vv", "off"));
                 double driveTrainPowerHigh = configXPath.getRequiredDouble("drive_train_power/high");

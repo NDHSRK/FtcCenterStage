@@ -29,14 +29,19 @@
 
 package org.firstinspires.ftc.teamcode.teleop.sample;
 
+import static android.os.SystemClock.sleep;
+
 import android.annotation.SuppressLint;
 import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -159,6 +164,25 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .addProcessor(webcamFrame)
                 .addProcessor(aprilTag)
                 .build();
+
+        RobotLogCommon.d("ConceptDoubleVision", "Waiting for front webcam to start streaming");
+        ElapsedTime streamingTimer = new ElapsedTime();
+        streamingTimer.reset(); // start
+        while (streamingTimer.milliseconds() < 2000 && myVisionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            sleep(50);
+        }
+
+        //**TODO added this after the code below failed ... !!WORKED!!
+        VisionPortal.CameraState cameraState = myVisionPortal.getCameraState();
+        RobotLogCommon.d("ConceptDoubleVision", "State of front webcam " + cameraState);
+        if (cameraState != VisionPortal.CameraState.STREAMING) {
+            throw new AutonomousRobotException("ConceptDoubleVision", "Timed out waiting for webcam streaming to start");
+        }
+
+        //**TODO *TRY THIS* disable immediately after start -- did *not* work = no AprilTags, no frames
+        // even after enabling.
+        myVisionPortal.setProcessorEnabled(aprilTag, false);
+        myVisionPortal.setProcessorEnabled(webcamFrame, false);
 
     }   // end initDoubleVision()
 
