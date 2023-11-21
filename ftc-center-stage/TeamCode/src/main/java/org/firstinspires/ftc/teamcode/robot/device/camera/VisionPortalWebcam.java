@@ -163,11 +163,18 @@ public abstract class VisionPortalWebcam {
     // To be called from the finally block of FTCAuto or any TeleOp
     // OpMode that uses the webcam.
     public void finalShutdown() {
+        if (visionPortal == null)
+            return; // already shut down
+
         // Shut down the active processor. Stop streaming.
-        //**TODO if (activeProcessorEnabled)
-        //    disableProcessor();
+        //**TODO crash in disableProcessor()? Loop until processor disabled?
+        if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+            disableProcessor();
         
-        //**TODO visionPortal.stopStreaming();
+        //**TODO crash in stopStreaming()? Loop until !STREAMING?
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+          visionPortal.stopStreaming();
+
         visionPortal.close();
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }

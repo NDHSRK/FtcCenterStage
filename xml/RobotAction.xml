@@ -10,8 +10,24 @@
         </parameters>
         <actions>
 
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
+
+            <!-- DISABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </DISABLE_PROCESSOR>
+
+            <STOP_WEBCAM_STREAMING>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM_STREAMING>
+
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP -->
+
             <!-- A4 bright_spot -->
-            <FIND_TEAM_PROP>
+            <!-- FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
                     <resolution>
@@ -38,7 +54,7 @@
                         <prop_location>RIGHT_SPIKE</prop_location>
                     </team_prop_npos>
                 </team_prop_recognition>
-            </FIND_TEAM_PROP>
+            </FIND_TEAM_PROP -->
 
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>

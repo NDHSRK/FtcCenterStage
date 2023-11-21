@@ -71,7 +71,7 @@ public class TeamPropRecognition {
                 return colorChannelPixelCountPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelPixelCountParameters);
             }
 
-            //**TODO Share code with COLOR_CHANNEL_PIXEL_COUNT but start with
+            //## Share code with COLOR_CHANNEL_PIXEL_COUNT but start with
             // a grayscale image, e.g. one from an ArduCam OV9281.
             // case GRAYSCALE_PIXEL_COUNT
 

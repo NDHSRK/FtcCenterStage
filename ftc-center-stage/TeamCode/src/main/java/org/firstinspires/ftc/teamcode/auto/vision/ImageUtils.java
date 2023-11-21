@@ -35,7 +35,7 @@ public class ImageUtils {
             throw new AutonomousRobotException(TAG, "At least one ROI dimension was 0");
 
         Mat roi = new Mat(pSrcImage, pROIDefinition);
-        RobotLogCommon.d(TAG, "Image ROI x " + pROIDefinition.x + ", y " + pROIDefinition.y + ", width " + pROIDefinition.width + ", height " + pROIDefinition.height);
+        RobotLogCommon.v(TAG, "Image ROI x " + pROIDefinition.x + ", y " + pROIDefinition.y + ", width " + pROIDefinition.width + ", height " + pROIDefinition.height);
         return roi;
     }
 
@@ -52,7 +52,7 @@ public class ImageUtils {
             Imgcodecs.imwrite(imageFilename, pOriginalImage);
         }
 
-        RobotLogCommon.d(TAG, "Image width " + pOriginalImage.cols() + ", height " + pOriginalImage.rows());
+        RobotLogCommon.v(TAG, "Image width " + pOriginalImage.cols() + ", height " + pOriginalImage.rows());
         if ((pOriginalImage.cols() != pImageParameters.resolution_width) ||
                 (pOriginalImage.rows() != pImageParameters.resolution_height))
             throw new AutonomousRobotException(TAG,

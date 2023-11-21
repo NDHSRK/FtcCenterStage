@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -260,11 +261,16 @@ public class FTCAuto {
             failsafeElevator();
 
             if (!keepCamerasRunning) {
-                //**TODO orderly shutdown was causing the Robot Controller to crash at this point.
-                // 10/18/23 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-                //    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                //   robot.configuredWebcams.forEach((k, v) -> v.getVisionPortalWebcam().finalShutdown());
-                //}
+                //**TODO re-test: orderly shutdown causes the Robot Controller to crash at this point.
+                /*
+                if (robot.configuredWebcams != null) { // if webcam(s) are configured in
+                    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
+                    robot.configuredWebcams.forEach((k, v) -> {
+                                if (v != null && v.getVisionPortalWebcam() != null)
+                                    v.getVisionPortalWebcam().finalShutdown();
+                            });
+                }
+                */
             }
         }
 
@@ -1427,8 +1433,7 @@ public class FTCAuto {
         return linearOpMode.opModeIsActive();
     }
 
-    // Failsafe with the goal of making sure that the
-    // elevator is at GROUND.
+    // Failsafe with the goal of making sure that the elevator is at GROUND.
     private void failsafeElevator() {
         if (robot.elevator == null) {
             RobotLogCommon.d(TAG, "The elevator is not in the current configuration");
