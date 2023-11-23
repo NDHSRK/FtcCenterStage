@@ -19,6 +19,9 @@ public class MotionUtils {
         return Range.clip(Math.abs(pValue), pLimit, 1.0) * (pValue < 0 ? -1 : 1);
     }
 
+    //**TODO 11/21/2023 questionable - on a strafe you can't apply the same "steer"
+    // factor to the left front and left rear motors - they are turning in opposite
+    // directions!
     public static EnumMap<FTCRobot.MotorId, Double> updateDriveTrainVelocity(EnumMap<FTCRobot.MotorId, AutoDrive.DriveMotorData> pCurrentMotorData,
                                                                              double pSteer, double pRampDownFactor) {
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap = new EnumMap<>(FTCRobot.MotorId.class);

@@ -11,7 +11,15 @@
     </drive_train_power>
   </TELEOP_SETTINGS>
 
-  <DRIVE_TRAIN configured="no" />
+  <DRIVE_TRAIN configured="yes">
+    <motors model="goBILDA 5203 Yellow Jacket Planetary Gear Motor 5203-2402-0019"
+      clicks_per_motor_rev="537.7" rpm="312.0" wheel_diameter_in="4.0">
+      <left_front_drive direction="REVERSE">lf</left_front_drive>
+      <right_front_drive direction="FORWARD">rf</right_front_drive>
+      <left_back_drive direction="REVERSE">lb</left_back_drive>
+      <right_back_drive direction="FORWARD">rb</right_back_drive>
+    </motors>
+  </DRIVE_TRAIN>
 
   <ELEVATOR configured="no" />
 
@@ -33,13 +41,16 @@
   <!-- There is a maximum of two webcams in a set. -->
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
-      <!-- StreamCam -->
       <webcam>
-        <internal_id>front_webcam</internal_id>
-        <serial_number>EC2E0DA5</serial_number>
+        <internal_id>rear_webcam</internal_id>
+        <!-- C920 -->
+        <!-- primary C920 serial number 1133:2277 -->
+        <!-- backup C920 serial number F98252DF -->
+        <serial_number>F98252DF</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>
+          <!-- processor>webcam_frame</processor -->
           <processor>april_tag</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>
@@ -55,13 +66,12 @@
   <!-- IMU -->
   <!-- The IMU may not be configured out. -->
   <IMU>
-    <!-- production robot -->
+    <!-- production robot >
     <logo_facing_direction>LEFT</logo_facing_direction>
+    <usb_facing_direction>UP</usb_facing_direction  -->
+    <!-- test robot -->
+    <logo_facing_direction>FORWARD</logo_facing_direction>
     <usb_facing_direction>UP</usb_facing_direction>
-    <!-- test robot 
-        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection.UP;
-    -->
   </IMU>
 
 </RobotConfig>

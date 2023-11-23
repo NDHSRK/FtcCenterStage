@@ -38,11 +38,14 @@ package org.firstinspires.ftc.teamcode.robot.device.camera;
 
 import android.graphics.Canvas;
 
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.auto.vision.ImageUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowUtils;
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,8 +54,10 @@ import java.util.concurrent.atomic.AtomicReference;
 // AprilTagProcessorImpl inherits from AprilTagProcessorImpl.
 public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
 
-    Mat workingFrame = new Mat();
+    private final String TAG = SpikeWindowProcessorImpl.class.getSimpleName();
+    private Mat workingFrame = new Mat();
     private final AtomicReference<SpikeWindowMapping> spikeWindowMapping = new AtomicReference<>();
+    private boolean firstFrame = true; // for testing
 
     //## This is a callback. It definitely runs on another thread.
     @Override
@@ -86,6 +91,15 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
 
         // Return an RGB frame for the camera stream.        
         Imgproc.cvtColor(workingFrame, workingFrame, Imgproc.COLOR_BGR2RGB);
+
+        //**TODO Have we drawn spike windows on a frame?
+        if (firstFrame) {
+            firstFrame = false;
+            RobotLogCommon.d(TAG, "Writing spike window overlay SpikeWindowCapture.png");
+            String imageWorkingDirectory = WorkingDirectory.getWorkingDirectory() + "/images/";
+            Imgcodecs.imwrite(imageWorkingDirectory + "SpikeWindowCapture.png", workingFrame);
+        }
+
         return workingFrame;
     }
 

@@ -45,7 +45,7 @@ public abstract class VisionPortalWebcam {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .addProcessor(pAssignedProcessor.second)
                 //## 11/06/23 need to enable LiveView for testing with scrcpy
-                //.enableLiveView(true)
+                //.enableLiveView(true) //**TODO set true 11/21/23
                 .enableLiveView(false) //##PY changed to false 10/5/23 - and must remain false
                 //.setAutoStopLiveView(false) //## Only if we're using LiveView
 

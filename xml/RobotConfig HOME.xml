@@ -35,7 +35,7 @@
     <webcam_set>
       <!-- StreamCam -->
       <webcam>
-        <internal_id>rear_webcam</internal_id>
+        <internal_id>front_webcam</internal_id>
         <serial_number>EC2E0DA5</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
