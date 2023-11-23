@@ -190,6 +190,9 @@ public class DriveTrainMotion {
         }
     }
 
+    //**TODO Why can't you use RUN_USING_ENCODER and velocity here?
+    // See the sample RobotAutoDriveByGyro_Linear, which uses power - try there first.
+
     // Executes a turn.
     // Takes into account the fact that the desired heading of the robot before the turn may not be the same
     // as the current heading. So this method either increases or diminishes the turn to make up the gap.

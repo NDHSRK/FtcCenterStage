@@ -37,6 +37,8 @@
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
@@ -66,7 +68,7 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
         // processor has been received; the frame itself is not passed in
         // here.
     }
- 
+
     //## This is a callback; assume it's running on another thread.
     // So store the frame in an AtomicReference.
     @Override
@@ -76,7 +78,7 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
         // the input.
         SpikeWindowMapping currentSpikeWindowMapping = spikeWindowMapping.get();
         if (currentSpikeWindowMapping == null)
-          return input;
+            return input;
 
         // Now we have a frame from the webcam and a spike window mapping.
         // So we can crop the frame to the spike window ROI and display
@@ -107,11 +109,24 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
         //## too much work for little reward ...
+        //**TODO BUT you need this to render an OpenCV Mat to the DS camera stream.
+        // So try to draw a line ... first just hardcode something ... then scale our Mat
+        // Mat spikeMat = (Mat) userContext; // num columns = width; num rows = height
+        //   but actually you'll just want the ROI width and height and three lines:
+        //   one for the top of the spike window, one for the bottom, and one for the
+        // dividing line between the left and right spike windows.
+        // to the onscreenWidth and onscreenHeight.
+        Paint greenAxisPaint = new Paint();
+        greenAxisPaint.setColor(Color.GREEN);
+        greenAxisPaint.setAntiAlias(true);
+        greenAxisPaint.setStrokeCap(Paint.Cap.BUTT);
+        greenAxisPaint.setStrokeWidth(5);
+        canvas.drawLine(0.0f, onscreenHeight / 2.0f, (float) onscreenWidth, onscreenHeight / 2.0f, greenAxisPaint);
     }
 
     @Override
     public void setSpikeWindowMapping(SpikeWindowMapping pSpikeWindowMapping) {
         spikeWindowMapping.set(pSpikeWindowMapping);
     }
-    
+
 }
