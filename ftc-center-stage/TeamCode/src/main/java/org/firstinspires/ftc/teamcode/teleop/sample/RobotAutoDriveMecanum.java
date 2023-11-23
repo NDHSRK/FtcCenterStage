@@ -33,6 +33,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -91,7 +92,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 //## Based on the sample RobotAutoDriveByGyro_Linear but changed to use
 // a full drive train of four motors and to add strafing.
 
-//**TODO Review all comments and remove those that only apply to the sample.
+//**TODO Review all comments and variable names and make sure
+// they apply to this changed version of the sample.
 
 @Autonomous(name = "Auto Drive Mecanum", group = "Auto Test")
 //@Disabled
@@ -102,17 +104,18 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     }
 
     /* Declare OpMode members. */
-    private DcMotor leftFrontDrive = null; //**TODO DCMotorEx?
-    private DcMotor leftBackDrive = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive = null;
+    //## Need DcMotorEx for setVelocity
+    private DcMotorEx leftFrontDrive;
+    private DcMotorEx leftBackDrive;
+    private DcMotorEx rightFrontDrive;
+    private DcMotorEx rightBackDrive;
 
-    private IMU imu = null;      // Control/Expansion Hub IMU
-    private double headingError = 0;
+    private IMU imu;      // Control/Expansion Hub IMU
+    private double headingError;
 
-    private double driveSpeed = 0;
+    private double driveSpeed;
 
-    private double turnSpeed = 0;
+    private double turnSpeed;
 
     // Calculate the COUNTS_PER_INCH for your specific drive train.
     // Go to your motor vendor website to determine your motor's COUNTS_PER_MOTOR_REV
@@ -139,7 +142,6 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     static final double P_TURN_GAIN = 0.02;     // Larger is more responsive, but also less stable
     static final double P_DRIVE_GAIN = 0.03;     // Larger is more responsive, but also less stable
 
-
     @Override
     public void runOpMode() {
 
@@ -151,11 +153,12 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         //rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
         //**TODO Comment out for the varsity robot.
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "lf");
-        leftBackDrive = hardwareMap.get(DcMotor.class, "lb");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "rf");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "rb");
+        leftFrontDrive = hardwareMap.get(DcMotorEx.class, "lf");
+        leftBackDrive = hardwareMap.get(DcMotorEx.class, "lb");
+        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "rf");
+        rightBackDrive = hardwareMap.get(DcMotorEx.class, "rb");
 
+        //**TODO These directions apply to the varsity test robot - change for JV
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -392,8 +395,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
      */
     public void turnToHeading(double maxTurnSpeed, double heading) {
 
-        setModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // the IMU controls the turn
+        setModeAll(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Run getSteeringCorrection() once to pre-calculate the current error
         getSteeringCorrection(heading, P_DRIVE_GAIN);
@@ -494,10 +496,10 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
             rightSpeed /= max;
         }
 
-        leftFrontDrive.setPower(leftSpeed);
-        leftBackDrive.setPower(leftSpeed);
-        rightFrontDrive.setPower(rightSpeed);
-        rightBackDrive.setPower(rightSpeed);
+        leftFrontDrive.setVelocity(leftSpeed);
+        leftBackDrive.setVelocity(leftSpeed);
+        rightFrontDrive.setVelocity(rightSpeed);
+        rightBackDrive.setVelocity(rightSpeed);
     }
 
     /**
@@ -543,10 +545,10 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
             rightBackSpeed /= max;
         }
 
-        leftFrontDrive.setPower(leftFrontSpeed);
-        leftBackDrive.setPower(leftBackSpeed);
-        rightFrontDrive.setPower(rightFrontSpeed);
-        rightBackDrive.setPower(rightBackSpeed);
+        leftFrontDrive.setVelocity(leftFrontSpeed);
+        leftBackDrive.setVelocity(leftBackSpeed);
+        rightFrontDrive.setVelocity(rightFrontSpeed);
+        rightBackDrive.setVelocity(rightBackSpeed);
     }
 
     /**
@@ -565,9 +567,9 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     }
 
     private void stopAllMotors() {
-        leftFrontDrive.setPower(0.0);
-        rightFrontDrive.setPower(0.0);
-        leftBackDrive.setPower(0.0);
-        rightBackDrive.setPower(0.0);
+        leftFrontDrive.setVelocity(0.0);
+        rightFrontDrive.setVelocity(0.0);
+        leftBackDrive.setVelocity(0.0);
+        rightBackDrive.setVelocity(0.0);
     }
 }
