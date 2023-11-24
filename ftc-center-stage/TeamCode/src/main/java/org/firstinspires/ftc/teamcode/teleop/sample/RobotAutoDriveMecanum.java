@@ -211,7 +211,6 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         //turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
         //holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
 
-        //**TODO Try strafing in both directions
         driveStrafe(DRIVE_SPEED, 48.0, StrafeDirection.LEFT, 0);
         //sleep(1000);
 
@@ -514,8 +513,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         turnSpeed = turn;      // save this value as a class member so it can be used by telemetry.
 
         // The direction of the strafe determines the sign of the
-        // power correction.
-        //**TODO later - change to velocity
+        // speed correction.
         // To set the power to the motors individually.
         double leftFrontSpeed;
         double rightFrontSpeed;

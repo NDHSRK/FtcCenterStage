@@ -262,6 +262,7 @@ public class FTCAuto {
 
             if (!keepCamerasRunning) {
                 //**TODO re-test: orderly shutdown causes the Robot Controller to crash at this point.
+
                 /*
                 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                     RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
@@ -270,7 +271,9 @@ public class FTCAuto {
                                     v.getVisionPortalWebcam().finalShutdown();
                             });
                 }
-                */
+
+                 */
+
             }
         }
 
@@ -493,6 +496,7 @@ public class FTCAuto {
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
+                //**TODO getVisionPortal may return null
                 configuredWebcam.getVisionPortalWebcam().finalShutdown();
                 configuredWebcam.setVisionPortalWebcam(null);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;

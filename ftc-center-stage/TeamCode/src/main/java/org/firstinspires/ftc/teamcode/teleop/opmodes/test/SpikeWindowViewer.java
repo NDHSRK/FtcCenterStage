@@ -131,6 +131,8 @@ public class SpikeWindowViewer extends TeleOpBase {
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(f4SpikeWindows);
             RobotLogCommon.d(TAG, "Set spike window mapping for F4");
+            telemetry.addLine("Spike windows for RED_F4");
+            telemetry.update();
         }
     }
 
@@ -148,6 +150,8 @@ public class SpikeWindowViewer extends TeleOpBase {
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(f2SpikeWindows);
             RobotLogCommon.d(TAG, "Set spike window mapping for F2");
+            telemetry.addLine("Spike windows for RED_F2");
+            telemetry.update();
         }
     }
 
@@ -165,6 +169,8 @@ public class SpikeWindowViewer extends TeleOpBase {
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a2SpikeWindows);
             RobotLogCommon.d(TAG, "Set spike window mapping for A2");
+            telemetry.addLine("Spike windows for BLUE_A2");
+            telemetry.update();
         }
     }
 
@@ -182,6 +188,8 @@ public class SpikeWindowViewer extends TeleOpBase {
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a4SpikeWindows);
             RobotLogCommon.d(TAG, "Set spike window mapping for A4");
+            telemetry.addLine("Spike windows for BLUE_F4");
+            telemetry.update();
         }
     }
 

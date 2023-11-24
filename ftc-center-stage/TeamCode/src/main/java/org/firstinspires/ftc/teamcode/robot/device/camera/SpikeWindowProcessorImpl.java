@@ -60,6 +60,7 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
     private Mat workingFrame = new Mat();
     private final AtomicReference<SpikeWindowMapping> spikeWindowMapping = new AtomicReference<>();
     private boolean firstFrame = true; // for testing
+    private boolean firstCanvas = true;
 
     //## This is a callback. It definitely runs on another thread.
     @Override
@@ -108,14 +109,17 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
     //## This is a callback.
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-        //## too much work for little reward ...
+        if (firstCanvas) {
+            firstCanvas = false;
+            RobotLogCommon.d(TAG, "Canvas width " + onscreenWidth + ", height " + onscreenHeight);
+            RobotLogCommon.d(TAG, "Scale x " + scaleBmpPxToCanvasPx + ", density " + scaleCanvasDensity);
+        }
+
         //**TODO BUT you need this to render an OpenCV Mat to the DS camera stream.
-        // So try to draw a line ... first just hardcode something ... then scale our Mat
-        // Mat spikeMat = (Mat) userContext; // num columns = width; num rows = height
-        //   but actually you'll just want the ROI width and height and three lines:
-        //   one for the top of the spike window, one for the bottom, and one for the
-        // dividing line between the left and right spike windows.
-        // to the onscreenWidth and onscreenHeight.
+        // So try to draw a line ... first just hardcode something ...
+        //   then package the ROI width and height and the x offset within
+        //   the ROI one line for the dividing line between the left and right
+        //   spike windows.
         Paint greenAxisPaint = new Paint();
         greenAxisPaint.setColor(Color.GREEN);
         greenAxisPaint.setAntiAlias(true);

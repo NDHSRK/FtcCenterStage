@@ -25,7 +25,7 @@ public abstract class VisionPortalWebcam {
     private static final String TAG = VisionPortalWebcam.class.getSimpleName();
 
     private final VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam;
-    private final VisionPortal visionPortal;
+    private VisionPortal visionPortal;
     protected RobotConstantsCenterStage.ProcessorIdentifier activeProcessorId;
     protected final VisionProcessor activeProcessor;
     private boolean activeProcessorEnabled;
@@ -167,15 +167,15 @@ public abstract class VisionPortalWebcam {
             return; // already shut down
 
         // Shut down the active processor. Stop streaming.
-        //**TODO crash in disableProcessor()? Loop until processor disabled?
-        if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
-            disableProcessor();
+//**TODO is the problem here? *NO*        if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+//            disableProcessor();
         
-        //**TODO crash in stopStreaming()? Loop until !STREAMING?
+        //**TODO crash in stopStreaming() after disableProcessor().
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
           visionPortal.stopStreaming();
 
         visionPortal.close();
+        visionPortal = null; //**TODO CHECK all methods for null visionPortal
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }
 

@@ -56,9 +56,9 @@
                 </team_prop_recognition>
             </FIND_TEAM_PROP -->
 
-            <STOP_WEBCAM>
+            <!-- STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
-            </STOP_WEBCAM>
+            </STOP_WEBCAM -->
 
             <SLEEP>
                 <ms>1500</ms>
