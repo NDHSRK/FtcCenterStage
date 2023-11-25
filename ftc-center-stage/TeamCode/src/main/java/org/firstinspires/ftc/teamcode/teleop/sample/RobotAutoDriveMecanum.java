@@ -41,27 +41,41 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+//## This OpMode is based on the sample RobotAutoDriveByGyro_Linear but
+// has been changed to use a full drive train of four motors and to add
+// strafing.
+
 /*
- *  This OpMode illustrates the concept of driving an autonomous path based on Gyro (IMU) heading and encoder counts.
- *  The code is structured as a LinearOpMode
+ *  This OpMode illustrates the concept of driving an autonomous path based on Gyro (IMU)
+ *  heading and encoder counts.
+ *  The code is structured as a LinearOpMode.
  *
  *  The path to be followed by the robot is built from a series of drive, turn or pause steps.
- *  Each step on the path is defined by a single function call, and these can be strung together in any order.
+ *  Each step on the path is defined by a single function call, and these can be strung together
+ *  in any order.
  *
- *  The code REQUIRES that you have encoders on the drive motors, otherwise you should use: RobotAutoDriveByTime;
+ *  The code REQUIRES that you have encoders on the drive motors.
  *
  *  This code uses the Universal IMU interface so it will work with either the BNO055, or BHI260 IMU.
  *  To run as written, the Control/Expansion hub should be mounted horizontally on a flat part of the robot chassis.
  *  The REV Logo should be facing UP, and the USB port should be facing forward.
  *  If this is not the configuration of your REV Control Hub, then the code should be modified to reflect the correct orientation.
  *
- *  This sample requires that the drive Motors have been configured with names : left_drive and right_drive.
- *  It also requires that a positive power command moves both motors forward, and causes the encoders to count UP.
- *  So please verify that both of your motors move the robot forward on the first move.  If not, make the required correction.
- *  See the beginning of runOpMode() to set the FORWARD/REVERSE option for each motor.
+ *  //## The original sample OpMode has been modified to support a drive train with four motors.
+ *  It is assumed that the drive Motors have been configured with names: left_front_drive
+ *  right_front_drive, left_back_drive and right_back_drive - although you can use any names
+ *  that match those in the configuration you entered via the Driver Station.
+ *  Positive power must move all four motors forward and cause the encoders to count UP.
+ *  So please verify that both of your motors move the robot forward on the first move.
+ *  If not, make the required correction.
  *
- *  This code uses RUN_TO_POSITION mode for driving straight, and RUN_USING_ENCODER mode for turning and holding.
- *  Note: This code implements the requirement of calling setTargetPosition() at least once before switching to RUN_TO_POSITION mode.
+ *  This code uses RUN_TO_POSITION mode for driving straight and strafing, and RUN_USING_ENCODER
+ *  mode for turning and holding.
+ *  Note: This code implements the requirement of calling setTargetPosition() at least once before
+ *  switching to RUN_TO_POSITION mode.
+ *
+ * //## The original sample uses the DcMotor method setPower() to drive the motors.
+ * // This modified sample uses DcMotorEx and setVelocity()
  *
  *  Notes:
  *
@@ -89,12 +103,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-//## Based on the sample RobotAutoDriveByGyro_Linear but changed to use
-// a full drive train of four motors and to add strafing.
-
-//**TODO Review all comments and variable names and make sure
-// they apply to this changed version of the sample.
-
 @Autonomous(name = "Auto Drive Mecanum", group = "Auto Test")
 //@Disabled
 public class RobotAutoDriveMecanum extends LinearOpMode {
@@ -110,12 +118,8 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     private DcMotorEx rightFrontDrive;
     private DcMotorEx rightBackDrive;
 
-    private IMU imu;      // Control/Expansion Hub IMU
+    private IMU imu; // Control/Expansion Hub IMU
     private double headingError;
-
-    private double driveSpeed;
-
-    private double turnSpeed;
 
     // Calculate the COUNTS_PER_INCH for your specific drive train.
     // Go to your motor vendor website to determine your motor's COUNTS_PER_MOTOR_REV
@@ -124,15 +128,19 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     // This is gearing DOWN for less speed and more torque.
     // For gearing UP, use a gear ratio less than 1.0. Note this will affect the direction of wheel rotation.
     static final double COUNTS_PER_MOTOR_REV = 537.7;   // eg: GoBILDA 312 RPM Yellow Jacket
+    static final double MOTOR_RPM = 312.0;
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // No External Gearing.
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
+    static final double MAX_VELOCITY = Math.floor((COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * MOTOR_RPM) / 60); // clicks per second
+
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double DRIVE_SPEED = 0.4;     // Max driving speed for better distance accuracy.
-    static final double TURN_SPEED = 0.2;     // Max Turn speed to limit turn rate
+    static final double DRIVE_SPEED = 0.5;     // Max driving speed for better distance accuracy.
+    static final double STRAFE_SPEED = 0.4;     // Max driving speed for better distance accuracy.
+    static final double TURN_SPEED = 0.3;     // Max Turn speed to limit turn rate
     static final double HEADING_THRESHOLD = 1.0;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
@@ -172,8 +180,9 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
          *
          * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
+        //**TODO These settings are for the varsity test robot.
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 
         // Now initialize the IMU with this mounting orientation
@@ -208,24 +217,23 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         //driveStraight(DRIVE_SPEED, 48.0, 0.0);    // Drive Forward 48"
         //sleep(1000);
 
-        //turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
-        //holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
+        //turnToHeading(TURN_SPEED, -90.0);               // Turn  CW to -45 Degrees
+        //holdHeading(TURN_SPEED, -90.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
 
-        driveStrafe(DRIVE_SPEED, 48.0, StrafeDirection.LEFT, 0);
-        //sleep(1000);
+        /*
+        driveStrafe(STRAFE_SPEED, 48.0, StrafeDirection.LEFT);
+        //**TODO DO NOT USE for straight or strafe; needs further testing  holdHeading(TURN_SPEED, 0.0, 0.5);
+        sleep(2000);
 
-        //driveStrafe(DRIVE_SPEED, 36.0, StrafeDirection.RIGHT, 0);
-        //sleep(1000);
+        driveStrafe(STRAFE_SPEED, 48.0, StrafeDirection.RIGHT);
+        sleep(2000);
+         */
 
-        //**TODO TRY this later driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-        //turnToHeading(TURN_SPEED, 45.0);               // Turn  CCW  to  45 Degrees
-        //holdHeading(TURN_SPEED, 45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+        driveStraight(DRIVE_SPEED, 48.0, 0.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
+        //**TODO DO NOT USE for straight or strafe; needs further testing  holdHeading(TURN_SPEED, 0.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+        sleep(2000);
 
-        //driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
-        //turnToHeading(TURN_SPEED, 0.0);               // Turn  CW  to 0 Degrees
-        //holdHeading(TURN_SPEED, 0.0, 1.0);    // Hold  0 Deg heading for 1 second
-
-        //driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
+        driveStraight(DRIVE_SPEED, -48.0, 0.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -285,6 +293,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
             moveRobot(maxDriveSpeed, 0);
 
             // keep looping while we are still active, and BOTH motors are running.
+            double turnSpeed;
             while (opModeIsActive() &&
                     (leftFrontDrive.isBusy() && leftBackDrive.isBusy() && rightFrontDrive.isBusy() && rightBackDrive.isBusy())) {
 
@@ -296,7 +305,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
                     turnSpeed *= -1.0;
 
                 // Apply the turning correction to the current driving speed.
-                moveRobot(driveSpeed, turnSpeed);
+                moveRobot(maxDriveSpeed, turnSpeed);
             }
 
             // Stop all motion & Turn off RUN_TO_POSITION
@@ -305,23 +314,19 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     }
 
     /**
-     *  Strafe to the left or right in a straight line, on a fixed compass heading (angle),
-     *  based on encoder counts.
-     *  Move will stop if either of these conditions occur:
-     *  1) Move gets to the desired position
-     *  2) Driver stops the OpMode running.
+     * Strafe to the left or right in a straight line, on a fixed compass heading (angle),
+     * based on encoder counts.
+     * Move will stop if either of these conditions occur:
+     * 1) Move gets to the desired position
+     * 2) Driver stops the OpMode running.
      *
-     * @param maxDriveSpeed MAX Speed for forward/rev motion (range 0 to +1.0) .
-     * @param distance   Distance (in inches) to move from current position.  The sign of the distance is ignored.
+     * @param maxDriveSpeed    MAX Speed for forward/rev motion (range 0 to +1.0) .
+     * @param distance         Distance (in inches) to move from current position.  The sign of the distance is ignored.
      * @param pStrafeDirection Enumeration for the direction of the strafe: LEFT or RIGHT.
-     * @param heading      Absolute Heading Angle (in Degrees) relative to last gyro reset.
-     *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-     *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
     public void driveStrafe(double maxDriveSpeed,
                             double distance,
-                            StrafeDirection pStrafeDirection,
-                            double heading) {
+                            StrafeDirection pStrafeDirection) {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
@@ -340,8 +345,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
                 leftBackDrive.setTargetPosition(moveCounts);
                 rightFrontDrive.setTargetPosition(moveCounts);
                 rightBackDrive.setTargetPosition(-moveCounts);
-            }
-            else { // must be StrafeDirection.RIGHT
+            } else { // must be StrafeDirection.RIGHT
                 leftFrontDrive.setTargetPosition(moveCounts);
                 leftBackDrive.setTargetPosition(-moveCounts);
                 rightFrontDrive.setTargetPosition(-moveCounts);
@@ -359,18 +363,15 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
             strafeRobot(pStrafeDirection, maxDriveSpeed, 0);
 
             // keep looping while we are still active, and BOTH motors are running.
+            double turnSpeed;
             while (opModeIsActive() &&
                     (leftFrontDrive.isBusy() && leftBackDrive.isBusy() && rightFrontDrive.isBusy() && rightBackDrive.isBusy())) {
 
                 // Determine required steering to keep on heading
-                turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
-
-                // if driving in reverse, the motor correction also needs to be reversed
-                if (distance < 0)
-                    turnSpeed *= -1.0;
+                turnSpeed = getSteeringCorrection(0, P_DRIVE_GAIN);
 
                 // Apply the turning correction to the current driving speed.
-                strafeRobot(pStrafeDirection, driveSpeed, turnSpeed);
+                strafeRobot(pStrafeDirection, maxDriveSpeed, turnSpeed);
             }
 
             // Stop all motion.
@@ -400,6 +401,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         getSteeringCorrection(heading, P_DRIVE_GAIN);
 
         // keep looping while we are still active, and not on heading.
+        double turnSpeed;
         while (opModeIsActive() && (Math.abs(headingError) > HEADING_THRESHOLD)) {
 
             // Determine required steering to keep on heading
@@ -429,12 +431,15 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
      *                     If a relative angle is required, add/subtract from current heading.
      * @param holdTime     Length of time (in seconds) to hold the specified heading.
      */
+    //**TODO DO NOT USE for straight or strafe; needs further testing -
+    // and for strafe you would need to call strafeRobot().
     public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
 
         ElapsedTime holdTimer = new ElapsedTime();
         holdTimer.reset();
 
         // keep looping while we have time remaining.
+        double turnSpeed;
         while (opModeIsActive() && (holdTimer.time() < holdTime)) {
             // Determine required steering to keep on heading
             turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
@@ -482,9 +487,6 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
      * @param turn  clockwise turning motor speed.
      */
     public void moveRobot(double drive, double turn) {
-        driveSpeed = drive;     // save this value as a class member so it can be used by telemetry.
-        turnSpeed = turn;      // save this value as a class member so it can be used by telemetry.
-
         double leftSpeed = drive - turn;
         double rightSpeed = drive + turn;
 
@@ -495,10 +497,10 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
             rightSpeed /= max;
         }
 
-        leftFrontDrive.setVelocity(leftSpeed);
-        leftBackDrive.setVelocity(leftSpeed);
-        rightFrontDrive.setVelocity(rightSpeed);
-        rightBackDrive.setVelocity(rightSpeed);
+        leftFrontDrive.setVelocity(MAX_VELOCITY * leftSpeed);
+        leftBackDrive.setVelocity(MAX_VELOCITY * leftSpeed);
+        rightFrontDrive.setVelocity(MAX_VELOCITY * rightSpeed);
+        rightBackDrive.setVelocity(MAX_VELOCITY * rightSpeed);
     }
 
     /**
@@ -509,9 +511,6 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
      * @param turn  clockwise turning motor speed.
      */
     public void strafeRobot(StrafeDirection pStrafeDirection, double drive, double turn) {
-        driveSpeed = drive;     // save this value as a class member so it can be used by telemetry.
-        turnSpeed = turn;      // save this value as a class member so it can be used by telemetry.
-
         // The direction of the strafe determines the sign of the
         // speed correction.
         // To set the power to the motors individually.
@@ -522,14 +521,13 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         if (pStrafeDirection == StrafeDirection.LEFT) {
             leftFrontSpeed = drive + turn;
             leftBackSpeed = drive - turn;
-            rightFrontSpeed = drive - turn;
-            rightBackSpeed = drive + turn;
-        }
-        else { // must be StrafeDirection.RIGHT
-            leftFrontSpeed = drive - turn;
-            leftBackSpeed = drive + turn;
             rightFrontSpeed = drive + turn;
             rightBackSpeed = drive - turn;
+        } else { // must be StrafeDirection.RIGHT
+            leftFrontSpeed = drive - turn;
+            leftBackSpeed = drive + turn;
+            rightFrontSpeed = drive - turn;
+            rightBackSpeed = drive + turn;
         }
 
         // Scale speeds down if either one exceeds +/- 1.0;
@@ -539,14 +537,14 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
         if (max > 1.0) {
             leftFrontSpeed /= max;
             rightFrontSpeed /= max;
-            leftBackSpeed /=max;
+            leftBackSpeed /= max;
             rightBackSpeed /= max;
         }
 
-        leftFrontDrive.setVelocity(leftFrontSpeed);
-        leftBackDrive.setVelocity(leftBackSpeed);
-        rightFrontDrive.setVelocity(rightFrontSpeed);
-        rightBackDrive.setVelocity(rightBackSpeed);
+        leftFrontDrive.setVelocity(MAX_VELOCITY * leftFrontSpeed);
+        leftBackDrive.setVelocity(MAX_VELOCITY * leftBackSpeed);
+        rightFrontDrive.setVelocity(MAX_VELOCITY * rightFrontSpeed);
+        rightBackDrive.setVelocity(MAX_VELOCITY * rightBackSpeed);
     }
 
     /**
