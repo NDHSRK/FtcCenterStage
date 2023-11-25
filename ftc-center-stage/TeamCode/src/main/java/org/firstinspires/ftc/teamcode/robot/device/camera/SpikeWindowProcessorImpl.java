@@ -77,7 +77,10 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
         // Now we have a spike window mapping. Create the required UserData
         // for the onDrawFrame callback.
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = currentSpikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
-        return new OnDrawFrameUserContext(currentSpikeWindowMapping.imageParameters.image_roi, leftWindow.first);
+        return new SpikeWindowUserContext(currentSpikeWindowMapping.imageParameters.resolution_width,
+                currentSpikeWindowMapping.imageParameters.resolution_height,
+                currentSpikeWindowMapping.imageParameters.image_roi,
+                leftWindow.first);
     }
 
     //## This is a callback.
@@ -87,15 +90,21 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
     // [2023-11-24 06:48:30.113] [FINE   ] SpikeWindowProcessorImpl Scale x 1.5, density 1.0
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-        OnDrawFrameUserContext localContext = (OnDrawFrameUserContext) userContext;
+        // Default path if no spike window has been set - this method will receive
+        // a Mat as its userContext.
+        if (userContext instanceof Mat)
+            return; // We have nothing to add
 
-        float xFactor = onscreenWidth / (float) localContext.roiRect.width;
-        float yFactor = onscreenHeight / (float) localContext.roiRect.height;
+        SpikeWindowUserContext localContext = (SpikeWindowUserContext) userContext;
+
+        float xFactor = onscreenWidth / (float) localContext.resolutionWidth;
+        float yFactor = onscreenHeight / (float) localContext.resolutionHeight;
 
         // Draw the ROI on the canvas.
         Paint greenAxisPaint = new Paint();
         greenAxisPaint.setColor(Color.GREEN);
         greenAxisPaint.setAntiAlias(true);
+        greenAxisPaint.setStyle(Paint.Style.STROKE);
         greenAxisPaint.setStrokeCap(Paint.Cap.BUTT);
         greenAxisPaint.setStrokeWidth(8);
 
@@ -116,11 +125,16 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
         spikeWindowMapping.set(pSpikeWindowMapping);
     }
 
-    private static class OnDrawFrameUserContext {
+    private static class SpikeWindowUserContext {
+        private final int resolutionWidth;
+        private final int resolutionHeight;
         private final Rect roiRect;
         private final Rect leftWindow;
 
-        private OnDrawFrameUserContext(Rect pROIRect, Rect pLeftWindow) {
+        private SpikeWindowUserContext(int pResolutionWidth, int pResolutionHeight,
+                                       Rect pROIRect, Rect pLeftWindow) {
+            resolutionWidth = pResolutionWidth;
+            resolutionHeight = pResolutionHeight;
             roiRect = pROIRect;
             leftWindow = pLeftWindow;
         }

@@ -167,8 +167,8 @@ public abstract class VisionPortalWebcam {
             return; // already shut down
 
         // Shut down the active processor. Stop streaming.
-//**TODO is the problem here? *NO*        if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
-//            disableProcessor();
+        if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+            disableProcessor();
         
         //**TODO crash in stopStreaming() after disableProcessor().
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)

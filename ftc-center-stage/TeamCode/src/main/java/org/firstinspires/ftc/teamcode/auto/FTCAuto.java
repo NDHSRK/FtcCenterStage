@@ -262,8 +262,6 @@ public class FTCAuto {
 
             if (!keepCamerasRunning) {
                 //**TODO re-test: orderly shutdown causes the Robot Controller to crash at this point.
-
-                /*
                 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                     RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
                     robot.configuredWebcams.forEach((k, v) -> {
@@ -271,9 +269,6 @@ public class FTCAuto {
                                     v.getVisionPortalWebcam().finalShutdown();
                             });
                 }
-
-                 */
-
             }
         }
 

@@ -14,12 +14,16 @@ public class MotionUtils {
     private static final String TAG = MotionUtils.class.getSimpleName();
 
     // Clip velocity or power.
+    // Do not let the absolute value of the velocity or power go below the lower limit
+    // or above the fixed maximum of 1.0. Return a value with the same sign as the
+    // input argument.
+    //**TODO pLimit may be negative - why use abs and then multiply? Use straight Range.clip??
+    // pLimit really is the *lower* limit ...
     public static double clip(double pValue, double pLimit) {
-        // Do not let the velocity or power go above the limit (positive) or below the limit (negative).
         return Range.clip(Math.abs(pValue), pLimit, 1.0) * (pValue < 0 ? -1 : 1);
     }
 
-    //**TODO 11/21/2023 questionable - on a strafe you can't apply the same "steer"
+    //**TODO 11/21/2023 On a strafe you can't apply the same "steer"
     // factor to the left front and left rear motors - they are turning in opposite
     // directions!
     public static EnumMap<FTCRobot.MotorId, Double> updateDriveTrainVelocity(EnumMap<FTCRobot.MotorId, AutoDrive.DriveMotorData> pCurrentMotorData,
