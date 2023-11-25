@@ -40,15 +40,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
+import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.auto.vision.ImageUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
-import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowUtils;
+import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Rect;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -57,10 +54,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
 
     private final String TAG = SpikeWindowProcessorImpl.class.getSimpleName();
-    private Mat workingFrame = new Mat();
+
     private final AtomicReference<SpikeWindowMapping> spikeWindowMapping = new AtomicReference<>();
-    private boolean firstFrame = true; // for testing
-    private boolean firstCanvas = true;
 
     //## This is a callback. It definitely runs on another thread.
     @Override
@@ -71,66 +66,64 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
     }
 
     //## This is a callback; assume it's running on another thread.
-    // So store the frame in an AtomicReference.
     @Override
     public Object processFrame(Mat input, long captureTimeNanos) {
-
         // If no spike window mapping has been set yet, just return
         // the input.
         SpikeWindowMapping currentSpikeWindowMapping = spikeWindowMapping.get();
         if (currentSpikeWindowMapping == null)
             return input;
 
-        // Now we have a frame from the webcam and a spike window mapping.
-        // So we can crop the frame to the spike window ROI and display
-        // the spike window boundaries.
-
-        // From the EasyOpenCV readme:
-        // **IMPORTANT NOTE:** EasyOpenCV delivers RGBA frames
-        // So we need to convert to BGR for OpenCV here.
-        Imgproc.cvtColor(input, workingFrame, Imgproc.COLOR_RGBA2BGR);
-        workingFrame = ImageUtils.preProcessImage(workingFrame, null, currentSpikeWindowMapping.imageParameters);
-        SpikeWindowUtils.drawSpikeWindows(workingFrame, currentSpikeWindowMapping.spikeWindows, null);
-
-        // Return an RGB frame for the camera stream.        
-        Imgproc.cvtColor(workingFrame, workingFrame, Imgproc.COLOR_BGR2RGB);
-
-        //**TODO Have we drawn spike windows on a frame?
-        if (firstFrame) {
-            firstFrame = false;
-            RobotLogCommon.d(TAG, "Writing spike window overlay SpikeWindowCapture.png");
-            String imageWorkingDirectory = WorkingDirectory.getWorkingDirectory() + "/images/";
-            Imgcodecs.imwrite(imageWorkingDirectory + "SpikeWindowCapture.png", workingFrame);
-        }
-
-        return workingFrame;
+        // Now we have a spike window mapping. Create the required UserData
+        // for the onDrawFrame callback.
+        Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = currentSpikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
+        return new OnDrawFrameUserContext(currentSpikeWindowMapping.imageParameters.image_roi, leftWindow.first);
     }
 
     //## This is a callback.
+    // For 640x480 full image the first callback to this method sent in the
+    // following arguments:
+    // [2023-11-24 06:48:30.111] [FINE   ] SpikeWindowProcessorImpl Canvas width 960, height 720
+    // [2023-11-24 06:48:30.113] [FINE   ] SpikeWindowProcessorImpl Scale x 1.5, density 1.0
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-        if (firstCanvas) {
-            firstCanvas = false;
-            RobotLogCommon.d(TAG, "Canvas width " + onscreenWidth + ", height " + onscreenHeight);
-            RobotLogCommon.d(TAG, "Scale x " + scaleBmpPxToCanvasPx + ", density " + scaleCanvasDensity);
-        }
+        OnDrawFrameUserContext localContext = (OnDrawFrameUserContext) userContext;
 
-        //**TODO BUT you need this to render an OpenCV Mat to the DS camera stream.
-        // So try to draw a line ... first just hardcode something ...
-        //   then package the ROI width and height and the x offset within
-        //   the ROI one line for the dividing line between the left and right
-        //   spike windows.
+        float xFactor = onscreenWidth / (float) localContext.roiRect.width;
+        float yFactor = onscreenHeight / (float) localContext.roiRect.height;
+
+        // Draw the ROI on the canvas.
         Paint greenAxisPaint = new Paint();
         greenAxisPaint.setColor(Color.GREEN);
         greenAxisPaint.setAntiAlias(true);
         greenAxisPaint.setStrokeCap(Paint.Cap.BUTT);
-        greenAxisPaint.setStrokeWidth(5);
-        canvas.drawLine(0.0f, onscreenHeight / 2.0f, (float) onscreenWidth, onscreenHeight / 2.0f, greenAxisPaint);
+        greenAxisPaint.setStrokeWidth(8);
+
+        float left = localContext.roiRect.x * xFactor;
+        float top = localContext.roiRect.y * yFactor;
+        float right = left + (localContext.roiRect.width * xFactor);
+        float bottom = top + (localContext.roiRect.height * yFactor);
+        canvas.drawRect(left, top, right, bottom, greenAxisPaint);
+
+        // Draw the vertical line that separates the left and right
+        // spike windows.
+        float spikeWindowBoundaryX = left + (localContext.leftWindow.width * xFactor);
+        canvas.drawLine(spikeWindowBoundaryX, top, spikeWindowBoundaryX, bottom, greenAxisPaint);
     }
 
     @Override
     public void setSpikeWindowMapping(SpikeWindowMapping pSpikeWindowMapping) {
         spikeWindowMapping.set(pSpikeWindowMapping);
+    }
+
+    private static class OnDrawFrameUserContext {
+        private final Rect roiRect;
+        private final Rect leftWindow;
+
+        private OnDrawFrameUserContext(Rect pROIRect, Rect pLeftWindow) {
+            roiRect = pROIRect;
+            leftWindow = pLeftWindow;
+        }
     }
 
 }

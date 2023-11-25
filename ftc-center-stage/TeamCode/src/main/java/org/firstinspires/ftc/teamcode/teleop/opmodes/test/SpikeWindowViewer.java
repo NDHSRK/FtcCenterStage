@@ -48,7 +48,7 @@ public class SpikeWindowViewer extends TeleOpBase {
     // In this OpMode all of the action takes place during init().
     @Override
     public void initialize() {
-        RobotLogCommon.d(TAG, "Initializing the SpikeWindowViewer");
+        RobotLogCommon.i(TAG, "Initializing the SpikeWindowViewer");
 
         // Start the front webcam with the spike window processor.
         if (robot.configuredWebcams == null || robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM) == null)

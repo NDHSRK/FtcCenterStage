@@ -82,7 +82,9 @@ public class RawFrameProcessorImpl extends RawFrameProcessor {
     //## This is a callback.
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-        //## too much work for little reward ...
+        //## If you don't put in some work to draw on the Canvas then
+        // in the Driver Station camera stream you will only see the
+        // original image.
     }
 
     @Override
