@@ -38,7 +38,8 @@ public abstract class TeleOpBase extends LinearOpMode {
             telemetry.addData("Initialized!", "Ready to run");
             telemetry.update();
 
-            //**TODO Don't run if OpMode is not active, e.g. terminated in init.
+            //**TODO Where does control go if there's a crash or
+            // a requested termination in init?
             waitForStart();
             run(); // run derived class
         } catch (Exception ex) {

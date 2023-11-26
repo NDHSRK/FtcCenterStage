@@ -104,7 +104,7 @@ public class SpikeWindowMappingXML {
                 RobotLogCommon.c(TAG, "Collecting Team Prop data for Autonomous OpMode " + oneOpMode);
                 spikeDataOneOpMode = getSpikeWindowMapping(oneOpMode);
                 if (spikeDataOneOpMode != null)
-                    spikeWindowMapping.put(oneOpMode, getSpikeWindowMapping(oneOpMode));
+                    spikeWindowMapping.put(oneOpMode, spikeDataOneOpMode);
             }
         }
 

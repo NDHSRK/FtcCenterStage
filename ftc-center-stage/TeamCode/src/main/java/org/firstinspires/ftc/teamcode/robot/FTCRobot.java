@@ -105,7 +105,7 @@ public class FTCRobot {
 
                 teleOpSettings = new TeleOpSettings(logging_level, driveTrainPowerHigh, driveTrainPowerLow);
                 RobotLogCommon.c(TAG, "TeleOp configuration: log level " + teleOpSettings.logLevel);
-                //**TODO Useful? RobotLogCommon.setMostDetailedLogLevel(teleOpSettings.logLevel);
+                RobotLogCommon.setMostDetailedLogLevel(teleOpSettings.logLevel);
             } else
                 teleOpSettings = null;
 

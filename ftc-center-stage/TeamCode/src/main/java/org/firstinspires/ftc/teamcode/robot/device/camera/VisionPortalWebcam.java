@@ -45,8 +45,8 @@ public abstract class VisionPortalWebcam {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .addProcessor(pAssignedProcessor.second)
                 //## 11/06/23 need to enable LiveView for testing with scrcpy
-                //.enableLiveView(true) //**TODO set true 11/21/23
-                .enableLiveView(false) //##PY changed to false 10/5/23 - and must remain false
+                //.enableLiveView(true)
+                .enableLiveView(false) //##PY normal setting
                 //.setAutoStopLiveView(false) //## Only if we're using LiveView
 
                 .build();
@@ -163,19 +163,14 @@ public abstract class VisionPortalWebcam {
     // To be called from the finally block of FTCAuto or any TeleOp
     // OpMode that uses the webcam.
     public void finalShutdown() {
-        if (visionPortal == null)
-            return; // already shut down
-
         // Shut down the active processor. Stop streaming.
         if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
             disableProcessor();
-        
-        //**TODO crash in stopStreaming() after disableProcessor().
+
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
           visionPortal.stopStreaming();
 
         visionPortal.close();
-        visionPortal = null; //**TODO CHECK all methods for null visionPortal
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);
     }
 

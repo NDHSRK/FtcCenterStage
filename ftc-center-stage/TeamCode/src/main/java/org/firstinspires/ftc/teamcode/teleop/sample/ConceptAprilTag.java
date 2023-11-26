@@ -80,29 +80,35 @@ public class ConceptAprilTag extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
+        try {
+            if (opModeIsActive()) {
+                while (opModeIsActive()) {
 
-                telemetryAprilTag();
+                    telemetryAprilTag();
 
-                // Push telemetry to the Driver Station.
-                telemetry.update();
+                    // Push telemetry to the Driver Station.
+                    telemetry.update();
 
-                // Save CPU resources; can resume streaming when needed.
-                if (gamepad1.dpad_down) {
-                    visionPortal.stopStreaming();
-                } else if (gamepad1.dpad_up) {
-                    visionPortal.resumeStreaming();
+                    // Save CPU resources; can resume streaming when needed.
+                    if (gamepad1.x) {
+                        return;
+                    }
+
+                    if (gamepad1.dpad_down) {
+                        visionPortal.stopStreaming();
+                    } else if (gamepad1.dpad_up) {
+                        visionPortal.resumeStreaming();
+                    }
+
+                    // Share the CPU.
+                    sleep(20);
                 }
-
-                // Share the CPU.
-                sleep(20);
             }
+        } finally { //**TODO TEMP - test shutdown
+            visionPortal.setProcessorEnabled(aprilTag, false);
+            visionPortal.stopStreaming();
+            visionPortal.close();
         }
-
-        // Save more CPU resources when camera is no longer needed.
-        visionPortal.close();
-
     }   // end method runOpMode()
 
     /**
@@ -129,9 +135,9 @@ public class ConceptAprilTag extends LinearOpMode {
                 //#PY for Logitech C920 from the FTC file teamwebcamcalibrations.xml
                 //.setLensIntrinsics(622.001, 622.001, 319.803, 241.251)
                 //##PY for Arducam 120fps Mono Global Shutter USB Camera, 720P OV9281 UVC Webcam Module
-                .setLensIntrinsics(539.024, 539.024, 316.450, 236.365)
+                //.setLensIntrinsics(539.024, 539.024, 316.450, 236.365)
                 //##PY for Logitech C920 from the 3DF Zephyr tool
-                //.setLensIntrinsics(625.838, 625.838, 323.437, 240.373)
+                .setLensIntrinsics(625.838, 625.838, 323.437, 240.373)
                 .build();
 
         // Create the vision portal by using a builder.
@@ -161,6 +167,8 @@ public class ConceptAprilTag extends LinearOpMode {
 
         // Set and enable the processor.
         builder.addProcessor(aprilTag);
+
+        builder.enableLiveView(false); //##PY - added
 
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();

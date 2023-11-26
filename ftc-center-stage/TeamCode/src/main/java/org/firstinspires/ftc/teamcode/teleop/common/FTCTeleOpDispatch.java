@@ -64,7 +64,8 @@ public class FTCTeleOpDispatch {
             pLinear.telemetry.addData(TAG, "Waiting for start ...");
             pLinear.telemetry.update();
 
-            //**TODO Don't run if OpMode is not active, e.g. terminated in init.
+            //**TODO Where does control go if there's a crash or
+            // a requested termination in init?
             pLinear.waitForStart();
 
             pLinear.telemetry.addData(TAG, "Running ...");

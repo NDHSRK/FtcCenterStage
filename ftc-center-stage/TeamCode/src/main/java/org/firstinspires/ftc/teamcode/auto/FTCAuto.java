@@ -260,8 +260,9 @@ public class FTCAuto {
         } finally {
             failsafeElevator();
 
+           /*
             if (!keepCamerasRunning) {
-                //**TODO re-test: orderly shutdown causes the Robot Controller to crash at this point.
+                //**TODO Attempt at an orderly shutdown causes the Robot Controller to crash.
                 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                     RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
                     robot.configuredWebcams.forEach((k, v) -> {
@@ -270,6 +271,7 @@ public class FTCAuto {
                             });
                 }
             }
+             */
         }
 
         RobotLogCommon.i(TAG, "Exiting FTCAuto");
@@ -280,7 +282,9 @@ public class FTCAuto {
     //===============================================================================================
     //===============================================================================================
 
-    /** @noinspection BooleanMethodIsAlwaysInverted*/ // Using the XML elements and attributes from the configuration file
+    /**
+     * @noinspection BooleanMethodIsAlwaysInverted
+     */ // Using the XML elements and attributes from the configuration file
     // RobotAction.xml, execute the action.
     @SuppressLint("DefaultLocale")
     private boolean executeAction(RobotXMLElement pAction, RobotConstantsCenterStage.OpMode pOpMode) throws Exception {
@@ -420,9 +424,6 @@ public class FTCAuto {
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
-                //**TODO Do not start a camera that is already active (see FTCAuto constructor,
-                // which starts the front camera). Need EnumMap for activeCameras.
-
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
@@ -491,11 +492,11 @@ public class FTCAuto {
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
-                //**TODO getVisionPortal may return null
                 configuredWebcam.getVisionPortalWebcam().finalShutdown();
                 configuredWebcam.setVisionPortalWebcam(null);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
                 RobotLogCommon.d(TAG, "Stopped webcam " + webcamIdString);
+
                 break;
             }
 
@@ -1008,23 +1009,13 @@ public class FTCAuto {
     // Telemetry should keep the FTC runtime from shutting us down due to inactivity.
     private void sleepInLoop(int pMilliseconds) {
         RobotLogCommon.d(TAG, "Sleep for " + pMilliseconds + " milliseconds");
-        linearOpMode.telemetry.addData("Sleeping for: ", "%d", pMilliseconds);
-        linearOpMode.telemetry.update();
 
         int numSleeps = pMilliseconds / 100;
         int sleepRemainder = pMilliseconds % 100;
-        int msSlept = 0;
         for (int i = 0; i < numSleeps; i++) {
             if (!linearOpMode.opModeIsActive())
                 return;
             linearOpMode.sleep(100);
-            msSlept += 100;
-
-            // Only update telemetry every 500ms
-            if (msSlept % 500 == 0) {
-                linearOpMode.telemetry.addData("Slept for: ", "%d", msSlept);
-                linearOpMode.telemetry.update();
-            }
         }
 
         if (linearOpMode.opModeIsActive() && sleepRemainder != 0)
