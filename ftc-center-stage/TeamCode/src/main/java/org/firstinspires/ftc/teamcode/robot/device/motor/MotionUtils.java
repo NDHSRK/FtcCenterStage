@@ -17,8 +17,9 @@ public class MotionUtils {
     // Do not let the absolute value of the velocity or power go below the lower limit
     // or above the fixed maximum of 1.0. Return a value with the same sign as the
     // input argument.
-    //**TODO pLimit may be negative - why use abs and then multiply? Use straight Range.clip??
-    // pLimit really is the *lower* limit ...
+    //**TODO Make two different clipping methods: one for RTP velocity (which may never
+    // fall below zero but may be zero for subordinate motors) and one for RWE, i.e.
+    // turning - with velocity that ranges between -1.0 and +1.0.
     public static double clip(double pValue, double pLimit) {
         return Range.clip(Math.abs(pValue), pLimit, 1.0) * (pValue < 0 ? -1 : 1);
     }

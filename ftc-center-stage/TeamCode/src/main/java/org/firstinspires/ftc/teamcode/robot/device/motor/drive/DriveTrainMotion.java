@@ -319,6 +319,11 @@ public class DriveTrainMotion {
     // minimum power step, e.g. .05. The parameter pRampDownFactor is included
     // so that the PID can be applied as the robot's velocity ramps down
     // according to the optional value in RobotAction.xml.
+
+    //**TODO -> applyConstantHeadingPID Need the "angle" from the caller
+    // so that we can call lower-level methods with the
+    // updateDriveTrainVelocity [or name change to updateStraightLineVelocity] (for angles of 0 and -180 degrees)
+    // and update
     @SuppressLint("DefaultLocale")
     private double applyStraightLinePID(double pDesiredHeading, double pCurrentHeading,
                                         EnumMap<FTCRobot.MotorId, AutoDrive.DriveMotorData> pCurrentMotorData,
@@ -332,6 +337,7 @@ public class DriveTrainMotion {
         if (Math.abs(steer) < DriveTrainConstants.MINIMUM_DRIVE_POWER_STEP)
             return steer; // velocity increment too small, skip
 
+        //**TODO Here you will call different methods depending on the angle.
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, steer, pRampDownFactor);
         Objects.requireNonNull(robot.driveTrain).setVelocityAll(newVelocityMap);
 

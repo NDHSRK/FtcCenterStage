@@ -16,7 +16,10 @@ public class AutoDrive {
 
     private final EnumMap<FTCRobot.MotorId, DriveMotorData> allDriveMotors = new EnumMap<>(FTCRobot.MotorId.class);
 
-    // For a straight run in Autonomous we always use RUN_WITH_ENCODER
+    //**TODO Incorrect: for all straight-line movements we use
+    // RUN_WITH_ENCODER, setTargtePosition, RUN_TO_POSITION, and
+    // setVelocity.
+    //**TODO Delete For a straight run in Autonomous we always use RUN_WITH_ENCODER
     // with velocity levels with or without RUN_TO_POSITION.
 
     // Directional velocity levels, including x, y, and rotational,
@@ -117,18 +120,17 @@ public class AutoDrive {
         return allDriveMotors;
     }
 
+    //**TODO This comment is not correct and neither is the implementation!
     // Very important!
     // For motors set to RUN_TO_POSITION, the SDK does not look at
     // the sign of the velocity. However, for the PID control to
-    // work correctly we do need the sign of the velocity. So if
-    // the motor is a dominant motor, i.e. its run mode is
-    // RUN_TO_POSITION, then do not allow its velocity to fall
-    // outside the specified limit in either a positive or negative
-    // direction. But the velocity of a non-dominant motor may
-    // legitimately fall below the limit: for example, for a
-    // 45-degree NE strafe the velocity of the right front motor is
-    // 0. But we do not allow a sign flip by setting the clipping
-    // limit for non-dominant motors to 0.0.
+    // work correctly *[original] we do need the sign of the
+    // velocity.[end original]* -> **NOT EXACTLY TRUE** - we need
+    // to look at the sign of the velocity *after* the PID and its
+    // "steer" value have been applied and never allow the final
+    // velocity to fall below zero (for subordinate motors) or
+    // below the minimum motor velocity (for dominant motors).
+
     public static class DriveMotorData {
         private static final String TAG = DriveMotorData.class.getSimpleName();
 
