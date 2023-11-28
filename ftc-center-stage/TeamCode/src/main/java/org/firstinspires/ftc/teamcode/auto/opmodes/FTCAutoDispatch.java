@@ -40,6 +40,8 @@ public class FTCAutoDispatch {
             pLinear.telemetry.addData(TAG, "Waiting for start ...");
             pLinear.telemetry.update();
 
+            ftcAuto.setStartDelay();
+
             //**TODO Where does control go if there's a crash or
             // a requested termination in init?
             pLinear.waitForStart();

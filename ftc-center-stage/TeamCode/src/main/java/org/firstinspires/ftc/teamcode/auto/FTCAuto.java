@@ -43,6 +43,7 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstan
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
+import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -88,6 +89,7 @@ public class FTCAuto {
     private CompletableFuture<Double> asyncTurn;
 
     private boolean keepCamerasRunning = false;
+    private int startDelay = 0;
 
     // Image recognition.
     private final TeamPropParameters teamPropParameters;
@@ -170,6 +172,34 @@ public class FTCAuto {
         RobotLogCommon.c(TAG, "FTCAuto construction complete");
     }
 
+    public void setStartDelay() {
+        FTCButton increaseDelay = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
+        FTCButton decreaseDelay = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_DOWN);
+        linearOpMode.telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
+        linearOpMode.telemetry.update();
+
+        boolean changeInDelay = false;
+        while (!linearOpMode.isStarted() && !linearOpMode.isStopRequested()) {
+            increaseDelay.update();
+            decreaseDelay.update();
+            if (increaseDelay.is((FTCButton.State.TAP))) {
+                startDelay = startDelay < 5000 ? startDelay + 1000 : 5000; // ms; 5 sec max
+                changeInDelay = true;
+            } else if (decreaseDelay.is((FTCButton.State.TAP))) {
+                startDelay = startDelay >= 1000 ? startDelay - 1000 : 0; // ms; 0 or positive
+                changeInDelay = true;
+            }
+
+            if (changeInDelay) {
+                linearOpMode.telemetry.addLine("Start delay changed to" + startDelay / 1000);
+                linearOpMode.telemetry.update();
+            }
+
+            // Don't burn CPU cycles busy-looping in this sample
+            sleep(50);
+        }
+    }
+
     // In order to take multiple pictures from an Autonomous OpMode running
     // under TeleOp it is necessary *not* to shut down the camera(s) at the end of
     // runOpMode.
@@ -224,6 +254,13 @@ public class FTCAuto {
             // This reference may be null if no team prop location actions have been defined
             // for an OpMode.
             teamPropLocationActions = actionData.teamPropLocationActions;
+
+            if (startDelay != 0) {
+                RobotLogCommon.i(TAG, "Delay at start: " + startDelay);
+                linearOpMode.telemetry.addLine("Delay start of Auto by " + startDelay / 1000 + " sec");
+                linearOpMode.telemetry.update();
+                sleepInLoop(startDelay);
+            }
 
             // Follow the choreography specified in the robot action file.
             // Note that executeAction returns false as a signal to stop
