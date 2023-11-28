@@ -158,8 +158,8 @@ public class DriveTrainMotion {
                 */
 
                 currentHeading = Objects.requireNonNull(robot.imuDirect).getIMUHeading();
-                steer = applyStraightLinePID(pDesiredHeading, currentHeading, allDriveMotors,
-                        driveTrainPID, rampDownFactor);
+                steer = applyConstantHeadingPID(pDesiredHeading, currentHeading, pAngle,
+                        allDriveMotors, driveTrainPID, rampDownFactor);
 
                 // Make sure the next call to straightDriveRampdown does not
                 // counteract the PID. The PID method only changes motor velocity
@@ -320,14 +320,13 @@ public class DriveTrainMotion {
     // so that the PID can be applied as the robot's velocity ramps down
     // according to the optional value in RobotAction.xml.
 
-    //**TODO -> applyConstantHeadingPID Need the "angle" from the caller
-    // so that we can call lower-level methods with the
-    // updateDriveTrainVelocity [or name change to updateStraightLineVelocity] (for angles of 0 and -180 degrees)
-    // and update
+    // Apply PID to a straight line movement of the robot where the
+    // heading should remain constant: forward, back, and all variations
+    // of strafing.
     @SuppressLint("DefaultLocale")
-    private double applyStraightLinePID(double pDesiredHeading, double pCurrentHeading,
-                                        EnumMap<FTCRobot.MotorId, AutoDrive.DriveMotorData> pCurrentMotorData,
-                                        DriveTrainPID pPID, double pRampDownFactor) {
+    private double applyConstantHeadingPID(double pDesiredHeading, double pCurrentHeading, double pAngle,
+                                           EnumMap<FTCRobot.MotorId, AutoDrive.DriveMotorData> pCurrentMotorData,
+                                           DriveTrainPID pPID, double pRampDownFactor) {
 
         double error = DEGREES.normalize(pDesiredHeading - pCurrentHeading);
         RobotLogCommon.vv(TAG, "IMU " + String.format("%.2f", pCurrentHeading) +
@@ -337,7 +336,7 @@ public class DriveTrainMotion {
         if (Math.abs(steer) < DriveTrainConstants.MINIMUM_DRIVE_POWER_STEP)
             return steer; // velocity increment too small, skip
 
-        //**TODO Here you will call different methods depending on the angle.
+        //**TODO Supply the angle here.
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, steer, pRampDownFactor);
         Objects.requireNonNull(robot.driveTrain).setVelocityAll(newVelocityMap);
 

@@ -188,7 +188,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a4SpikeWindows);
             RobotLogCommon.d(TAG, "Set spike window mapping for A4");
-            telemetry.addLine("Spike windows for BLUE_F4");
+            telemetry.addLine("Spike windows for BLUE_A4");
             telemetry.update();
         }
     }

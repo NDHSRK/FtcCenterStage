@@ -15,11 +15,13 @@ public class SetAutoStartDelay extends LinearOpMode {
 
     private static final String TAG = SetAutoStartDelay.class.getSimpleName();
     private int startDelay = 0;
-    FTCButton increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
-    FTCButton decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_2_DPAD_DOWN);
+    FTCButton increaseDelay;
+    FTCButton decreaseDelay;
 
     @Override
     public void runOpMode() {
+        increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
+        decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
 
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
         telemetry.addLine("Touch play to *END* the OpMode");
@@ -39,7 +41,7 @@ public class SetAutoStartDelay extends LinearOpMode {
 
             if (changeInDelay) {
                 changeInDelay = false;
-                telemetry.addLine("Start delay changed to" + startDelay / 1000);
+                telemetry.addLine("Start delay changed to " + startDelay / 1000 + " sec");
                 telemetry.update();
             }
 
@@ -48,8 +50,8 @@ public class SetAutoStartDelay extends LinearOpMode {
         } // while
 
         if (startDelay != 0) {
-            //**TODO write out the StartDelay.xml file with the new value.
-            telemetry.addLine("Writing StartAutoDelay.xml");
+            //**TODO write out the AutoStartParameters.xml file with the new value.
+            telemetry.addLine("Writing AutoStartParameters.xml");
             telemetry.update();
             sleep(1500);
         }

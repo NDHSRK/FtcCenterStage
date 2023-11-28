@@ -35,6 +35,22 @@ public class MotionUtils {
             FTCRobot.MotorId motorId = oneMotorEntry.getKey();
             AutoDrive.DriveMotorData motorData = oneMotorEntry.getValue();
 
+            //**TODO If the angle is 0.0 or -180.0 then the robot is moving forward
+            // or backward so use the switch below. Otherwise you'll need some
+            // version of this (where "turn" is "steer"):
+            /*
+                   if (pStrafeDirection == StrafeDirection.LEFT) {
+            leftFrontSpeed = drive + turn;
+            leftBackSpeed = drive - turn;
+            rightFrontSpeed = drive + turn;
+            rightBackSpeed = drive - turn;
+        } else { // must be StrafeDirection.RIGHT
+            leftFrontSpeed = drive - turn;
+            leftBackSpeed = drive + turn;
+            rightFrontSpeed = drive - turn;
+            rightBackSpeed = drive + turn;
+        }
+             */
             switch (motorId) {
                 case LEFT_FRONT_DRIVE:
                 case LEFT_BACK_DRIVE: {
