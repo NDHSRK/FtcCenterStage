@@ -20,7 +20,7 @@ public class IntakeArmServoCalibration extends LinearOpMode {
 
     private static final String TAG = ServoCalibration.class.getSimpleName();
     private static final double NEUTRAL_SERVO_POSITION = 0.5;
-    private static double SERVO_POSITION_CHANGE = 0.05;
+    private static double SERVO_POSITION_CHANGE = 0.02;
 
     private Servo leftServo;
     private Servo rightServo;
@@ -54,6 +54,10 @@ public class IntakeArmServoCalibration extends LinearOpMode {
 
         servoIncrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         servoDecrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+
+        telemetry.addData(">", "Touch Play to start OpMode");
+        telemetry.update();
+        waitForStart();
 
         leftServo.setPosition(NEUTRAL_SERVO_POSITION);
         rightServo.setPosition(NEUTRAL_SERVO_POSITION);

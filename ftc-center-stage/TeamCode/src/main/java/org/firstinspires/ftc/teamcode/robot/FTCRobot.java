@@ -14,13 +14,14 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConf
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUDirect;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.motor.IntakeMotor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DroneLauncherServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelIO;
-import org.firstinspires.ftc.teamcode.robot.device.servo.PixelIOHolderServo;
+import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.xml.sax.SAXException;
 
@@ -40,7 +41,7 @@ public class FTCRobot {
     // All motors on the robot for this year's game.
     public enum MotorId {
         LEFT_FRONT_DRIVE, RIGHT_FRONT_DRIVE, LEFT_BACK_DRIVE, RIGHT_BACK_DRIVE,
-        ELEVATOR_LEFT, ELEVATOR_RIGHT, BOOM,
+        ELEVATOR_LEFT, ELEVATOR_RIGHT, INTAKE,
         MOTOR_ID_NPOS // for error checking
     }
 
@@ -54,14 +55,13 @@ public class FTCRobot {
     // embedded within TeleOp.
     public final Elevator elevator;
     public final DualMotorMotion elevatorMotion;
-    public final DualSPARKMiniController pixelIO;
-    public final PixelIOHolderServo pixelIOHolderServo;
+    public final IntakeMotor intakeMotor;
+    public final SingleMotorMotion intakeMotion;
+    public final DualSPARKMiniController pixelIO = null; //**TODO remove
+    public final IntakeArmServo intakeArmServo;
     public final PixelStopperServo pixelStopperServo;
-
     public final DroneLauncherServo droneLauncherServo;
-
     public final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams;
-
     public final IMUDirect imuDirect;
 
     public FTCRobot(LinearOpMode pLinearOpMode, RobotConstants.RunType pRunType) throws InterruptedException {
@@ -132,21 +132,23 @@ public class FTCRobot {
             }
 
             // Get the configuration for pixel intake/outtake.
-            configXPath = configXML.getPath("PIXEL_IO");
-            String pixelIOInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
-            if (pixelIOInConfiguration.equals("yes")) {
-                pixelIO = new PixelIO(hardwareMap, configXPath);
+            configXPath = configXML.getPath("INTAKE");
+            String intakeInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (intakeInConfiguration.equals("yes")) {
+                intakeMotor = new IntakeMotor(hardwareMap, configXPath);
+                intakeMotion = new SingleMotorMotion(pLinearOpMode, intakeMotor);
             } else {
-                pixelIO = null;
+                intakeMotor = null;
+                intakeMotion = null;
             }
 
-            // Get the configuration for the pixel IO holder servo.
-            configXPath = configXML.getPath("PIXEL_IO_HOLDER");
-            String holderInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
-            if (holderInConfiguration.equals("yes")) {
-                pixelIOHolderServo = new PixelIOHolderServo(hardwareMap, configXPath);
+            // Get the configuration for the intake arm servo.
+            configXPath = configXML.getPath("INTAKE_ARM");
+            String armInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (armInConfiguration.equals("yes")) {
+                intakeArmServo = new IntakeArmServo(hardwareMap, configXPath);
             } else {
-                pixelIOHolderServo = null;
+                intakeArmServo = null;
             }
 
             // Get the configuration for the pixel stopper servo.

@@ -43,7 +43,6 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstan
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
-import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -56,7 +55,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -1402,11 +1400,6 @@ public class FTCAuto {
         // Check the elevator level.
         if (currentElevatorLevel != Elevator.ElevatorLevel.AUTONOMOUS)
             throw new AutonomousRobotException(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-
-        // Set the correct servo positions for delivery to the backstop.
-        robot.pixelIOHolderServo.release();
-        robot.pixelStopperServo.release();
-        linearOpMode.sleep(500);
 
         // Run the outtake in the positive direction, which delivers out the back.
         return runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, pDuration);
