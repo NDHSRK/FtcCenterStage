@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotor;
-import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
-import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
@@ -21,7 +18,6 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 public class IntakeMotorCalibration extends TeleOpBase {
 
     private SingleMotor singleMotor;
-    private SingleMotorMotion singleMotorMotion;
     private PixelStopperServo.PixelServoState pixelServoState;
 
     private FTCButton outtake;
@@ -30,10 +26,6 @@ public class IntakeMotorCalibration extends TeleOpBase {
     private boolean intakeInProgress = false;
     private FTCButton reverseIntake;
     private boolean reverseIntakeInProgress = false;
-
-    private int cumulativeClicks = 0;
-
-    private static final int CLICKS_PER_MOVEMENT = 100;
 
     @Override
     public RobotConstants.RunType getRunType() {
@@ -48,9 +40,6 @@ public class IntakeMotorCalibration extends TeleOpBase {
         //!! The motor you want to test must be configured in via RobotConfig.xml.
         //!! Get a reference to it from FTCRobot, e.g. singleMotor = robot.boom.
         singleMotor = robot.intakeMotor;
-
-        // Set up for RUN_TO_POSITION and hold
-        singleMotorMotion = robot.intakeMotion;
 
         outtake = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
         intake = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
@@ -103,12 +92,14 @@ public class IntakeMotorCalibration extends TeleOpBase {
                     pixelServoState = PixelStopperServo.PixelServoState.HOLD;
                 }
 
+                // Note that negative velocity pulls pixels in from the front.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.intakeMotor.setVelocity(-robot.intakeMotor.velocity);
             }
         } else {
             if (intakeInProgress) {
                 intakeInProgress = false;
-                robot.intakeMotor.stopAllZeroVelocity();
+                robot.intakeMotor.setVelocity(0.0);
                 updateEncoderTelemetry();
             }
         }
@@ -118,13 +109,16 @@ public class IntakeMotorCalibration extends TeleOpBase {
         if (reverseIntake.is(FTCButton.State.TAP) || reverseIntake.is(FTCButton.State.HELD)) {
             if (reverseIntake.is(FTCButton.State.TAP)) { // first time
                 reverseIntakeInProgress = true;
+
+                // Note that positive velocity ejects pixels to the front.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.intakeMotor.setVelocity(robot.intakeMotor.velocity);
             }
         } else {
             if (reverseIntakeInProgress) {
                 reverseIntakeInProgress = false;
 
-                robot.intakeMotor.stopAllZeroVelocity();
+                robot.intakeMotor.setVelocity(0.0);
                 updateEncoderTelemetry();
             }
         }
@@ -143,13 +137,16 @@ public class IntakeMotorCalibration extends TeleOpBase {
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
+                // Note that with the stopper down negative velocity ejects
+                // pixels out the back.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.intakeMotor.setVelocity(-robot.intakeMotor.velocity);
             }
         } else {
             if (outtakeInProgress) {
                 outtakeInProgress = false;
 
-                robot.intakeMotor.stopAllZeroVelocity();
+                robot.intakeMotor.setVelocity(0.0);
                 updateEncoderTelemetry();
 
                 // Get ready for the next intake.

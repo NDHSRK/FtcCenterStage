@@ -224,9 +224,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <STRAIGHT_BY>
                         <distance>45.0</distance>
@@ -269,9 +267,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -294,9 +290,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>15.0</distance>
@@ -329,9 +323,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -359,9 +351,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <STRAIGHT_BY>
                         <distance>45.0</distance>
@@ -404,9 +394,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -515,9 +503,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>6.0</distance>
@@ -550,9 +536,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -575,9 +559,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>5.0</distance>
@@ -610,9 +592,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -651,9 +631,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>20.0</distance>
@@ -673,9 +651,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -840,9 +816,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>20.0</distance>
@@ -862,9 +836,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -887,9 +859,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>5.0</distance>
@@ -922,9 +892,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -952,9 +920,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <DELIVER_PIXEL_TO_SPIKE/>
 
                     <BACK>
                         <distance>6.0</distance>
@@ -987,9 +953,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP>
-                        <duration_ms>1500</duration_ms>
-                    </DELIVER_PIXEL_TO_BACKSTOP>
+                    <DELIVER_PIXEL_TO_BACKSTOP/>
 
                     <FORWARD>
                         <distance>2.0</distance>

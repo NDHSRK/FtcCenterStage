@@ -48,7 +48,7 @@
         <positions>
             <rest>0</rest>
             <intake>0</intake>
-            <deliver_front>0</deliver_front>
+            <deliver_front>500</deliver_front>
             <deliver_back>0</deliver_back>
         </positions>
     </INTAKE>

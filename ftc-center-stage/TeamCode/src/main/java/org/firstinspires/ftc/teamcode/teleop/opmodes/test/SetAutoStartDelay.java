@@ -50,7 +50,7 @@ public class SetAutoStartDelay extends LinearOpMode {
         } // while
 
         if (startDelay != 0) {
-            //**TODO write out the AutoStartParameters.xml file with the new value.
+            //**TODO write out the StartParameters.xml file with the new value.
             telemetry.addLine("Writing AutoStartParameters.xml");
             telemetry.update();
             sleep(1500);

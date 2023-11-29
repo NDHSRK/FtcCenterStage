@@ -38,10 +38,10 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
+import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
-import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -866,31 +866,23 @@ public class FTCAuto {
                 break;
             }
 
-            //## Note: For testing: running PixelIO in the intake direction
-            // without the stopper results in ejecting the pixel out the
-            // back.
-            case "EJECT_PIXEL_TO_THE_REAR": {
-                int duration = actionXPath.getRequiredInt("duration_ms");
+            case "DELIVER_PIXEL_TO_SPIKE": {
+                // The position of the pixel stopper does not matter.
+                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, robot.intakeMotor.velocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+                break;
+            }
+
+            // Assumes the robot is in position in front of the target
+            // backstop and that the elevator is at the AUTONOOUS
+            // level.
+            case "DELIVER_PIXEL_TO_BACKSTOP": {
                 if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
                     robot.pixelStopperServo.release();
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
-                if (!runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, duration)) {
-                    result = false;
-                    break;
-                }
-                break;
-            }
-
-            case "DELIVER_PIXEL_TO_SPIKE": {
-                int duration = actionXPath.getRequiredInt("duration_ms");
-
-                // The position of the pixel stopper does not matter.
-                if (!runPixelIO(DualSPARKMiniController.PowerDirection.NEGATIVE, duration)) {
-                    result = false;
-                    break;
-                }
+                // Note that the click count is negated for delivery to the rear.
+                robot.intakeMotion.resetAndMoveSingleMotor(-robot.intakeMotor.deliver_back, robot.intakeMotor.velocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
                 break;
             }
 
@@ -928,18 +920,6 @@ public class FTCAuto {
 
                     default:
                         throw new AutonomousRobotException(TAG, "Invalid asynchronous move elevator operation: " + operation);
-                }
-                break;
-            }
-
-            // Assumes the robot is in position in front of the target
-            // backstop and that the elevator is at the AUTONOOUS
-            // level.
-            case "DELIVER_PIXEL_TO_BACKSTOP": {
-                int duration = actionXPath.getRequiredInt("duration_ms");
-                if (!deliver_pixel_to_backstop(duration)) {
-                    result = false;
-                    break;// stop Autonomous
                 }
                 break;
             }
@@ -1388,33 +1368,6 @@ public class FTCAuto {
         }
 
         return absoluteEncoderValue;
-    }
-
-    // Assumes that the robot is located in front of the target
-    // AprilTag and that the elevator is at the AUTONOMOUS level.
-    private boolean deliver_pixel_to_backstop(int pDuration) {
-        // Asynchronous elevator movement may not be in progress.
-        if (asyncMoveElevator != null)
-            throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
-
-        // Check the elevator level.
-        if (currentElevatorLevel != Elevator.ElevatorLevel.AUTONOMOUS)
-            throw new AutonomousRobotException(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-
-        // Run the outtake in the positive direction, which delivers out the back.
-        return runPixelIO(DualSPARKMiniController.PowerDirection.POSITIVE, pDuration);
-    }
-
-    private boolean runPixelIO(DualSPARKMiniController.PowerDirection pPowerDirection, int pDurationMS) {
-        ElapsedTime ioTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        ioTimer.reset();
-        robot.pixelIO.runWithCurrentPower(pPowerDirection);
-        while (linearOpMode.opModeIsActive() && ioTimer.time() < pDurationMS) {
-            linearOpMode.sleep(50);
-        }
-
-        robot.pixelIO.stop();
-        return linearOpMode.opModeIsActive();
     }
 
     // Failsafe with the goal of making sure that the elevator is at GROUND.

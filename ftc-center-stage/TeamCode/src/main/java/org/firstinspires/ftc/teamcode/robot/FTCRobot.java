@@ -14,13 +14,11 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConf
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
 import org.firstinspires.ftc.teamcode.robot.device.imu.IMUDirect;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.IntakeMotor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
-import org.firstinspires.ftc.teamcode.robot.device.servo.DroneLauncherServo;
-import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
-import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
-import org.firstinspires.ftc.teamcode.robot.device.servo.PixelIO;
+import org.firstinspires.ftc.teamcode.robot.device.servo.DroneLauncherServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.xml.sax.SAXException;
@@ -57,7 +55,6 @@ public class FTCRobot {
     public final DualMotorMotion elevatorMotion;
     public final IntakeMotor intakeMotor;
     public final SingleMotorMotion intakeMotion;
-    public final DualSPARKMiniController pixelIO = null; //**TODO remove
     public final IntakeArmServo intakeArmServo;
     public final PixelStopperServo pixelStopperServo;
     public final DroneLauncherServo droneLauncherServo;

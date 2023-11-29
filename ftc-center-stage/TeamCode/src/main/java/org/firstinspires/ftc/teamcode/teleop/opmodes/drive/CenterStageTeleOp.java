@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
 import androidx.annotation.Nullable;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
-import org.firstinspires.ftc.teamcode.robot.device.servo.DualSPARKMiniController;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
@@ -35,8 +34,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton hangDown;
     private final FTCToggleButton toggleSpeed;
     private final FTCButton intake;
-    private final FTCButton reverseIntake;
     private boolean intakeInProgress = false;
+    private final FTCButton reverseIntake;
+    private boolean reverseIntakeInProgress = false;
     private final FTCButton outtake;
     private boolean outtakeInProgress = false;
     private final FTCButton deliveryLevel1;
@@ -268,25 +268,32 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                     pixelServoState = PixelStopperServo.PixelServoState.HOLD;
                 }
 
-                robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
+                // Note that negative velocity pulls pixels in from the front.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.intakeMotor.setVelocity(-robot.intakeMotor.velocity);
             }
         } else {
             if (intakeInProgress) {
                 intakeInProgress = false;
-                robot.pixelIO.stop();
+                robot.intakeMotor.setVelocity(0.0);
             }
         }
     }
 
     private void updateReverseIntake() {
-        if (reverseIntake.is(FTCButton.State.TAP)) {
-            ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-            intakeTimer.reset();
-            robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.NEGATIVE);
-            while (linearOpMode.opModeIsActive() && intakeTimer.time() < 1000) {
-                linearOpMode.sleep(50);
+        if (reverseIntake.is(FTCButton.State.TAP) || reverseIntake.is(FTCButton.State.HELD)) {
+            if (reverseIntake.is(FTCButton.State.TAP)) { // first time
+                reverseIntakeInProgress = true;
+
+                // Note that positive velocity ejects pixels to the front.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.intakeMotor.setVelocity(robot.intakeMotor.velocity);
             }
-            robot.pixelIO.stop();
+        } else {
+            if (reverseIntakeInProgress) {
+                reverseIntakeInProgress = false;
+                robot.intakeMotor.setVelocity(0.0);
+            }
         }
     }
 
@@ -303,13 +310,16 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
-                robot.pixelIO.runWithCurrentPower(DualSPARKMiniController.PowerDirection.POSITIVE);
+                // Note that with the stopper down negative velocity ejects
+                // pixels out the back.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.intakeMotor.setVelocity(-robot.intakeMotor.velocity);
             }
         } else {
             if (outtakeInProgress) {
                 outtakeInProgress = false;
 
-                robot.pixelIO.stop();
+                robot.intakeMotor.setVelocity(0.0);
 
                 // Get ready for the next intake.
                 robot.pixelStopperServo.hold();
@@ -404,23 +414,23 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
 
-    private boolean move_to_delivery_level(Elevator.ElevatorLevel pDeliverToLevel) {
+    private void move_to_delivery_level(Elevator.ElevatorLevel pDeliverToLevel) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
-            return false;
+            return;
         }
 
         // Validate the delivery level.
         if (!(pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
                 pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2)) {
             RobotLogCommon.d(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
-            return false;
+            return;
         }
 
         // Movement must start at the SAFE level.
         if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
             RobotLogCommon.d(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-            return false;
+            return;
         }
 
         linearOpMode.telemetry.addLine("Position for delivery at " + pDeliverToLevel);
@@ -429,26 +439,24 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         RobotLogCommon.d(TAG, "Moving elevator to level " + pDeliverToLevel + " at velocity " + elevatorVelocity);
         switch (pDeliverToLevel) {
             case LEVEL_1: {
-                if (!async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1))
-                    return false;
+                async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);
+                break;
             }
             case LEVEL_2: {
-                if (!async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2))
-                    return false;
+                async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
+                break;
             }
             default: {
                 RobotLogCommon.d(TAG, "Invalid elevator level " + pDeliverToLevel);
                 // crashing may leave the elevator in an indeterminate state
             }
         }
-
-        return true;
     }
 
-    private boolean async_move_elevator_up(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
+    private void async_move_elevator_up(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
-            return false;
+            return;
         }
 
         Callable<Elevator.ElevatorLevel> callableMoveElevatorUp = () -> {
@@ -459,20 +467,19 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_UP;
         RobotLogCommon.d(TAG, "Async move elevator up in progress");
         asyncMoveElevator = Threading.launchAsync(callableMoveElevatorUp);
-        return true;
     }
 
-    private boolean async_move_elevator_down_to_safe(double pElevatorVelocity) {
+    private void async_move_elevator_down_to_safe(double pElevatorVelocity) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
-            return false;
+            return;
         }
 
         if (!(currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_1 ||
                 currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2 ||
                 currentElevatorLevel == Elevator.ElevatorLevel.DRONE)) { // sanity check
             RobotLogCommon.d(TAG, "Illegal attempt to move the elevator down from a level that is not 1 or 2");
-            return false; // crashing may leave the elevator in an indeterminate state
+            return; // crashing may leave the elevator in an indeterminate state
         }
 
         Callable<Elevator.ElevatorLevel> callableMoveElevatorDownToSafe = () -> {
@@ -483,7 +490,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_DOWN_TO_SAFE;
         asyncMoveElevator = Threading.launchAsync(callableMoveElevatorDownToSafe);
         RobotLogCommon.d(TAG, "Async move elevator down in progress");
-        return true;
     }
 
 }
