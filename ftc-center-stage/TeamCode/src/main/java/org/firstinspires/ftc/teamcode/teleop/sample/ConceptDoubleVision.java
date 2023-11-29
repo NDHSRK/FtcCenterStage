@@ -165,6 +165,7 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .addProcessor(aprilTag)
                 .build();
 
+        /*
         RobotLogCommon.d("ConceptDoubleVision", "Waiting for front webcam to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
         streamingTimer.reset(); // start
@@ -178,6 +179,8 @@ public class ConceptDoubleVision extends LinearOpMode {
         if (cameraState != VisionPortal.CameraState.STREAMING) {
             throw new AutonomousRobotException("ConceptDoubleVision", "Timed out waiting for webcam streaming to start");
         }
+
+         */
 
         //**TODO *TRY THIS* disable immediately after start -- did *not* work = no AprilTags, no frames
         // even after enabling.

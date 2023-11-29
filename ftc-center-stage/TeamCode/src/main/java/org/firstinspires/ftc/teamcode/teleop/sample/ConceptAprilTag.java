@@ -34,7 +34,11 @@ import android.util.Size;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -84,7 +88,14 @@ public class ConceptAprilTag extends LinearOpMode {
             if (opModeIsActive()) {
                 while (opModeIsActive()) {
 
-                    telemetryAprilTag();
+                    if (visionPortal.getProcessorEnabled(aprilTag)) {
+                        // User instructions: Dpad left or Dpad right.
+                        telemetry.addLine("Dpad Left to disable AprilTag");
+                        telemetry.addLine();
+                        telemetryAprilTag();
+                    } else {
+                        telemetry.addLine("Dpad Right to enable AprilTag");
+                    }
 
                     // Push telemetry to the Driver Station.
                     telemetry.update();
@@ -92,6 +103,12 @@ public class ConceptAprilTag extends LinearOpMode {
                     // Save CPU resources; can resume streaming when needed.
                     if (gamepad1.x) {
                         return;
+                    }
+
+                    if (gamepad1.dpad_left) {
+                        visionPortal.setProcessorEnabled(aprilTag, false);
+                    } else if (gamepad1.dpad_right) {
+                        visionPortal.setProcessorEnabled(aprilTag, true);
                     }
 
                     if (gamepad1.dpad_down) {
@@ -104,8 +121,9 @@ public class ConceptAprilTag extends LinearOpMode {
                     sleep(20);
                 }
             }
-        } finally { //**TODO TEMP - test shutdown
+        } finally {
             visionPortal.setProcessorEnabled(aprilTag, false);
+            //**TODO crashes in easyopencv whether you use gamepad1.x or hit the stop button.
             visionPortal.stopStreaming();
             visionPortal.close();
         }
@@ -173,11 +191,21 @@ public class ConceptAprilTag extends LinearOpMode {
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
 
-        // Disable or re-enable the aprilTag processor at any time.
-        // visionPortal.setProcessorEnabled(aprilTag, true);
+        RobotLog.d("ConceptAprilTag", "Waiting for webcam to start streaming");
+        ElapsedTime streamingTimer = new ElapsedTime();
+        streamingTimer.reset(); // start
+        while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            sleep(50);
+        }
 
+        VisionPortal.CameraState cameraState = visionPortal.getCameraState();
+        if (cameraState != VisionPortal.CameraState.STREAMING) {
+            throw new RuntimeException("Timed out waiting for webcam streaming to start");
+        }
+
+        // Start with the processor disabled.
+        visionPortal.setProcessorEnabled(aprilTag, false);
     }   // end method initAprilTag()
-
 
     /**
      * Function to add telemetry about AprilTag detections.
