@@ -45,7 +45,7 @@ public class StraightDriveRampdown {
     // at the velocity specified in RobotAction.xml, and decreases as the robot nears
     // its target.
     @SuppressLint("DefaultLocale")
-    public double rampDown(int pRemainingClicks, double pSteer) {
+    public double rampDown(int pRemainingClicks, double pAngle, double pSteer) {
 
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap;
 
@@ -83,7 +83,7 @@ public class StraightDriveRampdown {
             return rampDownFactor;
 
         previousDominantVelocity = currentDominantVelocity;
-        newVelocityMap = MotionUtils.updateDriveTrainVelocity(allDriveMotors, pSteer, rampDownFactor);
+        newVelocityMap = MotionUtils.updateDriveTrainVelocity(allDriveMotors, pAngle, pSteer, rampDownFactor);
         robot.driveTrain.setVelocityAll(newVelocityMap);
 
         RobotLogCommon.vv(TAG, "Straight line velocity ramped down to lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +

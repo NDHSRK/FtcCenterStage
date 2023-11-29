@@ -175,7 +175,7 @@ public class DriveTrainMotion {
                 if (rampDownAtClicksRemaining != 0.0 &&
                         dominantMotorClickCount < targetClicks &&
                         remainingClickCount <= rampDownAtClicksRemaining)
-                    rampDownFactor = straightDriveRampdown.rampDown(remainingClickCount, steer);
+                    rampDownFactor = straightDriveRampdown.rampDown(remainingClickCount, pAngle, steer);
             } // while
         } finally {
             robot.driveTrain.stopAllZeroVelocity();
@@ -336,8 +336,7 @@ public class DriveTrainMotion {
         if (Math.abs(steer) < DriveTrainConstants.MINIMUM_DRIVE_POWER_STEP)
             return steer; // velocity increment too small, skip
 
-        //**TODO Supply the angle here.
-        EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, steer, pRampDownFactor);
+        EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, pAngle, steer, pRampDownFactor);
         Objects.requireNonNull(robot.driveTrain).setVelocityAll(newVelocityMap);
 
         RobotLogCommon.vv(TAG, "Straight velocity lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +

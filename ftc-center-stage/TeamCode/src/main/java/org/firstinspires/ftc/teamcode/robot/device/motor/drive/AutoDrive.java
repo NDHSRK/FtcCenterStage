@@ -16,11 +16,8 @@ public class AutoDrive {
 
     private final EnumMap<FTCRobot.MotorId, DriveMotorData> allDriveMotors = new EnumMap<>(FTCRobot.MotorId.class);
 
-    //**TODO Incorrect: for all straight-line movements we use
-    // RUN_WITH_ENCODER, setTargtePosition, RUN_TO_POSITION, and
-    // setVelocity.
-    //**TODO Delete For a straight run in Autonomous we always use RUN_WITH_ENCODER
-    // with velocity levels with or without RUN_TO_POSITION.
+    // For all straight-line movements we use RUN_WITH_ENCODER, setTargetPosition,
+    // RUN_TO_POSITION, and setVelocity.
 
     // Directional velocity levels, including x, y, and rotational,
     // make sense in TeleOp where the driver can stop the robot
@@ -120,16 +117,13 @@ public class AutoDrive {
         return allDriveMotors;
     }
 
-    //**TODO This comment is not correct and neither is the implementation!
-    // Very important!
+    // Very important! [comment updated 11/29/2023]
     // For motors set to RUN_TO_POSITION, the SDK does not look at
     // the sign of the velocity. However, for the PID control to
-    // work correctly *[original] we do need the sign of the
-    // velocity.[end original]* -> **NOT EXACTLY TRUE** - we need
-    // to look at the sign of the velocity *after* the PID and its
-    // "steer" value have been applied and never allow the final
-    // velocity to fall below zero (for subordinate motors) or
-    // below the minimum motor velocity (for dominant motors).
+    // work correctly we need to look at the sign of the velocity
+    // while applying the PID and its "steer" value so that we never
+    // allow the final velocity to fall below zero (for subordinate
+    // motors) or below the minimum motor velocity (for dominant motors).
 
     public static class DriveMotorData {
         private static final String TAG = DriveMotorData.class.getSimpleName();
