@@ -303,12 +303,12 @@
                     </BACK>
 
                     <TURN>
-                        <angle>-90.0<angle>
-                        <power>.5</velocity>
-                    <TURN>
+                        <angle>-90.0</angle>
+                        <power>.5</power>
+                    </TURN>
 
                     <FORWARD>
-                        <distance>24<distance>
+                        <distance>24</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
