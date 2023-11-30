@@ -5,12 +5,20 @@
          or TestBLUE (to run the TEST OpMode under the blue alliance -->
     <OpMode id="TEST">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
-            <FORWARD>
-                <distance>36.0</distance>
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <!-- FORWARD>
+                <distance>48.0</distance>
                 <velocity>.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </FORWARD>
@@ -20,17 +28,17 @@
             </SLEEP>
 
             <BACK>
-                <distance>36.0</distance>
+                <distance>48.0</distance>
                 <velocity>.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </BACK>
 
             <SLEEP>
                 <ms>1500</ms>
-            </SLEEP>
+            </SLEEP -->
 
-            <STRAFE_LEFT>
-                <distance>36.0</distance>
+            <!-- STRAFE_LEFT>
+                <distance>48.0</distance>
                 <velocity>0.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </STRAFE_LEFT>
@@ -40,20 +48,21 @@
             </SLEEP>                        
             
             <STRAFE_RIGHT>
-                <distance>36.0</distance>
+                <distance>48.0</distance>
                 <velocity>0.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </STRAFE_RIGHT>
 
             <SLEEP>
                 <ms>1500</ms>
-            </SLEEP>
+            </SLEEP -->
 
             <!-- //**TODO also try -60 -->
+            <!-- RIGHT_FRONT rotated backwards -->
             <STRAIGHT_BY>
                 <distance>45.0</distance>
-                <velocity>0.5</velocity>
-                <angle>-30.0</angle>
+                <velocity>0.75</velocity>
+                <angle>-60.0</angle>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </STRAIGHT_BY>
 
@@ -63,10 +72,11 @@
                 <ms>1500</ms>
             </SLEEP>
 
+            <!-- RIGHT_FRONT rotated backwards -->
             <STRAIGHT_BY>
                 <distance>45.0</distance>
-                <velocity>0.5</velocity>
-                <angle>-120.0</angle>
+                <velocity>0.75</velocity>
+                <angle>-150.0</angle>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
             </STRAIGHT_BY>
 

@@ -32,16 +32,16 @@ public class SetAutoStartDelay extends LinearOpMode {
             increaseDelay.update();
             decreaseDelay.update();
             if (increaseDelay.is((FTCButton.State.TAP))) {
-                startDelay = startDelay < 5000 ? startDelay + 1000 : 5000; // ms; 5 sec max
+                startDelay = startDelay < 5 ? ++startDelay : 5; // 5 sec max
                 changeInDelay = true;
             } else if (decreaseDelay.is((FTCButton.State.TAP))) {
-                startDelay = startDelay >= 1000 ? startDelay - 1000 : 0; // ms; 0 or positive
+                startDelay = startDelay >= 1 ? --startDelay : 0; // 0 or positive
                 changeInDelay = true;
             }
 
             if (changeInDelay) {
                 changeInDelay = false;
-                telemetry.addLine("Start delay changed to " + startDelay / 1000 + " sec");
+                telemetry.addLine("Start delay changed to " + startDelay + " sec");
                 telemetry.update();
             }
 
@@ -51,7 +51,7 @@ public class SetAutoStartDelay extends LinearOpMode {
 
         if (startDelay != 0) {
             //**TODO write out the StartParameters.xml file with the new value.
-            telemetry.addLine("Writing AutoStartParameters.xml");
+            telemetry.addLine("Writing StartParameters.xml");
             telemetry.update();
             sleep(1500);
         }

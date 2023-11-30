@@ -44,7 +44,7 @@
             clicks_per_motor_rev="384.5" rpm="435.0" direction="FORWARD">
             <id>intake_main</id> <!-- id as configured on the robot -->
         </single_motor>
-        <velocity>.25</velocity>
+        <velocity>1.0</velocity>
         <positions>
             <rest>0</rest>
             <intake>0</intake>
@@ -55,13 +55,13 @@
 
     <!-- Servos -->
     <INTAKE_ARM configured="yes">
-        <servos model="goBilda Dual Mode Servo Torque 2000-0025-0003">
+        <servos model="goBilda Dual Mode Servo Torque 2000-0025-0002">
             <left_arm>intake_arm_left</left_arm>
             <right_arm>intake_arm_right</right_arm>
         </servos>
         <positions>
-            <up>0.3</up>
-            <down>0.22</down>
+            <up>0.26</up>
+            <down>0.26</down>
         </positions>
     </INTAKE_ARM>
 
