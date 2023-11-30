@@ -236,23 +236,22 @@
                     </STRAIGHT_BY>
 
                     <TURN>
-                        <angle>90.0</angle>
+                        <angle>-90.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
                     <DESKEW />
 
-                    <FORWARD>
+                    <BACK>
                         <distance>100.0</distance>
                         <velocity>.75</velocity>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </FORWARD>
+                    </BACK>
 
-                    <STRAFE_LEFT>
+                    <STRAFE_RIGHT>
                         <distance>50.0</distance>
                         <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    </STRAFE_RIGHT>
 
                     <DESKEW />
 
@@ -366,28 +365,27 @@
                     <STRAIGHT_BY>
                         <distance>45.0</distance>
                         <velocity>0.75</velocity>
-                        <angle>20.0</angle>
+                        <angle>-20.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
                     <TURN>
-                        <angle>90.0</angle>
+                        <angle>-90.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
                     <DESKEW />
 
-                    <FORWARD>
+                    <BACK>
                         <distance>100.0</distance>
                         <velocity>.75</velocity>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </FORWARD>
+                    </BACK>
 
-                    <STRAFE_LEFT>
+                    <STRAFE_RIGHT>
                         <distance>20.0</distance>
                         <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    </STRAFE_RIGHT>
 
                     <DESKEW />
 
