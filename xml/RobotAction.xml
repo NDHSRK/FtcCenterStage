@@ -228,12 +228,20 @@
                         <duration_ms>500</duration_ms>
                     </DELIVER_PIXEL_TO_SPIKE>
 
-                    <STRAIGHT_BY>
-                        <distance>45.0</distance>
-                        <velocity>0.75</velocity>
-                        <angle>-20.0</angle>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
+                    <BACK>
+                        <distance>6.0</distance>
+                        <power>.5</power>
+                    </BACK>
+
+                    <TURN>
+                        <angle>-90.0<angle>
+                        <power>.5</velocity>
+                    <TURN>
+
+                    <FORWARD>
+                        <distance>24<distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
 
                     <TURN>
                         <angle>-90.0</angle>
@@ -362,12 +370,10 @@
                         <duration_ms>500</duration_ms>
                     </DELIVER_PIXEL_TO_SPIKE>
 
-                    <STRAIGHT_BY>
-                        <distance>45.0</distance>
-                        <velocity>0.75</velocity>
-                        <angle>-20.0</angle>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
+                    <FORWARD>
+                        <distance>40.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
 
                     <TURN>
                         <angle>-90.0</angle>
@@ -583,7 +589,7 @@
                     </BACK>
 
                     <TURN>
-                        <angle>-90.0</angle>
+                        <angle>90.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
@@ -712,6 +718,338 @@
 
         </actions>
     </OpMode>
+
+    <!-- <OpMode id="BLUE_A2_TEST">
+        <parameters>
+            <log_level>v</log_level>
+        </parameters>
+        <actions>
+
+            depositing extra white pixel from stack
+            BLUE_A2 = RED_F4
+            <FIND_TEAM_PROP>
+                <image_parameters>
+                    <image_source>front_webcam</image_source>
+                    <resolution>
+                        <width>640</width>
+                        <height>480</height>
+                    </resolution>
+                    <image_roi>
+                        <x>145</x>
+                        <y>115</y>
+                        <width>487</width>
+                        <height>254</height>
+                    </image_roi>
+                </image_parameters>
+                <team_prop_recognition>
+                    <recognition_path>color_channel_circles</recognition_path>
+                    These values are relative to the image ROI 
+                    Note: the left_window may enclose the LEFT_SPIKE
+                                         or the CENTER_SPIKE, depending on the robot's
+                                         starting position. For RED_F2 the left_window
+                                         encloses the LEFT_SPIKE.
+                    <left_window>
+                        <width>318</width>
+                        <prop_location>CENTER_SPIKE</prop_location>
+                    </left_window>
+                    <right_window>
+                        <prop_location>RIGHT_SPIKE</prop_location>
+                    </right_window>
+                    <team_prop_npos>
+                        <prop_location>LEFT_SPIKE</prop_location>
+                    </team_prop_npos>
+                </team_prop_recognition>
+            </FIND_TEAM_PROP>
+            
+            <STOP_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM>
+
+            <START_WEBCAM>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </START_WEBCAM>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <TEAM_PROP_LOCATION_CHOICE>
+                <LEFT_SPIKE>
+
+                    <FORWARD>
+                        <distance>26.0</distance>
+                        <velocity>.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </FORWARD>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <FORWARD>
+                        <distance>7.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <BACK>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>500</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <BACK>
+                        <distance>50.0</distance>
+                        <power>.5</power>
+                    </BACK>
+
+                    <TURN>
+                        <angle>180.0<angle>
+                        <power>.5</velocity>
+                    <TURN>
+
+                    Add April Tag Recognition to front camera in order to grab pixels from stack
+
+                    <BACK>
+                        <distance>5.0</distance>
+                        <power>.5</power>
+                    </BACK>
+
+                    <BACK_BY>
+                        <distance>32.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>20.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </BACK_BY>
+
+                    <DESKEW />
+
+                    <BACK>
+                        <distance>100.0</distance>
+                        <velocity>.75</velocity>
+                    </BACK>
+
+                    <STRAFE_RIGHT>
+                        <distance>50.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <DESKEW />
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>2000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_1</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_LEFT>
+                        <distance>40.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                </LEFT_SPIKE>
+
+                <CENTER_SPIKE>
+
+                    <STRAIGHT_BY>
+                        <distance>32.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>-11.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>500</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <BACK>
+                        <distance>15.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <FORWARD>
+                        <distance>12.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    Add April Tag Recognition to front camera in order to grab pixels from stack
+
+                    <BACK>
+                        <distance>1200.0</distance>
+                        <velocity>.75</velocity>
+                    </BACK>
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>1000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_2</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_LEFT>
+                        <distance>30.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                </CENTER_SPIKE>
+
+                <RIGHT_SPIKE>
+
+                    <STRAIGHT_BY>
+                        <distance>45.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>-25.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <BACK>
+                        <distance>5.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>500</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <STRAFE_RIGHT>
+                        <distance>20.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <TURN>
+                        <angle>-90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    Add April Tag Recognition to front camera in order to grab pixels from stack
+
+                    <BACK>
+                        <distance>5.0</distance>
+                        <power>.5</power>
+                    </BACK>
+
+                    <BACK_BY>
+                        <distance>32.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>20.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </BACK_BY>
+
+                    <DESKEW />
+
+                    <BACK>
+                        <distance>100.0</distance>
+                        <velocity>.75</velocity>
+                    </BACK>
+
+                    <STRAFE_RIGHT>
+                        <distance>20.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <DESKEW />
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>1000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_3</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_LEFT>
+                        <distance>20.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                </RIGHT_SPIKE>
+            </TEAM_PROP_LOCATION_CHOICE>
+
+            Common to all Team Prop positions. 
+
+            <SLEEP>
+                <ms>500</ms>
+            </SLEEP>
+
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>start</operation>
+                <position>SAFE</position>
+            </ASYNC_MOVE_ELEVATOR>
+
+            Wait for operations to complete :)
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>wait</operation>
+            </ASYNC_MOVE_ELEVATOR>
+
+            <MOVE_ELEVATOR>
+                <position>GROUND</position>
+            </MOVE_ELEVATOR>
+
+            <STOP />
+
+        </actions>
+    </OpMode> -->
 
     <OpMode id="RED_F2">
         <parameters>
@@ -1027,6 +1365,334 @@
 
         </actions>
     </OpMode>
+<!-- 
+<OpMode id="RED_F4_TEST">
+        <parameters>
+            <log_level>v</log_level>
+        </parameters>
+        <actions>
+
+            TEST for one cycle to white pixels
+            RED_F4
+            <FIND_TEAM_PROP>
+                <image_parameters>
+                    <image_source>front_webcam</image_source>
+                    <resolution>
+                        <width>640</width>
+                        <height>480</height>
+                    </resolution>
+                    <image_roi>
+                        <x>145</x>
+                        <y>115</y>
+                        <width>487</width>
+                        <height>254</height>
+                    </image_roi>
+                </image_parameters>
+                <team_prop_recognition>
+                    <recognition_path>color_channel_circles</recognition_path>
+                    These values are relative to the image ROI 
+                    Note: the left_window may enclose the LEFT_SPIKE
+                         or the CENTER_SPIKE, depending on the robot's
+                         starting position. For RED_F2 the left_window
+                         encloses the LEFT_SPIKE. 
+                    <left_window>
+                        <width>318</width>
+                        <prop_location>CENTER_SPIKE</prop_location>
+                    </left_window>
+                    <right_window>
+                        <prop_location>RIGHT_SPIKE</prop_location>
+                    </right_window>
+                    <team_prop_npos>
+                        <prop_location>LEFT_SPIKE</prop_location>
+                    </team_prop_npos>
+                </team_prop_recognition>
+            </FIND_TEAM_PROP>
+
+            <STOP_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM>
+
+            <START_WEBCAM>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </START_WEBCAM>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <TEAM_PROP_LOCATION_CHOICE>
+                <LEFT_SPIKE>
+
+                    <FORWARD>
+                        <distance>26.0</distance>
+                        <velocity>.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </FORWARD>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <FORWARD>
+                        <distance>7.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <BACK>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>500</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <BACK>
+                        <distance>20.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>1000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_4</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_RIGHT>
+                        <distance>20.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <FORWARD>
+                        <distance>100.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_RIGHT>
+                        <distance>30.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    Add April Tag Recognition to front camera in order to grab pixels from stack
+
+                    <STRAFE_LEFT>
+                        <distance>30.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                    <BACK>
+                        <distance>100.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <STRAFE_RIGHT>
+                        <distance>20.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <DESKEW />
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>1000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_4</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_RIGHT>
+                        <distance>20.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                </LEFT_SPIKE>
+
+                <CENTER_SPIKE>
+
+                    <STRAIGHT_BY>
+                        <distance>32.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>-11.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>500</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <BACK>
+                        <distance>5.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <BACK>
+                        <distance>12.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>1000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_5</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_RIGHT>
+                        <distance>30.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                </CENTER_SPIKE>
+
+                <RIGHT_SPIKE>
+
+                    <STRAIGHT_BY>
+                        <distance>45.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>-25.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <BACK>
+                        <distance>5.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <DELIVER_PIXEL_TO_SPIKE>
+                        <duration_ms>500</duration_ms>
+                    </DELIVER_PIXEL_TO_SPIKE>
+
+                    <BACK>
+                        <distance>6.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <BACK>
+                        <distance>12.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>2000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_6</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP>
+                        <duration_ms>1500</duration_ms>
+                    </DELIVER_PIXEL_TO_BACKSTOP>
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_RIGHT>
+                        <distance>40.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                </RIGHT_SPIKE>
+
+            </TEAM_PROP_LOCATION_CHOICE>
+
+            Common to all Team Prop positions.
+
+            <SLEEP>
+                <ms>500</ms>
+            </SLEEP>
+
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>start</operation>
+                <position>SAFE</position>
+            </ASYNC_MOVE_ELEVATOR>
+
+            Wait for operations to complete :)
+            <ASYNC_MOVE_ELEVATOR>
+                <operation>wait</operation>
+            </ASYNC_MOVE_ELEVATOR>
+
+            <MOVE_ELEVATOR>
+                <position>GROUND</position>
+            </MOVE_ELEVATOR>
+
+            <STOP />
+
+        </actions>
+    </OpMode> -->
 
     <!-- Pseudo-OpModes that can be used to run FTCAuto functions from within TeleOp -->
     <OpMode id="TELEOP_TAKE_PICTURE_WEBCAM">
