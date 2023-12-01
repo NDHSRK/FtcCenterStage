@@ -7,7 +7,7 @@
     <!-- Settings for the velocity control buttons on the game controller. -->
     <drive_train_power>
       <high>1.0</high>
-      <low>.30</low>
+      <low>0.5</low>
     </drive_train_power>
   </TELEOP_SETTINGS>
 
@@ -15,10 +15,10 @@
 
   <ELEVATOR configured="no" />
 
-  <!-- Servos -->
-  <PIXEL_IO configured="no" />
+  <INTAKE configured="no"/>
 
-  <PIXEL_IO_HOLDER configured="no" />
+  <!-- Servos -->
+  <INTAKE_ARM configured="no" />
 
   <PIXEL_STOPPER configured="no" />
 

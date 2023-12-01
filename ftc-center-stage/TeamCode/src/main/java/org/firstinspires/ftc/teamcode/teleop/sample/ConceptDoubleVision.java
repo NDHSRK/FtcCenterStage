@@ -57,7 +57,7 @@ import java.util.List;
 // WebcamFrameProcessor.
 
 @TeleOp(name = "Concept: Double Vision", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptDoubleVision extends LinearOpMode {
 
     /**
@@ -80,16 +80,16 @@ public class ConceptDoubleVision extends LinearOpMode {
     public void runOpMode() {
         initDoubleVision();
 
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addLine();
+        telemetry.addLine("----------------------------------------");
+        telemetry.update();
+
+        waitForStart();
+
         // This OpMode loops continuously, allowing the user to switch between
         // AprilTag and WebcamFrame processors.
         while (!isStopRequested()) {
-
-            if (opModeInInit()) {
-                telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-                telemetry.addLine();
-                telemetry.addLine("----------------------------------------");
-            }
-
             if (myVisionPortal.getProcessorEnabled(aprilTag)) {
                 // User instructions: Dpad left or Dpad right.
                 telemetry.addLine("Dpad Left to disable AprilTag");
@@ -169,15 +169,17 @@ public class ConceptDoubleVision extends LinearOpMode {
         RobotLogCommon.d("ConceptDoubleVision", "Waiting for front webcam to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
         streamingTimer.reset(); // start
-        while (streamingTimer.milliseconds() < 2000 && myVisionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+        while (streamingTimer.milliseconds() < pTimeoutMs &&
+                !(visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM ||
+                        visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)) {
             sleep(50);
         }
 
-        //**TODO added this after the code below failed ... !!WORKED!!
-        VisionPortal.CameraState cameraState = myVisionPortal.getCameraState();
-        RobotLogCommon.d("ConceptDoubleVision", "State of front webcam " + cameraState);
-        if (cameraState != VisionPortal.CameraState.STREAMING) {
-            throw new AutonomousRobotException("ConceptDoubleVision", "Timed out waiting for webcam streaming to start");
+        VisionPortal.CameraState cameraState = visionPortal.getCameraState();
+        RobotLogCommon.d(TAG, "State of webcam " + cameraState);
+        if (!(cameraState == VisionPortal.CameraState.STARTING_STREAM || cameraState == VisionPortal.CameraState.STREAMING)) {
+            RobotLogCommon.d(TAG, "Timed out waiting for webcam streaming to start");
+              throw new AutonomousRobotException("ConceptDoubleVision", "Timed out waiting for webcam streaming to start");
         }
 
          */
@@ -224,20 +226,20 @@ public class ConceptDoubleVision extends LinearOpMode {
 
     }   // end method telemetryWebcamFrame()
 
-     private void Toggle_camera_stream() {
-         // Manage USB bandwidth of two camera streams, by turning on or off.
-         if (gamepad1.a) {
-             // Temporarily stop the streaming session. This can save CPU
-             // resources, with the ability to resume quickly when needed.
-             myVisionPortal.stopStreaming();
-             telemetry.addLine("Stop streaming");
-             telemetry.update();
-         } else if (gamepad1.y) {
-             // Resume the streaming session if previously stopped.
-             myVisionPortal.resumeStreaming();
-             telemetry.addLine("Resume streaming");
-             telemetry.update();
-         }
-     }
+    private void Toggle_camera_stream() {
+        // Manage USB bandwidth of two camera streams, by turning on or off.
+        if (gamepad1.a) {
+            // Temporarily stop the streaming session. This can save CPU
+            // resources, with the ability to resume quickly when needed.
+            myVisionPortal.stopStreaming();
+            telemetry.addLine("Stop streaming");
+            telemetry.update();
+        } else if (gamepad1.y) {
+            // Resume the streaming session if previously stopped.
+            myVisionPortal.resumeStreaming();
+            telemetry.addLine("Resume streaming");
+            telemetry.update();
+        }
+    }
 
 }   // end class

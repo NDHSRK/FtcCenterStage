@@ -62,7 +62,9 @@ public abstract class VisionPortalWebcam {
         RobotLogCommon.d(TAG, "Waiting for webcam " + configuredWebcam.internalWebcamId + " to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
         streamingTimer.reset(); // start
-        while (streamingTimer.milliseconds() < pTimeoutMs && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+        while (streamingTimer.milliseconds() < pTimeoutMs &&
+                !(visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM ||
+                        visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)) {
             sleep(50);
         }
 

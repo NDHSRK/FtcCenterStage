@@ -9,80 +9,8 @@
         </parameters>
         <actions>
 
-            <MOVE_ELEVATOR>
-                <position>SAFE</position>
-            </MOVE_ELEVATOR>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <!-- FORWARD>
-                <distance>48.0</distance>
-                <velocity>.5</velocity>
-                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </FORWARD>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <BACK>
-                <distance>48.0</distance>
-                <velocity>.5</velocity>
-                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </BACK>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP -->
-
-            <!-- STRAFE_LEFT>
-                <distance>48.0</distance>
-                <velocity>0.5</velocity>
-                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAFE_LEFT>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>                        
-            
-            <STRAFE_RIGHT>
-                <distance>48.0</distance>
-                <velocity>0.5</velocity>
-                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAFE_RIGHT>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP -->
-
-            <!-- //**TODO also try -60 -->
-            <!-- RIGHT_FRONT rotated backwards -->
-            <STRAIGHT_BY>
-                <distance>45.0</distance>
-                <velocity>0.75</velocity>
-                <angle>-60.0</angle>
-                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAIGHT_BY>
-
-            <DESKEW />
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <!-- RIGHT_FRONT rotated backwards -->
-            <STRAIGHT_BY>
-                <distance>45.0</distance>
-                <velocity>0.75</velocity>
-                <angle>-150.0</angle>
-                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAIGHT_BY>
-
-            
-            <!-- A4 bright_spot -->
-            <!-- FIND_TEAM_PROP>
+            <!-- BLUE_A4 -->
+            <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
                     <resolution>
@@ -90,16 +18,16 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>59</x>
-                        <y>127</y>
-                        <width>503</width>
-                        <height>224</height>
+                        <x>48</x>
+                        <y>148</y>
+                        <width>486</width>
+                        <height>250</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
-                    <recognition_path>color_channel_bright_spot</recognition_path>
+                    <recognition_path>color_channel_circles</recognition_path>
                     <left_window>
-                        <width>175</width>
+                        <width>167</width>
                         <prop_location>LEFT_SPIKE</prop_location>
                     </left_window>
                     <right_window>
@@ -109,7 +37,7 @@
                         <prop_location>RIGHT_SPIKE</prop_location>
                     </team_prop_npos>
                 </team_prop_recognition>
-            </FIND_TEAM_PROP -->
+            </FIND_TEAM_PROP>
 
             <SLEEP>
                 <ms>1500</ms>
@@ -250,7 +178,7 @@
                     </team_prop_npos>
                 </team_prop_recognition>
             </FIND_TEAM_PROP>
-            
+
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM>
@@ -291,7 +219,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>6.0</distance>
@@ -341,7 +269,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -364,7 +292,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>15.0</distance>
@@ -397,7 +325,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -425,7 +353,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <FORWARD>
                         <distance>40.0</distance>
@@ -465,7 +393,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -556,7 +484,7 @@
             </MOVE_ELEVATOR>
 
             <!-- //**TODO TEMP -->
-            
+
             <SLEEP>
                 <ms>1500</ms>
             </SLEEP>
@@ -577,13 +505,9 @@
                 <ms>1500</ms>
             </SLEEP>
 
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <STOP/>
+            <STOP />
             <!-- //**TODO END TEMP -->
-            
+
             <TEAM_PROP_LOCATION_CHOICE>
                 <LEFT_SPIKE>
 
@@ -599,7 +523,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>6.0</distance>
@@ -632,7 +556,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -655,7 +579,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>5.0</distance>
@@ -688,7 +612,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -727,7 +651,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>20.0</distance>
@@ -747,7 +671,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1244,7 +1168,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>20.0</distance>
@@ -1264,7 +1188,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1287,7 +1211,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>5.0</distance>
@@ -1320,7 +1244,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1348,7 +1272,7 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE/>
+                    <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
                         <distance>6.0</distance>
@@ -1381,7 +1305,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP/>
+                    <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1421,7 +1345,7 @@
 
         </actions>
     </OpMode>
-<!-- 
+    <!-- 
 <OpMode id="RED_F4_TEST">
         <parameters>
             <log_level>v</log_level>

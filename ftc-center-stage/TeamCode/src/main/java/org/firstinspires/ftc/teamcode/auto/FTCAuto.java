@@ -296,8 +296,6 @@ public class FTCAuto {
     // RobotAction.xml, execute the action.
     @SuppressLint("DefaultLocale")
     private boolean executeAction(RobotXMLElement pAction, RobotConstantsCenterStage.OpMode pOpMode) throws Exception {
-        boolean result = true;
-
         // Set up XPath access to the current action.
         XPathAccess actionXPath = new XPathAccess(pAction);
         String actionName = pAction.getRobotXMLElementName().toUpperCase();
@@ -480,8 +478,7 @@ public class FTCAuto {
 
                 int timeout = actionXPath.getRequiredInt("timeout_ms");
                 if (!configuredWebcam.getVisionPortalWebcam().waitForWebcamStart(timeout)) {
-                    result = false;
-                    break;// no webcam, just give up
+                    return false; // no webcam, just give up
                 }
 
                 break;
@@ -715,8 +712,7 @@ public class FTCAuto {
 
                 Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findBackdropAprilTag(targetTagId, actionXPath);
                 if (detectionData.second == null) {
-                    result = false;
-                    break;// no sure path to the backdrop
+                    return false; // no sure path to the backdrop
                 }
 
                 // If the backstop AprilTag that was found is not our target tag
@@ -853,8 +849,7 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Direction of travel " + directionString);
                 if (!aprilTagNavigation.navigateToAprilTag(desiredTagId, desiredDistanceFromTag, direction)) {
                     RobotLogCommon.d(TAG, "Navigation to AprilTag was not successful");
-                    result = false;
-                    break;
+                    return false;
                 }
 
                 deskew(); // make sure the robot is aligned with the desired heading
@@ -944,8 +939,7 @@ public class FTCAuto {
             // Shut down background threads, including the imu and the logger.
             case "STOP": {
                 sleep(1000);
-                result = false;
-                break;
+                return false;
             }
 
             // For testing: record the heading and pitch from the IMU for
@@ -990,7 +984,7 @@ public class FTCAuto {
         }
 
         // Action completed normally
-        return result;
+        return true;
     }
 
     // Sleeps but also tests if the OpMode is still active.
