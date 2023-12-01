@@ -190,7 +190,8 @@ public class DriveTrainMotion {
         }
     }
 
-    //**TODO Why can't you use RUN_USING_ENCODER and velocity here?
+    //**TODO Why can't you use RUN_USING_ENCODER and velocity here? If you do this
+    // then RobotAction.xml will have to change.
     // See the sample RobotAutoDriveByGyro_Linear, which uses power - try there first.
 
     // Executes a turn.

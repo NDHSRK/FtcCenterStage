@@ -57,7 +57,6 @@ public class FTCAutoDispatch {
         catch (Exception ex) {
             FTCErrorHandling.handleFtcErrors(ex, TAG, pLinear);
         }
-
         finally {
             RobotLogCommon.closeLog();
 

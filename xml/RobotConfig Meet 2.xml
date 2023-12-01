@@ -49,7 +49,7 @@
             <rest>0</rest>
             <intake>0</intake>
             <deliver_front>500</deliver_front>
-            <deliver_back>0</deliver_back>
+            <deliver_back>1300</deliver_back>
         </positions>
     </INTAKE>
 

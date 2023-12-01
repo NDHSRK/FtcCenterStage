@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
@@ -160,7 +161,8 @@ public class FTCAuto {
                 VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
                 RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(frontWebcamConfiguration,
                         Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, webcamFrameProcessor));
-                rawFrameWebcam.waitForWebcamStart(2000);
+                if (!rawFrameWebcam.waitForWebcamStart(2000))
+                    throw new AutonomousRobotException(TAG, "Unable to start front webcam");
                 frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
             }
@@ -242,6 +244,7 @@ public class FTCAuto {
                 // action is the last action for the opmode in RobotConfig.xml.
                 if (executeTeamPropLocationActions) { // any steps specific to the team prop location?
                     // Yes, execute all of those actions now.
+                    executeTeamPropLocationActions = false; // but only once
                     for (RobotXMLElement insertedStep : teamPropLocationInsert) {
                         if (insertedStep.getRobotXMLElementName().equals("TEAM_PROP_LOCATION_CHOICE"))
                             throw new AutonomousRobotException(TAG, "Nesting of TEAM_PROP_LOCATION_CHOICE is not allowed");
@@ -253,11 +256,16 @@ public class FTCAuto {
                             return;
                     }
                     teamPropLocationInsert.clear();
-                    executeTeamPropLocationActions = false;
                 }
             }
         } finally {
-            failsafeElevator();
+            if (!linearOpMode.opModeIsActive()) {
+                RobotLog.d(TAG, "FTCAuto OpMode not active in finally block");
+                RobotLogCommon.i(TAG, "FTCAuto OpMode not active in finally block");
+            } else {
+                RobotLogCommon.i(TAG, "In FTCAuto finally block");
+
+                failsafeElevator(); // bring the elevator to GROUND
 
            /*
             if (!keepCamerasRunning) {
@@ -271,6 +279,7 @@ public class FTCAuto {
                 }
             }
              */
+            }
         }
 
         RobotLogCommon.i(TAG, "Exiting FTCAuto");

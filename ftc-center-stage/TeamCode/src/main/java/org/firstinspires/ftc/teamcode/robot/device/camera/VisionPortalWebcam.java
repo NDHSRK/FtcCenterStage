@@ -68,7 +68,7 @@ public abstract class VisionPortalWebcam {
 
         VisionPortal.CameraState cameraState = visionPortal.getCameraState();
         RobotLogCommon.d(TAG, "State of webcam " + configuredWebcam.internalWebcamId + ": " + cameraState);
-        if (cameraState != VisionPortal.CameraState.STREAMING) {
+        if (!(cameraState == VisionPortal.CameraState.STARTING_STREAM || cameraState == VisionPortal.CameraState.STREAMING)) {
             RobotLogCommon.d(TAG, "Timed out waiting for webcam streaming to start");
             return false;
         }
