@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto.xml;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
+import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -17,6 +19,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -254,6 +258,46 @@ public class RobotActionXMLCenterStage {
             actions = pActions;
             teamPropLocationActions = pTeamPropLocationActions;
         }
+    }
+
+    public static ArrayList<Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean>> getStartWebcamProcessors(RobotXMLElement pStartWebcamElement) {
+
+        // Process all of the <processor> children of the <START_WEBCAM> element.
+        NodeList start_webcam_children = pStartWebcamElement.getRobotXMLElement().getChildNodes();
+        if (start_webcam_children == null)
+            throw new AutonomousRobotException(TAG, "START_WEBCAM has no child elements");
+
+        ArrayList<Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean>> webcamProcessors = new ArrayList<>();
+        AtomicBoolean enableOnStart = new AtomicBoolean(false); // required by lambda
+        AtomicInteger enabledProcessorCount = new AtomicInteger(0); // required by lambda
+        XMLUtils.processElements(start_webcam_children, (start_webcam_child) -> {
+            if (start_webcam_child != null && start_webcam_child.getNodeName().equals("processor")) {
+                if (start_webcam_child.getTextContent().isEmpty())
+                    throw new AutonomousRobotException(TAG, "Element 'processor' is empty");
+
+                enableOnStart.set(false);
+                NamedNodeMap processor_attributes = start_webcam_child.getAttributes();
+                Node enable_node = processor_attributes.getNamedItem("enable_on_start");
+                if (enable_node != null && enable_node.getTextContent().equals("yes")) {
+                    enableOnStart.set(true);
+                    enabledProcessorCount.addAndGet(1);
+                }
+
+                RobotConstantsCenterStage.ProcessorIdentifier processorId =
+                        RobotConstantsCenterStage.ProcessorIdentifier.valueOf(start_webcam_child.getTextContent().toUpperCase());
+                webcamProcessors.add(Pair.create(processorId, enableOnStart.get()));
+            }
+        });
+
+        // The collection of processors must not be empty.
+        if (webcamProcessors.isEmpty())
+            throw new AutonomousRobotException(TAG, "START_WEBCAM has no child <processor> elements");
+
+        // And there only one processor may be enabled on start.
+        if (enabledProcessorCount.get() > 1)
+            throw new AutonomousRobotException(TAG, "Only one processor may be enabled on start");
+
+        return webcamProcessors;
     }
 
     public static class StartingPositionData {

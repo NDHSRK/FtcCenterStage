@@ -9,35 +9,9 @@
         </parameters>
         <actions>
 
-            <!-- BLUE_A4 -->
-            <FIND_TEAM_PROP>
-                <image_parameters>
-                    <image_source>front_webcam</image_source>
-                    <resolution>
-                        <width>640</width>
-                        <height>480</height>
-                    </resolution>
-                    <image_roi>
-                        <x>48</x>
-                        <y>148</y>
-                        <width>486</width>
-                        <height>250</height>
-                    </image_roi>
-                </image_parameters>
-                <team_prop_recognition>
-                    <recognition_path>color_channel_circles</recognition_path>
-                    <left_window>
-                        <width>167</width>
-                        <prop_location>LEFT_SPIKE</prop_location>
-                    </left_window>
-                    <right_window>
-                        <prop_location>CENTER_SPIKE</prop_location>
-                    </right_window>
-                    <team_prop_npos>
-                        <prop_location>RIGHT_SPIKE</prop_location>
-                    </team_prop_npos>
-                </team_prop_recognition>
-            </FIND_TEAM_PROP>
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
 
             <SLEEP>
                 <ms>1500</ms>
@@ -153,10 +127,10 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>145</x>
-                        <y>115</y>
-                        <width>487</width>
-                        <height>254</height>
+                        <x>123</x>
+                        <y>154</y>
+                        <width>492</width>
+                        <height>239</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
@@ -167,7 +141,7 @@
                                          starting position. For RED_F2 the left_window
                                          encloses the LEFT_SPIKE. -->
                     <left_window>
-                        <width>318</width>
+                        <width>322</width>
                         <prop_location>CENTER_SPIKE</prop_location>
                     </left_window>
                     <right_window>
@@ -286,7 +260,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>32.0</distance>
+                        <distance>30.0</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -295,7 +269,7 @@
                     <DELIVER_PIXEL_TO_SPIKE />
 
                     <BACK>
-                        <distance>15.0</distance>
+                        <distance>6.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -344,7 +318,7 @@
                     <STRAIGHT_BY>
                         <distance>45.0</distance>
                         <velocity>0.75</velocity>
-                        <angle>-25.0</angle>
+                        <angle>-22.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -440,7 +414,6 @@
         <actions>
 
             <!-- BLUE_A4 -->
-            <!-- //**TODO TEMP 
             <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -468,7 +441,7 @@
                         <prop_location>RIGHT_SPIKE</prop_location>
                     </team_prop_npos>
                 </team_prop_recognition>
-            </FIND_TEAM_PROP -->
+            </FIND_TEAM_PROP>
 
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
@@ -482,31 +455,6 @@
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
-
-            <!-- //**TODO TEMP -->
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>AUTONOMOUS</position>
-            </MOVE_ELEVATOR>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>SAFE</position>
-            </MOVE_ELEVATOR>
-
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <STOP />
-            <!-- //**TODO END TEMP -->
 
             <TEAM_PROP_LOCATION_CHOICE>
                 <LEFT_SPIKE>
@@ -573,7 +521,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>31.0</distance>
+                        <distance>29.0</distance>
                         <velocity>0.75</velocity>
                         <angle>10.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -587,7 +535,7 @@
                     </BACK>
 
                     <TURN>
-                        <angle>90.0</angle>
+                        <angle>-90.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
@@ -679,7 +627,7 @@
                     </FORWARD>
 
                     <STRAFE_LEFT>
-                        <distance>20.0</distance>
+                        <distance>26.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_LEFT>
 
@@ -1058,10 +1006,10 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>59</x>
-                        <y>127</y>
-                        <width>503</width>
-                        <height>224</height>
+                        <x>39</x>
+                        <y>153</y>
+                        <width>502</width>
+                        <height>234</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
@@ -1072,7 +1020,7 @@
                          starting position. For RED_F2 the left_window
                          encloses the LEFT_SPIKE. -->
                     <left_window>
-                        <width>175</width>
+                        <width>182</width>
                         <prop_location>LEFT_SPIKE</prop_location>
                     </left_window>
                     <right_window>
@@ -1102,10 +1050,10 @@
                         <height>480</height>
                     </resolution>
                     <image_roi>
-                        <x>145</x>
-                        <y>115</y>
-                        <width>487</width>
-                        <height>254</height>
+                        <x>132</x>
+                        <y>160</y>
+                        <width>489</width>
+                        <height>248</height>
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
@@ -1116,7 +1064,7 @@
                          starting position. For RED_F2 the left_window
                          encloses the LEFT_SPIKE. -->
                     <left_window>
-                        <width>318</width>
+                        <width>312</width>
                         <prop_location>CENTER_SPIKE</prop_location>
                     </left_window>
                     <right_window>
@@ -1205,7 +1153,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>32.0</distance>
+                        <distance>30.0</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>

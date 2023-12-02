@@ -165,12 +165,16 @@ public abstract class VisionPortalWebcam {
     // To be called from the finally block of FTCAuto or any TeleOp
     // OpMode that uses the webcam.
     public void finalShutdown() {
+        //**TODO avoid crash in easyopencv by simply closing the camera ...
+        /*
         // Shut down the active processor. Stop streaming.
         if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
             disableProcessor();
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
           visionPortal.stopStreaming();
+
+         */
 
         visionPortal.close();
         RobotLogCommon.d(TAG, "Final shutdown of the webcam " + configuredWebcam.internalWebcamId);

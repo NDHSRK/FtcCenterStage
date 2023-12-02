@@ -31,7 +31,7 @@
         <positions>
             <ground>0</ground>
             <safe>95</safe>
-            <drone>2495</drone>
+            <drone>3495</drone>
             <autonomous>2995</autonomous>
             <level_1>3398</level_1>
             <level_2>4496</level_2>

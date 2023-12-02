@@ -434,6 +434,9 @@ public class FTCAuto {
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
 
+                //**TODO Need to check that the identified webcam supports the attached
+                // processor.
+
                 switch (processorId) {
                     case RAW_FRAME: {
                         VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
