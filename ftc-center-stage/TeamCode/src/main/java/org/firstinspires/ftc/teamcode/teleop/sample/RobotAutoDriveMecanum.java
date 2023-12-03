@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.teleop.sample;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -104,7 +105,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  */
 
 @Autonomous(name = "Auto Drive Mecanum", group = "Auto Test")
-//@Disabled
+@Disabled
 public class RobotAutoDriveMecanum extends LinearOpMode {
 
     public enum StrafeDirection {

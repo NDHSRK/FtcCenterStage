@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.SortedSet;
 
 @TeleOp(name = "IntakeArmServoCalibration", group = "Test")
-//@Disabled
+@Disabled
 public class IntakeArmServoCalibration extends LinearOpMode {
 
     private static final String TAG = ServoCalibration.class.getSimpleName();

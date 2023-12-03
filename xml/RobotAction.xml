@@ -239,7 +239,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -260,7 +260,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>30.0</distance>
+                        <distance>32.0</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -295,7 +295,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -363,7 +363,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -500,7 +500,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -556,7 +556,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -615,7 +615,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -792,7 +792,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -859,7 +859,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -945,7 +945,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1132,7 +1132,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1188,7 +1188,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1249,7 +1249,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1394,7 +1394,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1450,7 +1450,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1510,7 +1510,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 
@@ -1575,7 +1575,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_APRIL_TAG>
 

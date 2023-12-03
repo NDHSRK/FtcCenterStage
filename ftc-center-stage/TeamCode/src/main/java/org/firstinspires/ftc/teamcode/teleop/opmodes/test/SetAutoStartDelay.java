@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import java.util.SortedSet;
 
 @TeleOp(name = "SetAutoStartDelay", group = "Test")
-//@Disabled
+@Disabled
 public class SetAutoStartDelay extends LinearOpMode {
 
     private static final String TAG = SetAutoStartDelay.class.getSimpleName();

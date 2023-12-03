@@ -60,8 +60,8 @@
             <right_arm>intake_arm_right</right_arm>
         </servos>
         <positions>
-            <up>0.26</up>
-            <down>0.26</down>
+            <up>0.27</up>
+            <down>0.27</down>
         </positions>
     </INTAKE_ARM>
 

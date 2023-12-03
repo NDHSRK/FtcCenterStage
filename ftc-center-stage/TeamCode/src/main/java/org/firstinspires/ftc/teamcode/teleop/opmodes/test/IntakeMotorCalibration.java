@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 //** beginning with //!! - these are crucial.
 
 @TeleOp(name = "IntakeMotorCalibration", group = "Test")
-//@Disabled
+@Disabled
 public class IntakeMotorCalibration extends TeleOpBase {
 
     private SingleMotor singleMotor;
