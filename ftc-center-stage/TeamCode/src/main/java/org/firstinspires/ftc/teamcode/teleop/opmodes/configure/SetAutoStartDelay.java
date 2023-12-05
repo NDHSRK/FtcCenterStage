@@ -1,29 +1,42 @@
-package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
+package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
+import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.xml.sax.SAXException;
 
-import java.util.SortedSet;
+import java.io.IOException;
 
-@TeleOp(name = "SetAutoStartDelay", group = "Test")
-@Disabled
+import javax.xml.parsers.ParserConfigurationException;
+
+@TeleOp(name = "SetAutoStartDelay", group = "Configure")
+//@Disabled
 public class SetAutoStartDelay extends LinearOpMode {
 
     private static final String TAG = SetAutoStartDelay.class.getSimpleName();
-    private int startDelay = 0;
-    FTCButton increaseDelay;
-    FTCButton decreaseDelay;
 
     @Override
     public void runOpMode() {
-        increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
-        decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        FTCButton increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
+        FTCButton decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
 
+        String fullXMLDir = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
+        StartParametersXML startParametersXML;
+        try {
+            startParametersXML = new StartParametersXML(fullXMLDir);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        int startDelay;
+        int currentStartDelay = startDelay = startParametersXML.getAutoStartDelay();
+        telemetry.addLine("The current start delay is " + currentStartDelay);
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
         telemetry.addLine("Touch play to *END* the OpMode");
         telemetry.update();
@@ -50,8 +63,10 @@ public class SetAutoStartDelay extends LinearOpMode {
             sleep(50);
         } // while
 
-        if (startDelay != 0) {
-            //**TODO write out the StartParameters.xml file with the new value.
+
+        if (startDelay != currentStartDelay) {
+            startParametersXML.setAutoStartDelay(startDelay);
+            RobotLog.ii(TAG, "Writing StartParameters.xml with an Autonomous start delay of " + startDelay);
             telemetry.addLine("Writing StartParameters.xml");
             telemetry.update();
             sleep(1500);

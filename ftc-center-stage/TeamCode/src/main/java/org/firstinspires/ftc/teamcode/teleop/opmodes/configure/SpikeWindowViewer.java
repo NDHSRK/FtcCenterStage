@@ -1,22 +1,21 @@
-package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
+package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
-import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
-import org.firstinspires.ftc.vision.VisionProcessor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -28,9 +27,9 @@ import javax.xml.xpath.XPathExpressionException;
 // This OpMode gives the drive team a way to check the
 // alignment of the front camera to make sure that the
 // Team Prop is in view.
-@TeleOp(name = "SpikeWindowViewer", group = "Test")
+@TeleOp(name = "SpikeWindowViewer", group = "Configure")
 //@Disabled
-public class SpikeWindowViewer extends TeleOpBase {
+public class SpikeWindowViewer extends LinearOpMode {
     private static final String TAG = SpikeWindowViewer.class.getSimpleName();
 
     private SpikeWindowProcessor spikeWindowProcessor;
@@ -40,15 +39,13 @@ public class SpikeWindowViewer extends TeleOpBase {
     private FTCButton startPositionA2Button;
     private FTCButton startPositionA4Button;
 
-    @Override
-    public RobotConstants.RunType getRunType() {
-        return RobotConstants.RunType.TELEOP_VISION_PREVIEW;
-    }
-
     // In this OpMode all of the action takes place during init().
     @Override
-    public void initialize() {
-        RobotLogCommon.i(TAG, "Initializing the SpikeWindowViewer");
+    public void runOpMode() throws InterruptedException {
+        RobotLog.ii(TAG, "Initializing the SpikeWindowViewer");
+
+        // Get the camera configuration from RobotConfig.xml.
+        FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
 
         // Start the front webcam with the spike window processor.
         if (robot.configuredWebcams == null || robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM) == null)
@@ -65,7 +62,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
 
         frontWebcamConfiguration.setVisionPortalWebcam(spikeWindowWebcam);
-        RobotLogCommon.c(TAG, "SpikeWindowViewer successfully started on the front webcam");
+        RobotLog.ii(TAG, "SpikeWindowViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
@@ -93,14 +90,9 @@ public class SpikeWindowViewer extends TeleOpBase {
             updateButtons();
             updatePlayerOne();
         }
-    }
 
-    @Override
-    public void run() {
-        if (opModeIsActive()) {
-            telemetry.addLine("Ending the OpMode");
-            telemetry.update();
-        }
+        telemetry.addLine("Ending the SpikeWindowViewer");
+        telemetry.update();        
     }
 
     private void updateButtons() {
@@ -119,7 +111,7 @@ public class SpikeWindowViewer extends TeleOpBase {
 
     private void updateStartPositionF4Button() {
         if (startPositionF4Button.is(FTCButton.State.TAP)) {
-            RobotLogCommon.d(TAG, "DPAD button for F4 tapped");
+            RobotLog.dd(TAG, "DPAD button for F4 tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
@@ -130,7 +122,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for F4 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(f4SpikeWindows);
-            RobotLogCommon.d(TAG, "Set spike window mapping for F4");
+            RobotLog.dd(TAG, "Set spike window mapping for F4");
             telemetry.addLine("Spike windows for RED_F4");
             telemetry.update();
         }
@@ -138,7 +130,7 @@ public class SpikeWindowViewer extends TeleOpBase {
 
     private void updateStartPositionF2Button() {
         if (startPositionF2Button.is(FTCButton.State.TAP)) {
-            RobotLogCommon.d(TAG, "DPAD button for F2 tapped");
+            RobotLog.dd(TAG, "DPAD button for F2 tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
@@ -149,7 +141,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for F2 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(f2SpikeWindows);
-            RobotLogCommon.d(TAG, "Set spike window mapping for F2");
+            RobotLog.dd(TAG, "Set spike window mapping for F2");
             telemetry.addLine("Spike windows for RED_F2");
             telemetry.update();
         }
@@ -157,7 +149,7 @@ public class SpikeWindowViewer extends TeleOpBase {
 
     private void updateStartPositionA2Button() {
         if (startPositionA2Button.is(FTCButton.State.TAP)) {
-            RobotLogCommon.d(TAG, "DPAD button for A2 tapped");
+            RobotLog.dd(TAG, "DPAD button for A2 tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
@@ -168,7 +160,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for A2 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a2SpikeWindows);
-            RobotLogCommon.d(TAG, "Set spike window mapping for A2");
+            RobotLog.dd(TAG, "Set spike window mapping for A2");
             telemetry.addLine("Spike windows for BLUE_A2");
             telemetry.update();
         }
@@ -176,7 +168,7 @@ public class SpikeWindowViewer extends TeleOpBase {
 
     private void updateStartPositionA4Button() {
         if (startPositionA4Button.is(FTCButton.State.TAP)) {
-            RobotLogCommon.d(TAG, "DPAD button for A4 tapped");
+            RobotLog.dd(TAG, "DPAD button for A4 tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
@@ -187,7 +179,7 @@ public class SpikeWindowViewer extends TeleOpBase {
             // Show the spike window mapping for A4 in the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(a4SpikeWindows);
-            RobotLogCommon.d(TAG, "Set spike window mapping for A4");
+            RobotLog.dd(TAG, "Set spike window mapping for A4");
             telemetry.addLine("Spike windows for BLUE_A4");
             telemetry.update();
         }

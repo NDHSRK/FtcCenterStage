@@ -165,30 +165,6 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .addProcessor(aprilTag)
                 .build();
 
-        /*
-        RobotLogCommon.d("ConceptDoubleVision", "Waiting for front webcam to start streaming");
-        ElapsedTime streamingTimer = new ElapsedTime();
-        streamingTimer.reset(); // start
-        while (streamingTimer.milliseconds() < pTimeoutMs &&
-                !(visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM ||
-                        visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)) {
-            sleep(50);
-        }
-
-        VisionPortal.CameraState cameraState = visionPortal.getCameraState();
-        RobotLogCommon.d(TAG, "State of webcam " + cameraState);
-        if (!(cameraState == VisionPortal.CameraState.STARTING_STREAM || cameraState == VisionPortal.CameraState.STREAMING)) {
-            RobotLogCommon.d(TAG, "Timed out waiting for webcam streaming to start");
-              throw new AutonomousRobotException("ConceptDoubleVision", "Timed out waiting for webcam streaming to start");
-        }
-
-         */
-
-        //**TODO *TRY THIS* disable immediately after start -- did *not* work = no AprilTags, no frames
-        // even after enabling.
-        myVisionPortal.setProcessorEnabled(aprilTag, false);
-        myVisionPortal.setProcessorEnabled(webcamFrame, false);
-
     }   // end initDoubleVision()
 
     /**

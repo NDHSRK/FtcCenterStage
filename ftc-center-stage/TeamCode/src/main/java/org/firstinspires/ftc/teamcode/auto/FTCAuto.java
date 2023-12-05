@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
@@ -76,6 +77,7 @@ public class FTCAuto {
     private final FTCRobot robot;
     private PixelStopperServo.PixelServoState pixelServoState;
     private final String workingDirectory;
+    private final int autoStartDelay;
     private final RobotActionXMLCenterStage actionXML;
     private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private final SpikeWindowMappingXML spikeWindowMappingXML;
@@ -125,8 +127,13 @@ public class FTCAuto {
         workingDirectory = WorkingDirectory.getWorkingDirectory();
         String xmlDirectory = workingDirectory + RobotConstants.XML_DIR;
 
-        // Read the robot action file for all OpModes.
-        actionXML = new RobotActionXMLCenterStage(xmlDirectory);
+        // Get the configurable delay at Autonomous startup.
+        autoStartDelay = robot.startParametersXML.getAutoStartDelay();
+
+        // Read the RobotAction XXX.xml file for all OpModes.
+        String robotActionFilename = robot.startParametersXML.getRobotActionFilename();
+        RobotLogCommon.c(TAG, "Getting the Autonomous choreographies from " + robotActionFilename);
+        actionXML = new RobotActionXMLCenterStage(robotActionFilename);
 
         // Initialize the hardware and classes that control motion.
         // Do not initialize if the components have been configured out.
@@ -200,6 +207,11 @@ public class FTCAuto {
             robot.imuDirect.resetIMUYaw();
             RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuDirect.getIMUHeading());
 
+            // If the StartParameters.xml file contains a non-zero start delay
+            // for Autonomous wait here.
+            if (autoStartDelay != 0)
+                sleepInLoop(autoStartDelay * 1000);
+
             // Get the spike window data for the current OpMode.
             // Note: if the current OpMode does not include an action of FIND_TEAM_PROP
             // then a lookup on the OpMode will return null. This is legal for such
@@ -269,7 +281,7 @@ public class FTCAuto {
 
            /*
             if (!keepCamerasRunning) {
-                //**TODO Attempt at an orderly shutdown causes the Robot Controller to crash.
+                //**TODO Attempt at an orderly shutdown causes the Robot Controller to crash in easyopencv.
                 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                     RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
                     robot.configuredWebcams.forEach((k, v) -> {
@@ -433,9 +445,6 @@ public class FTCAuto {
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
-
-                //**TODO Need to check that the identified webcam supports the attached
-                // processor.
 
                 switch (processorId) {
                     case RAW_FRAME: {
@@ -875,7 +884,7 @@ public class FTCAuto {
 
             case "DELIVER_PIXEL_TO_SPIKE": {
                 // The position of the pixel stopper does not matter.
-                //**TODO Artificially reduce the velocity ...
+                //## Reduce the configured velocity by half.
                 robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, robot.intakeMotor.velocity * 0.5, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
                 break;
             }

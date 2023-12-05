@@ -29,8 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 public class RobotConfigXML {
 
-    public static final String TAG = "RobotConfigXML";
-    private static final String FILE_NAME = "RobotConfig.xml";
+    public static final String TAG = RobotConfigXML.class.getSimpleName();
 
     // IntelliJ only
     /*
@@ -45,7 +44,7 @@ public class RobotConfigXML {
     private final EnumMap<RobotConstantsCenterStage.InternalWebcamId, VisionPortalWebcamConfiguration.ConfiguredWebcam> configuredWebcams
             = new EnumMap<>(RobotConstantsCenterStage.InternalWebcamId.class);
 
-    public RobotConfigXML(String pWorkingDirectory) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    public RobotConfigXML(String pRobotConfigFilename) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 
         // IntelliJ only
         /*
@@ -68,8 +67,7 @@ public class RobotConfigXML {
         // End Android only
 
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        String configFilename = pWorkingDirectory + FILE_NAME;
-        Document document = dBuilder.parse(new File(configFilename));
+        Document document = dBuilder.parse(new File(pRobotConfigFilename));
 
         // Collect all of the elements from the XML file.
         Element robotConfigRoot = document.getDocumentElement();

@@ -34,7 +34,6 @@ import javax.xml.xpath.XPathFactory;
 public class RobotActionXMLCenterStage {
 
     public static final String TAG = RobotActionXMLCenterStage.class.getSimpleName();
-    private static final String FILE_NAME = "RobotAction.xml";
 
     private final Document document;
     private final XPath xpath;
@@ -47,7 +46,7 @@ public class RobotActionXMLCenterStage {
             "http://www.w3.org/2001/XMLSchema";
      */
 
-    public RobotActionXMLCenterStage(String pWorkingDirectory) throws ParserConfigurationException, SAXException, IOException {
+    public RobotActionXMLCenterStage(String pRobotActionFilename) throws ParserConfigurationException, SAXException, IOException {
 
     /*
     // IntelliJ only
@@ -73,8 +72,7 @@ public class RobotActionXMLCenterStage {
     // End Android or IntelliJ
 
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        String actionFilename = pWorkingDirectory + FILE_NAME;
-        document = dBuilder.parse(new File(actionFilename));
+        document = dBuilder.parse(new File(pRobotActionFilename));
 
         XPathFactory xpathFactory = XPathFactory.newInstance();
         xpath = xpathFactory.newXPath();
