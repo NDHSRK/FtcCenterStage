@@ -23,10 +23,10 @@
 
   <ELEVATOR configured="no" />
 
-  <!-- Servos -->
-  <PIXEL_IO configured="no" />
+  <INTAKE configured="no"/>
 
-  <PIXEL_IO_HOLDER configured="no" />
+  <!-- Servos -->
+  <INTAKE_ARM configured="no" />
 
   <PIXEL_STOPPER configured="no" />
 
@@ -44,7 +44,6 @@
       <webcam>
         <internal_id>rear_webcam</internal_id>
         <!-- C920 -->
-        <!-- primary C920 serial number 1133:2277 -->
         <!-- backup C920 serial number F98252DF -->
         <serial_number>F98252DF</serial_number>
         <resolution_width>640</resolution_width>

@@ -133,7 +133,7 @@ public class FTCAuto {
         // Read the RobotAction XXX.xml file for all OpModes.
         String robotActionFilename = robot.startParametersXML.getRobotActionFilename();
         RobotLogCommon.c(TAG, "Getting the Autonomous choreographies from " + robotActionFilename);
-        actionXML = new RobotActionXMLCenterStage(robotActionFilename);
+        actionXML = new RobotActionXMLCenterStage(xmlDirectory + robotActionFilename);
 
         // Initialize the hardware and classes that control motion.
         // Do not initialize if the components have been configured out.

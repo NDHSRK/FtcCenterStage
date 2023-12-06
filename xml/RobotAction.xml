@@ -8,10 +8,28 @@
             <log_level>d</log_level>
         </parameters>
         <actions>
+            
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
 
-            <TAKE_PICTURE_WEBCAM>
-                <internal_webcam_id>front_webcam</internal_webcam_id>
-            </TAKE_PICTURE_WEBCAM>
+            <SLEEP>
+                <ms>1000</ms>
+            </SLEEP>
+
+            <STRAFE_RIGHT>
+                <distance>50.0</distance>
+                <velocity>0.5</velocity>
+            </STRAFE_RIGHT>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <STRAFE_LEFT>
+                <distance>50.0</distance>
+                <velocity>0.5</velocity>
+            </STRAFE_LEFT>
 
             <SLEEP>
                 <ms>1500</ms>
@@ -49,11 +67,47 @@
             <SLEEP>
                 <ms>1500</ms>
             </SLEEP>
+            
+            <MOVE_ELEVATOR>
+                <position>LEVEL_1</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+                       
+            <MOVE_ELEVATOR>
+                <position>LEVEL_2</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
 
             <MOVE_ELEVATOR>
                 <position>GROUND</position>
             </MOVE_ELEVATOR>
 
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+            
         </actions>
     </OpMode>
 

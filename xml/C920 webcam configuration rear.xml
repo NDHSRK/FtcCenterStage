@@ -2,7 +2,7 @@
       <webcam>
         <internal_id>rear_webcam</internal_id>
         <!-- C920 -->
-        <-- backup C920 serial number F98252DF -->
+        <!-- backup C920 serial number F98252DF -->
         <serial_number>1133:2277</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>

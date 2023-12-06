@@ -95,7 +95,7 @@ public class FTCRobot {
             // RobotConfig XXX.xml).
             // Get the configurable startup parameters.
             startParametersXML = new StartParametersXML(xmlDirectory);
-            String robotConfigFilename = startParametersXML.getRobotConfigFilename();
+            String robotConfigFilename = xmlDirectory + startParametersXML.getRobotConfigFilename();
             RobotLogCommon.c(TAG, "Configuring the robot from " + robotConfigFilename);
 
             RobotConfigXML configXML = new RobotConfigXML(robotConfigFilename);
