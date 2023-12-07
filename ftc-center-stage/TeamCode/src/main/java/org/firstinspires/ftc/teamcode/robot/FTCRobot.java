@@ -10,6 +10,7 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.imu.GenericIMU;
@@ -45,7 +46,7 @@ public class FTCRobot {
     }
 
     private final HardwareMap hardwareMap;
-    public final StartParametersXML startParametersXML;
+    public final StartParameters startParameters;
 
     public final TeleOpSettings teleOpSettings;
     public final DriveTrain driveTrain;
@@ -94,11 +95,11 @@ public class FTCRobot {
             // Get the startup parameters (including the exact file name of
             // RobotConfig XXX.xml).
             // Get the configurable startup parameters.
-            startParametersXML = new StartParametersXML(xmlDirectory);
-            String robotConfigFilename = xmlDirectory + startParametersXML.getRobotConfigFilename();
-            RobotLogCommon.c(TAG, "Configuring the robot from " + robotConfigFilename);
+            StartParametersXML startParametersXML = new StartParametersXML(xmlDirectory);
+            startParameters = startParametersXML.getStartParameters();
+            RobotLogCommon.c(TAG, "Configuring the robot from " + startParameters.robotConfigFilename);
 
-            RobotConfigXML configXML = new RobotConfigXML(robotConfigFilename);
+            RobotConfigXML configXML = new RobotConfigXML(startParameters.robotConfigFilename);
             XPathAccess configXPath;
 
             // If we're running a TeleOp OpMode, get the TeleOp settings.

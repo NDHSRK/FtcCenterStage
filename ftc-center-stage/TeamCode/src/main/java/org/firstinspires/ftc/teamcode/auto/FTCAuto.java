@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
@@ -128,12 +129,11 @@ public class FTCAuto {
         String xmlDirectory = workingDirectory + RobotConstants.XML_DIR;
 
         // Get the configurable delay at Autonomous startup.
-        autoStartDelay = robot.startParametersXML.getAutoStartDelay();
+        autoStartDelay = robot.startParameters.autoStartDelay;
 
         // Read the RobotAction XXX.xml file for all OpModes.
-        String robotActionFilename = xmlDirectory + robot.startParametersXML.getRobotActionFilename();
-        RobotLogCommon.c(TAG, "Getting the Autonomous choreographies from " + robotActionFilename);
-        actionXML = new RobotActionXMLCenterStage(robotActionFilename);
+        RobotLogCommon.c(TAG, "Getting the Autonomous choreographies from " + robot.startParameters.robotActionFilename);
+        actionXML = new RobotActionXMLCenterStage(robot.startParameters.robotActionFilename);
 
         // Initialize the hardware and classes that control motion.
         // Do not initialize if the components have been configured out.
@@ -149,7 +149,7 @@ public class FTCAuto {
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
-        spikeWindowMappingXML = new SpikeWindowMappingXML(robotActionFilename);
+        spikeWindowMappingXML = new SpikeWindowMappingXML(robot.startParameters.robotActionFilename);
         collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
 
         // Read the parameters for the backdrop from the xml file.

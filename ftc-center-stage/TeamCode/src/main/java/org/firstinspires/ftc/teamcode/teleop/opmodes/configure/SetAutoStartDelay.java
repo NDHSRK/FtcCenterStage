@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.xml.sax.SAXException;
@@ -34,11 +35,12 @@ public class SetAutoStartDelay extends LinearOpMode {
             throw new RuntimeException(e);
         }
 
+        StartParameters startParameters = startParametersXML.getStartParameters();
         int startDelay;
-        int currentStartDelay = startDelay = startParametersXML.getAutoStartDelay();
+        int currentStartDelay = startDelay = startParameters.autoStartDelay;
         telemetry.addLine("The current start delay is " + currentStartDelay);
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
-        telemetry.addLine("Touch play to *END* the OpMode");
+        telemetry.addLine("Touch play to SAVE the delay and END the OpMode");
         telemetry.update();
 
         boolean changeInDelay = false;
@@ -66,6 +68,7 @@ public class SetAutoStartDelay extends LinearOpMode {
 
         if (startDelay != currentStartDelay) {
             startParametersXML.setAutoStartDelay(startDelay);
+            startParametersXML.writeStartParametersFile();
             RobotLog.ii(TAG, "Writing StartParameters.xml with an Autonomous start delay of " + startDelay);
             telemetry.addLine("Writing StartParameters.xml");
             telemetry.update();

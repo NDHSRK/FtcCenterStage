@@ -7,6 +7,7 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -23,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.EnumMap;
 
 public class StartParametersXML {
 
@@ -32,11 +34,16 @@ public class StartParametersXML {
     private final String xmlFilePath;
     private final Document document;
 
-    private final String robotConfigFilename;
-    private final String robotActionFilename;
-
-    private final Node delay_node;
+    private final Node delay_node; // save the DOM Node for update
     private int autoStartDelay;
+    private final EnumMap<RobotConstantsCenterStage.OpMode, RobotConstantsCenterStage.AutoEndingPosition> autoEndingPositions
+            = new EnumMap<>(RobotConstantsCenterStage.OpMode.class);
+
+    // Save the DOM Nodes for update.
+    private final EnumMap<RobotConstantsCenterStage.OpMode, Node> autoEndingPositionNodes
+            = new EnumMap<>(RobotConstantsCenterStage.OpMode.class);
+
+    private StartParameters startParameters;
 
     // IntelliJ only
     /*
@@ -81,14 +88,14 @@ public class StartParametersXML {
         if (config_node == null || !config_node.getNodeName().equals("robot_config") || config_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'robot_config' not found");
 
-        robotConfigFilename = config_node.getTextContent();
+        String robotConfigFilename = xmlDirectory + config_node.getTextContent();
 
         Node action_node = config_node.getNextSibling();
         action_node = XMLUtils.getNextElement(action_node);
         if (action_node == null || !action_node.getNodeName().equals("robot_action") || action_node.getTextContent().isEmpty())
             throw new AutonomousRobotException(TAG, "Element 'robot_action' not found");
 
-        robotActionFilename = action_node.getTextContent();
+        String robotActionFilename = xmlDirectory + action_node.getTextContent();
 
         Node local_delay_node = action_node.getNextSibling();
         local_delay_node = XMLUtils.getNextElement(local_delay_node);
@@ -104,29 +111,66 @@ public class StartParametersXML {
 
         delay_node = local_delay_node; // preserve "final"
 
+        // Parse the <auto_ending_position> element.
+        Node ending_position_node = local_delay_node.getNextSibling();
+        ending_position_node = XMLUtils.getNextElement(ending_position_node);
+        if (ending_position_node == null || !ending_position_node.getNodeName().equals("auto_ending_position"))
+            throw new AutonomousRobotException(TAG, "Element 'auto_ending_position' not found");
+
+        // Parse the four children of the <auto_ending_position> element,
+        // one for each Autonomous competition OpMode.
+        NodeList ending_position_elements = ending_position_node.getChildNodes();
+        if (ending_position_elements == null)
+            throw new AutonomousRobotException(TAG, "Missing 'auto_ending_position' elements");
+
+        XMLUtils.processElements(ending_position_elements, (opmode_node) -> {
+            RobotConstantsCenterStage.OpMode autoOpMode = RobotConstantsCenterStage.OpMode.valueOf(opmode_node.getNodeName());
+            String endingPositionText = opmode_node.getTextContent().toUpperCase().trim();
+            RobotConstantsCenterStage.AutoEndingPosition endingPosition = RobotConstantsCenterStage.AutoEndingPosition.valueOf(endingPositionText);
+
+            if (autoEndingPositions.put(autoOpMode, endingPosition) != null)
+                throw new AutonomousRobotException(TAG, "Duplicate Autonomous OpMode");
+
+            // Save the DOM Node for update.
+            autoEndingPositionNodes.put(autoOpMode, opmode_node);
+        });
+
+        startParameters = new StartParameters(robotConfigFilename, robotActionFilename, autoStartDelay, autoEndingPositions);
+
         RobotLog.ii(TAG, "In StartParametersXML; opened and parsed the XML file");
     }
 
-    public String getRobotConfigFilename() {
-        return robotConfigFilename;
-    }
-
-    public String getRobotActionFilename() {
-        return robotActionFilename;
-    }
-
-    public int getAutoStartDelay() {
-        return autoStartDelay;
+    public StartParameters getStartParameters() {
+        return startParameters;
     }
 
     // Replaces the text value of the <auto_start_delay> element.
     public void setAutoStartDelay(int pAutoStartDelay) {
         RobotLog.ii(TAG, "Setting the Autonomous start delay in " + FILE_NAME + " to " + pAutoStartDelay);
 
-        delay_node.setTextContent(Integer.toString(pAutoStartDelay));
-        rewriteFile();
-
         autoStartDelay = pAutoStartDelay;
+        delay_node.setTextContent(Integer.toString(pAutoStartDelay));
+
+        // Update startParameters to reflect the change.
+        startParameters = new StartParameters(startParameters.robotConfigFilename, startParameters.robotConfigFilename,
+                autoStartDelay, autoEndingPositions);
+    }
+
+    public void setAutoEndingPosition(RobotConstantsCenterStage.OpMode pAutoOpMode, String pEndingPositionText) {
+        RobotConstantsCenterStage.AutoEndingPosition endingPosition = RobotConstantsCenterStage.AutoEndingPosition.valueOf(pEndingPositionText);
+        RobotLog.ii(TAG, "Setting ending position " + pEndingPositionText + " for Autonomous OpMode " + pAutoOpMode);
+
+        autoEndingPositions.put(pAutoOpMode, endingPosition);
+        Node endingPositionNode = autoEndingPositionNodes.get(pAutoOpMode);
+        endingPositionNode.setTextContent(pEndingPositionText);
+
+        // Update startParameters to reflect the change.
+        startParameters = new StartParameters(startParameters.robotConfigFilename, startParameters.robotConfigFilename,
+                autoStartDelay, autoEndingPositions);
+    }
+
+    public void writeStartParametersFile() {
+        rewriteFile();
     }
 
     // Based on a combination of --

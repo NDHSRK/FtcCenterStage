@@ -35,10 +35,11 @@ public class MotionUtils {
             // If the angle is 0.0 or -180.0 then the robot is moving forward
             // or backward so apply the same correction to the two left side
             // motors and the inverse of the correction to the right side motors.
-            // If "steer" is negative then then robot is skewed clockwise.
-            // So to correct the skew for a straight-line run you would increase
-            // the velocity of the left-side motors by the inverse of the steer
-            // and decrease the velocity of the right-side motors by the steer.
+            // For example, if "steer" is negative then then robot is skewed
+            // counter-clockwise. So to correct the skew for a straight-line run
+            // you would increase the velocity of the left-side motors by the
+            // inverse of the steer and decrease the velocity of the right-side
+            // motors by the steer.
             if (pAngle == 0.0 || pAngle == -180.0) {
                 switch (motorId) {
                     case LEFT_FRONT_DRIVE:

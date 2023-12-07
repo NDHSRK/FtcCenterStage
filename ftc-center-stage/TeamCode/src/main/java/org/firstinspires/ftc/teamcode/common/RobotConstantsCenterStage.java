@@ -43,8 +43,7 @@ public class RobotConstantsCenterStage {
     // The CameraId identifies each unique camera and its position on
     // the robot.
     public enum InternalWebcamId {
-        FRONT_WEBCAM, REAR_WEBCAM,
-        WEBCAM_NPOS
+        FRONT_WEBCAM, REAR_WEBCAM, WEBCAM_NPOS
     }
 
     public enum ProcessorIdentifier {
@@ -114,5 +113,7 @@ public class RobotConstantsCenterStage {
             return AprilTagId.TAG_ID_NPOS; // no match
         }
     }
+
+    public enum AutoEndingPosition {LEFT, RIGHT}
 
 }
