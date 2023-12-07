@@ -35,6 +35,10 @@ public class MotionUtils {
             // If the angle is 0.0 or -180.0 then the robot is moving forward
             // or backward so apply the same correction to the two left side
             // motors and the inverse of the correction to the right side motors.
+            // If "steer" is negative then then robot is skewed clockwise.
+            // So to correct the skew for a straight-line run you would increase
+            // the velocity of the left-side motors by the inverse of the steer
+            // and decrease the velocity of the right-side motors by the steer.
             if (pAngle == 0.0 || pAngle == -180.0) {
                 switch (motorId) {
                     case LEFT_FRONT_DRIVE:
@@ -57,6 +61,7 @@ public class MotionUtils {
             // If the angle is 90.0 or -90.0 then the robot is strafing to
             // the left or right and the application of the steering correction
             // varies.
+            /*
             if (pAngle == 90.0) { // strafe left?
                 switch (motorId) {
                     case LEFT_FRONT_DRIVE:
@@ -94,6 +99,8 @@ public class MotionUtils {
 
                 continue;
             }
+
+             */
 
             //**TODO For all other angles the PID corrections are tricky.
             // So at this point just return the ramped-down velocity.

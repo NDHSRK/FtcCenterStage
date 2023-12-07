@@ -31,6 +31,7 @@
         <positions>
             <ground>0</ground>
             <safe>95</safe>
+            <pixel_clearance>200</pixel_clearance>
             <drone>3495</drone>
             <autonomous>2995</autonomous>
             <level_1>3398</level_1>

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
 @Autonomous(name = "RED_F2", group = "TeamCode")
-@Disabled
+//@Disabled
 public class RED_F2 extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {

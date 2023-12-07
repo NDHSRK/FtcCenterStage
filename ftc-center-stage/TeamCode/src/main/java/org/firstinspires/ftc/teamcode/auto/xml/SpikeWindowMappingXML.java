@@ -34,7 +34,6 @@ import java.util.EnumMap;
 public class SpikeWindowMappingXML {
 
     public static final String TAG = SpikeWindowMappingXML.class.getSimpleName();
-    private static final String FILE_NAME = "RobotAction.xml";
 
     private final Document document;
     private final XPath xpath;
@@ -47,7 +46,7 @@ public class SpikeWindowMappingXML {
             "http://www.w3.org/2001/XMLSchema";
      */
 
-    public SpikeWindowMappingXML(String pWorkingDirectory) throws ParserConfigurationException, SAXException, IOException {
+    public SpikeWindowMappingXML(String pRobotActionFilename) throws ParserConfigurationException, SAXException, IOException {
 
     /*
     // IntelliJ only
@@ -73,7 +72,7 @@ public class SpikeWindowMappingXML {
         // End Android or IntelliJ
 
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        document = dBuilder.parse(new File(pWorkingDirectory + FILE_NAME));
+        document = dBuilder.parse(new File(pRobotActionFilename));
 
         XPathFactory xpathFactory = XPathFactory.newInstance();
         xpath = xpathFactory.newXPath();

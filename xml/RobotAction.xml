@@ -8,17 +8,26 @@
             <log_level>d</log_level>
         </parameters>
         <actions>
-            
+
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <MOVE_ELEVATOR>
+                <position>pixel_clearance</position>
             </MOVE_ELEVATOR>
 
             <SLEEP>
                 <ms>1000</ms>
             </SLEEP>
 
-            <STRAFE_RIGHT>
-                <distance>50.0</distance>
+            <FORWARD>
+                <distance>30</distance>
+                <velocity>.5</velocity>
+            </FORWARD>
+
+            <!-- STRAFE_RIGHT>
+                <distance>72.0</distance>
                 <velocity>0.5</velocity>
             </STRAFE_RIGHT>
 
@@ -27,13 +36,13 @@
             </SLEEP>
 
             <STRAFE_LEFT>
-                <distance>50.0</distance>
+                <distance>72.0</distance>
                 <velocity>0.5</velocity>
             </STRAFE_LEFT>
 
             <SLEEP>
                 <ms>1500</ms>
-            </SLEEP>
+            </SLEEP -->
 
         </actions>
     </OpMode>
@@ -67,7 +76,7 @@
             <SLEEP>
                 <ms>1500</ms>
             </SLEEP>
-            
+
             <MOVE_ELEVATOR>
                 <position>LEVEL_1</position>
             </MOVE_ELEVATOR>
@@ -83,7 +92,7 @@
             <SLEEP>
                 <ms>1500</ms>
             </SLEEP>
-                       
+
             <MOVE_ELEVATOR>
                 <position>LEVEL_2</position>
             </MOVE_ELEVATOR>
@@ -107,7 +116,7 @@
             <SLEEP>
                 <ms>1500</ms>
             </SLEEP>
-            
+
         </actions>
     </OpMode>
 
@@ -161,18 +170,22 @@
     </OpMode>
 
     <!-- All competition OpModes:
-        Moving closer to the backdrop helps with the accuracy
-        of our final approach. The AprilTag gives actual distances,
-        which we pass to the robot, but the robot never moves as
-        far as a given actual distance. In the OpModes below look
-        for a movement <BACK> after a turn towards the backdrop. -->
+        Spike window definitions under <team_prop_recognition are relative
+        to the image ROI.
+        The left_window may enclose the LEFT_SPIKE or the CENTER_SPIKE,
+        depending on the robot's starting position. For RED_F2 the
+        left_window encloses the LEFT_SPIKE. -->
+    <!-- AprilTags: moving closer to the backdrop helps with the
+        accuracy of our final approach. The AprilTag gives actual
+        distances, which we pass to the robot, but the robot never moves
+        as far as a given actual distance. In the OpModes below look for
+        a movement <BACK> after a turn towards the backdrop. -->
     <OpMode id="BLUE_A2">
         <parameters>
             <log_level>v</log_level>
         </parameters>
         <actions>
 
-            <!-- BLUE_A2 = RED_F4 -->
             <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -189,11 +202,6 @@
                 </image_parameters>
                 <team_prop_recognition>
                     <recognition_path>color_channel_circles</recognition_path>
-                    <!-- These values are relative to the image ROI -->
-                    <!-- Note: the left_window may enclose the LEFT_SPIKE
-                                         or the CENTER_SPIKE, depending on the robot's
-                                         starting position. For RED_F2 the left_window
-                                         encloses the LEFT_SPIKE. -->
                     <left_window>
                         <width>322</width>
                         <prop_location>CENTER_SPIKE</prop_location>
@@ -247,7 +255,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>6.0</distance>
@@ -320,7 +336,15 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>6.0</distance>
@@ -369,24 +393,31 @@
 
                 <RIGHT_SPIKE>
 
-                    <STRAIGHT_BY>
-                        <distance>45.0</distance>
-                        <velocity>0.75</velocity>
-                        <angle>-22.0</angle>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
+                 <STRAIGHT_BY>
+                    <distance>30.0</distance>
+                    <velocity>0.75</velocity>
+                    <angle>-33.0</angle>
+                    <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                </STRAIGHT_BY>
 
-                    <BACK>
-                        <distance>5.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
 
                     <DELIVER_PIXEL_TO_SPIKE />
 
+                    <MOVE_ELEVATOR>
+                        <position>PIXEL_CLEARANCE</position>
+                    </MOVE_ELEVATOR>
+
                     <FORWARD>
-                        <distance>40.0</distance>
+                        <distance>34.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
+                   
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <TURN>
                         <angle>-90.0</angle>
@@ -397,12 +428,12 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>100.0</distance>
+                        <distance>80.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>20.0</distance>
+                        <distance>22.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_RIGHT>
 
@@ -424,7 +455,7 @@
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
-                        <distance>2.0</distance>
+                        <distance>3.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
@@ -525,7 +556,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>6.0</distance>
@@ -580,8 +619,16 @@
                         <angle>10.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
+ 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
 
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>5.0</distance>
@@ -649,11 +696,19 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>3.0</distance>
+                        <distance>2.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>20.0</distance>
@@ -795,9 +850,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>50.0</distance>
@@ -875,9 +936,15 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>15.0</distance>
@@ -947,9 +1014,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <STRAFE_RIGHT>
                         <distance>20.0</distance>
@@ -1095,7 +1168,6 @@
         </parameters>
         <actions>
 
-            <!-- RED_F4 -->
             <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -1112,11 +1184,6 @@
                 </image_parameters>
                 <team_prop_recognition>
                     <recognition_path>color_channel_circles</recognition_path>
-                    <!-- These values are relative to the image ROI -->
-                    <!-- Note: the left_window may enclose the LEFT_SPIKE
-                         or the CENTER_SPIKE, depending on the robot's
-                         starting position. For RED_F2 the left_window
-                         encloses the LEFT_SPIKE. -->
                     <left_window>
                         <width>312</width>
                         <prop_location>CENTER_SPIKE</prop_location>
@@ -1170,7 +1237,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>20.0</distance>
@@ -1213,7 +1288,15 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>5.0</distance>
@@ -1265,7 +1348,7 @@
                     <STRAIGHT_BY>
                         <distance>45.0</distance>
                         <velocity>0.75</velocity>
-                        <angle>-25.0</angle>
+                        <angle>-22.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -1274,7 +1357,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
                     <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>6.0</distance>
@@ -1430,9 +1521,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>20.0</distance>
@@ -1533,9 +1630,15 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>5.0</distance>
@@ -1598,9 +1701,15 @@
                         <velocity>.5</velocity>
                     </BACK>
 
-                    <DELIVER_PIXEL_TO_SPIKE>
-                        <duration_ms>500</duration_ms>
-                    </DELIVER_PIXEL_TO_SPIKE>
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <BACK>
                         <distance>6.0</distance>

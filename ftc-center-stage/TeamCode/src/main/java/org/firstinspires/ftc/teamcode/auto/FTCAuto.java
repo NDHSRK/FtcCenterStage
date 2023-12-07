@@ -131,9 +131,9 @@ public class FTCAuto {
         autoStartDelay = robot.startParametersXML.getAutoStartDelay();
 
         // Read the RobotAction XXX.xml file for all OpModes.
-        String robotActionFilename = robot.startParametersXML.getRobotActionFilename();
+        String robotActionFilename = xmlDirectory + robot.startParametersXML.getRobotActionFilename();
         RobotLogCommon.c(TAG, "Getting the Autonomous choreographies from " + robotActionFilename);
-        actionXML = new RobotActionXMLCenterStage(xmlDirectory + robotActionFilename);
+        actionXML = new RobotActionXMLCenterStage(robotActionFilename);
 
         // Initialize the hardware and classes that control motion.
         // Do not initialize if the components have been configured out.
@@ -149,7 +149,7 @@ public class FTCAuto {
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
-        spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
+        spikeWindowMappingXML = new SpikeWindowMappingXML(robotActionFilename);
         collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
 
         // Read the parameters for the backdrop from the xml file.
@@ -1356,6 +1356,10 @@ public class FTCAuto {
             }
             case SAFE: {
                 absoluteEncoderValue = robot.elevator.safe;
+                break;
+            }
+            case PIXEL_CLEARANCE: {
+                absoluteEncoderValue = robot.elevator.pixel_clearance;
                 break;
             }
             case DRONE: {

@@ -8,17 +8,34 @@
             <log_level>d</log_level>
         </parameters>
         <actions>
+
+             <START_WEBCAM>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </START_WEBCAM>
+
+            <WAIT_FOR_WEBCAM_START>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <timeout_ms>2000</timeout_ms>
+            </WAIT_FOR_WEBCAM_START>
+
+            <FIND_APRIL_TAG>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+                <tag_id>tag_id_5</tag_id>
+                <timeout_ms>1000</timeout_ms>
+            </FIND_APRIL_TAG>
+
             <!-- RIGHT_SPIKE -->
 
-                <STRAIGHT_BY>
+                <!-- STRAIGHT_BY>
                     <distance>30.0</distance>
                     <velocity>0.75</velocity>
                     <angle>-25.0</angle>
                     <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                </STRAIGHT_BY>
+                </STRAIGHT_BY -->
 
                 <!-- DELIVER_PIXEL_TO_SPIKE / -->
-                <SLEEP>
+                <!-- SLEEP>
                     <ms>1500</ms>
                 </SLEEP>
 
@@ -64,7 +81,7 @@
                     <timeout_ms>1000</timeout_ms>
                     <desired_distance_from_tag>5.0</desired_distance_from_tag>
                     <direction>back</direction>
-                </DRIVE_TO_APRIL_TAG>
+                </DRIVE_TO_APRIL_TAG -->
 
                 <!-- FORWARD>
                     <distance>30.0</distance>
@@ -131,11 +148,6 @@
                 </image_parameters>
                 <team_prop_recognition>
                     <recognition_path>color_channel_circles</recognition_path>
-                    <!-- These values are relative to the image ROI -->
-                    <!-- Note: the left_window may enclose the LEFT_SPIKE
-                                         or the CENTER_SPIKE, depending on the robot's
-                                         starting position. For RED_F2 the left_window
-                                         encloses the LEFT_SPIKE. -->
                     <left_window>
                         <width>322</width>
                         <prop_location>CENTER_SPIKE</prop_location>
