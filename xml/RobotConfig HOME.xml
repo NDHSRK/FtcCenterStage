@@ -33,16 +33,14 @@
   <!-- There is a maximum of two webcams in a set. -->
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
-      <!-- StreamCam -->
       <webcam>
         <internal_id>front_webcam</internal_id>
-        <!-- C920 -->
-        <!-- backup C920 serial number F98252DF -->
-        <serial_number>F98252DF</serial_number>
+        <!-- StreamCam #2 (HOME)  -->
+        <serial_number>845BC8D5</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
         <processor_set>
-          <!-- processor>webcam_frame</processor -->
+          <!-- processor>raw_frame</processor -->
           <processor>april_tag</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>
@@ -58,13 +56,10 @@
   <!-- IMU -->
   <!-- The IMU may not be configured out. -->
   <IMU>
-    <!-- production robot -->
+    <!-- The IMU is not used in the HOME configuration; below is the
+         configuration for the competition robot -->
     <logo_facing_direction>LEFT</logo_facing_direction>
     <usb_facing_direction>UP</usb_facing_direction>
-    <!-- test robot 
-        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection.UP;
-    -->
   </IMU>
 
 </RobotConfig>

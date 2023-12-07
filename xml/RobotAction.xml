@@ -182,7 +182,7 @@
         a movement <BACK> after a turn towards the backdrop. -->
     <OpMode id="BLUE_A2">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
@@ -494,11 +494,10 @@
 
     <OpMode id="BLUE_A4">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
-            <!-- BLUE_A4 -->
             <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -770,7 +769,7 @@
 
     <!-- <OpMode id="BLUE_A2_TEST">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
@@ -1120,11 +1119,10 @@
 
     <OpMode id="RED_F2">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
-            <!-- RED_F2 = BLUE_A4 -->
             <FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -1164,7 +1162,7 @@
 
     <OpMode id="RED_F4">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
@@ -1441,7 +1439,7 @@
     <!-- 
 <OpMode id="RED_F4_TEST">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 

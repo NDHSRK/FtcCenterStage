@@ -20,15 +20,14 @@
         </actions>
     </OpMode>
 
-    <!-- All competition OpModes:
-        Moving closer to the backdrop helps with the accuracy
-        of our final approach. The AprilTag gives actual distances,
-        which we pass to the robot, but the robot never moves as
-        far as a given actual distance. In the OpModes below look
-        for a movement <BACK> after a turn towards the backdrop. -->
+    <!-- The spike window values under the <team_prop_recognition> element
+         are relative to the image ROI. The left_window may enclose the
+         LEFT_SPIKE or the CENTER_SPIKE, depending on the robot's starting
+         position. For example, for RED_F2 the left_window encloses the
+         LEFT_SPIKE. -->
     <OpMode id="BLUE_A2">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
             <FIND_TEAM_PROP>
@@ -47,11 +46,6 @@
                 </image_parameters>
                 <team_prop_recognition>
                     <recognition_path>color_channel_circles</recognition_path>
-                    <!-- These values are relative to the image ROI -->
-                    <!-- Note: the left_window may enclose the LEFT_SPIKE
-                                         or the CENTER_SPIKE, depending on the robot's
-                                         starting position. For RED_F2 the left_window
-                                         encloses the LEFT_SPIKE. -->
                     <left_window>
                         <width>322</width>
                         <prop_location>CENTER_SPIKE</prop_location>
@@ -69,7 +63,7 @@
 
     <OpMode id="BLUE_A4">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
             <FIND_TEAM_PROP>
@@ -105,7 +99,7 @@
 
     <OpMode id="RED_F2">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
             <FIND_TEAM_PROP>
@@ -141,7 +135,7 @@
 
     <OpMode id="RED_F4">
         <parameters>
-            <log_level>v</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
             <FIND_TEAM_PROP>

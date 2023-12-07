@@ -62,14 +62,14 @@ public class RobotActionXMLCenterStage {
     // End IntelliJ only
     */
 
-    // Android or IntelliJ
+        // Android or IntelliJ
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         dbFactory.setIgnoringComments(true);
         //## ONLY works with a validating parser (DTD or schema),
         // which the Android Studio parser is not.
         // dbFactory.setIgnoringElementContentWhitespace(true);
         //PY 8/17/2019 Android throws UnsupportedOperationException dbFactory.setXIncludeAware(true);
-    // End Android or IntelliJ
+        // End Android or IntelliJ
 
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         document = dBuilder.parse(new File(pRobotActionFilename));
@@ -188,7 +188,7 @@ public class RobotActionXMLCenterStage {
 
         // Make sure there are no extraneous elements.
         if (nextParameterNode != null)
-                  throw new AutonomousRobotException(TAG, "Unrecognized element under <parameters>");
+            throw new AutonomousRobotException(TAG, "Unrecognized element under <parameters>");
 
         // Now proceed to the <actions> element of the selected OpMode.
         String actionsPath = opModePath + "/actions";
@@ -202,7 +202,7 @@ public class RobotActionXMLCenterStage {
 
         RobotXMLElement actionXMLElement;
         boolean teamPropLocationChoice = false;
-        EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions = null;
+        EnumMap<RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions = null;
         for (int i = 0; i < actionChildren.getLength(); i++) {
             actionNode = actionChildren.item(i);
 
@@ -245,12 +245,12 @@ public class RobotActionXMLCenterStage {
         public final Level logLevel;
         public final StartingPositionData startingPositionData;
         public final List<RobotXMLElement> actions;
-        public final EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
+        public final EnumMap<RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
 
         public RobotActionDataCenterStage(Level pLogLevel,
                                           StartingPositionData pStartingPositionData,
                                           List<RobotXMLElement> pActions,
-                                          EnumMap< RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> pTeamPropLocationActions) {
+                                          EnumMap<RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> pTeamPropLocationActions) {
             logLevel = pLogLevel;
             startingPositionData = pStartingPositionData;
             actions = pActions;
@@ -296,6 +296,30 @@ public class RobotActionXMLCenterStage {
             throw new AutonomousRobotException(TAG, "Only one processor may be enabled on start");
 
         return webcamProcessors;
+    }
+
+    // Support the <AUTO_ENDING_POSITION> element in RobotAction.xml.
+    // The first child of <AUTO_ENDING_POSITION> must be either
+    // <left> or <right> and the grandchildren may be either
+    // <STRAFE_LEFT> or <STRAFE_RIGHT>. Return the grandchild element
+    // and the angle of the strafe direction: 90 degrees or -90 degrees
+    // respectively.
+    public static Pair<RobotXMLElement, Double> getFinalPositionElement(RobotXMLElement pElement, String pPosition) {
+        Node left_position_node = pElement.getRobotXMLElement().getFirstChild();
+        left_position_node = XMLUtils.getNextElement(left_position_node);
+        if (left_position_node == null || !left_position_node.getNodeName().equals("left"))
+            throw new AutonomousRobotException(TAG, "The first child of <AUTO_ENDING_POSITION> must be <left>");
+
+        if (pPosition.equals("left"))
+            return Pair.create(new RobotXMLElement((Element) left_position_node), 90.0);
+
+        // Must be the right position.
+        Node right_position_node = left_position_node.getNextSibling();
+        right_position_node = XMLUtils.getNextElement(right_position_node);
+        if (right_position_node == null || !right_position_node.getNodeName().equals("right"))
+            throw new AutonomousRobotException(TAG, "The second child of <AUTO_ENDING_POSITION> must be <right>");
+
+        return Pair.create(new RobotXMLElement((Element) right_position_node), -90.0);
     }
 
     public static class StartingPositionData {

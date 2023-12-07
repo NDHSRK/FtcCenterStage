@@ -79,6 +79,7 @@ public class FTCAuto {
     private PixelStopperServo.PixelServoState pixelServoState;
     private final String workingDirectory;
     private final int autoStartDelay;
+    private final EnumMap<RobotConstantsCenterStage.OpMode, RobotConstantsCenterStage.AutoEndingPosition> autoEndingPositions;
     private final RobotActionXMLCenterStage actionXML;
     private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private final SpikeWindowMappingXML spikeWindowMappingXML;
@@ -130,6 +131,10 @@ public class FTCAuto {
 
         // Get the configurable delay at Autonomous startup.
         autoStartDelay = robot.startParameters.autoStartDelay;
+
+        // Get the ending positions of the robot for all competition
+        // OpModes.
+        autoEndingPositions = robot.startParameters.autoEndingPositions;
 
         // Read the RobotAction XXX.xml file for all OpModes.
         RobotLogCommon.c(TAG, "Getting the Autonomous choreographies from " + robot.startParameters.robotActionFilename);
@@ -947,11 +952,44 @@ public class FTCAuto {
                 break;
             }
 
+            //**TODO review comment
+            /*
+            <!-- FINAL STRAFE: 6 combinations based on spike position and
+    chosen strafe direction from the point of view of a person
+    standing in front of the Backdrop. Since the robot is facing
+    backwards the actual strafe will be the inverse. -->
+             */
+            case "AUTO_ENDING_POSITION": {
+                // Use the current competition OpMode to look up the
+                // the desired final position of the robot with respect
+                // to the backdrop.
+                if (pOpMode.getOpModeType() != RobotConstantsCenterStage.OpMode.OpModeType.COMPETITION)
+                    throw new AutonomousRobotException(TAG, "AUTO_ENDING_POSITION only applies to competition OpModes");
+                switch (autoEndingPositions.get(pOpMode)) {
+                    case LEFT: {
+                        //**TODO Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
+                        // and execute it.
+                        Pair<RobotXMLElement, Double> strafeToLeftPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "left");
+                        straight_by(new XPathAccess(strafeToLeftPosition.first), () -> strafeToLeftPosition.second).call();
+                        break;
+                    }
+                    case RIGHT: {
+                        //**TODO Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
+                        // and execute it.
+                        Pair<RobotXMLElement, Double> strafeToRightPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "right");
+                        straight_by(new XPathAccess(strafeToRightPosition.first), () -> strafeToRightPosition.second).call();
+                        break;
+                    }
+                    default:
+                        throw new AutonomousRobotException(TAG, "Unrecognized autonomous ending position");
+                }
+                break;
+            }
+
             // In testing this gives us a way to short-circuit a set
             //  of actions without commenting out any XML.
-            // Shut down background threads, including the imu and the logger.
             case "STOP": {
-                sleep(1000);
+                sleep(500);
                 return false;
             }
 

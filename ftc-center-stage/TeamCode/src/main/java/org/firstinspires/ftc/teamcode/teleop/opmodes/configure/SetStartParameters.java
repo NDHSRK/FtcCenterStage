@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -16,11 +15,13 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-@TeleOp(name = "SetAutoStartDelay", group = "Configure")
-//@Disabled
-public class SetAutoStartDelay extends LinearOpMode {
+//**TODO Extend to include Auto ending positions. Use both gamepads.
 
-    private static final String TAG = SetAutoStartDelay.class.getSimpleName();
+@TeleOp(name = "SetStartParameters", group = "Configure")
+//@Disabled
+public class SetStartParameters extends LinearOpMode {
+
+    private static final String TAG = SetStartParameters.class.getSimpleName();
 
     @Override
     public void runOpMode() {
