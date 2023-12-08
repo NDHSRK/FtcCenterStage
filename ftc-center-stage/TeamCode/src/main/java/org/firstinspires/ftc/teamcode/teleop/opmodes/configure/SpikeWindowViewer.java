@@ -76,11 +76,11 @@ public class SpikeWindowViewer extends LinearOpMode {
         }
 
         // Set up the DPAD buttons for starting position selection - clockwise
-        // from the wall with the two backdrops.
-        startPositionF4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_LEFT);
-        startPositionF2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
-        startPositionA2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_RIGHT);
-        startPositionA4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        // from the audience wall.
+        startPositionA2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        startPositionA4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
+        startPositionF4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
+        startPositionF2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch play to *END* the OpMode");

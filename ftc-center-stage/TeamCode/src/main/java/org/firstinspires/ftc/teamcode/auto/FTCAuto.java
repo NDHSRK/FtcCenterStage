@@ -952,13 +952,14 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO review comment
-            /*
-            <!-- FINAL STRAFE: 6 combinations based on spike position and
-    chosen strafe direction from the point of view of a person
-    standing in front of the Backdrop. Since the robot is facing
-    backwards the actual strafe will be the inverse. -->
-             */
+            // Final strafe: for eah of the 4 OpModes there are
+             // three Team Prop locations with two options each
+             // for the robot's final strafe (to park safely away
+             // from the alliance partner. The ending position is
+             // described from the point of view of a person
+             // standing in front of the Backdrop. Since the robot
+             // is facing backwards the actual strafe will be the
+             // inverse.
             case "AUTO_ENDING_POSITION": {
                 // Use the current competition OpMode to look up the
                 // the desired final position of the robot with respect
@@ -967,14 +968,14 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "AUTO_ENDING_POSITION only applies to competition OpModes");
                 switch (autoEndingPositions.get(pOpMode)) {
                     case LEFT: {
-                        //**TODO Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
+                        // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
                         // and execute it.
                         Pair<RobotXMLElement, Double> strafeToLeftPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "left");
                         straight_by(new XPathAccess(strafeToLeftPosition.first), () -> strafeToLeftPosition.second).call();
                         break;
                     }
                     case RIGHT: {
-                        //**TODO Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
+                        // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
                         // and execute it.
                         Pair<RobotXMLElement, Double> strafeToRightPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "right");
                         straight_by(new XPathAccess(strafeToRightPosition.first), () -> strafeToRightPosition.second).call();

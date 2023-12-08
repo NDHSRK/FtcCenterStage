@@ -23,10 +23,33 @@ public class SetStartParameters extends LinearOpMode {
 
     private static final String TAG = SetStartParameters.class.getSimpleName();
 
+    private FTCButton increaseDelay;
+    private FTCButton decreaseDelay;
+    private int startDelay;
+    private int currentStartDelay;
+
+    private FTCButton endPositionLeft;
+    private FTCButton endPositionRight;
+
+    private FTCButton startPositionF4Button;
+    private FTCButton startPositionF2Button;
+    private FTCButton startPositionA2Button;
+    private FTCButton startPositionA4Button;
+
     @Override
     public void runOpMode() {
-        FTCButton increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
-        FTCButton decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
+        decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+
+        endPositionLeft = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_LEFT);
+        endPositionRight = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_RIGHT);
+
+        // Set up the DPAD buttons for starting position selection - clockwise
+        // from the audience wall.
+        startPositionA2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        startPositionA4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
+        startPositionF4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
+        startPositionF2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         String fullXMLDir = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
         StartParametersXML startParametersXML;
@@ -37,36 +60,24 @@ public class SetStartParameters extends LinearOpMode {
         }
 
         StartParameters startParameters = startParametersXML.getStartParameters();
-        int startDelay;
-        int currentStartDelay = startDelay = startParameters.autoStartDelay;
+        currentStartDelay = startDelay = startParameters.autoStartDelay;
+
         telemetry.addLine("The current start delay is " + currentStartDelay);
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
         telemetry.addLine("Touch play to SAVE the delay and END the OpMode");
         telemetry.update();
 
-        boolean changeInDelay = false;
         while (!isStarted() && !isStopRequested()) {
-            increaseDelay.update();
-            decreaseDelay.update();
-            if (increaseDelay.is((FTCButton.State.TAP))) {
-                startDelay = startDelay < 5 ? ++startDelay : 5; // 5 sec max
-                changeInDelay = true;
-            } else if (decreaseDelay.is((FTCButton.State.TAP))) {
-                startDelay = startDelay >= 1 ? --startDelay : 0; // 0 or positive
-                changeInDelay = true;
-            }
-
-            if (changeInDelay) {
-                changeInDelay = false;
-                telemetry.addLine("Start delay changed to " + startDelay + " sec");
-                telemetry.update();
-            }
+            updateButtons();
+            updatePlayer1();
 
             // Don't burn CPU cycles busy-looping in this sample
             sleep(50);
         } // while
 
 
+        //**TODO if isActive()
+        //**TODO if change in endPosition
         if (startDelay != currentStartDelay) {
             startParametersXML.setAutoStartDelay(startDelay);
             startParametersXML.writeStartParametersFile();
@@ -76,5 +87,35 @@ public class SetStartParameters extends LinearOpMode {
             sleep(1500);
         }
     }
+
+    private void updateButtons() {
+        increaseDelay.update();
+        decreaseDelay.update();
+        endPositionLeft.update();
+        endPositionRight.update();
+        startPositionA2Button.update();
+        startPositionA4Button.update();
+        startPositionF4Button.update();
+        startPositionF2Button.update();
+    }
+
+    private void updatePlayer1() {
+        updateIncreaseDelay();
+        updateDecreaseDelay();
+    }
+
+    private void updateIncreaseDelay() {
+        if (increaseDelay.is((FTCButton.State.TAP))) {
+            startDelay = startDelay < 5 ? ++startDelay : 5; // 5 sec max
+        }
+    }
+
+    private void updateDecreaseDelay() {
+        if (decreaseDelay.is((FTCButton.State.TAP))) {
+            startDelay = startDelay >= 1 ? --startDelay : 0; // 0 or positive
+        }
+    }
+
+    //**TODO two simultaneous button pushes (hold + tap) to set end position
 
 }
