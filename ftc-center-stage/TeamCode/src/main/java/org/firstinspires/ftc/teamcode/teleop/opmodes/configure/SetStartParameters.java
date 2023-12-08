@@ -6,16 +6,16 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.EnumMap;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-//**TODO Extend to include Auto ending positions. Use both gamepads.
 
 @TeleOp(name = "SetStartParameters", group = "Configure")
 //@Disabled
@@ -23,18 +23,24 @@ public class SetStartParameters extends LinearOpMode {
 
     private static final String TAG = SetStartParameters.class.getSimpleName();
 
-    private FTCButton increaseDelay;
-    private FTCButton decreaseDelay;
+    private StartParametersXML startParametersXML;
+    private StartParameters startParameters;
+
+    private static final int MAX_START_DELAY = 10;
     private int startDelay;
     private int currentStartDelay;
+    private FTCButton increaseDelay;
+    private FTCButton decreaseDelay;
 
+    EnumMap<RobotConstantsCenterStage.OpMode, RobotConstantsCenterStage.AutoEndingPosition> autoEndingPositions;
+    private boolean endingPositionsChanged = false;
     private FTCButton endPositionLeft;
     private FTCButton endPositionRight;
 
-    private FTCButton startPositionF4Button;
-    private FTCButton startPositionF2Button;
-    private FTCButton startPositionA2Button;
-    private FTCButton startPositionA4Button;
+    private FTCButton opModeRedF4;
+    private FTCButton opModeRedF2;
+    private FTCButton opModeBlueA2;
+    private FTCButton opModeBlueA4;
 
     @Override
     public void runOpMode() {
@@ -46,26 +52,27 @@ public class SetStartParameters extends LinearOpMode {
 
         // Set up the DPAD buttons for starting position selection - clockwise
         // from the audience wall.
-        startPositionA2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
-        startPositionA4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
-        startPositionF4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
-        startPositionF2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
+        opModeBlueA2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        opModeBlueA4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
+        opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
+        opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         String fullXMLDir = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
-        StartParametersXML startParametersXML;
         try {
             startParametersXML = new StartParametersXML(fullXMLDir);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }
 
-        StartParameters startParameters = startParametersXML.getStartParameters();
+        startParameters = startParametersXML.getStartParameters();
         currentStartDelay = startDelay = startParameters.autoStartDelay;
 
         telemetry.addLine("The current start delay is " + currentStartDelay);
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
-        telemetry.addLine("Touch play to SAVE the delay and END the OpMode");
+        telemetry.addLine("Touch play to SAVE changes and END the OpMode");
         telemetry.update();
+
+        autoEndingPositions = new EnumMap<>(startParameters.autoEndingPositions); // copy
 
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
@@ -75,16 +82,26 @@ public class SetStartParameters extends LinearOpMode {
             sleep(50);
         } // while
 
+        if (opModeIsActive()) {
+            if (startDelay != currentStartDelay || endingPositionsChanged) {
+                if (startDelay != currentStartDelay) {
+                    startParametersXML.setAutoStartDelay(startDelay);
+                    startParametersXML.writeStartParametersFile();
+                    RobotLog.ii(TAG, "Changed start delay to " + startDelay);
+                    telemetry.addLine("Changed start delay to " + startDelay);
+                }
 
-        //**TODO if isActive()
-        //**TODO if change in endPosition
-        if (startDelay != currentStartDelay) {
-            startParametersXML.setAutoStartDelay(startDelay);
-            startParametersXML.writeStartParametersFile();
-            RobotLog.ii(TAG, "Writing StartParameters.xml with an Autonomous start delay of " + startDelay);
-            telemetry.addLine("Writing StartParameters.xml");
-            telemetry.update();
-            sleep(1500);
+                if (endingPositionsChanged) {
+                    RobotLog.ii(TAG, "Changed one or more ending positions");
+                    telemetry.addLine("Changed one or more ending positions");
+                }
+
+                startParametersXML.writeStartParametersFile();
+                RobotLog.ii(TAG, "Writing StartParameters.xml");
+                telemetry.addLine("Writing StartParameters.xml");
+                telemetry.update();
+                sleep(1500);
+            }
         }
     }
 
@@ -93,29 +110,79 @@ public class SetStartParameters extends LinearOpMode {
         decreaseDelay.update();
         endPositionLeft.update();
         endPositionRight.update();
-        startPositionA2Button.update();
-        startPositionA4Button.update();
-        startPositionF4Button.update();
-        startPositionF2Button.update();
+        opModeBlueA2.update();
+        opModeBlueA4.update();
+        opModeRedF4.update();
+        opModeRedF2.update();
     }
 
     private void updatePlayer1() {
         updateIncreaseDelay();
         updateDecreaseDelay();
+        updateOpModeBlueA2();
     }
 
     private void updateIncreaseDelay() {
         if (increaseDelay.is((FTCButton.State.TAP))) {
-            startDelay = startDelay < 5 ? ++startDelay : 5; // 5 sec max
+            startDelay = startDelay < MAX_START_DELAY ? ++startDelay : MAX_START_DELAY;
+            if (startDelay == MAX_START_DELAY)
+                telemetry.addLine("Start delay is at the maximum of " + MAX_START_DELAY);
+            else
+                telemetry.addLine("Start delay increased to " + currentStartDelay);
+            telemetry.update();
         }
     }
 
     private void updateDecreaseDelay() {
         if (decreaseDelay.is((FTCButton.State.TAP))) {
             startDelay = startDelay >= 1 ? --startDelay : 0; // 0 or positive
+            if (startDelay == 0)
+                telemetry.addLine("Start delay is at the minimum of 0");
+            else
+                telemetry.addLine("Start delay decreased to " + currentStartDelay);
+            telemetry.update();
         }
     }
 
-    //**TODO two simultaneous button pushes (hold + tap) to set end position
+    //**TODO TEST then make generic method ...
+    private void updateOpModeBlueA2() {
+        if (opModeBlueA2.is(FTCButton.State.TAP) || opModeBlueA2.is(FTCButton.State.HELD)) {
+            if (opModeBlueA2.is(FTCButton.State.TAP)) {
+                // Display the current end position.
+                RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(RobotConstantsCenterStage.OpMode.BLUE_A2);
+                telemetry.addLine("BLUE_A2 end position: " + endPosition);
+                telemetry.update();
+                return;
+            }
 
+            // Button is held - check for a LEFT or RIGHT selection from the DPAD.
+            RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(RobotConstantsCenterStage.OpMode.BLUE_A2);
+            if (endPositionLeft.is(FTCButton.State.TAP)) {
+                if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.LEFT) {
+                    telemetry.addLine("Ending position is already set to LEFT for BLUE_A2");
+                    telemetry.update();
+                    return;
+                }
+
+                autoEndingPositions.put(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT);
+
+                telemetry.addLine("Ending position set to LEFT for BLUE_A2");
+                telemetry.update();
+            } else if (endPositionRight.is(FTCButton.State.TAP)) {
+                if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.RIGHT) {
+                    endingPositionsChanged = true;
+                    startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+                    telemetry.addLine("Ending position is already set to RIGHT for BLUE_A2");
+                    telemetry.update();
+                    return;
+                }
+
+                endingPositionsChanged = true;
+                startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+                autoEndingPositions.put(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT);
+                telemetry.addLine("Ending position set to RIGHT for BLUE_A2");
+                telemetry.update();
+            }
+        }
+    }
 }
