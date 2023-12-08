@@ -275,6 +275,8 @@
                         <power>.5</power>
                     </TURN>
 
+                    <DESKEW />
+
                     <FORWARD>
                         <distance>24</distance>
                         <velocity>.5</velocity>
@@ -289,7 +291,7 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>100.0</distance>
+                        <distance>80.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
 
@@ -330,7 +332,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>32.0</distance>
+                        <distance>30.0</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -343,13 +345,17 @@
                     <DELIVER_PIXEL_TO_SPIKE />
 
                     <MOVE_ELEVATOR>
-                        <position>SAFE</position>
+                        <position>PIXEL_CLEARANCE</position>
                     </MOVE_ELEVATOR>
 
-                    <BACK>
-                        <distance>6.0</distance>
+                    <FORWARD>
+                        <distance>15.0</distance>
                         <velocity>.5</velocity>
-                    </BACK>
+                    </FORWARD>
+                   
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <TURN>
                         <angle>-90.0</angle>
@@ -360,9 +366,16 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>100.0</distance>
+                        <distance>80.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
+
+                    <STRAFE_RIGHT>
+                        <distance>22.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <DESKEW />
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
