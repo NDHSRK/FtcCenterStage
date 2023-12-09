@@ -33,7 +33,7 @@ public class SetStartParameters extends LinearOpMode {
     private FTCButton decreaseDelay;
 
     EnumMap<RobotConstantsCenterStage.OpMode, RobotConstantsCenterStage.AutoEndingPosition> autoEndingPositions;
-    private boolean endingPositionsChanged = false;
+    private boolean endPositionsChanged = false;
     private FTCButton endPositionLeft;
     private FTCButton endPositionRight;
 
@@ -83,7 +83,7 @@ public class SetStartParameters extends LinearOpMode {
         } // while
 
         if (opModeIsActive()) {
-            if (startDelay != currentStartDelay || endingPositionsChanged) {
+            if (startDelay != currentStartDelay || endPositionsChanged) {
                 if (startDelay != currentStartDelay) {
                     startParametersXML.setAutoStartDelay(startDelay);
                     startParametersXML.writeStartParametersFile();
@@ -91,7 +91,7 @@ public class SetStartParameters extends LinearOpMode {
                     telemetry.addLine("Changed start delay to " + startDelay);
                 }
 
-                if (endingPositionsChanged) {
+                if (endPositionsChanged) {
                     RobotLog.ii(TAG, "Changed one or more ending positions");
                     telemetry.addLine("Changed one or more ending positions");
                 }
@@ -120,6 +120,9 @@ public class SetStartParameters extends LinearOpMode {
         updateIncreaseDelay();
         updateDecreaseDelay();
         updateOpModeBlueA2();
+        updateOpModeBlueA4();
+        updateOpModeRedF2();
+        updateOpModeRedF4();
     }
 
     private void updateIncreaseDelay() {
@@ -144,43 +147,60 @@ public class SetStartParameters extends LinearOpMode {
         }
     }
 
-    //**TODO TEST then make generic method ...
     private void updateOpModeBlueA2() {
-        if (opModeBlueA2.is(FTCButton.State.TAP) || opModeBlueA2.is(FTCButton.State.HELD)) {
-            if (opModeBlueA2.is(FTCButton.State.TAP)) {
+        setEndPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2, endPositionLeft, endPositionRight);
+    }
+
+    private void updateOpModeBlueA4() {
+        setEndPosition(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4, endPositionLeft, endPositionRight);
+    }
+
+    private void updateOpModeRedF2() {
+        setEndPosition(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2, endPositionLeft, endPositionRight);
+    }
+
+    private void updateOpModeRedF4() {
+        setEndPosition(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4, endPositionLeft, endPositionRight);
+    }
+
+    private void setEndPosition(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton,
+                                FTCButton pEndPositionLeftButton, FTCButton pEndPositionRightButton) {
+        if (pOpModeButton.is(FTCButton.State.TAP) || pOpModeButton.is(FTCButton.State.HELD)) {
+            if (pOpModeButton.is(FTCButton.State.TAP)) {
                 // Display the current end position.
-                RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(RobotConstantsCenterStage.OpMode.BLUE_A2);
-                telemetry.addLine("BLUE_A2 end position: " + endPosition);
+                RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(pOpMode);
+                telemetry.addLine(pOpMode + " end position: " + endPosition);
                 telemetry.update();
                 return;
             }
 
             // Button is held - check for a LEFT or RIGHT selection from the DPAD.
-            RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(RobotConstantsCenterStage.OpMode.BLUE_A2);
-            if (endPositionLeft.is(FTCButton.State.TAP)) {
+            RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(pOpMode);
+            if (pEndPositionLeftButton.is(FTCButton.State.TAP)) {
                 if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.LEFT) {
-                    telemetry.addLine("Ending position is already set to LEFT for BLUE_A2");
+                    telemetry.addLine("Ending position is already set to LEFT for " + pOpMode);
                     telemetry.update();
                     return;
                 }
 
-                autoEndingPositions.put(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT);
+                endPositionsChanged = true;
+                startParametersXML.setAutoEndingPosition(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+                autoEndingPositions.put(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.LEFT);
 
-                telemetry.addLine("Ending position set to LEFT for BLUE_A2");
+                telemetry.addLine("Ending position set to LEFT for " + pOpMode);
                 telemetry.update();
-            } else if (endPositionRight.is(FTCButton.State.TAP)) {
+            } else if (pEndPositionRightButton.is(FTCButton.State.TAP)) {
                 if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.RIGHT) {
-                    endingPositionsChanged = true;
-                    startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
-                    telemetry.addLine("Ending position is already set to RIGHT for BLUE_A2");
+
+                    telemetry.addLine("Ending position is already set to RIGHT for " + pOpMode);
                     telemetry.update();
                     return;
                 }
 
-                endingPositionsChanged = true;
-                startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
-                autoEndingPositions.put(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT);
-                telemetry.addLine("Ending position set to RIGHT for BLUE_A2");
+                endPositionsChanged = true;
+                startParametersXML.setAutoEndingPosition(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+                autoEndingPositions.put(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.RIGHT);
+                telemetry.addLine("Ending position set to RIGHT for " + pOpMode);
                 telemetry.update();
             }
         }
