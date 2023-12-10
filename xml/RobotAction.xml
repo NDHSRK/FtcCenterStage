@@ -267,13 +267,15 @@
 
                     <BACK>
                         <distance>6.0</distance>
-                        <power>.5</power>
+                        <velocity>.5</velocity>
                     </BACK>
 
                     <TURN>
                         <angle>-90.0</angle>
                         <power>.5</power>
                     </TURN>
+
+                    <DESKEW />
 
                     <FORWARD>
                         <distance>24</distance>
@@ -289,12 +291,12 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>100.0</distance>
+                        <distance>80.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>50.0</distance>
+                        <distance>40.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_RIGHT>
 
@@ -330,7 +332,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>32.0</distance>
+                        <distance>32.5</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -343,13 +345,17 @@
                     <DELIVER_PIXEL_TO_SPIKE />
 
                     <MOVE_ELEVATOR>
-                        <position>SAFE</position>
+                        <position>PIXEL_CLEARANCE</position>
                     </MOVE_ELEVATOR>
 
-                    <BACK>
-                        <distance>6.0</distance>
+                    <FORWARD>
+                        <distance>22.0</distance>
                         <velocity>.5</velocity>
-                    </BACK>
+                    </FORWARD>
+                   
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
 
                     <TURN>
                         <angle>-90.0</angle>
@@ -360,9 +366,16 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>100.0</distance>
+                        <distance>80.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
+
+                    <STRAFE_RIGHT>
+                        <distance>28.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                    <DESKEW />
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -398,7 +411,7 @@
                     <velocity>0.75</velocity>
                     <angle>-33.0</angle>
                     <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                </STRAIGHT_BY>
+                 </STRAIGHT_BY>
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -1210,6 +1223,155 @@
 
             <TEAM_PROP_LOCATION_CHOICE>
                 <LEFT_SPIKE>
+                    <STRAIGHT_BY>
+                        <distance>30.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>33.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                     </STRAIGHT_BY>
+    
+                        <MOVE_ELEVATOR>
+                            <position>GROUND</position>
+                        </MOVE_ELEVATOR>
+    
+                        <DELIVER_PIXEL_TO_SPIKE />
+    
+                        <MOVE_ELEVATOR>
+                            <position>PIXEL_CLEARANCE</position>
+                        </MOVE_ELEVATOR>
+    
+                        <FORWARD>
+                            <distance>34.0</distance>
+                            <velocity>.5</velocity>
+                        </FORWARD>
+                       
+                        <MOVE_ELEVATOR>
+                            <position>SAFE</position>
+                        </MOVE_ELEVATOR>
+    
+                        <TURN>
+                            <angle>90.0</angle>
+                            <power>.5</power>
+                            <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                        </TURN>
+    
+                        <DESKEW />
+    
+                        <BACK>
+                            <distance>80.0</distance>
+                            <velocity>.75</velocity>
+                        </BACK>
+    
+                        <STRAFE_LEFT>
+                            <distance>22.0</distance>
+                            <velocity>0.5</velocity>
+                        </STRAFE_LEFT>
+    
+                        <DESKEW />
+    
+                        <WAIT_FOR_WEBCAM_START>
+                            <internal_webcam_id>rear_webcam</internal_webcam_id>
+                            <timeout_ms>1000</timeout_ms>
+                        </WAIT_FOR_WEBCAM_START>
+    
+                        <DRIVE_TO_APRIL_TAG>
+                            <internal_webcam_id>rear_webcam</internal_webcam_id>
+                            <tag_id>tag_id_4</tag_id>
+                            <timeout_ms>1000</timeout_ms>
+                            <desired_distance_from_tag>3.0</desired_distance_from_tag>
+                            <direction>back</direction>
+                        </DRIVE_TO_APRIL_TAG>
+    
+                        <DELIVER_PIXEL_TO_BACKSTOP />
+    
+                        <FORWARD>
+                            <distance>3.0</distance>
+                            <velocity>.5</velocity>
+                        </FORWARD>
+    
+                        <STRAFE_Right>
+                            <distance>20.0</distance>
+                            <velocity>0.5</velocity>
+                        </STRAFE_Right>
+
+                </LEFT_SPIKE>
+
+                <CENTER_SPIKE>
+
+                    <STRAIGHT_BY>
+                        <distance>32.5</distance>
+                        <velocity>0.75</velocity>
+                        <angle>11.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <MOVE_ELEVATOR>
+                        <position>GROUND</position>
+                    </MOVE_ELEVATOR>
+
+                    <DELIVER_PIXEL_TO_SPIKE />
+
+                    <MOVE_ELEVATOR>
+                        <position>PIXEL_CLEARANCE</position>
+                    </MOVE_ELEVATOR>
+
+                    <FORWARD>
+                        <distance>22.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+                   
+                    <MOVE_ELEVATOR>
+                        <position>SAFE</position>
+                    </MOVE_ELEVATOR>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <BACK>
+                        <distance>80.0</distance>
+                        <velocity>.75</velocity>
+                    </BACK>
+
+                    <STRAFE_LEFT>
+                        <distance>28.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                    <DESKEW />
+
+                    <WAIT_FOR_WEBCAM_START>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <timeout_ms>1000</timeout_ms>
+                    </WAIT_FOR_WEBCAM_START>
+
+                    <DRIVE_TO_APRIL_TAG>
+                        <internal_webcam_id>rear_webcam</internal_webcam_id>
+                        <tag_id>tag_id_2</tag_id>
+                        <timeout_ms>1000</timeout_ms>
+                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
+                        <direction>back</direction>
+                    </DRIVE_TO_APRIL_TAG>
+
+                    <DELIVER_PIXEL_TO_BACKSTOP />
+
+                    <FORWARD>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <STRAFE_RIGHT>
+                        <distance>30.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+
+                </CENTER_SPIKE>
+
+                <RIGHT_SPIKE>
 
                     <FORWARD>
                         <distance>26.0</distance>
@@ -1218,7 +1380,7 @@
                     </FORWARD>
 
                     <TURN>
-                        <angle>90.0</angle>
+                        <angle>-90.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
@@ -1246,126 +1408,6 @@
                     </MOVE_ELEVATOR>
 
                     <BACK>
-                        <distance>20.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
-
-                    <WAIT_FOR_WEBCAM_START>
-                        <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <timeout_ms>1000</timeout_ms>
-                    </WAIT_FOR_WEBCAM_START>
-
-                    <DRIVE_TO_APRIL_TAG>
-                        <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <tag_id>tag_id_4</tag_id>
-                        <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
-                        <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
-
-                    <DELIVER_PIXEL_TO_BACKSTOP />
-
-                    <FORWARD>
-                        <distance>2.0</distance>
-                        <velocity>.5</velocity>
-                    </FORWARD>
-
-                    <STRAFE_RIGHT>
-                        <distance>20.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_RIGHT>
-
-                </LEFT_SPIKE>
-
-                <CENTER_SPIKE>
-
-                    <STRAIGHT_BY>
-                        <distance>30.0</distance>
-                        <velocity>0.75</velocity>
-                        <angle>-11.0</angle>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
-
-                    <MOVE_ELEVATOR>
-                        <position>GROUND</position>
-                    </MOVE_ELEVATOR>
-
-                    <DELIVER_PIXEL_TO_SPIKE />
-
-                    <MOVE_ELEVATOR>
-                        <position>SAFE</position>
-                    </MOVE_ELEVATOR>
-
-                    <BACK>
-                        <distance>5.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
-
-                    <TURN>
-                        <angle>90.0</angle>
-                        <power>.5</power>
-                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
-                    </TURN>
-
-                    <DESKEW />
-
-                    <BACK>
-                        <distance>12.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
-
-                    <WAIT_FOR_WEBCAM_START>
-                        <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <timeout_ms>1000</timeout_ms>
-                    </WAIT_FOR_WEBCAM_START>
-
-                    <DRIVE_TO_APRIL_TAG>
-                        <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <tag_id>tag_id_5</tag_id>
-                        <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>3.0</desired_distance_from_tag>
-                        <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
-
-                    <DELIVER_PIXEL_TO_BACKSTOP />
-
-                    <FORWARD>
-                        <distance>2.0</distance>
-                        <velocity>.5</velocity>
-                    </FORWARD>
-
-                    <STRAFE_RIGHT>
-                        <distance>30.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_RIGHT>
-
-                </CENTER_SPIKE>
-
-                <RIGHT_SPIKE>
-
-                    <STRAIGHT_BY>
-                        <distance>45.0</distance>
-                        <velocity>0.75</velocity>
-                        <angle>-22.0</angle>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
-
-                    <BACK>
-                        <distance>5.0</distance>
-                        <velocity>.5</velocity>
-                    </BACK>
-
-                    <MOVE_ELEVATOR>
-                        <position>GROUND</position>
-                    </MOVE_ELEVATOR>
-
-                    <DELIVER_PIXEL_TO_SPIKE />
-
-                    <MOVE_ELEVATOR>
-                        <position>SAFE</position>
-                    </MOVE_ELEVATOR>
-
-                    <BACK>
                         <distance>6.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
@@ -1373,15 +1415,34 @@
                     <TURN>
                         <angle>90.0</angle>
                         <power>.5</power>
+                    </TURN>
+
+                    <DESKEW />
+
+                    <FORWARD>
+                        <distance>24</distance>
+                        <velocity>.5</velocity>
+                    </FORWARD>
+
+                    <TURN>
+                        <angle>90.0</angle>
+                        <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
                     <DESKEW />
 
                     <BACK>
-                        <distance>12.0</distance>
-                        <velocity>.5</velocity>
+                        <distance>80.0</distance>
+                        <velocity>.75</velocity>
                     </BACK>
+
+                    <STRAFE_LEFT>
+                        <distance>40.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+
+                    <DESKEW />
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -1390,7 +1451,7 @@
 
                     <DRIVE_TO_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
-                        <tag_id>tag_id_6</tag_id>
+                        <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>3.0</desired_distance_from_tag>
                         <direction>back</direction>
