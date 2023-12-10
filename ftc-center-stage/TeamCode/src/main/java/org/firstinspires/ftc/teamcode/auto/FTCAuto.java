@@ -971,18 +971,16 @@ public class FTCAuto {
                         // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
                         // and execute it.
                         Pair<RobotXMLElement, Double> strafeToLeftPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "left");
-                        //**TODO For testing just log ...
                         RobotLogCommon.d(TAG, "Ending strafe LEFT");
-                        //straight_by(new XPathAccess(strafeToLeftPosition.first), () -> strafeToLeftPosition.second).call();
+                        straight_by(new XPathAccess(strafeToLeftPosition.first), () -> strafeToLeftPosition.second).call();
                         break;
                     }
                     case RIGHT: {
                         // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
                         // and execute it.
                         Pair<RobotXMLElement, Double> strafeToRightPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "right");
-                        //**TODO For testing just log ...
                         RobotLogCommon.d(TAG, "Ending strafe RIGHT");
-                        //straight_by(new XPathAccess(strafeToRightPosition.first), () -> strafeToRightPosition.second).call();
+                        straight_by(new XPathAccess(strafeToRightPosition.first), () -> strafeToRightPosition.second).call();
                         break;
                     }
                     default:
