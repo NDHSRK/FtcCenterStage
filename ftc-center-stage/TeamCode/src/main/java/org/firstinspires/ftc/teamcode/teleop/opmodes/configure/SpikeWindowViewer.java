@@ -68,7 +68,7 @@ public class SpikeWindowViewer extends LinearOpMode {
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
         String xmlDirectory = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
         try {
-            SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
+            SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(robot.startParameters.robotActionFilename);
             collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
         } catch (ParserConfigurationException | IOException | SAXException |
                  XPathExpressionException ex) {

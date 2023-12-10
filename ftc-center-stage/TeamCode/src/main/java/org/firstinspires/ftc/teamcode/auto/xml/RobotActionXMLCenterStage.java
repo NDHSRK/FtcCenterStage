@@ -307,8 +307,8 @@ public class RobotActionXMLCenterStage {
     public static Pair<RobotXMLElement, Double> getFinalPositionElement(RobotXMLElement pElement, String pPosition) {
         Node left_position_node = pElement.getRobotXMLElement().getFirstChild();
         left_position_node = XMLUtils.getNextElement(left_position_node);
-        if (left_position_node == null || !left_position_node.getNodeName().equals("left"))
-            throw new AutonomousRobotException(TAG, "The first child of <AUTO_ENDING_POSITION> must be <left>");
+        if (left_position_node == null || !left_position_node.getNodeName().equals("LEFT"))
+            throw new AutonomousRobotException(TAG, "The first child of <AUTO_ENDING_POSITION> must be <LEFT>");
 
         if (pPosition.equals("left"))
             return Pair.create(new RobotXMLElement((Element) left_position_node), 90.0);
@@ -316,8 +316,8 @@ public class RobotActionXMLCenterStage {
         // Must be the right position.
         Node right_position_node = left_position_node.getNextSibling();
         right_position_node = XMLUtils.getNextElement(right_position_node);
-        if (right_position_node == null || !right_position_node.getNodeName().equals("right"))
-            throw new AutonomousRobotException(TAG, "The second child of <AUTO_ENDING_POSITION> must be <right>");
+        if (right_position_node == null || !right_position_node.getNodeName().equals("RIGHT"))
+            throw new AutonomousRobotException(TAG, "The second child of <AUTO_ENDING_POSITION> must be <RIGHT>");
 
         return Pair.create(new RobotXMLElement((Element) right_position_node), -90.0);
     }

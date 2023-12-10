@@ -69,6 +69,7 @@ public class SetStartParameters extends LinearOpMode {
 
         telemetry.addLine("The current start delay is " + currentStartDelay);
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
+        telemetry.addLine("Hold ABXY buttons to select OpMode, touch DPAD left or right for ending position");
         telemetry.addLine("Touch play to SAVE changes and END the OpMode");
         telemetry.update();
 
@@ -87,8 +88,8 @@ public class SetStartParameters extends LinearOpMode {
                 if (startDelay != currentStartDelay) {
                     startParametersXML.setAutoStartDelay(startDelay);
                     startParametersXML.writeStartParametersFile();
-                    RobotLog.ii(TAG, "Changed start delay to " + startDelay);
-                    telemetry.addLine("Changed start delay to " + startDelay);
+                    RobotLog.ii(TAG, "Changed start delay to " + currentStartDelay);
+                    telemetry.addLine("Changed start delay to " + currentStartDelay);
                 }
 
                 if (endPositionsChanged) {
@@ -127,8 +128,8 @@ public class SetStartParameters extends LinearOpMode {
 
     private void updateIncreaseDelay() {
         if (increaseDelay.is((FTCButton.State.TAP))) {
-            startDelay = startDelay < MAX_START_DELAY ? ++startDelay : MAX_START_DELAY;
-            if (startDelay == MAX_START_DELAY)
+            currentStartDelay = currentStartDelay < MAX_START_DELAY ? ++currentStartDelay : MAX_START_DELAY;
+            if (currentStartDelay == MAX_START_DELAY)
                 telemetry.addLine("Start delay is at the maximum of " + MAX_START_DELAY);
             else
                 telemetry.addLine("Start delay increased to " + currentStartDelay);
@@ -138,8 +139,8 @@ public class SetStartParameters extends LinearOpMode {
 
     private void updateDecreaseDelay() {
         if (decreaseDelay.is((FTCButton.State.TAP))) {
-            startDelay = startDelay >= 1 ? --startDelay : 0; // 0 or positive
-            if (startDelay == 0)
+            currentStartDelay = currentStartDelay >= 1 ? --currentStartDelay : 0; // 0 or positive
+            if (currentStartDelay == 0)
                 telemetry.addLine("Start delay is at the minimum of 0");
             else
                 telemetry.addLine("Start delay decreased to " + currentStartDelay);
