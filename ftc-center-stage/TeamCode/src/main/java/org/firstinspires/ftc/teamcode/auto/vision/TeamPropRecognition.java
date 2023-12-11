@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.ImageProvider;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -20,12 +19,9 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class TeamPropRecognition {
 
@@ -64,9 +60,11 @@ public class TeamPropRecognition {
             case COLOR_CHANNEL_CIRCLES: {
                 return colorChannelCirclesPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelCirclesParameters);
             }
-            case COLOR_CHANNEL_CONTOURS: {
-                return colorChannelContoursPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelContoursParameters);
-            }
+
+            //## Not supported in Android.
+            //case COLOR_CHANNEL_FEATURES: {
+            //case COLOR_CHANNEL_CONTOURS: {
+
             case COLOR_CHANNEL_PIXEL_COUNT: {
                 return colorChannelPixelCountPath(imageROI, outputFilenamePreamble, pTeamPropParameters.colorChannelPixelCountParameters);
             }
@@ -187,67 +185,33 @@ public class TeamPropRecognition {
         return lookThroughWindows(propOut, centerOfLargestCircle, pOutputFilenamePreamble);
     }
 
-    // The inverted red channel of a blue ball has very
-    // good contrast with the background. Red (inverted blue) also has good
-    // contrast with the background (red stripe 194, ball 254 in Gimp).
-    private TeamPropReturn colorChannelContoursPath(Mat pImageROI, String pOutputFilenamePreamble,
-                                                    TeamPropParameters.ColorChannelContoursParameters pColorChannelContoursParameters) {
-        Mat split = splitAndInvertChannels(pImageROI, alliance, pColorChannelContoursParameters.grayParameters, pOutputFilenamePreamble);
-
-        // Results are much better (fewer contours) without sharpening and slightly better
-        // without blurring.
-
-        // Threshold the image: set pixels over the threshold value to white.
-        Mat thresholded = new Mat(); // output binary image
-        Imgproc.threshold(split, thresholded,
-                Math.abs(pColorChannelContoursParameters.grayParameters.threshold_low),    // threshold value
-                255,   // white
-                pColorChannelContoursParameters.grayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
-        RobotLogCommon.v(TAG, "Threshold values: low " + pColorChannelContoursParameters.grayParameters.threshold_low + ", high 255");
-
-        String thrFilename = pOutputFilenamePreamble + "_THR.png";
-        Imgcodecs.imwrite(thrFilename, thresholded);
-        RobotLogCommon.d(TAG, "Writing " + thrFilename);
-
-        Optional<Pair<Integer, MatOfPoint>> targetContour = ImageUtils.getLargestContour(pImageROI, thresholded, pOutputFilenamePreamble);
-        if (!targetContour.isPresent()) {
-            Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
-            RobotLogCommon.d(TAG, "No contours found");
-            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
-        }
-
-        MatOfPoint largestContour = targetContour.get().second;
-        double contourArea = Imgproc.contourArea(largestContour);
-        RobotLogCommon.d(TAG, "Area of largest contour: " + contourArea);
-
-        // Make sure the largest contour is within our bounds.
-        if (contourArea < pColorChannelContoursParameters.minArea ||
-                contourArea > pColorChannelContoursParameters.maxArea) {
-            Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
-            RobotLogCommon.d(TAG, "The largest contour violates the size criteria");
-            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_UNSUCCESSFUL, nposWindow.second);
-        }
-
-        // Redraw the contours to show against the Team Prop windows.
-        Mat contoursOut = pImageROI.clone();
-        List<MatOfPoint> requiredArray = new ArrayList<>(Arrays.asList(largestContour)); // required by drawContours
-        Imgproc.drawContours(contoursOut, requiredArray, 0, new Scalar(0, 255, 0), 2);
-
-        // Get the center point of the largest contour.
-        Point contourCentroid = ImageUtils.getContourCentroid(largestContour);
-        return lookThroughWindows(contoursOut, contourCentroid, pOutputFilenamePreamble);
-    }
-
     private TeamPropReturn colorChannelPixelCountPath(Mat pImageROI, String pOutputFilenamePreamble, TeamPropParameters.ColorChannelPixelCountParameters pColorChannelPixelCountParameters) {
-        Mat split = splitAndInvertChannels(pImageROI, alliance, pColorChannelPixelCountParameters.grayParameters, pOutputFilenamePreamble);
+        // Use the grayscale and pixel count criteria parameters for the current alliance.
+        VisionParameters.GrayParameters allianceGrayParameters;
+        int allianceMinWhitePixelCount;
+        switch (alliance) {
+            case RED: {
+                allianceGrayParameters = pColorChannelPixelCountParameters.redGrayParameters;
+                allianceMinWhitePixelCount = pColorChannelPixelCountParameters.redMinWhitePixelCount;
+                break;
+            }
+            case BLUE: {
+                allianceGrayParameters = pColorChannelPixelCountParameters.blueGrayParameters;
+                allianceMinWhitePixelCount = pColorChannelPixelCountParameters.blueMinWhitePixelCount;
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "colorChannelPixelCountPath requires an alliance selection");
+        }
 
         // Threshold the image: set pixels over the threshold value to white.
+        Mat split = splitAndInvertChannels(pImageROI, alliance, allianceGrayParameters, pOutputFilenamePreamble);
         Mat thresholded = new Mat(); // output binary image
         Imgproc.threshold(split, thresholded,
-                Math.abs(pColorChannelPixelCountParameters.grayParameters.threshold_low),    // threshold value
+                Math.abs(allianceGrayParameters.threshold_low),    // threshold value
                 255,   // white
-                pColorChannelPixelCountParameters.grayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
-        RobotLogCommon.v(TAG, "Threshold values: low " + pColorChannelPixelCountParameters.grayParameters.threshold_low + ", high 255");
+                allianceGrayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
+        RobotLogCommon.d(TAG, "Threshold values: low " + allianceGrayParameters.threshold_low + ", high 255");
 
         String thrFilename = pOutputFilenamePreamble + "_THR.png";
         Imgcodecs.imwrite(thrFilename, thresholded);
@@ -267,8 +231,8 @@ public class TeamPropRecognition {
 
         // If both counts are less than the minimum then we infer that
         // the Team Prop is in the third (non-visible) spike window.
-        if (leftNonZeroCount < pColorChannelPixelCountParameters.minWhitePixelCount &&
-                rightNonZeroCount < pColorChannelPixelCountParameters.minWhitePixelCount) {
+        if (leftNonZeroCount < allianceMinWhitePixelCount &&
+                rightNonZeroCount < allianceMinWhitePixelCount) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "White pixel counts for the left and right spike windows were under the threshold");
             SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
@@ -298,7 +262,26 @@ public class TeamPropRecognition {
 
     private TeamPropReturn colorChannelBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
                                                       TeamPropParameters.BrightSpotParameters pBrightSpotParameters) {
-        Mat split = splitAndInvertChannels(pImageROI, alliance, pBrightSpotParameters.grayParameters, pOutputFilenamePreamble);
+        // Use the grayscale and pixel count criteria parameters for the current alliance.
+        VisionParameters.GrayParameters allianceGrayParameters;
+        double allianceBlurKernel;
+        switch (alliance) {
+            case RED: {
+                allianceGrayParameters = pBrightSpotParameters.redGrayParameters;
+                allianceBlurKernel = pBrightSpotParameters.redBlurKernel;
+                break;
+            }
+            case BLUE: {
+                allianceGrayParameters = pBrightSpotParameters.blueGrayParameters;
+                allianceBlurKernel = pBrightSpotParameters.blueBlurKernel;
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "colorChannelBrightSpotPath requires an alliance selection");
+        }
+
+        // Threshold the image: set pixels over the threshold value to white.
+        Mat split = splitAndInvertChannels(pImageROI, alliance, allianceGrayParameters, pOutputFilenamePreamble);
 
         // Sharpening the image does not improve the results.
         //Mat sharp = sharpen(split, pOutputFilenamePreamble);
@@ -306,7 +289,7 @@ public class TeamPropRecognition {
         // See --
         // https://pyimagesearch.com/2014/09/29/finding-brightest-spot-image-using-python-opencv/
         Mat bright = new Mat();
-        Imgproc.GaussianBlur(split, bright, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
+        Imgproc.GaussianBlur(split, bright, new Size(allianceBlurKernel, allianceBlurKernel), 0);
 
         String blurFilename = pOutputFilenamePreamble + "_BLUR.png";
         RobotLogCommon.d(TAG, "Writing " + blurFilename);
@@ -316,14 +299,14 @@ public class TeamPropRecognition {
         RobotLogCommon.d(TAG, "Bright spot location " + brightResult.maxLoc + ", value " + brightResult.maxVal);
 
         Mat brightSpotOut = pImageROI.clone();
-        Imgproc.circle(brightSpotOut, brightResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
+        Imgproc.circle(brightSpotOut, brightResult.maxLoc, (int) allianceBlurKernel, new Scalar(0, 255, 0));
 
         String brightSpotFilename = pOutputFilenamePreamble + "_BRIGHT.png";
         RobotLogCommon.d(TAG, "Writing " + brightSpotFilename);
         Imgcodecs.imwrite(brightSpotFilename, brightSpotOut);
 
         // If the bright spot is under the threshold then assume no Team Prop is present.
-        if (brightResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
+        if (brightResult.maxVal < allianceGrayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
             SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
@@ -335,6 +318,24 @@ public class TeamPropRecognition {
 
     private TeamPropReturn grayscaleBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
                                                    TeamPropParameters.BrightSpotParameters pBrightSpotParameters) {
+        // Use the grayscale and pixel count criteria parameters for the current alliance.
+        VisionParameters.GrayParameters allianceGrayParameters;
+        double allianceBlurKernel;
+        switch (alliance) {
+            case RED: {
+                allianceGrayParameters = pBrightSpotParameters.redGrayParameters;
+                allianceBlurKernel = pBrightSpotParameters.redBlurKernel;
+                break;
+            }
+            case BLUE: {
+                allianceGrayParameters = pBrightSpotParameters.blueGrayParameters;
+                allianceBlurKernel = pBrightSpotParameters.blueBlurKernel;
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "colorChannelBrightSpotPath requires an alliance selection");
+        }
+
         Mat gray = new Mat();
         Imgproc.cvtColor(pImageROI, gray, Imgproc.COLOR_BGR2GRAY);
 
@@ -352,7 +353,7 @@ public class TeamPropRecognition {
         //Mat graySharp = sharpen(gray, pOutputFilenamePreamble + "_GRAY");
 
         Mat brightGray = new Mat();
-        Imgproc.GaussianBlur(gray, brightGray, new Size(pBrightSpotParameters.blurKernel, pBrightSpotParameters.blurKernel), 0);
+        Imgproc.GaussianBlur(gray, brightGray, new Size(allianceBlurKernel, allianceBlurKernel), 0);
 
         String blurFilename = pOutputFilenamePreamble + "_GRAY_BLUR.png";
         RobotLogCommon.d(TAG, "Writing " + blurFilename);
@@ -362,14 +363,14 @@ public class TeamPropRecognition {
         RobotLogCommon.d(TAG, "Bright spot location " + brightGrayResult.maxLoc + ", value " + brightGrayResult.maxVal);
 
         Mat brightGraySpotOut = pImageROI.clone();
-        Imgproc.circle(brightGraySpotOut, brightGrayResult.maxLoc, (int) pBrightSpotParameters.blurKernel, new Scalar(0, 255, 0));
+        Imgproc.circle(brightGraySpotOut, brightGrayResult.maxLoc, (int) allianceBlurKernel, new Scalar(0, 255, 0));
 
         String brightSpotGrayFilename = pOutputFilenamePreamble + "_GRAY_BRIGHT.png";
         RobotLogCommon.d(TAG, "Writing " + brightSpotGrayFilename);
         Imgcodecs.imwrite(brightSpotGrayFilename, brightGraySpotOut);
 
         // If the bright spot is under the threshold then assume no Team Prop is present.
-        if (brightGrayResult.maxVal < pBrightSpotParameters.grayParameters.threshold_low) {
+        if (brightGrayResult.maxVal < allianceGrayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
             SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);

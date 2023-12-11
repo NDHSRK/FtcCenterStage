@@ -51,7 +51,7 @@ public class TeamPropParametersXML {
         XPathExpression expr;
 
         // Point to the first node.
-        RobotLogCommon.d(TAG, "Parsing XML team_prop_parameters");
+        RobotLogCommon.c(TAG, "Parsing XML team_prop_parameters");
 
         expr = xpath.compile("//team_prop_parameters");
         Node team_prop_parameters_node = (Node) expr.evaluate(document, XPathConstants.NODE);
@@ -190,97 +190,85 @@ public class TeamPropParametersXML {
                 new TeamPropParameters.ColorChannelCirclesParameters(grayParameters,
                         houghCirclesFunctionCallParameters, maxCircles);
 
-        // Point to <color_channel_contours>
-        Node contours_node = circles_node.getNextSibling();
-        contours_node = XMLUtils.getNextElement(contours_node);
-        if ((contours_node == null) || !contours_node.getNodeName().equals("color_channel_contours"))
-            throw new AutonomousRobotException(TAG, "Element 'color_channel_contours' not found");
-
-        // Point to <gray_parameters>
-        Node contours_gray_node = contours_node.getFirstChild();
-        contours_gray_node = XMLUtils.getNextElement(contours_gray_node);
-        if ((contours_gray_node == null) || !contours_gray_node.getNodeName().equals("gray_parameters"))
-            throw new AutonomousRobotException(TAG, "Element 'gray_parameters' under 'color_channel_contours' not found");
-
-        VisionParameters.GrayParameters contoursGrayParameters = ImageXML.parseGrayParameters(contours_gray_node);
-
-        // Point to the size criteria for the contours.
-        Node contours_criteria_node = contours_gray_node.getNextSibling();
-        contours_criteria_node = XMLUtils.getNextElement(contours_criteria_node);
-        if (contours_criteria_node == null)
-            throw new AutonomousRobotException(TAG, "Element 'criteria' under 'color_channel_contours' not found");
-
-        // Parse the <min_area> element.
-        Node min_area_node = contours_criteria_node.getFirstChild();
-        min_area_node = XMLUtils.getNextElement(min_area_node);
-        if (min_area_node == null || !min_area_node.getNodeName().equals("min_area") ||
-                min_area_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'min_area' not found or empty");
-
-        String minAreaText = min_area_node.getTextContent();
-        double minArea;
-        try {
-            minArea = Double.parseDouble(minAreaText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_area'");
-        }
-
-        // Parse the <max_area> element.
-        Node max_area_node = min_area_node.getNextSibling();
-        max_area_node = XMLUtils.getNextElement(max_area_node);
-        if (max_area_node == null || !max_area_node.getNodeName().equals("max_area") ||
-                max_area_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'max_area' not found or empty");
-
-        String maxAreaText = max_area_node.getTextContent();
-        double maxArea;
-        try {
-            maxArea = Double.parseDouble(maxAreaText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_area'");
-        }
-
-        TeamPropParameters.ColorChannelContoursParameters colorChannelContoursParameters =
-                new TeamPropParameters.ColorChannelContoursParameters(contoursGrayParameters,
-                        minArea, maxArea);
-
         // Point to <color_channel_pixel_count>
-        Node pixel_count_node = contours_node.getNextSibling();
+        Node pixel_count_node = circles_node.getNextSibling();
         pixel_count_node = XMLUtils.getNextElement(pixel_count_node);
         if ((pixel_count_node == null) || !pixel_count_node.getNodeName().equals("color_channel_pixel_count"))
             throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count' not found");
 
+        // Point to <RED> for the red alliance parameters.
+        Node red_pixel_count_node = pixel_count_node.getFirstChild();
+        red_pixel_count_node = XMLUtils.getNextElement(red_pixel_count_node);
+        if ((red_pixel_count_node == null) || !red_pixel_count_node.getNodeName().equals("RED"))
+            throw new AutonomousRobotException(TAG, "Element 'RED' under 'color_channel_pixel_count' not found");
+
         // Point to <gray_parameters>
-        Node pixel_count_gray_node = pixel_count_node.getFirstChild();
-        pixel_count_gray_node = XMLUtils.getNextElement(pixel_count_gray_node);
-        if ((pixel_count_gray_node == null) || !contours_gray_node.getNodeName().equals("gray_parameters"))
-            throw new AutonomousRobotException(TAG, "Element 'gray_parameters' under 'color_channel_pixel_count' not found");
+        Node red_pixel_count_gray_node = red_pixel_count_node.getFirstChild();
+        red_pixel_count_gray_node = XMLUtils.getNextElement(red_pixel_count_gray_node);
+        if ((red_pixel_count_gray_node == null) || !red_pixel_count_gray_node.getNodeName().equals("gray_parameters"))
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/RED/gray_parameters' not found");
 
-        VisionParameters.GrayParameters pixelCountGrayParameters = ImageXML.parseGrayParameters(pixel_count_gray_node);
+        VisionParameters.GrayParameters redPixelCountGrayParameters = ImageXML.parseGrayParameters(red_pixel_count_gray_node);
 
-        // Point to the criteria for the pixel count.
-        Node pixel_count_criteria_node = pixel_count_gray_node.getNextSibling();
-        pixel_count_criteria_node = XMLUtils.getNextElement(pixel_count_criteria_node);
-        if (pixel_count_criteria_node == null)
-            throw new AutonomousRobotException(TAG, "Element 'criteria' under 'color_channel_pixel_count' not found");
+        // Point to the criteria for the red pixel count.
+        Node red_pixel_count_criteria_node = red_pixel_count_gray_node.getNextSibling();
+        red_pixel_count_criteria_node = XMLUtils.getNextElement(red_pixel_count_criteria_node);
+        if (red_pixel_count_criteria_node == null)
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/RED/criteria' not found");
 
         // Parse the <min_white_pixel_count> element.
-        Node min_pixels_node = pixel_count_criteria_node.getFirstChild();
-        min_pixels_node = XMLUtils.getNextElement(min_pixels_node);
-        if (min_pixels_node == null || !min_pixels_node.getNodeName().equals("min_white_pixel_count") ||
-                min_pixels_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'min_white_pixel_count' not found or empty");
+        Node red_min_pixels_node = red_pixel_count_criteria_node.getFirstChild();
+        red_min_pixels_node = XMLUtils.getNextElement(red_min_pixels_node);
+        if (red_min_pixels_node == null || !red_min_pixels_node.getNodeName().equals("min_white_pixel_count") ||
+                red_min_pixels_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/RED/criteria/min_white_pixel_count' not found or empty");
 
-        String minPixelsText = min_pixels_node.getTextContent();
-        int minPixelCount;
+        String redMinPixelsText = red_min_pixels_node.getTextContent();
+        int redMinPixelCount;
         try {
-            minPixelCount = Integer.parseInt(minPixelsText);
+            redMinPixelCount = Integer.parseInt(redMinPixelsText);
         } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_white_pixel_count'");
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'color_channel_pixel_count/RED/criteria/min_white_pixel_count'");
+        }
+
+        // Point to <BLUE> for the blue alliance parameters.
+        Node blue_pixel_count_node = red_pixel_count_node.getNextSibling();
+        blue_pixel_count_node = XMLUtils.getNextElement(blue_pixel_count_node);
+        if ((blue_pixel_count_node == null) || !blue_pixel_count_node.getNodeName().equals("BLUE"))
+            throw new AutonomousRobotException(TAG, "Element 'BLUE' under 'color_channel_pixel_count' not found");
+
+        // Point to <gray_parameters>
+        Node blue_pixel_count_gray_node = blue_pixel_count_node.getFirstChild();
+        blue_pixel_count_gray_node = XMLUtils.getNextElement(blue_pixel_count_gray_node);
+        if ((blue_pixel_count_gray_node == null) || !blue_pixel_count_gray_node.getNodeName().equals("gray_parameters"))
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/BLUE/gray_parameters' not found");
+
+        VisionParameters.GrayParameters bluePixelCountGrayParameters = ImageXML.parseGrayParameters(blue_pixel_count_gray_node);
+
+        // Point to the criteria for the blue pixel count.
+        Node blue_pixel_count_criteria_node = blue_pixel_count_gray_node.getNextSibling();
+        blue_pixel_count_criteria_node = XMLUtils.getNextElement(blue_pixel_count_criteria_node);
+        if (blue_pixel_count_criteria_node == null)
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/BLUE/criteria' not found");
+
+        // Parse the <min_white_pixel_count> element.
+        Node blue_min_pixels_node = blue_pixel_count_criteria_node.getFirstChild();
+        blue_min_pixels_node = XMLUtils.getNextElement(blue_min_pixels_node);
+        if (blue_min_pixels_node == null || !blue_min_pixels_node.getNodeName().equals("min_white_pixel_count") ||
+                blue_min_pixels_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/BLUE/criteria/min_white_pixel_count' not found or empty");
+
+        String blueMinPixelsText = blue_min_pixels_node.getTextContent();
+        int blueMinPixelCount;
+        try {
+            blueMinPixelCount = Integer.parseInt(blueMinPixelsText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'color_channel_pixel_count/BLUE/criteria/min_white_pixel_count'");
         }
 
         TeamPropParameters.ColorChannelPixelCountParameters colorChannelPixelCountParameters =
-                new TeamPropParameters.ColorChannelPixelCountParameters(pixelCountGrayParameters, minPixelCount);
+                new TeamPropParameters.ColorChannelPixelCountParameters(redPixelCountGrayParameters, redMinPixelCount,
+                        bluePixelCountGrayParameters, blueMinPixelCount);
 
         // Point to <bright_spot>
         Node bright_spot_node = pixel_count_node.getNextSibling();
@@ -288,33 +276,67 @@ public class TeamPropParametersXML {
         if ((bright_spot_node == null) || !bright_spot_node.getNodeName().equals("bright_spot"))
             throw new AutonomousRobotException(TAG, "Element 'bright_spot' not found");
 
-        // Point to <gray_parameters>
-        Node bright_spot_gray_node = bright_spot_node.getFirstChild();
-        bright_spot_gray_node = XMLUtils.getNextElement(bright_spot_gray_node);
-        if ((bright_spot_gray_node == null) || !gray_parameters_node.getNodeName().equals("gray_parameters"))
-            throw new AutonomousRobotException(TAG, "Element 'gray_parameters' under 'bright_spot' not found");
+        // Point to <RED> for the red alliance parameters.
+        Node red_bright_node = bright_spot_node.getFirstChild();
+        red_bright_node = XMLUtils.getNextElement(red_bright_node);
+        if ((red_bright_node == null) || !red_bright_node.getNodeName().equals("RED"))
+            throw new AutonomousRobotException(TAG, "Element 'RED' under 'bright_spot' not found");
 
-        VisionParameters.GrayParameters brightSpotGrayParameters = ImageXML.parseGrayParameters(bright_spot_gray_node);
+        // Point to <gray_parameters>
+        Node red_bright_gray_node = red_bright_node.getFirstChild();
+        red_bright_gray_node = XMLUtils.getNextElement(red_bright_gray_node);
+        if ((red_bright_gray_node == null) || !red_bright_gray_node.getNodeName().equals("gray_parameters"))
+            throw new AutonomousRobotException(TAG, "Element 'bright_spot/RED/gray_parameters' not found");
+
+        VisionParameters.GrayParameters redBrightSpotGrayParameters = ImageXML.parseGrayParameters(red_bright_gray_node);
 
         // Parse the <blur_kernel> element.
-        Node blur_kernel_node = bright_spot_gray_node.getNextSibling();
-        blur_kernel_node = XMLUtils.getNextElement(blur_kernel_node);
-        if ((blur_kernel_node == null) || !blur_kernel_node.getNodeName().equals("blur_kernel") || blur_kernel_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'blur_kernel' not found or empty");
+        Node red_bright_blur_kernel_node = red_bright_gray_node.getNextSibling();
+        red_bright_blur_kernel_node = XMLUtils.getNextElement(red_bright_blur_kernel_node);
+        if ((red_bright_blur_kernel_node == null) || !red_bright_blur_kernel_node.getNodeName().equals("blur_kernel") || red_bright_blur_kernel_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'bright_spot/RED/blur_kernel' not found or empty");
 
-        String blurKernelText = blur_kernel_node.getTextContent();
-        double blurKernel;
+        String redBlurKernelText = red_bright_blur_kernel_node.getTextContent();
+        double redBlurKernel;
         try {
-            blurKernel = Double.parseDouble(blurKernelText);
+            redBlurKernel = Double.parseDouble(redBlurKernelText);
         } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'blur_kernel'");
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'bright_spot/RED/blur_kernel'");
+        }
+
+        // Point to <BLUE> for the blue alliance parameters.
+        Node blue_bright_node = red_bright_node.getNextSibling();
+        blue_bright_node = XMLUtils.getNextElement(blue_bright_node);
+        if ((blue_bright_node == null) || !blue_bright_node.getNodeName().equals("BLUE"))
+            throw new AutonomousRobotException(TAG, "Element 'BLUE' under 'bright_spot' not found");
+
+        // Point to <gray_parameters>
+        Node blue_bright_gray_node = blue_bright_node.getFirstChild();
+        blue_bright_gray_node = XMLUtils.getNextElement(blue_bright_gray_node);
+        if ((blue_bright_gray_node == null) || !blue_bright_gray_node.getNodeName().equals("gray_parameters"))
+            throw new AutonomousRobotException(TAG, "Element 'bright_spot/BLUE/gray_parameters' not found");
+
+        VisionParameters.GrayParameters blueBrightSpotGrayParameters = ImageXML.parseGrayParameters(blue_bright_gray_node);
+
+        // Parse the <blur_kernel> element.
+        Node blue_bright_blur_kernel_node = blue_bright_gray_node.getNextSibling();
+        blue_bright_blur_kernel_node = XMLUtils.getNextElement(blue_bright_blur_kernel_node);
+        if ((blue_bright_blur_kernel_node == null) || !blue_bright_blur_kernel_node.getNodeName().equals("blur_kernel") || blue_bright_blur_kernel_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'bright_spot/BLUE/blur_kernel' not found or empty");
+
+        String blueBlurKernelText = blue_bright_blur_kernel_node.getTextContent();
+        double blueBlurKernel;
+        try {
+            blueBlurKernel = Double.parseDouble(blueBlurKernelText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'bright_spot/BLUE/blur_kernel'");
         }
 
         TeamPropParameters.BrightSpotParameters brightSpotParameters =
-                new TeamPropParameters.BrightSpotParameters(brightSpotGrayParameters, blurKernel);
+                new TeamPropParameters.BrightSpotParameters(redBrightSpotGrayParameters, redBlurKernel,
+                        blueBrightSpotGrayParameters, blueBlurKernel);
 
-        return new TeamPropParameters(colorChannelCirclesParameters,
-                colorChannelContoursParameters, colorChannelPixelCountParameters, brightSpotParameters);
+        return new TeamPropParameters(colorChannelCirclesParameters, colorChannelPixelCountParameters, brightSpotParameters);
     }
 
 }
