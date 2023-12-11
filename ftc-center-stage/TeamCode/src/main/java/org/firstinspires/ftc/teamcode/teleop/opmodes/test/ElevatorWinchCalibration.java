@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop.sample;
+package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
 import androidx.annotation.Nullable;
 
