@@ -42,7 +42,7 @@ import android.graphics.Paint;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
