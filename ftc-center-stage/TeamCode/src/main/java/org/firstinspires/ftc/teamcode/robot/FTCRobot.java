@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.IntakeMotor;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Winch;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.device.servo.DroneLauncherServo;
 import org.firstinspires.ftc.teamcode.robot.device.servo.IntakeArmServo;
@@ -41,7 +42,7 @@ public class FTCRobot {
     // All motors on the robot for this year's game.
     public enum MotorId {
         LEFT_FRONT_DRIVE, RIGHT_FRONT_DRIVE, LEFT_BACK_DRIVE, RIGHT_BACK_DRIVE,
-        ELEVATOR_LEFT, ELEVATOR_RIGHT, INTAKE,
+        ELEVATOR_LEFT, ELEVATOR_RIGHT, WINCH, INTAKE,
         MOTOR_ID_NPOS // for error checking
     }
 
@@ -56,6 +57,8 @@ public class FTCRobot {
     // embedded within TeleOp.
     public final Elevator elevator;
     public final DualMotorMotion elevatorMotion;
+    public final Winch winch;
+    public final SingleMotorMotion winchMotion;
     public final IntakeMotor intakeMotor;
     public final SingleMotorMotion intakeMotion;
     public final IntakeArmServo intakeArmServo;
@@ -136,6 +139,17 @@ public class FTCRobot {
             } else {
                 elevator = null;
                 elevatorMotion = null;
+            }
+
+            // Get the configuration for the dual-motor elevator.
+            configXPath = configXML.getPath("WINCH");
+            String winchInConfiguration = configXPath.getRequiredTextInRange("@configured", configXPath.validRange("yes", "no"));
+            if (winchInConfiguration.equals("yes")) {
+                winch = new Winch(hardwareMap, configXPath);
+                winchMotion = new SingleMotorMotion(pLinearOpMode, winch);
+            } else {
+                winch = null;
+                winchMotion = null;
             }
 
             // Get the configuration for pixel intake/outtake.

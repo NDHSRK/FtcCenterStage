@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
+package org.firstinspires.ftc.teamcode.teleop.sample;
 
 import androidx.annotation.Nullable;
 
@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
+import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
@@ -25,16 +26,23 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
-public class CenterStageTeleOp extends TeleOpWithAlliance {
+public class ElevatorWinchCalibration extends TeleOpWithAlliance {
 
-    private static final String TAG = CenterStageTeleOp.class.getSimpleName();
+    private static final String TAG = ElevatorWinchCalibration.class.getSimpleName();
 
     // Define buttons that return a boolean.
+    private final FTCButton elevatorAboveTruss; //**TODO TEMP
     private final FTCButton elevatorOnTruss;
     private final FTCButton winchUp;
-    private final FTCToggleButton toggleSpeed;
-    private final FTCButton launchDrone;
 
+    //**TODO START TEMP
+    private final FTCButton winchIncrement;
+    private final FTCButton winchDecrement;
+    private int cumulativeClicks = 0;
+    private static final int CLICKS_PER_WINCH_MOVEMENT = 100;
+    //**TODO END TEMP
+
+    private final FTCToggleButton toggleSpeed;
     private final FTCButton intake;
     private boolean intakeInProgress = false;
     private final FTCButton reverseIntake;
@@ -46,6 +54,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
+    private final FTCButton launchDrone;
 
     // Drive train
     private double driveTrainPower;
@@ -66,9 +75,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private PixelStopperServo.PixelServoState pixelServoState;
 
-    public CenterStageTeleOp(RobotConstants.Alliance pAlliance,
-                             LinearOpMode pLinearOpMode, FTCRobot pRobot,
-                             @Nullable FTCAuto pAutonomous) {
+    public ElevatorWinchCalibration(RobotConstants.Alliance pAlliance,
+                                    LinearOpMode pLinearOpMode, FTCRobot pRobot,
+                                    @Nullable FTCAuto pAutonomous) {
         super(pAlliance, pLinearOpMode, pRobot, pAutonomous);
         RobotLogCommon.c(TAG, "Constructing CenterStageTeleOp");
         RobotLogCommon.setMostDetailedLogLevel(Objects.requireNonNull(robot.teleOpSettings, "robot.teleOpSettings unexpectedly null").logLevel);
@@ -90,6 +99,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
         launchDrone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
 
+        winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X); //**TODO TEMP
+        winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B); //**TODO TEMP
+
         // Gamepad 2
         // Bumpers
         outtake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_RIGHT_BUMPER);
@@ -99,6 +111,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         goToSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
         goToGround = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
         reverseIntake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_Y);
+        elevatorAboveTruss = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_B); //**TODO TEMP for elevaotr/truss calibration
 
         // D-Pad
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
@@ -162,15 +175,19 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         toggleSpeed.update();
         elevatorOnTruss.update();
         winchUp.update();
-        launchDrone.update(); //**TODO automatically raise elevator to over truss position
+        launchDrone.update(); //**TODO raise elevator to over truss position
+
+        elevatorAboveTruss.update(); //**TODO TEMP
+        winchIncrement.update(); //**TODO TEMP
+        winchDecrement.update(); //**TODO TEMP
 
         // Game Controller 2
         intake.update();
         reverseIntake.update();
         outtake.update();
-
         deliveryLevel1.update();
         deliveryLevel2.update();
+
         goToSafe.update();
         goToGround.update();
     }
@@ -232,9 +249,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateIntake();
         updateReverseIntake();
         updateOuttake();
-
         updateDeliveryLevel1();
         updateDeliveryLevel2();
+
+        updateElevatorAboveTruss(); //**TODO TEMP
+        updateWinchIncrement(); //**TODO TEMP
+        updateWinchDecrement(); //**TODO TEMP
+
         updateGoToSafe();
         updateGoToGround();
     }
@@ -258,10 +279,9 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         return true;
     }
 
-
     private void updateElevatorOnTruss() {
         if (elevatorOnTruss.is(FTCButton.State.TAP)) {
-            //**TODO only from the above truss level ...
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.ON_TRUSS);
         }
     }
 
@@ -359,13 +379,34 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private void updateDeliveryLevel1() {
         if (deliveryLevel1.is(FTCButton.State.TAP)) {
-            move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_1);
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.LEVEL_1);
         }
     }
 
     private void updateDeliveryLevel2() {
         if (deliveryLevel2.is(FTCButton.State.TAP)) {
-            move_to_delivery_level(Elevator.ElevatorLevel.LEVEL_2);
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.LEVEL_2);
+        }
+    }
+
+    private void updateElevatorAboveTruss() { //**TODO TEMP
+        if (elevatorAboveTruss.is(FTCButton.State.TAP)) {
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.ABOVE_TRUSS);
+        }
+    }
+
+    private void updateWinchIncrement() { //**TODO TEMP
+        if (winchIncrement.is(FTCButton.State.TAP)) {
+            robot.winchMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(),
+                    SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            updateWinchEncoderTelemetry();
+        }
+    }
+
+    private void updateWinchDecrement() { //**TODO TEMP
+        if (winchDecrement.is(FTCButton.State.TAP)) {
+            robot.winchMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            updateWinchEncoderTelemetry();
         }
     }
 
@@ -430,13 +471,15 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
 
-    private void move_to_delivery_level(Elevator.ElevatorLevel pDeliverToLevel) {
+    private void move_elevator_to_selected_level(Elevator.ElevatorLevel pDeliverToLevel) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
             return;
         }
 
-        // Validate the delivery level.
+        //**TODO TEMP - suspend for calibration test ...
+        /*
+        // Validate the selected level.
         if (!(pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
                 pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2)) {
             RobotLogCommon.d(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
@@ -448,6 +491,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             RobotLogCommon.d(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
             return;
         }
+         */
 
         linearOpMode.telemetry.addLine("Position for delivery at " + pDeliverToLevel);
         linearOpMode.telemetry.update();
@@ -461,6 +505,12 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             case LEVEL_2: {
                 async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
                 break;
+            }
+            case ON_TRUSS: {
+                break; //**TODO
+            }
+            case ABOVE_TRUSS: {
+                break; //**TODO
             }
             default: {
                 RobotLogCommon.d(TAG, "Invalid elevator level " + pDeliverToLevel);
@@ -508,4 +558,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         RobotLogCommon.d(TAG, "Async move elevator down in progress");
     }
 
+    private void updateWinchEncoderTelemetry() {
+        linearOpMode.telemetry.addData("current", robot.winch.getCurrentPosition(FTCRobot.MotorId.WINCH));
+        linearOpMode.telemetry.update();
+    }
 }

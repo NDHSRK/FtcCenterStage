@@ -37,8 +37,32 @@
             <level_1>3398</level_1>
             <level_2>4496</level_2>
             <level_3>5596</level_3>
+            <on_truss>3807</on_truss>
+            <above_truss>4490</above_truss>
         </positions>
     </ELEVATOR>
+
+    <!-- The names (not the values) of the positions of the winch
+         correspond to those of the elevator. -->
+    <WINCH configured="yes">
+        <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0071"
+            clicks_per_motor_rev="1992.6" rpm="84.0" direction="FORWARD">
+            <id>winch</id> <!-- id as configured on the robot -->
+        </single_motor>
+        <velocity>1.0</velocity>
+        <positions>
+            <ground>0</ground>
+            <safe>0</safe>
+            <pixel_clearance>0</pixel_clearance>
+            <drone>0</drone>
+            <autonomous>0</autonomous>
+            <level_1>0</level_1>
+            <level_2>0</level_2>
+            <level_3>0</level_3>
+            <on_truss>0</on_truss>
+            <above_truss>0</above_truss>
+        </positions>
+    </WINCH>
 
     <INTAKE configured="yes">
         <single_motor model="goBILDA 5202 Yellow Jacket Planetary Gear Motor 5202-2402-0014"
