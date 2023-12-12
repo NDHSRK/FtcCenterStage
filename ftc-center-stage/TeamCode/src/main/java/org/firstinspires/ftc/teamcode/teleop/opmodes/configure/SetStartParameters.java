@@ -8,7 +8,7 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.common.StartParameters;
-import org.firstinspires.ftc.teamcode.common.StartParametersXML;
+import org.firstinspires.ftc.teamcode.common.xml.StartParametersXML;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.xml.sax.SAXException;
 

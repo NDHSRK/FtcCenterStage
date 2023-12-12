@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.auto.xml;
+package org.firstinspires.ftc.teamcode.common.xml;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
-import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.opencv.core.Rect;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

@@ -4,17 +4,14 @@ package org.firstinspires.ftc.teamcode.auto.vision;
 public class TeamPropParameters {
 
     public final ColorChannelCirclesParameters colorChannelCirclesParameters;
-    public final ColorChannelContoursParameters colorChannelContoursParameters;
     public final ColorChannelPixelCountParameters colorChannelPixelCountParameters;
     public final BrightSpotParameters brightSpotParameters;
 
     public TeamPropParameters(ColorChannelCirclesParameters pColorChannelCirclesParameters,
-                              ColorChannelContoursParameters pColorChannelContoursParameters,
                               ColorChannelPixelCountParameters pColorChannelPixelCountParameters,
                               BrightSpotParameters pBrightSpotParameters
-                              ) {
+    ) {
         colorChannelCirclesParameters = pColorChannelCirclesParameters;
-        colorChannelContoursParameters = pColorChannelContoursParameters;
         colorChannelPixelCountParameters = pColorChannelPixelCountParameters;
         brightSpotParameters = pBrightSpotParameters;
     }
@@ -54,49 +51,37 @@ public class TeamPropParameters {
         }
     }
 
-    public static class ColorChannelFeaturesParameters {
-        public final VisionParameters.GrayParameters grayParameters;
-        public final int maxCorners;
-        public final double qualityLevel;
-
-        public ColorChannelFeaturesParameters(VisionParameters.GrayParameters pGrayParameters,
-                                              int pMaxCorners, double pQualityLevel) {
-            grayParameters = pGrayParameters;
-            maxCorners = pMaxCorners;
-            qualityLevel = pQualityLevel;
-        }
-    }
-
-    public static class ColorChannelContoursParameters {
-        public final VisionParameters.GrayParameters grayParameters;
-        public final double minArea;
-        public final double maxArea;
-
-        public ColorChannelContoursParameters(VisionParameters.GrayParameters pGrayParameters,
-                                              double pMinArea, double pMaxArea) {
-            grayParameters = pGrayParameters;
-            minArea = pMinArea;
-            maxArea = pMaxArea;
-        }
-    }
+    //## Not supported in Android - see IJCenterStageVision.
+    // public static class ColorChannelFeaturesParameters {
+    // public static class ColorChannelContoursParameters {
 
     public static class ColorChannelPixelCountParameters {
-        public final VisionParameters.GrayParameters grayParameters;
-        public final int minWhitePixelCount;
+        public final VisionParameters.GrayParameters redGrayParameters;
+        public final int redMinWhitePixelCount;
+        public final VisionParameters.GrayParameters blueGrayParameters;
+        public final int blueMinWhitePixelCount;
 
-        public ColorChannelPixelCountParameters(VisionParameters.GrayParameters pGrayParameters, int pMinWhitePixelCount) {
-            grayParameters = pGrayParameters;
-            minWhitePixelCount = pMinWhitePixelCount;
+        public ColorChannelPixelCountParameters(VisionParameters.GrayParameters pRedGrayParameters, int pRedMinWhitePixelCount,
+                                                VisionParameters.GrayParameters pBlueGrayParameters, int pBlueMinWhitePixelCount) {
+            redGrayParameters = pRedGrayParameters;
+            redMinWhitePixelCount = pRedMinWhitePixelCount;
+            blueGrayParameters = pBlueGrayParameters;
+            blueMinWhitePixelCount = pBlueMinWhitePixelCount;
         }
     }
 
     public static class BrightSpotParameters {
-        public final VisionParameters.GrayParameters grayParameters;
-        public final double blurKernel;
+        public final VisionParameters.GrayParameters redGrayParameters;
+        public final double redBlurKernel;
+        public final VisionParameters.GrayParameters blueGrayParameters;
+        public final double blueBlurKernel;
 
-        public BrightSpotParameters(VisionParameters.GrayParameters pGrayParameters, double pBlurKernel) {
-            grayParameters = pGrayParameters;
-            blurKernel = pBlurKernel;
+        public BrightSpotParameters(VisionParameters.GrayParameters pRedGrayParameters, double pRedBlurKernel,
+                                    VisionParameters.GrayParameters pBlueGrayParameters, double pBlueBlurKernel) {
+            redGrayParameters = pRedGrayParameters;
+            redBlurKernel = pRedBlurKernel;
+            blueGrayParameters = pBlueGrayParameters;
+            blueBlurKernel = pBlueBlurKernel;
         }
     }
 

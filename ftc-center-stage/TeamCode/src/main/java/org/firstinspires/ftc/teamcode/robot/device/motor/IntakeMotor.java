@@ -12,7 +12,7 @@ import java.util.EnumMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
-// Motor for the freight delivery arm.
+// Motor for the intake/outtake motor.
 // Users of this class must ensure that the motor is in the correct
 // DcMotor.RunMode. See comments in MotorCore.
 public class IntakeMotor extends SingleMotor {
