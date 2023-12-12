@@ -32,9 +32,10 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
     private static final String TAG = ElevatorWinchCalibration.class.getSimpleName();
 
     // Define buttons that return a boolean.
-    private final FTCButton elevatorAboveTruss; //**TODO TEMP
+    private final FTCButton elevatorAboveTruss;
     private final FTCButton elevatorOnTruss;
     private final FTCButton winchUp;
+    private final FTCButton winchDown;
 
     //**TODO START TEMP
     private final FTCButton winchIncrement;
@@ -56,6 +57,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
     private final FTCButton goToSafe;
     private final FTCButton goToGround;
     private final FTCButton launchDrone;
+    private boolean droneLaunchRequested = false;
 
     // Drive train
     private double driveTrainPower;
@@ -65,7 +67,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
     private final ParallelDrive parallelDrive;
 
     // Asynchronous
-    private enum AsyncAction {MOVE_ELEVATOR_UP, MOVE_ELEVATOR_DOWN_TO_SAFE, NONE}
+    private enum AsyncAction {MOVE_ELEVATOR_AND_WINCH, NONE}
 
     private AsyncAction asyncActionInProgress = AsyncAction.NONE;
 
@@ -74,8 +76,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
 
-    private Winch.WinchLevel currentWinchLevel = Winch.WinchLevel.GROUND;
-    private final double winchVelocity;
+    private Winch.WinchLevel currentWinchLevel = Winch.WinchLevel.GROUND; //**TODO ? field never accessed
     private CompletableFuture<Winch.WinchLevel> asyncMoveWinch;
 
     private PixelStopperServo.PixelServoState pixelServoState;
@@ -98,13 +99,10 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
             elevatorVelocity = Objects.requireNonNull(robot.elevator).getVelocity();
         else elevatorVelocity = 0.0;
 
-        if (robot.winch != null)
-            winchVelocity = robot.winch.getVelocity();
-        else winchVelocity = 0.0;
-
         // Gamepad 1
         elevatorOnTruss = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
-        winchUp = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
+        winchUp = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
+        winchDown = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
         launchDrone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
 
@@ -120,7 +118,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
         goToSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
         goToGround = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_A);
         reverseIntake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_Y);
-        elevatorAboveTruss = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_B); //**TODO TEMP for elevator/truss calibration
+        elevatorAboveTruss = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_B);
 
         // D-Pad
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
@@ -184,9 +182,10 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
         toggleSpeed.update();
         elevatorOnTruss.update();
         winchUp.update();
-        launchDrone.update(); //**TODO raise elevator to over truss position
+        winchDown.update();
+        launchDrone.update();
 
-        elevatorAboveTruss.update(); //**TODO TEMP
+        elevatorAboveTruss.update();
         winchIncrement.update(); //**TODO TEMP
         winchDecrement.update(); //**TODO TEMP
 
@@ -214,7 +213,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
         // actions other than those related to the drive train.
         try {
             switch (asyncActionInProgress) {
-                case MOVE_ELEVATOR_UP: {
+                case MOVE_ELEVATOR_AND_WINCH: {
                     if (asyncMoveElevator.isDone() && asyncMoveWinch.isDone()) {
                         currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                         currentWinchLevel = Threading.getFutureCompletion(asyncMoveWinch);
@@ -222,18 +221,12 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
                         asyncMoveWinch = null;
                         asyncActionInProgress = AsyncAction.NONE;
                         RobotLogCommon.d(TAG, "Async MOVE_ELEVATOR_UP done");
-                    } else // the elevator is still moving
-                        return; // skip the updates below
-                    break;
-                }
-                case MOVE_ELEVATOR_DOWN_TO_SAFE: {
-                    if (asyncMoveElevator.isDone()&& asyncMoveWinch.isDone()) {
-                        currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
-                        currentWinchLevel = Threading.getFutureCompletion(asyncMoveWinch);
-                        asyncMoveElevator = null;
-                        asyncMoveWinch = null;
-                        asyncActionInProgress = AsyncAction.NONE;
-                        RobotLogCommon.d(TAG, "Async MOVE_ELEVATOR_DOWN done");
+
+                        if (droneLaunchRequested) {
+                            droneLaunchRequested = false;
+                            robot.droneLauncherServo.launch();
+                            linearOpMode.sleep(500);
+                        }
                     } else // the elevator is still moving
                         return; // skip the updates below
                     break;
@@ -256,6 +249,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
         // Game Controller 1
         updateElevatorOnTruss();
         updateWinchUp();
+        updateWinchDown();
         updateLaunchDrone();
 
         // Game Controller 2
@@ -265,7 +259,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
         updateDeliveryLevel1();
         updateDeliveryLevel2();
 
-        updateElevatorAboveTruss(); //**TODO TEMP
+        updateElevatorAboveTruss();
         updateWinchIncrement(); //**TODO TEMP
         updateWinchDecrement(); //**TODO TEMP
 
@@ -305,20 +299,29 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
                 return;
             }
 
-            robot.intakeArmServo.up(); //**TODO needed in COMP version
+            robot.intakeArmServo.up();
+            robot.winchMotion.moveSingleMotor(robot.winch.hang, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            currentWinchLevel = Winch.WinchLevel.HANG;
+        }
+    }
 
+    private void updateWinchDown() {
+        if (winchDown.is(FTCButton.State.TAP)) {
+            if (currentElevatorLevel != Elevator.ElevatorLevel.ON_TRUSS) {
+                RobotLogCommon.d(TAG, "Winch down not allowed when the elevator is at level " + currentElevatorLevel);
+                return;
+            }
+
+            // Move the winch to the same level as the elevator, ON_TRUSS.
+            robot.winchMotion.moveSingleMotor(robot.winch.on_truss, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            currentWinchLevel = Winch.WinchLevel.ON_TRUSS;
         }
     }
 
     private void updateLaunchDrone() {
         if (launchDrone.is(FTCButton.State.TAP)) {
-            if (!synch_move_elevator_to_drone_launch())
-                return;
-
-            robot.droneLauncherServo.launch();
-            linearOpMode.sleep(500);
-
-            async_move_elevator_down_to_safe();
+            droneLaunchRequested = true;
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.DRONE);
         }
     }
 
@@ -408,7 +411,7 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
         }
     }
 
-    private void updateElevatorAboveTruss() { //**TODO TEMP
+    private void updateElevatorAboveTruss() {
         if (elevatorAboveTruss.is(FTCButton.State.TAP)) {
             move_elevator_to_selected_level(Elevator.ElevatorLevel.ABOVE_TRUSS);
         }
@@ -431,197 +434,166 @@ public class ElevatorWinchCalibration extends TeleOpWithAlliance {
 
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
-            if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToSafe()");
-                return;
-            }
-
-            if (currentElevatorLevel == Elevator.ElevatorLevel.SAFE)
-                return; // already there
-
-            if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND) { // upward movement?
-                robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-                currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
-            } else { // downward movement
-                async_move_elevator_down_to_safe();
-                async_move_winch_down_to_safe(winchVelocity);
-            }
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.SAFE);
         }
     }
 
     private void updateGoToGround() {
         if (goToGround.is(FTCButton.State.TAP)) {
-            if (asyncActionInProgress != AsyncAction.NONE) {
-                RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to updateGoToGround()");
-                return;
-            }
-
-            if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND)
-                return; // already there
-
-            if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
-                RobotLogCommon.d(TAG, "Illegal attempt to move the elevator to ground from " + currentElevatorLevel);
-                return; // crashing may leave the elevator in an indeterminate state
-            }
-
-            robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-            currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.GROUND);
         }
     }
 
-    private boolean synch_move_elevator_to_drone_launch() {
-        if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
-            return false;
-        }
+    //**TODO At the end of a match the elevator would be at the
+    // ON_TRUSS position and the winch would be at the HANG
+    // position. You'd want to unwind the winch, so the winch
+    // would return from the HANG to the ON_TRUSS position. To
+    // free the winch you'd move the elevator and winch up to
+    // the ABOVE_TRUSS position, drive the robot clear of the
+    // truss, and then move the elevator and truss to SAFE
+    // and then DOWN.
 
-        // Movement must start at the SAFE level.
-        if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
-            RobotLogCommon.d(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-            return false;
-        }
-
-        linearOpMode.telemetry.addLine("Position for drone launch");
-        linearOpMode.telemetry.update();
-
-        RobotLogCommon.d(TAG, "Moving elevator to drone launch level ");
-        robot.elevatorMotion.moveDualMotors(robot.elevator.drone, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-        currentElevatorLevel = Elevator.ElevatorLevel.DRONE;
-        return true;
-    }
-
-
-    private void move_elevator_to_selected_level(Elevator.ElevatorLevel pDeliverToLevel) {
+    private void move_elevator_to_selected_level(Elevator.ElevatorLevel pSelectedLevel) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
             return;
         }
 
-        //**TODO TEMP - suspend for calibration test ...
-        /*
-        // Validate the selected level.
-        if (!(pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_1 ||
-                pDeliverToLevel == Elevator.ElevatorLevel.LEVEL_2)) {
-            RobotLogCommon.d(TAG, "Invalid request to deliver at elevator " + pDeliverToLevel);
-            return;
-        }
+        switch (pSelectedLevel) {
+            case GROUND: {
+                if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND)
+                    return; // already there
 
-        // Movement must start at the SAFE level.
-        if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
-            RobotLogCommon.d(TAG, "Move to delivery level may not start at elevator " + currentElevatorLevel);
-            return;
-        }
-         */
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
+                    RobotLogCommon.d(TAG, "Illegal attempt to move the elevator to GROUND from " + currentElevatorLevel);
+                    return; // crashing may leave the elevator in an indeterminate state
+                }
 
-        linearOpMode.telemetry.addLine("Moving elevator to level " + pDeliverToLevel);
-        linearOpMode.telemetry.update();
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to GROUND");
+                robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
 
-        RobotLogCommon.d(TAG, "Moving elevator to level " + pDeliverToLevel + " at velocity " + elevatorVelocity);
-        switch (pDeliverToLevel) {
+                // No need to run the winch motor for this small movement
+                // but set its position.
+                currentWinchLevel = Winch.WinchLevel.GROUND;
+                break;
+            }
+            case SAFE: {
+                if (currentElevatorLevel == Elevator.ElevatorLevel.SAFE)
+                    return; // already there
+
+                if (currentElevatorLevel == Elevator.ElevatorLevel.ON_TRUSS) {
+                    RobotLogCommon.d(TAG, "The elevator is hanging on the truss and may not move to SAFE");
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator up from GROUND to SAFE");
+                if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND) { // upward movement?
+                    robot.elevatorMotion.moveDualMotors(robot.elevator.safe, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                    currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
+
+                    // No need to run the winch motor for this small movement
+                    // but set its position.
+                    currentWinchLevel = Winch.WinchLevel.SAFE;
+                } else { // downward movement
+                    RobotLogCommon.d(TAG, "Moving elevator down to SAFE at velocity " + robot.elevator.velocity_down);
+                    async_move_elevator(robot.elevator.safe, robot.elevator.velocity_down, Elevator.ElevatorLevel.SAFE);
+                    async_move_winch(robot.winch.safe, Winch.WinchLevel.SAFE);
+                }
+
+                break;
+            }
             case LEVEL_1: {
-                async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);
-                async_move_winch_up(Objects.requireNonNull(robot.winch).level_1, winchVelocity, Winch.WinchLevel.LEVEL_1);
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
+                    RobotLogCommon.d(TAG, "The elevator must be at SAFE before moving to " + pSelectedLevel);
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_1");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);
+                async_move_winch(Objects.requireNonNull(robot.winch).level_1, Winch.WinchLevel.LEVEL_1);
                 break;
             }
             case LEVEL_2: {
-                async_move_elevator_up(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
-                async_move_winch_up(Objects.requireNonNull(robot.winch).level_2, winchVelocity, Winch.WinchLevel.LEVEL_2);
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
+                    RobotLogCommon.d(TAG, "The elevator must be at SAFE before moving to " + pSelectedLevel);
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_2");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
+                async_move_winch(Objects.requireNonNull(robot.winch).level_2, Winch.WinchLevel.LEVEL_2);
                 break;
             }
             case DRONE: {
-                break; //**TODO
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
+                    RobotLogCommon.d(TAG, "The elevator must be at SAFE before moving to " + pSelectedLevel);
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to DRONE");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).drone, elevatorVelocity, Elevator.ElevatorLevel.DRONE);
+                async_move_winch(Objects.requireNonNull(robot.winch).drone, Winch.WinchLevel.DRONE);
+                break;
             }
             case ON_TRUSS: {
-                async_move_elevator_up(Objects.requireNonNull(robot.elevator).on_truss, elevatorVelocity, Elevator.ElevatorLevel.ON_TRUSS);
-                async_move_winch_up(Objects.requireNonNull(robot.winch).level_2, winchVelocity, Winch.WinchLevel.ON_TRUSS);
+                if (currentElevatorLevel != Elevator.ElevatorLevel.ABOVE_TRUSS) {
+                    RobotLogCommon.d(TAG, "The elevator must be at ABOVE_TRUSS before moving to ON_TRUSS");
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator from ABOVE_TRUSS to ON_TRUSS");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).on_truss, elevatorVelocity, Elevator.ElevatorLevel.ON_TRUSS);
+                async_move_winch(Objects.requireNonNull(robot.winch).on_truss, Winch.WinchLevel.ON_TRUSS);
                 break;
             }
             case ABOVE_TRUSS: {
-                break; //**TODO TEMP
+                if (currentElevatorLevel != Elevator.ElevatorLevel.DRONE) {
+                    RobotLogCommon.d(TAG, "The elevator must be at DRONE before moving to ABOVE_TRUSS");
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator from DRONE to ABOVE_TRUSS");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).above_truss, elevatorVelocity, Elevator.ElevatorLevel.ABOVE_TRUSS);
+                async_move_winch(Objects.requireNonNull(robot.winch).above_truss, Winch.WinchLevel.ABOVE_TRUSS);
+                break;
             }
             default: {
-                RobotLogCommon.d(TAG, "Invalid elevator level " + pDeliverToLevel);
+                RobotLogCommon.d(TAG, "Invalid elevator level " + pSelectedLevel);
                 // crashing may leave the elevator in an indeterminate state
             }
         }
     }
 
-    private void async_move_elevator_up(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
+    private void async_move_elevator(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
         if (asyncActionInProgress != AsyncAction.NONE) {
             RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
             return;
         }
 
-        Callable<Elevator.ElevatorLevel> callableMoveElevatorUp = () -> {
+        Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
             robot.elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             return pElevatorLevelOnCompletion;
         };
 
-        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_UP;
-        RobotLogCommon.d(TAG, "Async move elevator up in progress");
-        asyncMoveElevator = Threading.launchAsync(callableMoveElevatorUp);
+        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_AND_WINCH;
+        RobotLogCommon.d(TAG, "Async MOVE_ELEVATOR_AND_WINCH in progress");
+        asyncMoveElevator = Threading.launchAsync(callableMoveElevator);
     }
 
-    private void async_move_elevator_down_to_safe() {
-        if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
-            return;
-        }
-
-        // It is not legal to descend from ABOVE_TRUSS to SAFE.
-        if (!(currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_1 ||
-                currentElevatorLevel == Elevator.ElevatorLevel.LEVEL_2 ||
-                currentElevatorLevel == Elevator.ElevatorLevel.DRONE ||
-                currentElevatorLevel == Elevator.ElevatorLevel.ON_TRUSS)) { // sanity check
-            RobotLogCommon.d(TAG, "Illegal attempt to move the elevator down from a level that is not 1, 2, or drone");
-            return; // crashing may leave the elevator in an indeterminate state
-        }
-
-        Callable<Elevator.ElevatorLevel> callableMoveElevatorDownToSafe = () -> {
-            robot.elevatorMotion.moveDualMotors(robot.elevator.safe, robot.elevator.velocity_down, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
-            return Elevator.ElevatorLevel.SAFE;
-        };
-
-        asyncActionInProgress = AsyncAction.MOVE_ELEVATOR_DOWN_TO_SAFE;
-        asyncMoveElevator = Threading.launchAsync(callableMoveElevatorDownToSafe);
-        RobotLogCommon.d(TAG, "Async move elevator down in progress");
-    }
-
-    private void async_move_winch_up(int pWinchPosition, double pWinchVelocity, Winch.WinchLevel pWinchLevelOnCompletion) {
-        if (asyncActionInProgress != AsyncAction.MOVE_ELEVATOR_UP) {
+    private void async_move_winch(int pWinchPosition, Winch.WinchLevel pWinchLevelOnCompletion) {
+        if (asyncActionInProgress != AsyncAction.MOVE_ELEVATOR_AND_WINCH) {
             RobotLogCommon.d(TAG, "Async move elevator up *must* be in progress: " + asyncActionInProgress);
             return;
         }
 
-        Callable<Winch.WinchLevel> callableMoveWinchUp = () -> {
-            robot.winchMotion.moveSingleMotor(pWinchPosition, pWinchVelocity, SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+        Callable<Winch.WinchLevel> callableMoveWinch = () -> {
+            robot.winchMotion.moveSingleMotor(pWinchPosition, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             return pWinchLevelOnCompletion;
         };
 
-        RobotLogCommon.d(TAG, "Async move elevator up in progress");
-        asyncMoveWinch = Threading.launchAsync(callableMoveWinchUp);
-    }
-
-    private void async_move_winch_down_to_safe(double pWinchVelocity) {
-        if (asyncActionInProgress != AsyncAction.MOVE_ELEVATOR_DOWN_TO_SAFE) {
-            RobotLogCommon.d(TAG, "Async move elevator down *must* be in progress: " + asyncActionInProgress);
-            return;
-        }
-        //**TODO ?Is it legal to descend from ABOVE_TRUSS or ON_TRUSS to SAFE?
-        if (!(currentWinchLevel == Winch.WinchLevel.LEVEL_1 ||
-                currentWinchLevel == Winch.WinchLevel.LEVEL_2 ||
-                currentWinchLevel == Winch.WinchLevel.DRONE)) { // sanity check
-            RobotLogCommon.d(TAG, "Illegal attempt to move the winch down from a level that is not 1, 2, or drone");
-            return; // crashing may leave the winch in an indeterminate state
-        }
-
-        Callable<Winch.WinchLevel> callableMoveWinchDownToSafe = () -> {
-            robot.winchMotion.moveSingleMotor(robot.winch.safe, pWinchVelocity, SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
-            return Winch.WinchLevel.SAFE;
-        };
-
-        asyncMoveWinch = Threading.launchAsync(callableMoveWinchDownToSafe);
-        RobotLogCommon.d(TAG, "Async move winch down in progress");
+        RobotLogCommon.d(TAG, "Async move winch in progress");
+        asyncMoveWinch = Threading.launchAsync(callableMoveWinch);
     }
 
     private void updateWinchEncoderTelemetry() {

@@ -81,6 +81,9 @@ public abstract class MotorCore {
         Objects.requireNonNull(motorMap.get(pMotorId)).setTargetPosition(pTargetClicks);
     }
 
+    //**TODO Confusing naming: all variations of setVelocity... and setPower...
+    // really mean runAt or runWith Velocity/Power
+
     // Assumes all clipping and all final modifications to the velocity,
     // e.g. running at .5 velocity, have already been performed.
     public void setVelocity(FTCRobot.MotorId pMotorId, double pVelocity) {

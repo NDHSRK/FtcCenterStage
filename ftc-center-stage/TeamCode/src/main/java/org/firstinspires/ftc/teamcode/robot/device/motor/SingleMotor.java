@@ -70,6 +70,7 @@ public abstract class SingleMotor extends MotorCore {
         setTargetPosition(motorId, pPosition);
     }
 
+    //**TODO This really means runWithVelocity; see MotorCore
     public void setVelocity(double pVelocity) {
         setVelocity(motorId, pVelocity);
     }
