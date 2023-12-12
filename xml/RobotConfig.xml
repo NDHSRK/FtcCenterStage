@@ -50,6 +50,7 @@
             <id>winch</id> <!-- id as configured on the robot -->
         </single_motor>
         <velocity>1.0</velocity>
+        <velocity_down>0.8</velocity_down>
         <positions>
             <ground>0</ground>
             <safe>0</safe>
