@@ -332,7 +332,9 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
+
                         <distance>32.5</distance>
+
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -349,6 +351,7 @@
                     </MOVE_ELEVATOR>
 
                     <FORWARD>
+
                         <distance>22.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
