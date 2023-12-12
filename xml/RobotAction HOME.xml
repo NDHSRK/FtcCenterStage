@@ -58,6 +58,22 @@
                     </team_prop_npos>
                 </team_prop_recognition>
             </FIND_TEAM_PROP>
+
+            <AUTO_ENDING_POSITION>
+                <LEFT>
+                    <STRAFE_RIGHT>
+                        <distance>40.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_RIGHT>
+                </LEFT>
+                <RIGHT>
+                    <STRAFE_LEFT>
+                        <distance>10.0</distance>
+                        <velocity>0.5</velocity>
+                    </STRAFE_LEFT>
+                </RIGHT>
+            </AUTO_ENDING_POSITION>
+            
         </actions>
     </OpMode>
 

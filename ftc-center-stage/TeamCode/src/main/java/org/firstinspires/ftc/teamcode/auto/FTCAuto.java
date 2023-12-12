@@ -21,18 +21,16 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
-import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
-import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
+import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.common.StartParameters;
-import org.firstinspires.ftc.teamcode.common.StartParametersXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
@@ -952,13 +950,14 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO review comment
-            /*
-            <!-- FINAL STRAFE: 6 combinations based on spike position and
-    chosen strafe direction from the point of view of a person
-    standing in front of the Backdrop. Since the robot is facing
-    backwards the actual strafe will be the inverse. -->
-             */
+            // Final strafe: for eah of the 4 OpModes there are
+            // three Team Prop locations with two options each
+            // for the robot's final strafe (to park safely away
+            // from the alliance partner. The ending position is
+            // described from the point of view of a person
+            // standing in front of the Backdrop. Since the robot
+            // is facing backwards the actual strafe will be the
+            // inverse.
             case "AUTO_ENDING_POSITION": {
                 // Use the current competition OpMode to look up the
                 // the desired final position of the robot with respect
@@ -967,16 +966,18 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "AUTO_ENDING_POSITION only applies to competition OpModes");
                 switch (autoEndingPositions.get(pOpMode)) {
                     case LEFT: {
-                        //**TODO Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
+                        // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
                         // and execute it.
                         Pair<RobotXMLElement, Double> strafeToLeftPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "left");
+                        RobotLogCommon.d(TAG, "Ending strafe LEFT");
                         straight_by(new XPathAccess(strafeToLeftPosition.first), () -> strafeToLeftPosition.second).call();
                         break;
                     }
                     case RIGHT: {
-                        //**TODO Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
+                        // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
                         // and execute it.
                         Pair<RobotXMLElement, Double> strafeToRightPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "right");
+                        RobotLogCommon.d(TAG, "Ending strafe RIGHT");
                         straight_by(new XPathAccess(strafeToRightPosition.first), () -> strafeToRightPosition.second).call();
                         break;
                     }

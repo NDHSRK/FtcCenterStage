@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.auto.vision;
+package org.firstinspires.ftc.teamcode.common;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
+import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.opencv.core.Rect;
 

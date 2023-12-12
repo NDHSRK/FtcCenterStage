@@ -29,42 +29,43 @@
     </criteria>
   </color_channel_circles>
 
-  <!-- For use with OpenCV findContours -->
-  <color_channel_contours>
-    <gray_parameters>
-      <median_target>150</median_target>
-      <threshold_low>220</threshold_low>
-    </gray_parameters>
-
-    <!-- Note: if you include FloodFill then you'll need
-     some additional parameters.
-    <floodfill_function_call_parameters>
-    </floodfill_function_call_parameters -->
-
-    <criteria>
-      <min_area>3000.0</min_area>
-      <max_area>7000.0</max_area>
-    </criteria>
-  </color_channel_contours>
-
   <color_channel_pixel_count>
-    <gray_parameters>
-      <median_target>150</median_target>
-      <threshold_low>200</threshold_low>
-    </gray_parameters>
-    <criteria>
-      <min_white_pixel_count>3000</min_white_pixel_count>
-    </criteria>
+    <RED>
+      <gray_parameters>
+        <median_target>150</median_target>
+        <threshold_low>200</threshold_low>
+      </gray_parameters>
+      <criteria>
+        <min_white_pixel_count>3000</min_white_pixel_count>
+      </criteria>
+    </RED>
+    <BLUE>
+      <gray_parameters>
+        <median_target>150</median_target>
+        <threshold_low>200</threshold_low>
+      </gray_parameters>
+      <criteria>
+        <min_white_pixel_count>3000</min_white_pixel_count>
+      </criteria>
+    </BLUE>
   </color_channel_pixel_count>
 
   <!-- Can be used for full image grayscale or color channel grayscale -->
   <bright_spot>
-    <gray_parameters>
-      <median_target>150</median_target>
-      <!-- color channel 220; grayscale 180 -->
-      <threshold_low>220</threshold_low>
-    </gray_parameters>
-    <blur_kernel>31.0</blur_kernel>
+    <RED>
+      <gray_parameters>
+        <median_target>150</median_target>
+        <threshold_low>175</threshold_low>
+      </gray_parameters>
+      <blur_kernel>31.0</blur_kernel>
+    </RED>
+    <BLUE>
+      <gray_parameters>
+        <median_target>150</median_target>
+        <threshold_low>220</threshold_low>
+      </gray_parameters>
+      <blur_kernel>31.0</blur_kernel>
+    </BLUE>
   </bright_spot>
 
 </team_prop_parameters>

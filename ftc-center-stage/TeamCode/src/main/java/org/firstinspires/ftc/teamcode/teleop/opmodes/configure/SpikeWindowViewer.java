@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
-import org.firstinspires.ftc.teamcode.auto.vision.SpikeWindowMapping;
-import org.firstinspires.ftc.teamcode.auto.xml.SpikeWindowMappingXML;
+import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
@@ -34,10 +34,10 @@ public class SpikeWindowViewer extends LinearOpMode {
 
     private SpikeWindowProcessor spikeWindowProcessor;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
-    private FTCButton startPositionF4Button;
-    private FTCButton startPositionF2Button;
-    private FTCButton startPositionA2Button;
-    private FTCButton startPositionA4Button;
+    private FTCButton opModeBlueA2;
+    private FTCButton opModeBlueA4;
+    private FTCButton opModeRedF4;
+    private FTCButton opModeRedF2;
 
     // In this OpMode all of the action takes place during init().
     @Override
@@ -68,7 +68,7 @@ public class SpikeWindowViewer extends LinearOpMode {
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
         String xmlDirectory = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
         try {
-            SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(xmlDirectory);
+            SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(robot.startParameters.robotActionFilename);
             collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
         } catch (ParserConfigurationException | IOException | SAXException |
                  XPathExpressionException ex) {
@@ -76,11 +76,11 @@ public class SpikeWindowViewer extends LinearOpMode {
         }
 
         // Set up the DPAD buttons for starting position selection - clockwise
-        // from the wall with the two backdrops.
-        startPositionF4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_LEFT);
-        startPositionF2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
-        startPositionA2Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_RIGHT);
-        startPositionA4Button = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        // from the audience wall.
+        opModeBlueA2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        opModeBlueA4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
+        opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
+        opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch play to *END* the OpMode");
@@ -92,95 +92,54 @@ public class SpikeWindowViewer extends LinearOpMode {
         }
 
         telemetry.addLine("Ending the SpikeWindowViewer");
-        telemetry.update();        
+        telemetry.update();
     }
 
     private void updateButtons() {
-        startPositionF4Button.update();
-        startPositionF2Button.update();
-        startPositionA2Button.update();
-        startPositionA4Button.update();
+        opModeBlueA2.update();
+        opModeBlueA4.update();
+        opModeRedF4.update();
+        opModeRedF2.update();
     }
 
     private void updatePlayerOne() {
-        updateStartPositionF4Button();
-        updateStartPositionF2Button();
-        updateStartPositionA2Button();
-        updateStartPositionA4Button();
+        updateOpModeBlueA2();
+        updateOpModeBlueA4();
+        updateOpModeRedF4();
+        updateOpModeRedF2();
     }
 
-    private void updateStartPositionF4Button() {
-        if (startPositionF4Button.is(FTCButton.State.TAP)) {
-            RobotLog.dd(TAG, "DPAD button for F4 tapped");
+    private void updateOpModeBlueA2() {
+        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
+    }
+
+    private void updateOpModeBlueA4() {
+        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
+    }
+
+    private void updateOpModeRedF4() {
+        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
+    }
+
+    private void updateOpModeRedF2() {
+        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
+    }
+
+    private void setSpikeWindowMapping(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
+        if (pOpModeButton.is(FTCButton.State.TAP)) {
+            RobotLog.dd(TAG, "DPAD button for " + pOpMode + " tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
-            SpikeWindowMapping f4SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.RED_F4);
-            if (f4SpikeWindows == null)
-                return; // ignore the button click
-
-            // Show the spike window mapping for F4 in the camera stream
-            // on the Driver Station.
-            spikeWindowProcessor.setSpikeWindowMapping(f4SpikeWindows);
-            RobotLog.dd(TAG, "Set spike window mapping for F4");
-            telemetry.addLine("Spike windows for RED_F4");
-            telemetry.update();
-        }
-    }
-
-    private void updateStartPositionF2Button() {
-        if (startPositionF2Button.is(FTCButton.State.TAP)) {
-            RobotLog.dd(TAG, "DPAD button for F2 tapped");
-
-            // Make sure that the Autonomous OpMode for the selected
-            // starting position has actually been defined in RobotAction.xml.
-            SpikeWindowMapping f2SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.RED_F2);
-            if (f2SpikeWindows == null)
-                return; // ignore the button click
-
-            // Show the spike window mapping for F2 in the camera stream
-            // on the Driver Station.
-            spikeWindowProcessor.setSpikeWindowMapping(f2SpikeWindows);
-            RobotLog.dd(TAG, "Set spike window mapping for F2");
-            telemetry.addLine("Spike windows for RED_F2");
-            telemetry.update();
-        }
-    }
-
-    private void updateStartPositionA2Button() {
-        if (startPositionA2Button.is(FTCButton.State.TAP)) {
-            RobotLog.dd(TAG, "DPAD button for A2 tapped");
-
-            // Make sure that the Autonomous OpMode for the selected
-            // starting position has actually been defined in RobotAction.xml.
-            SpikeWindowMapping a2SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.BLUE_A2);
-            if (a2SpikeWindows == null)
-                return; // ignore the button click
-
-            // Show the spike window mapping for A2 in the camera stream
-            // on the Driver Station.
-            spikeWindowProcessor.setSpikeWindowMapping(a2SpikeWindows);
-            RobotLog.dd(TAG, "Set spike window mapping for A2");
-            telemetry.addLine("Spike windows for BLUE_A2");
-            telemetry.update();
-        }
-    }
-
-    private void updateStartPositionA4Button() {
-        if (startPositionA4Button.is(FTCButton.State.TAP)) {
-            RobotLog.dd(TAG, "DPAD button for A4 tapped");
-
-            // Make sure that the Autonomous OpMode for the selected
-            // starting position has actually been defined in RobotAction.xml.
-            SpikeWindowMapping a4SpikeWindows = collectedSpikeWindowMapping.get(RobotConstantsCenterStage.OpMode.BLUE_A4);
-            if (a4SpikeWindows == null)
+            SpikeWindowMapping spikeWindows = collectedSpikeWindowMapping.get(pOpMode);
+            if (spikeWindows == null)
                 return; // ignore the button click
 
             // Show the spike window mapping for A4 in the camera stream
             // on the Driver Station.
-            spikeWindowProcessor.setSpikeWindowMapping(a4SpikeWindows);
-            RobotLog.dd(TAG, "Set spike window mapping for A4");
-            telemetry.addLine("Spike windows for BLUE_A4");
+            spikeWindowProcessor.setSpikeWindowMapping(spikeWindows);
+            RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);
+            telemetry.addLine("Spike windows for " + pOpMode);
             telemetry.update();
         }
     }

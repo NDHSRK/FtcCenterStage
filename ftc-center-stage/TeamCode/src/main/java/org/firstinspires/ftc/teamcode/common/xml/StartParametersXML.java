@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode.common;
+package org.firstinspires.ftc.teamcode.common.xml;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
+import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -181,12 +183,13 @@ public class StartParametersXML {
         String xsltFilePath = xmlDirectory + "StandardTransform.xslt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xmlFilePath))) {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            //**TODO not supported in Android!! transformerFactory.setAttribute("indent-number", 4);
-            // See https://www.baeldung.com/java-pretty-print-xml for an alternative ...
+            //## Not supported in Android!! transformerFactory.setAttribute("indent-number", 4);
             Transformer transformer = transformerFactory.newTransformer(new StreamSource(new File(xsltFilePath)));
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            //## But the next line works (from https://www.baeldung.com/java-pretty-print-xml)
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             transformer.transform(new DOMSource(document), new StreamResult(writer));
         } catch (IOException | TransformerException e) {
             throw new AutonomousRobotException(TAG, e.getMessage());

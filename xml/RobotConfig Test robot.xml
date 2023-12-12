@@ -22,6 +22,8 @@
   </DRIVE_TRAIN>
 
   <ELEVATOR configured="no" />
+  
+  <WINCH configured="no" />
 
   <INTAKE configured="no"/>
 
