@@ -56,8 +56,8 @@
             <pixel_clearance>0</pixel_clearance>
             <drone>0</drone>
             <autonomous>0</autonomous>
-            <level_1>0</level_1>
-            <level_2>0</level_2>
+            <level_1>4102</level_1>
+            <level_2>6895</level_2>
             <level_3>0</level_3>
             <on_truss>0</on_truss>
             <above_truss>0</above_truss>
