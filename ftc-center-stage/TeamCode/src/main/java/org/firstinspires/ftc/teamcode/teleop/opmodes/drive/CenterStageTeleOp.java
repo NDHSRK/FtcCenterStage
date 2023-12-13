@@ -218,7 +218,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 case MOVE_ELEVATOR_AND_WINCH: {
                     if (asyncMoveElevator.isDone()) {
                         // The winch is configured in and the asynchronous movements
-                        // for both the elevator and the winch have completed.                      if (robot.winch != null && asyncMoveWinch.isDone()) {
+                        // for both the elevator and the winch have completed.
                         if (robot.winch != null && asyncMoveWinch.isDone()) {
                             currentElevatorLevel = Threading.getFutureCompletion(asyncMoveElevator);
                             currentWinchLevel = Threading.getFutureCompletion(asyncMoveWinch);
@@ -484,7 +484,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private void move_elevator_to_selected_level(Elevator.ElevatorLevel pSelectedLevel) {
         if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_to_delivery_level()");
+            RobotLogCommon.d(TAG, "Illegal: asynchronous action " + asyncActionInProgress + " is in progress during a call to move_elevator_to_selected_level()");
             return;
         }
 
