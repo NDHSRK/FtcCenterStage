@@ -23,7 +23,7 @@ public class Elevator extends DualMotors {
     public static final int ELEVATOR_MIN_POSITION = 0;
     public static final int ELEVATOR_MAX_POSITION = 6200;
 
-    public final int velocity_down;
+    public final double velocity_down;
     public final int ground;
     public final int safe;
     public final int pixel_clearance;
@@ -42,7 +42,7 @@ public class Elevator extends DualMotors {
         // The base class parses the >velocity> element but for coordination
         // with the winch we need a separate velocity setting for downward
         // movement.
-        velocity_down = pConfigXPath.getRequiredInt("velocity_down");
+        velocity_down = pConfigXPath.getRequiredDouble("velocity_down");
         if (velocity_down <= 0.0 || velocity_down > 1.0)
             throw new AutonomousRobotException(TAG, "velocity_down out of range " + velocity_down);
 

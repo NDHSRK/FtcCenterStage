@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.teleop.opmodes.drive.CenterStageTeleOp;
 //@Disabled
 public class ElevatorWinchCalibrationLaunch extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
-        FTCTeleOpDispatch.runTeleOp(RobotConstants.RunType.TELEOP, ElevatorWinchCalibration.class.getSimpleName(), RobotConstants.Alliance.NONE, this,
+        FTCTeleOpDispatch.runTeleOp(RobotConstants.RunType.TELEOP, CenterStageTeleOp.class.getSimpleName(), RobotConstants.Alliance.NONE, this,
                 (FTCTeleOpDispatch.TeleOpWithAllianceParameters tp) ->
-                new ElevatorWinchCalibration(tp.alliance, tp.linearOpMode, tp.robot, tp.ftcAuto));
+                new CenterStageTeleOp(tp.alliance, tp.linearOpMode, tp.robot, tp.ftcAuto));
     }
 }
