@@ -499,7 +499,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to GROUND");
-                robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                robot.elevatorMotion.moveDualMotors(robot.elevator.ground, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
                 currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
 
                 // No need to run the winch motor for this small movement

@@ -40,6 +40,7 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConf
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
 import org.firstinspires.ftc.teamcode.robot.device.motor.SingleMotorMotion;
+import org.firstinspires.ftc.teamcode.robot.device.motor.Winch;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigation;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
@@ -101,9 +102,10 @@ public class FTCAuto {
     private final BackdropParameters backdropParameters;
     private AprilTagNavigation aprilTagNavigation;
 
-    private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
-
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
+    private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
+    private Winch.WinchLevel currentWinchLevel = Winch.WinchLevel.GROUND; //**TODO ? field never accessed
+
 
     // Main class for the autonomous run.
     public FTCAuto(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
@@ -908,7 +910,9 @@ public class FTCAuto {
             // Move the elevator to an absolute position and, for all positions
             // other than "ground", hold that position.
             case "MOVE_ELEVATOR": {
-                currentElevatorLevel = move_elevator(actionXPath).call();
+                String position = actionXPath.getRequiredText("position").toUpperCase();
+                Elevator.ElevatorLevel targetLevel = Elevator.ElevatorLevel.valueOf(position);
+                move_elevator_to_selected_level(targetLevel);
                 break;
             }
 
@@ -920,7 +924,9 @@ public class FTCAuto {
                             throw new AutonomousRobotException(TAG, "asyncMoveElevator is already in progress");
 
                         RobotLogCommon.d(TAG, "ASYNC_MOVE_ELEVATOR start");
-                        Callable<Elevator.ElevatorLevel> callableMoveElevator = move_elevator(actionXPath);
+                        String position = actionXPath.getRequiredText("position").toUpperCase();
+                        Elevator.ElevatorLevel targetLevel = Elevator.ElevatorLevel.valueOf(position);
+                        Callable<Elevator.ElevatorLevel> callableMoveElevator = move_elevator(targetLevel);
                         asyncMoveElevator = Threading.launchAsync(callableMoveElevator);
                         break;
                     }
@@ -1361,12 +1367,108 @@ public class FTCAuto {
         return Pair.create(backupTagId, backupDetection);
     }
 
-    private Callable<Elevator.ElevatorLevel> move_elevator(XPathAccess pActionXPath) throws XPathExpressionException {
-        String position = pActionXPath.getRequiredText("position").toUpperCase();
-        Elevator.ElevatorLevel targetLevel = Elevator.ElevatorLevel.valueOf(position);
-        return move_elevator(targetLevel);
+    // Based on methods from CenterStageTeleOp.java; copied 12/12/2023 5:56PM
+    private void move_elevator_to_selected_level(Elevator.ElevatorLevel pSelectedLevel) throws IOException, InterruptedException, TimeoutException {
+        if (asyncMoveElevator != null)
+            throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
+
+        CompletableFuture<Elevator.ElevatorLevel> localAsyncElevator = null;
+        CompletableFuture<Winch.WinchLevel> localAsyncWinch = null;
+
+        switch (pSelectedLevel) {
+            case GROUND: {
+                if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND)
+                    return; // already there
+
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "Illegal attempt to move the elevator to GROUND from " + currentElevatorLevel);
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to GROUND");
+                robot.elevatorMotion.moveDualMotors(robot.elevator.ground, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
+                currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
+
+                // No need to run the winch motor for this small movement
+                // but set its position.
+                currentWinchLevel = Winch.WinchLevel.GROUND;
+                break;
+            }
+            case SAFE: {
+                if (currentElevatorLevel == Elevator.ElevatorLevel.SAFE)
+                    return; // already there
+
+                if (currentElevatorLevel == Elevator.ElevatorLevel.GROUND) { // upward movement?
+                    RobotLogCommon.d(TAG, "Moving elevator up from GROUND to SAFE");
+                    robot.elevatorMotion.moveDualMotors(robot.elevator.safe, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                    currentElevatorLevel = Elevator.ElevatorLevel.SAFE;
+
+                    // No need to run the winch motor for this small movement
+                    // but set its position.
+                    currentWinchLevel = Winch.WinchLevel.SAFE;
+                } else { // downward movement
+                    RobotLogCommon.d(TAG, "Moving elevator down to SAFE at velocity " + robot.elevator.velocity_down);
+                    localAsyncElevator = async_move_elevator(robot.elevator.safe, robot.elevator.velocity_down, Elevator.ElevatorLevel.SAFE);
+                    if (robot.winch != null)
+                        localAsyncWinch = async_move_winch(robot.winch.safe, Winch.WinchLevel.SAFE);
+                }
+
+                break;
+            }
+            case AUTONOMOUS: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to AUTONOMOUS");
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to AUTONOMOUS");
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator).autonomous, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS);
+                if (robot.winch != null) // the winch is configured in
+                    localAsyncWinch = async_move_winch(Objects.requireNonNull(robot.winch).autonomous, Winch.WinchLevel.AUTONOMOUS);
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid elevator level " + pSelectedLevel);
+        }
+
+        // If either the elevator or both the elevator and winch have been started asynchronously
+        // wait for completion here. The winch never moves asynchronously without the elevator.
+        if (localAsyncElevator != null) {
+            RobotLogCommon.d(TAG, "Wait for asynchonous movement of the elevator to complete");
+            currentElevatorLevel = Threading.getFutureCompletion(localAsyncElevator);
+            RobotLogCommon.d(TAG, "Asynchonous movement of the elevator is complete");
+
+            if (localAsyncWinch != null) {
+                RobotLogCommon.d(TAG, "Wait for asynchonous movement of the winch to complete");
+                currentWinchLevel = Threading.getFutureCompletion(localAsyncWinch);
+                RobotLogCommon.d(TAG, "Asynchonous movement of the winch is complete");
+            }
+        }
     }
 
+    private CompletableFuture<Elevator.ElevatorLevel> async_move_elevator(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
+        if (asyncMoveElevator != null)
+            throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
+
+        Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
+            robot.elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+            return pElevatorLevelOnCompletion;
+        };
+
+        RobotLogCommon.d(TAG, "Async MOVE_ELEVATOR_AND_WINCH in progress");
+        return Threading.launchAsync(callableMoveElevator);
+    }
+
+    private CompletableFuture<Winch.WinchLevel> async_move_winch(int pWinchPosition, Winch.WinchLevel pWinchLevelOnCompletion) {
+        if (asyncMoveElevator == null)
+            throw new AutonomousRobotException(TAG, "Async move elevator up *must* be in progress");
+
+        Callable<Winch.WinchLevel> callableMoveWinch = () -> {
+            robot.winchMotion.moveSingleMotor(pWinchPosition, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+            return pWinchLevelOnCompletion;
+        };
+
+        RobotLogCommon.d(TAG, "Async move winch in progress");
+        return Threading.launchAsync(callableMoveWinch);
+    }
+
+    //**TODO Change to async_move_elevator_and_winch
     // Hold the power to the elevator after every change in position except
     // when the target position is "ground".
     private Callable<Elevator.ElevatorLevel> move_elevator(Elevator.ElevatorLevel pElevatorTargetLevel) {
