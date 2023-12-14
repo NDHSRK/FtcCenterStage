@@ -90,8 +90,7 @@ public class FTCRobot {
         }
         */
 
-        String workingDirectory = WorkingDirectory.getWorkingDirectory();
-        String xmlDirectory = workingDirectory + RobotConstants.XML_DIR;
+        String xmlDirectory = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
 
         // Get the hardware configuration parameters from RobotConfig XXX.xml.
         try {
