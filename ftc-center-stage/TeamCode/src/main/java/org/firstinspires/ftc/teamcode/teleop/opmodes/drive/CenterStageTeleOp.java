@@ -612,12 +612,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
     private void async_move_elevator(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
-        if (asyncActionInProgress != AsyncAction.NONE) {
-            RobotLogCommon.d(TAG, "Async movement already in progress: " + asyncActionInProgress);
-            return;
-        }
-
-        Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
+         Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
             robot.elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             return pElevatorLevelOnCompletion;
         };
@@ -628,11 +623,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
     private void async_move_winch(int pWinchPosition, Winch.WinchLevel pWinchLevelOnCompletion) {
-        if (asyncActionInProgress != AsyncAction.MOVE_ELEVATOR_AND_WINCH) {
-            RobotLogCommon.d(TAG, "Async move elevator up *must* be in progress: " + asyncActionInProgress);
-            return;
-        }
-
         Callable<Winch.WinchLevel> callableMoveWinch = () -> {
             robot.winchMotion.moveSingleMotor(pWinchPosition, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             return pWinchLevelOnCompletion;
