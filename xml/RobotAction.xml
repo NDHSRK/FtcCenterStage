@@ -1174,7 +1174,7 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>20.0</distance>
+                                <distance>18.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
@@ -1250,13 +1250,13 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>30.0</distance>
+                                <distance>28.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>30.0</distance>
+                                <distance>28.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>
@@ -1337,7 +1337,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>20.0</distance>
+                                <distance>18.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>

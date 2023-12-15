@@ -86,7 +86,7 @@ public class SetStartParameters extends LinearOpMode {
         if (opModeIsActive()) {
             if (startDelay != currentStartDelay || endPositionsChanged) {
                 if (startDelay != currentStartDelay) {
-                    startParametersXML.setAutoStartDelay(startDelay);
+                    startParametersXML.setAutoStartDelay(currentStartDelay);
                     startParametersXML.writeStartParametersFile();
                     RobotLog.ii(TAG, "Changed start delay to " + currentStartDelay);
                     telemetry.addLine("Changed start delay to " + currentStartDelay);

@@ -311,8 +311,18 @@ public class RobotActionXMLCenterStage {
         if (left_position_node == null || !left_position_node.getNodeName().equals("LEFT"))
             throw new AutonomousRobotException(TAG, "The first child of <AUTO_ENDING_POSITION> must be <LEFT>");
 
-        if (pPosition.equals("left"))
-            return Pair.create(new RobotXMLElement((Element) left_position_node), 90.0);
+        if (pPosition.equals("LEFT")) {
+            // Step down to the <STRAFE_LEFT> or <STRAFE_RIGHT> element
+            Node left_position_strafe_node = left_position_node.getFirstChild();
+            left_position_strafe_node = XMLUtils.getNextElement(left_position_strafe_node);
+            if (left_position_strafe_node == null || !(left_position_strafe_node.getNodeName().equals("STRAFE_LEFT") ||
+                    left_position_strafe_node.getNodeName().equals("STRAFE_RIGHT")))
+                throw new AutonomousRobotException(TAG, "The first child of AUTO_ENDING_POSITION/LEFT must be <STRAFE_LEFT> or <STRAFE_RIGHT>");
+
+            double strafe_angle = left_position_strafe_node.getNodeName().equals("STRAFE_LEFT") ? 90.0 : -90.0;
+
+            return Pair.create(new RobotXMLElement((Element) left_position_strafe_node), strafe_angle);
+        }
 
         // Must be the right position.
         Node right_position_node = left_position_node.getNextSibling();
@@ -320,7 +330,16 @@ public class RobotActionXMLCenterStage {
         if (right_position_node == null || !right_position_node.getNodeName().equals("RIGHT"))
             throw new AutonomousRobotException(TAG, "The second child of <AUTO_ENDING_POSITION> must be <RIGHT>");
 
-        return Pair.create(new RobotXMLElement((Element) right_position_node), -90.0);
+        // Step down to the <STRAFE_LEFT> or <STRAFE_RIGHT> element
+        Node right_position_strafe_node = right_position_node.getFirstChild();
+        right_position_strafe_node = XMLUtils.getNextElement(right_position_strafe_node);
+        if (right_position_strafe_node == null || !(right_position_strafe_node.getNodeName().equals("STRAFE_LEFT") ||
+                right_position_strafe_node.getNodeName().equals("STRAFE_RIGHT")))
+            throw new AutonomousRobotException(TAG, "The first child of AUTO_ENDING_POSITION/LEFT must be <STRAFE_LEFT> or <STRAFE_RIGHT>");
+
+        double strafe_angle = right_position_strafe_node.getNodeName().equals("STRAFE_LEFT") ? 90.0 : -90.0;
+
+        return Pair.create(new RobotXMLElement((Element) right_position_strafe_node), strafe_angle);
     }
 
     public static class StartingPositionData {

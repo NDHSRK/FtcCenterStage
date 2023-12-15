@@ -55,13 +55,13 @@
             <ground>0</ground>
             <safe>0</safe>
             <pixel_clearance>0</pixel_clearance>
-            <drone>7402</drone>
+            <drone>6000</drone>
             <autonomous>3000</autonomous>
             <level_1>4102</level_1>
-            <level_2>6895</level_2>
+            <level_2>5900</level_2>
             <level_3>0</level_3>
-            <on_truss>7402</on_truss>
-            <above_truss>7402</above_truss>
+            <on_truss>6000</on_truss>
+            <above_truss>6000</above_truss>
             <hang>-5400</hang>
         </positions>
     </WINCH>

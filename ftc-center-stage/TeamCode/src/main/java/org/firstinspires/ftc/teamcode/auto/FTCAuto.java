@@ -971,7 +971,7 @@ public class FTCAuto {
                     case LEFT: {
                         // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
                         // and execute it.
-                        Pair<RobotXMLElement, Double> strafeToLeftPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "left");
+                        Pair<RobotXMLElement, Double> strafeToLeftPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "LEFT");
                         RobotLogCommon.d(TAG, "Ending strafe LEFT");
                         straight_by(new XPathAccess(strafeToLeftPosition.first), () -> strafeToLeftPosition.second).call();
                         break;
@@ -979,7 +979,7 @@ public class FTCAuto {
                     case RIGHT: {
                         // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/right
                         // and execute it.
-                        Pair<RobotXMLElement, Double> strafeToRightPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "right");
+                        Pair<RobotXMLElement, Double> strafeToRightPosition = RobotActionXMLCenterStage.getFinalPositionElement(pAction, "RIGHT");
                         RobotLogCommon.d(TAG, "Ending strafe RIGHT");
                         straight_by(new XPathAccess(strafeToRightPosition.first), () -> strafeToRightPosition.second).call();
                         break;
@@ -1374,8 +1374,8 @@ public class FTCAuto {
 
     // Based on methods from CenterStageTeleOp.java as of 12/12/2023.
     private void move_elevator_and_winch_to_selected_level(Elevator.ElevatorLevel pSelectedLevel) throws IOException, InterruptedException, TimeoutException {
-        if (asyncMoveElevator != null)
-            throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
+ //**TODO TEMP       if (asyncMoveElevator != null)
+ //**           throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
 
         CompletableFuture<Elevator.ElevatorLevel> localAsyncElevator = null;
         CompletableFuture<Winch.WinchLevel> localAsyncWinch = null;
@@ -1440,8 +1440,8 @@ public class FTCAuto {
     }
 
     private CompletableFuture<Elevator.ElevatorLevel> async_move_elevator(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
-        if (asyncMoveElevator != null)
-            throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
+        //**TODO TEMP              if (asyncMoveElevator != null)
+        //**    throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
 
         Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
             robot.elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
@@ -1453,8 +1453,8 @@ public class FTCAuto {
     }
 
     private CompletableFuture<Winch.WinchLevel> async_move_winch(int pWinchPosition, Winch.WinchLevel pWinchLevelOnCompletion) {
-        if (asyncMoveElevator == null)
-            throw new AutonomousRobotException(TAG, "Async move elevator up *must* be in progress");
+        //**TODO TEMP              if (asyncMoveElevator == null)
+        //**    throw new AutonomousRobotException(TAG, "Async move elevator up *must* be in progress");
 
         Callable<Winch.WinchLevel> callableMoveWinch = () -> {
             robot.winchMotion.moveSingleMotor(pWinchPosition, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
