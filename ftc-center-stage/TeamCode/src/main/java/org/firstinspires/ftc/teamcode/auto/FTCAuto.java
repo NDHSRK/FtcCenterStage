@@ -713,6 +713,8 @@ public class FTCAuto {
             // Locate a specific AprilTag and drive the robot into position
             // in front of it with the method we used in PowerPlay.
             case "DRIVE_TO_APRIL_TAG": {
+                // This check is crucial here because the code in this case block
+                // moves the elevator asynchronously.
                 if (asyncMoveElevator != null) // Prevent double initialization
                     throw new AutonomousRobotException(TAG, "asyncMoveElevator is already in progress");
 
@@ -908,6 +910,9 @@ public class FTCAuto {
             // Move the elevator to an absolute position and, for all positions
             // other than "ground", hold that position.
             case "MOVE_ELEVATOR": {
+                if (asyncMoveElevator != null)
+                    throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
+
                 String position = actionXPath.getRequiredText("position").toUpperCase();
                 Elevator.ElevatorLevel targetLevel = Elevator.ElevatorLevel.valueOf(position);
                 move_elevator_and_winch_to_selected_level(targetLevel);
@@ -1373,10 +1378,9 @@ public class FTCAuto {
     }
 
     // Based on methods from CenterStageTeleOp.java as of 12/12/2023.
+    // This method assumes that the caller's has made sure that an
+    // asynchronous movement of the elevator is not already in progress.
     private void move_elevator_and_winch_to_selected_level(Elevator.ElevatorLevel pSelectedLevel) throws IOException, InterruptedException, TimeoutException {
- //**TODO TEMP       if (asyncMoveElevator != null)
- //**           throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
-
         CompletableFuture<Elevator.ElevatorLevel> localAsyncElevator = null;
         CompletableFuture<Winch.WinchLevel> localAsyncWinch = null;
 
@@ -1439,10 +1443,9 @@ public class FTCAuto {
         }
     }
 
+    // This method assumes that the caller's has made sure that an
+    // asynchronous movement of the elevator is not already in progress.
     private CompletableFuture<Elevator.ElevatorLevel> async_move_elevator(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
-        //**TODO TEMP              if (asyncMoveElevator != null)
-        //**    throw new AutonomousRobotException(TAG, "asyncMoveElevator is in progress");
-
         Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
             robot.elevatorMotion.moveDualMotors(pElevatorPosition, pElevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
             return pElevatorLevelOnCompletion;
@@ -1452,10 +1455,9 @@ public class FTCAuto {
         return Threading.launchAsync(callableMoveElevator);
     }
 
+    // This method assumes that the caller's has made sure that an
+    // asynchronous movement of the elevator is not already in progress.
     private CompletableFuture<Winch.WinchLevel> async_move_winch(int pWinchPosition, Winch.WinchLevel pWinchLevelOnCompletion) {
-        //**TODO TEMP              if (asyncMoveElevator == null)
-        //**    throw new AutonomousRobotException(TAG, "Async move elevator up *must* be in progress");
-
         Callable<Winch.WinchLevel> callableMoveWinch = () -> {
             robot.winchMotion.moveSingleMotor(pWinchPosition, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
             return pWinchLevelOnCompletion;

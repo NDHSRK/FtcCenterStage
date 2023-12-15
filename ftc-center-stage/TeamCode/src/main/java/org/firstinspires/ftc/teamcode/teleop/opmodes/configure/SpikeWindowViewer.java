@@ -66,7 +66,6 @@ public class SpikeWindowViewer extends LinearOpMode {
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
-        String xmlDirectory = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
         try {
             SpikeWindowMappingXML spikeWindowMappingXML = new SpikeWindowMappingXML(robot.startParameters.robotActionFilename);
             collectedSpikeWindowMapping = spikeWindowMappingXML.collectSpikeWindowMapping();
