@@ -296,10 +296,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_LEFT>
-                        <distance>40.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>18.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>40.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </LEFT_SPIKE>
 
@@ -368,14 +378,24 @@
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
-                        <distance>2.0</distance>
+                        <distance>3.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_LEFT>
-                        <distance>30.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>28.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>28.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </CENTER_SPIKE>
 
@@ -447,10 +467,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_LEFT>
-                        <distance>20.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>40.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>18.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </RIGHT_SPIKE>
             </TEAM_PROP_LOCATION_CHOICE>
@@ -585,10 +615,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_LEFT>
-                        <distance>40.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>18.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>40.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </LEFT_SPIKE>
 
@@ -649,10 +689,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_LEFT>
-                        <distance>30.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>28.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>28.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </CENTER_SPIKE>
 
@@ -716,10 +766,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_LEFT>
-                        <distance>26.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>40.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>18.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </RIGHT_SPIKE>
             </TEAM_PROP_LOCATION_CHOICE>
@@ -855,14 +915,24 @@
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
                     <FORWARD>
-                        <distance>3.0</distance>
+                        <distance>2.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_Right>
-                        <distance>20.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_Right>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>18.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>40.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </LEFT_SPIKE>
 
@@ -934,10 +1004,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_RIGHT>
-                        <distance>30.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_RIGHT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>28.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>28.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </CENTER_SPIKE>
 
@@ -1034,10 +1114,20 @@
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <STRAFE_RIGHT>
-                        <distance>40.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_RIGHT>
+                    <AUTO_ENDING_POSITION>
+                        <LEFT>
+                            <STRAFE_RIGHT>
+                                <distance>40.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_RIGHT>
+                        </LEFT>
+                        <RIGHT>
+                            <STRAFE_LEFT>
+                                <distance>18.0</distance>
+                                <velocity>0.5</velocity>
+                            </STRAFE_LEFT>
+                        </RIGHT>
+                    </AUTO_ENDING_POSITION>
 
                 </RIGHT_SPIKE>
 
