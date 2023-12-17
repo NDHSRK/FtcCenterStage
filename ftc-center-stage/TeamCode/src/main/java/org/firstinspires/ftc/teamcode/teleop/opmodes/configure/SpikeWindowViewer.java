@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
@@ -134,7 +133,7 @@ public class SpikeWindowViewer extends LinearOpMode {
             if (spikeWindows == null)
                 return; // ignore the button click
 
-            // Show the spike window mapping for A4 in the camera stream
+            // Show the spike window mapping for the camera stream
             // on the Driver Station.
             spikeWindowProcessor.setSpikeWindowMapping(spikeWindows);
             RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);

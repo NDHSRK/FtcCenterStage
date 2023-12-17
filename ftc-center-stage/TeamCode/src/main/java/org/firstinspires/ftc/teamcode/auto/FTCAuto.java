@@ -889,7 +889,7 @@ public class FTCAuto {
 
             case "DELIVER_PIXEL_TO_SPIKE": {
                 // The position of the pixel stopper does not matter.
-                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, 0.5, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, 0.25, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
                 break;
             }
 
@@ -1411,6 +1411,20 @@ public class FTCAuto {
                     if (robot.winch != null)
                         localAsyncWinch = async_move_winch(robot.winch.safe, Winch.WinchLevel.SAFE);
                 }
+
+                break;
+            }
+            case PIXEL_CLEARANCE: {
+                if (currentElevatorLevel == Elevator.ElevatorLevel.PIXEL_CLEARANCE)
+                    return; // already there
+
+                if (currentElevatorLevel != Elevator.ElevatorLevel.GROUND)
+                    throw new AutonomousRobotException(TAG, "Elevator must be at GROUND before moving to PIXEL_CLEARANCE");
+
+                RobotLogCommon.d(TAG, "Moving elevator up from GROUND to PIXEL_CLEARANCE");
+                localAsyncElevator = async_move_elevator(robot.elevator.pixel_clearance, robot.elevator.getVelocity(), Elevator.ElevatorLevel.PIXEL_CLEARANCE);
+                if (robot.winch != null)
+                    localAsyncWinch = async_move_winch(robot.winch.pixel_clearance, Winch.WinchLevel.PIXEL_CLEARANCE);
 
                 break;
             }
