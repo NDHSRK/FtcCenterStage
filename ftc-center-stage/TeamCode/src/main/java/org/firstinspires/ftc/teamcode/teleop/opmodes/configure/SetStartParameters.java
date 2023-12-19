@@ -69,7 +69,10 @@ public class SetStartParameters extends LinearOpMode {
 
         telemetry.addLine("The current start delay is " + currentStartDelay);
         telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
-        telemetry.addLine("Hold ABXY buttons to select OpMode, touch DPAD left or right for ending position");
+        telemetry.addLine("Hold ABXY buttons to select OpMode:");
+        telemetry.addLine("  A for BLUE_A2, X for BLUE_A4");
+        telemetry.addLine("  Y for RED_F4, B for RED_F2");
+        telemetry.addLine("Touch DPAD left or right for ending position");
         telemetry.addLine("Touch play to SAVE changes and END the OpMode");
         telemetry.update();
 

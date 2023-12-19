@@ -188,4 +188,8 @@ public class FTCButton {
         return state == pState;
     }
 
+    public ButtonValue getButtonValue() {
+        return buttonValue;
+    }
+
 }

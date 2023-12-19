@@ -26,12 +26,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 // This OpMode gives the drive team a way to check the
-// alignment of the front camera to make sure that the
-// Team Prop is in view.
-@TeleOp(name = "SpikeWindowViewer2", group = "Configure")
+// alignment of the front camera to check the OpenCV
+// grayscale thresholding of the cropped webcam frame.
+//**TODO Later - allow the driver to alter the thresholding
+// values via the gamepads.
+@TeleOp(name = "PixelCountViewer", group = "Configure")
 //@Disabled
-public class SpikeWindowViewer2 extends LinearOpMode {
-    private static final String TAG = SpikeWindowViewer2.class.getSimpleName();
+public class PixelCountViewer extends LinearOpMode {
+    private static final String TAG = PixelCountViewer.class.getSimpleName();
 
     private CameraStreamProcessor cameraStreamProcessor;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
@@ -43,12 +45,14 @@ public class SpikeWindowViewer2 extends LinearOpMode {
     // In this OpMode all of the action takes place during init().
     @Override
     public void runOpMode() throws InterruptedException {
-        RobotLog.ii(TAG, "Initializing the SpikeWindowViewer");
+        RobotLog.ii(TAG, "Initializing the PixelCountViewer");
+
+        //**TODO Need TeamPropParameters ...
 
         // Get the camera configuration from RobotConfig.xml.
         FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
 
-        // Start the front webcam with the spike window processor.
+        // Start the front webcam with the pixel count window processor.
         if (robot.configuredWebcams == null || robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM) == null)
             throw new AutonomousRobotException(TAG, "Front camera is not in the current configuration");
 
@@ -56,14 +60,14 @@ public class SpikeWindowViewer2 extends LinearOpMode {
                 robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
 
         cameraStreamProcessor = new CameraStreamProcessor.Builder().build();
-        CameraStreamWebcam spikeWindowWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
-                Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW, cameraStreamProcessor));
+        CameraStreamWebcam pixelCountWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
+                Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT, cameraStreamProcessor));
 
-        if (!spikeWindowWebcam.waitForWebcamStart(2000))
+        if (!pixelCountWebcam.waitForWebcamStart(2000))
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
 
-        Objects.requireNonNull(frontWebcamConfiguration).setVisionPortalWebcam(spikeWindowWebcam);
-        RobotLog.ii(TAG, "SpikeWindowViewer successfully started on the front webcam");
+        Objects.requireNonNull(frontWebcamConfiguration).setVisionPortalWebcam(pixelCountWebcam);
+        RobotLog.ii(TAG, "PixelCountViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
@@ -82,8 +86,6 @@ public class SpikeWindowViewer2 extends LinearOpMode {
         opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
-        telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
-        telemetry.addLine("Press Y for RED_F4, B for RED_F2");
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch play to *END* the OpMode");
         telemetry.update();
@@ -112,22 +114,22 @@ public class SpikeWindowViewer2 extends LinearOpMode {
     }
 
     private void updateOpModeBlueA2() {
-        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
+        setPixelCountRendering(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
     }
 
     private void updateOpModeBlueA4() {
-        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
+        setPixelCountRendering(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
     }
 
     private void updateOpModeRedF4() {
-        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
+        setPixelCountRendering(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
     }
 
     private void updateOpModeRedF2() {
-        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
+        setPixelCountRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
     }
 
-    private void setSpikeWindowRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
+    private void setPixelCountRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
         if (pOpModeButton.is(FTCButton.State.TAP)) {
             RobotLog.dd(TAG, "Button " + pOpModeButton.getButtonValue() + " for " + pOpMode + " tapped");
 
@@ -137,8 +139,16 @@ public class SpikeWindowViewer2 extends LinearOpMode {
             if (spikeWindows == null)
                 return; // ignore the button click
 
-            // Show the spike window mapping on the Driver Station
-            // camera stream.
+            //**TODO Show the pixel count grayscale thresholding on the
+            // Driver Station camera stream. NEED PixelCountRendering
+            /*
+            *need* alliance
+                public TeamPropReturn recognizeTeamProp(*not needed* ImageProvider pImageProvider,
+                                            *not needed* RobotConstantsCenterStage.TeamPropRecognitionPath pTeamPropRecognitionPath,
+                                            *need pTeamPropParameters.colorChannelPixelCountParameters* TeamPropParameters pTeamPropParameters,
+                                            *need* SpikeWindowMapping pSpikeWindowMapping) throws InterruptedException {
+
+             */
             cameraStreamProcessor.setCameraStreamRendering(new SpikeWindowRendering(spikeWindows));
             RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);
             telemetry.addLine("Spike windows for " + pOpMode);
