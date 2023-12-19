@@ -1438,6 +1438,8 @@ public class FTCAuto {
                     localAsyncWinch = async_move_winch(Objects.requireNonNull(robot.winch).autonomous, Winch.WinchLevel.AUTONOMOUS);
                 break;
             }
+            //**TODO need cases for LEVEL_1 and LEVEL_2 and possibly other levels for
+                // TEST_ELEVATOR
             default:
                 throw new AutonomousRobotException(TAG, "Invalid elevator level " + pSelectedLevel);
         }

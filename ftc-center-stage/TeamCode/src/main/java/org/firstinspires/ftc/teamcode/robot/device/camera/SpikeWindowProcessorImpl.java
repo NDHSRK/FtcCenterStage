@@ -74,6 +74,8 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
         if (currentSpikeWindowMapping == null)
             return input;
 
+        //**TODO You really don't need this logic here - move it below to
+        // onDrawFrame; you also won't need SpikeWindowUserContext.
         // Now we have a spike window mapping. Create the required UserData
         // for the onDrawFrame callback.
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = currentSpikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
@@ -82,6 +84,9 @@ public class SpikeWindowProcessorImpl extends SpikeWindowProcessor {
                 currentSpikeWindowMapping.imageParameters.image_roi,
                 leftWindow.first);
     }
+
+    //**TODO Don't draw on the Canvas, draw on a Mat and then convert the
+    // Mat to an Android Bitmap and load it onto the Canvas.
 
     //## This is a callback.
     // For 640x480 full image the first callback to this method sent in the
