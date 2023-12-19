@@ -37,16 +37,10 @@
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
-import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.opencv.core.Mat;
-import org.opencv.core.Rect;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -78,7 +72,7 @@ public class CameraStreamProcessorImpl extends CameraStreamProcessor {
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
         if (!(userContext instanceof Mat))
-            throw new AutonomousRobotException(TAG, "onDrawFrame expected OpenCV Mat"); // somebody changed processFrame.
+            throw new AutonomousRobotException(TAG, "CameraStreamProcessorImpl.onDrawFrame expected OpenCV Mat"); // somebody changed processFrame.
 
         CameraStreamRendering cameraStreamRendering = cameraStreamRenderingRef.get();
         cameraStreamRendering.renderFrameToCanvas((Mat) userContext, canvas, onscreenWidth, onscreenHeight);
