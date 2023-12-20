@@ -75,7 +75,8 @@ public class CameraStreamProcessorImpl extends CameraStreamProcessor {
             throw new AutonomousRobotException(TAG, "CameraStreamProcessorImpl.onDrawFrame expected OpenCV Mat"); // somebody changed processFrame.
 
         CameraStreamRendering cameraStreamRendering = cameraStreamRenderingRef.get();
-        cameraStreamRendering.renderFrameToCanvas((Mat) userContext, canvas, onscreenWidth, onscreenHeight);
+        if (cameraStreamRendering != null) // has rendering been set?
+            cameraStreamRendering.renderFrameToCanvas((Mat) userContext, canvas, onscreenWidth, onscreenHeight);
     }
 
     @Override

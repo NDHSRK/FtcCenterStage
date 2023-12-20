@@ -22,13 +22,13 @@ public class SpikeWindowRendering implements CameraStreamRendering {
         spikeWindowMapping = pSpikeWindowMapping;
     }
 
-    public List<String> renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
+    public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
                                             int onscreenWidth, int onscreenHeight) {
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
         float xFactor = onscreenWidth / (float) spikeWindowMapping.imageParameters.resolution_width;
         float yFactor = onscreenHeight / (float) spikeWindowMapping.imageParameters.resolution_height;
 
-        // Draw the ROI on the canvas.
+        // Draw the spike windows on the canvas.
         Paint greenAxisPaint = new Paint();
         greenAxisPaint.setColor(Color.GREEN);
         greenAxisPaint.setAntiAlias(true);
@@ -46,7 +46,6 @@ public class SpikeWindowRendering implements CameraStreamRendering {
         // spike windows.
         float spikeWindowBoundaryX = left + (Objects.requireNonNull(leftWindow).first.width * xFactor);
         pDriverStationScreenCanvas.drawLine(spikeWindowBoundaryX, top, spikeWindowBoundaryX, bottom, greenAxisPaint);
-        return new ArrayList<String>(); // nothing for telemetry
     }
 
 }

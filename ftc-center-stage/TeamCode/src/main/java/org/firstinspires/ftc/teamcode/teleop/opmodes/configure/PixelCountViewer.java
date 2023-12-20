@@ -8,6 +8,7 @@ import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
+import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
@@ -150,11 +151,22 @@ public class PixelCountViewer extends LinearOpMode {
             if (spikeWindows == null)
                 return; // ignore the button click
 
-            RobotConstants.Alliance alliance =
-                    (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||
-                            pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4) ? RobotConstants.Alliance.BLUE : RobotConstants.Alliance.RED;
+            RobotConstants.Alliance alliance;
+            VisionParameters.GrayParameters allianceGrayParameters;
+            int allianceMinWhitePixelCount;
+            if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||
+                            pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4) {
+                alliance = RobotConstants.Alliance.BLUE;
+                allianceGrayParameters = teamPropParameters.colorChannelPixelCountParameters.blueGrayParameters;
+                allianceMinWhitePixelCount = teamPropParameters.colorChannelPixelCountParameters.blueMinWhitePixelCount;
+            }
+            else {
+                alliance = RobotConstants.Alliance.RED;
+                allianceGrayParameters = teamPropParameters.colorChannelPixelCountParameters.redGrayParameters;
+                allianceMinWhitePixelCount = teamPropParameters.colorChannelPixelCountParameters.redMinWhitePixelCount;
+            }
 
-            cameraStreamProcessor.setCameraStreamRendering(new PixelCountRendering(alliance, teamPropParameters.colorChannelPixelCountParameters, spikeWindows));
+            cameraStreamProcessor.setCameraStreamRendering(new PixelCountRendering(this, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows));
             RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
             telemetry.addLine("Pixel count rendering for " + pOpMode);
             telemetry.update();
