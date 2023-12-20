@@ -417,7 +417,7 @@ public class TeamPropRecognition {
     // determines which channel to pre-process and return. For better
     // contrast the RED alliance uses the inversion of the blue channel
     // and the BLUE alliance uses the inversion of the red channel.
-    private Mat splitAndInvertChannels(Mat pImageROI, RobotConstants.Alliance pAlliance, VisionParameters.GrayParameters pGrayParameters, String pOutputFilenamePreamble) {
+    public static Mat splitAndInvertChannels(Mat pImageROI, RobotConstants.Alliance pAlliance, VisionParameters.GrayParameters pGrayParameters, String pOutputFilenamePreamble) {
         ArrayList<Mat> channels = new ArrayList<>(3);
         Core.split(pImageROI, channels); // red or blue channel. B = 0, G = 1, R = 2
         Mat selectedChannel;

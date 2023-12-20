@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
+import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
+import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
@@ -13,6 +16,7 @@ import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.PixelCountRendering;
 import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowRendering;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
@@ -35,8 +39,9 @@ import javax.xml.xpath.XPathExpressionException;
 public class PixelCountViewer extends LinearOpMode {
     private static final String TAG = PixelCountViewer.class.getSimpleName();
 
-    private CameraStreamProcessor cameraStreamProcessor;
+    private TeamPropParameters teamPropParameters;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
+    private CameraStreamProcessor cameraStreamProcessor;
     private FTCButton opModeBlueA2;
     private FTCButton opModeBlueA4;
     private FTCButton opModeRedF4;
@@ -47,7 +52,13 @@ public class PixelCountViewer extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         RobotLog.ii(TAG, "Initializing the PixelCountViewer");
 
-        //**TODO Need TeamPropParameters ...
+        // Read the parameters for team prop recognition from the xml file.
+        TeamPropParametersXML teamPropParametersXML = new TeamPropParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
+        try {
+            teamPropParameters = teamPropParametersXML.getTeamPropParameters();
+        } catch (XPathExpressionException e) {
+            throw new AutonomousRobotException(TAG, e.getMessage());
+        }
 
         // Get the camera configuration from RobotConfig.xml.
         FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
@@ -139,19 +150,13 @@ public class PixelCountViewer extends LinearOpMode {
             if (spikeWindows == null)
                 return; // ignore the button click
 
-            //**TODO Show the pixel count grayscale thresholding on the
-            // Driver Station camera stream. NEED PixelCountRendering
-            /*
-            *need* alliance
-                public TeamPropReturn recognizeTeamProp(*not needed* ImageProvider pImageProvider,
-                                            *not needed* RobotConstantsCenterStage.TeamPropRecognitionPath pTeamPropRecognitionPath,
-                                            *need pTeamPropParameters.colorChannelPixelCountParameters* TeamPropParameters pTeamPropParameters,
-                                            *need* SpikeWindowMapping pSpikeWindowMapping) throws InterruptedException {
+            RobotConstants.Alliance alliance =
+                    (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||
+                            pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4) ? RobotConstants.Alliance.BLUE : RobotConstants.Alliance.RED;
 
-             */
-            cameraStreamProcessor.setCameraStreamRendering(new SpikeWindowRendering(spikeWindows));
-            RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);
-            telemetry.addLine("Spike windows for " + pOpMode);
+            cameraStreamProcessor.setCameraStreamRendering(new PixelCountRendering(alliance, teamPropParameters.colorChannelPixelCountParameters, spikeWindows));
+            RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
+            telemetry.addLine("Pixel count rendering for " + pOpMode);
             telemetry.update();
         }
     }
