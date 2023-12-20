@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SpikeWindowRendering implements CameraStreamRendering {
@@ -20,8 +22,8 @@ public class SpikeWindowRendering implements CameraStreamRendering {
         spikeWindowMapping = pSpikeWindowMapping;
     }
 
-    public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
-                                    int onscreenWidth, int onscreenHeight) {
+    public List<String> renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
+                                            int onscreenWidth, int onscreenHeight) {
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
         float xFactor = onscreenWidth / (float) spikeWindowMapping.imageParameters.resolution_width;
         float yFactor = onscreenHeight / (float) spikeWindowMapping.imageParameters.resolution_height;
@@ -44,6 +46,7 @@ public class SpikeWindowRendering implements CameraStreamRendering {
         // spike windows.
         float spikeWindowBoundaryX = left + (Objects.requireNonNull(leftWindow).first.width * xFactor);
         pDriverStationScreenCanvas.drawLine(spikeWindowBoundaryX, top, spikeWindowBoundaryX, bottom, greenAxisPaint);
+        return new ArrayList<String>(); // nothing for telemetry
     }
 
 }
