@@ -3,7 +3,7 @@
   <TELEOP_SETTINGS>
     <!-- In production the value is "off" but set to a
          more detailed level during testing needed. -->
-    <log_level>off</log_level>
+    <log_level>d</log_level>
     <!-- Settings for the velocity control buttons on the game controller. -->
     <drive_train_power>
       <high>1.0</high>
@@ -43,7 +43,7 @@
         <resolution_height>480</resolution_height>
         <processor_set>
           <!-- processor>raw_frame</processor -->
-          <processor>april_tag</processor>
+          <processor>pixel_count</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>
           <focal_length_x>622.001</focal_length_x>
