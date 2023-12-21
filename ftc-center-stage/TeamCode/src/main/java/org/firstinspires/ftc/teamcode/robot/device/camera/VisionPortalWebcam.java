@@ -57,7 +57,8 @@ public abstract class VisionPortalWebcam {
         // The async camera startup happens behind the scenes in VisionPortalImpl.
     }
 
-    // Wait here with timeout until VisionPortal.CameraState.STREAMING.
+    // Wait here with timeout until VisionPortal.CameraState.STREAMING but
+    // STARTING_STREAM also seems to be good enough.
     public boolean waitForWebcamStart(int pTimeoutMs) {
         RobotLogCommon.d(TAG, "Waiting for webcam " + configuredWebcam.internalWebcamId + " to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();

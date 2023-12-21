@@ -165,6 +165,8 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .addProcessor(aprilTag)
                 .build();
 
+        //**TODO ONE more time - try disabling both processors here ...
+
     }   // end initDoubleVision()
 
     /**

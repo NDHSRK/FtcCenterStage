@@ -98,6 +98,7 @@ public class PixelCountRendering implements CameraStreamRendering {
          */
         android.graphics.Rect sourceRect = new android.graphics.Rect(0, 0, thresholded.cols(), thresholded.rows());
         android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
+        pDriverStationScreenCanvas.drawBitmap(bmp, sourceRect, destRect, null);
     }
 
 }
