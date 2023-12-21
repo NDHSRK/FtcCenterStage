@@ -21,8 +21,9 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
     private static final String TAG = AprilTagWebcam.class.getSimpleName();
 
     public AprilTagWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                          EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
-        super(pConfiguredWebcam, pAssignedProcessors);
+                          RobotConstantsCenterStage.ProcessorIdentifier pProcessorId,
+                          Pair<VisionProcessor, Boolean> pAssignedProcessor) {
+        super(pConfiguredWebcam, pProcessorId, pAssignedProcessor);
     }
 
     // Returns an empty List if no AprilTag detections are available.

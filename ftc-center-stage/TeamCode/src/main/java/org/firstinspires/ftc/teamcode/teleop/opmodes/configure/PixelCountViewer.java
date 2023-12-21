@@ -73,9 +73,8 @@ public class PixelCountViewer extends LinearOpMode {
 
         pixelCountProcessor = new CameraStreamProcessor.Builder().build();
         CameraStreamWebcam pixelCountWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
-                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
-                {{put(RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT, Pair.create(pixelCountProcessor, true));}});
-
+                RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT,
+                Pair.create(pixelCountProcessor, true));
 
         if (!pixelCountWebcam.waitForWebcamStart(2000))
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");

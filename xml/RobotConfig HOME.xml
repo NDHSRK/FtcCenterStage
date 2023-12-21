@@ -44,6 +44,7 @@
         <processor_set>
           <processor>raw_frame</processor>
           <processor>april_tag</processor>
+          <processor>spike_window</processor>
           <processor>pixel_count</processor>
         </processor_set>
         <webcam_calibration_for_apriltags>

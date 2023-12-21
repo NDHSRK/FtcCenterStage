@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -168,11 +169,10 @@ public class FTCAuto {
             VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
-                VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
+                VisionProcessor rawFrameProcessor = new RawFrameProcessor.Builder().build();
                 RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(frontWebcamConfiguration,
-                        new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
-                        {{put(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, Pair.create(webcamFrameProcessor, true));}});
-
+                        RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME,
+                        Pair.create(rawFrameProcessor, true));
                 if (!rawFrameWebcam.waitForWebcamStart(2000))
                     throw new AutonomousRobotException(TAG, "Unable to start front webcam");
                 frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
@@ -432,16 +432,6 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO You also need a way to parse out multiple <processor> elements
-// under <START_WEBCAM> - see getStartWebcamProcessors in
-// RobotActionXMLCenterStage.java. You need to make sure that these
-// processors belong to the camera's <processor_set> in RobotConfig.xml.
-
-//**TODO attribute for a <processor> element under <START_WEBCAM>,
-// e.g. <processor enable_on_start="raw_frame">. Only one processor
-// may be enabled on start - *check this*; if no processors are enabled
-// on start then an <ENABLE_PROCESSOR> element must be present in
-// RobotAction.xml.
             case "START_WEBCAM": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
@@ -457,38 +447,53 @@ public class FTCAuto {
                 if (configuredWebcam == null)
                     throw new AutonomousRobotException(TAG, "Attempt to start a webcam that is not in the configuration " + webcamId);
 
-                String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
-                RobotConstantsCenterStage.ProcessorIdentifier processorId =
-                        RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
+                // The <START_WEBCAM> in RobotAction.xml may contain a
+                // single <processor> element or a <processor_set> element
+                // with multiple <processor> children.
+                ArrayList<Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean>> assignedProcessors;
+                String processorIdString = actionXPath.getText("processor", "NPOS").toUpperCase();
+                if (!processorIdString.equals("NPOS")) { // single processor id
+                    RobotConstantsCenterStage.ProcessorIdentifier processorId = RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
+                    assignedProcessors = new ArrayList<Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean>>() {{
+                        add(Pair.create(processorId, true));
+                    }};
+                } else // multiple processors, i.e. a <processor_set>.
+                    assignedProcessors = RobotActionXMLCenterStage.getStartWebcamProcessors(pAction);
 
-                switch (processorId) {
-                    case RAW_FRAME: {
-                        VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
-                        RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(configuredWebcam,
-                                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
-                                {{put(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, Pair.create(webcamFrameProcessor, true));}});
+                // Check that the active processors are also present in
+                // the camera's <processor_set> in RobotConfig.xml.
+                ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIdentifiers = configuredWebcam.processorIdentifiers;
+                for (Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean> entry : assignedProcessors) {
+                    if (!processorIdentifiers.contains(entry.first))
+                        throw new AutonomousRobotException(TAG, "Assigned processor with id " + entry.first + " is not in the configuration for webcam " + configuredWebcam.internalWebcamId);
 
-                        configuredWebcam.setVisionPortalWebcam(rawFrameWebcam);
-                        break;
+                    switch (entry.first) {
+                        case RAW_FRAME: {
+                            VisionProcessor rawFrameProcessor = new RawFrameProcessor.Builder().build();
+                            RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(configuredWebcam,
+                                    RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME,
+                                    Pair.create(rawFrameProcessor, true));
+                            configuredWebcam.setVisionPortalWebcam(rawFrameWebcam);
+                            break;
+                        }
+                        case APRIL_TAG: {
+                            VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
+                                    // Follow the MultiPortal sample, which only includes setLensIntrinsics
+                                    .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
+                                            configuredWebcam.cameraCalibration.focalLengthY,
+                                            configuredWebcam.cameraCalibration.principalPointX,
+                                            configuredWebcam.cameraCalibration.principalPointY)
+                                    .build();
+
+                            AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
+                                    RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG,
+                                    Pair.create(aprilTagProcessor, true));
+                            configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
+                            break;
+                        }
+                        default:
+                            throw new AutonomousRobotException(TAG, "Invalid processor id " + entry.first);
                     }
-                    case APRIL_TAG: {
-                        VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-                                // Follow the MultiPortal sample, which only includes setLensIntrinsics
-                                .setLensIntrinsics(configuredWebcam.cameraCalibration.focalLengthX,
-                                        configuredWebcam.cameraCalibration.focalLengthY,
-                                        configuredWebcam.cameraCalibration.principalPointX,
-                                        configuredWebcam.cameraCalibration.principalPointY)
-                                .build();
-
-                        AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
-                                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
-                                {{put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG, Pair.create(aprilTagProcessor, true));}});
-
-                        configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
-                        break;
-                    }
-                    default:
-                        throw new AutonomousRobotException(TAG, "Invalid processor id " + processorId);
                 }
 
                 break;
@@ -1433,7 +1438,6 @@ public class FTCAuto {
                     if (robot.winch != null)
                         localAsyncWinch = async_move_winch(robot.winch.safe, Winch.WinchLevel.SAFE);
                 }
-
                 break;
             }
             case PIXEL_CLEARANCE: {
@@ -1447,7 +1451,6 @@ public class FTCAuto {
                 localAsyncElevator = async_move_elevator(robot.elevator.pixel_clearance, robot.elevator.getVelocity(), Elevator.ElevatorLevel.PIXEL_CLEARANCE);
                 if (robot.winch != null)
                     localAsyncWinch = async_move_winch(robot.winch.pixel_clearance, Winch.WinchLevel.PIXEL_CLEARANCE);
-
                 break;
             }
             case AUTONOMOUS: {
@@ -1460,8 +1463,54 @@ public class FTCAuto {
                     localAsyncWinch = async_move_winch(Objects.requireNonNull(robot.winch).autonomous, Winch.WinchLevel.AUTONOMOUS);
                 break;
             }
-            //**TODO need cases for LEVEL_1 and LEVEL_2 and possibly other levels for
-                // TEST_ELEVATOR
+            case LEVEL_1: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to LEVEL_1");
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_1");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).level_1, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_1);
+                if (robot.winch != null) // the winch is configured in
+                    async_move_winch(Objects.requireNonNull(robot.winch).level_1, Winch.WinchLevel.LEVEL_1);
+                break;
+            }
+            case LEVEL_2: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to LEVEL_2");
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_2");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).level_2, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_2);
+                if (robot.winch != null) // the winch is configured in
+                    async_move_winch(Objects.requireNonNull(robot.winch).level_2, Winch.WinchLevel.LEVEL_2);
+                break;
+            }
+            case DRONE: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to the DRONE level");
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to DRONE");
+                async_move_elevator(Objects.requireNonNull(robot.elevator).drone, robot.elevator.getVelocity(), Elevator.ElevatorLevel.DRONE);
+                if (robot.winch != null) // the winch is configured in
+                    async_move_winch(Objects.requireNonNull(robot.winch).drone, Winch.WinchLevel.DRONE);
+                break;
+            }
+            case ON_TRUSS: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.ABOVE_TRUSS)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at ABOVE_TRUSS before moving to ON_TRUSS");
+
+                RobotLogCommon.d(TAG, "Moving elevator from ABOVE_TRUSS to ON_TRUSS");
+                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator).on_truss, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                currentElevatorLevel = Elevator.ElevatorLevel.ON_TRUSS;
+                break;
+            }
+            case ABOVE_TRUSS: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.DRONE)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at DRONE before moving to ABOVE_TRUSS");
+
+                RobotLogCommon.d(TAG, "Moving elevator from DRONE to ABOVE_TRUSS");
+                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator).above_truss, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                currentElevatorLevel = Elevator.ElevatorLevel.ABOVE_TRUSS;
+                break;
+            }
             default:
                 throw new AutonomousRobotException(TAG, "Invalid elevator level " + pSelectedLevel);
         }

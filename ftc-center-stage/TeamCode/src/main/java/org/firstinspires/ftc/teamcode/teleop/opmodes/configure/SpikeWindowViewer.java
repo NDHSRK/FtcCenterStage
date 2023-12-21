@@ -58,9 +58,8 @@ public class SpikeWindowViewer extends LinearOpMode {
 
         spikeWindowProcessor = new CameraStreamProcessor.Builder().build();
         CameraStreamWebcam spikeWindowWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
-                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
-                {{put(RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW, Pair.create(spikeWindowProcessor, true));}});
-
+                RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW,
+                Pair.create(spikeWindowProcessor, true));
 
         if (!spikeWindowWebcam.waitForWebcamStart(2000))
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");

@@ -11,8 +11,9 @@ public class CameraStreamWebcam extends VisionPortalWebcam {
     private static final String TAG = CameraStreamWebcam.class.getSimpleName();
 
     public CameraStreamWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                              EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
-        super(pConfiguredWebcam, pAssignedProcessors);
+                              RobotConstantsCenterStage.ProcessorIdentifier pProcessorId,
+                              Pair<VisionProcessor, Boolean> pAssignedProcessor) {
+        super(pConfiguredWebcam, pProcessorId, pAssignedProcessor);
 
         if (!(activeProcessorId == RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW ||
                 activeProcessorId == RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT))

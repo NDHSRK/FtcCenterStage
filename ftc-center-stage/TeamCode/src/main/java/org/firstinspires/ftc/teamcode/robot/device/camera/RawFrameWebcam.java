@@ -19,8 +19,9 @@ public class RawFrameWebcam extends VisionPortalWebcam implements ImageProvider 
     private static final String TAG = RawFrameWebcam.class.getSimpleName();
 
     public RawFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                          EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
-        super(pConfiguredWebcam, pAssignedProcessors);
+                          RobotConstantsCenterStage.ProcessorIdentifier pProcessorId,
+                          Pair<VisionProcessor, Boolean> pAssignedProcessor) {
+        super(pConfiguredWebcam, pProcessorId, pAssignedProcessor);
     }
 
     public Pair<Mat, Date> getImage() {

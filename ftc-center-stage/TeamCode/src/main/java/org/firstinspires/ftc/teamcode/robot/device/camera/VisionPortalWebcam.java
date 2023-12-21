@@ -44,6 +44,15 @@ public class VisionPortalWebcam {
     protected VisionProcessor activeProcessor;
     protected final VisionPortal visionPortal;
 
+    // Constructor that can be used to attach a single processor to a webcam.
+    public VisionPortalWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
+                              RobotConstantsCenterStage.ProcessorIdentifier pProcessorId,
+                              Pair<VisionProcessor, Boolean> pAssignedProcessor) {
+        this(pConfiguredWebcam,
+                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
+                {{put(pProcessorId, pAssignedProcessor);}});
+    }
+
     public VisionPortalWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
                               EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
         configuredWebcam = pConfiguredWebcam;
