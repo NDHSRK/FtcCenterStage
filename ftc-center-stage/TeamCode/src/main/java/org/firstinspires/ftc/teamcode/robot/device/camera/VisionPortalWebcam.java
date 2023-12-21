@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
 import static android.os.SystemClock.sleep;
@@ -16,43 +15,75 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-// Use the VisionPortal API to manage a webcam and either one or two
-// "processors". The processors are constructed in advance and
-// passed in to this class.
-public abstract class VisionPortalWebcam {
+// Support a single camera and one or more processors, e.g. a RawFrameProcessor
+// and an AprilTag processor. Even if multiple processors are identified in the
+// webcam configuration, the XML element <START_WEBCAM> in RobotAction.xml
+// controls which processors are attached to the webcam for a particular
+// task or tasks and which one, if any, of the processors is enabled when the
+// webcam is started. For TeleOp Opmodes such as the SpikeWindowViewer the
+// name(s) of the processor(s) must be supplied when the webcam is started.
+
+//**TODO To support both a RawFrameProcessor and an AprilTagProcessor on the
+// same webcam you need a DualProcessorWebcam that implements both
+// RawFrameProvider and AprilTagProvider.
+
+// It is an application-wide assumption that there is only one instance of
+// this class per webcam and that its methods are called from a single thread.
+public class VisionPortalWebcam {
     private static final String TAG = VisionPortalWebcam.class.getSimpleName();
 
     private final VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam;
-    private VisionPortal visionPortal;
-    protected RobotConstantsCenterStage.ProcessorIdentifier activeProcessorId;
-    protected final VisionProcessor activeProcessor;
-    private boolean activeProcessorEnabled;
+    private final EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> assignedProcessors;
+    protected RobotConstantsCenterStage.ProcessorIdentifier activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
+    protected VisionProcessor activeProcessor;
+    protected final VisionPortal visionPortal;
 
-    // Support a single camera and a single processor, a WebcamFrameProcessor
-    // or an AprilTag processor.
     public VisionPortalWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                              Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pAssignedProcessor) {
+                              EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
         configuredWebcam = pConfiguredWebcam;
-        activeProcessorId = pAssignedProcessor.first;
-        activeProcessor = pAssignedProcessor.second;
+        assignedProcessors = pAssignedProcessors;
         RobotLogCommon.d(TAG, "Preparing to open the webcam " + configuredWebcam.internalWebcamId);
 
-        visionPortal = new VisionPortal.Builder()
+        // Check that the processors assigned to this webcam belong to the camera's <processor_set>
+        // in RobotConfig.xml.
+        ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIdentifiers = configuredWebcam.processorIdentifiers;
+        for (Map.Entry<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> entry : assignedProcessors.entrySet()) {
+            if (!processorIdentifiers.contains(entry.getKey()))
+                throw new AutonomousRobotException(TAG, "Assigned processor with id " + entry.getValue().first + " is not in the configuration for webcam " + configuredWebcam.internalWebcamId);
+        }
+
+        VisionPortal.Builder builder = new VisionPortal.Builder()
                 .setCamera(configuredWebcam.getWebcamName())
                 .setCameraResolution(new Size(configuredWebcam.resolutionWidth, configuredWebcam.resolutionHeight))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .addProcessor(pAssignedProcessor.second)
-                //## 11/06/23 need to enable LiveView for testing with scrcpy
-                //.enableLiveView(true)
-                .enableLiveView(false) //##PY normal setting
-                //.setAutoStopLiveView(false) //## Only if we're using LiveView
+                .enableLiveView(false);
 
-                .build();
+        // Add all assigned processors here, which will enable them.
+        assignedProcessors.forEach((k, v) -> builder.addProcessor(v.first));
+        visionPortal = builder.build();
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.ERROR)
             throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
+
+        // Check that only one webcam may be marked for "enable_on_start";
+        // disable all others. It is also possible that all processors may be disabled
+        // on start.
+        AtomicInteger enabledCount = new AtomicInteger();
+        assignedProcessors.forEach((k, v) -> {
+            if (v.second) {
+                if (enabledCount.addAndGet(1) > 1)
+                    throw new AutonomousRobotException(TAG, "Only 1 processor may be enabled on start");
+                activeProcessorId = k;
+            }
+            else
+                visionPortal.setProcessorEnabled(v.first, false);
+        });
 
         // The async camera startup happens behind the scenes in VisionPortalImpl.
     }
@@ -76,7 +107,6 @@ public abstract class VisionPortalWebcam {
             return false;
         }
 
-        activeProcessorEnabled = true;
         return true;
     }
 
@@ -99,7 +129,7 @@ public abstract class VisionPortalWebcam {
             while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING && streamingTimer.milliseconds() < pTimeoutMs) {
                 sleep(20);
             }
-            
+
             if (!webcamIsStreaming)
                 throw new AutonomousRobotException(TAG, "Timed out waiting for CameraState.STREAMING");
         }
@@ -111,55 +141,87 @@ public abstract class VisionPortalWebcam {
             sleep(50);
         }
 
-        exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
+        exposureControl.setExposure(exposureMS, TimeUnit.MILLISECONDS);
         sleep(20);
         GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(gain);
         sleep(20);
     }
 
-    public void enableProcessor() {
-       if (activeProcessorEnabled) {
-            RobotLogCommon.d(TAG, "Ignoring request to enable processor " + activeProcessorId + " which is already active");
-            return; // already enabled
+    public void enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
+            throw new AutonomousRobotException(TAG, "Attempting to enable the processor " + pProcessorId + " even though the webcam is not STREAMING");
+
+        VisionProcessor processor = assignedProcessors.get(pProcessorId).first;
+        if (processor == null)
+            throw new AutonomousRobotException(TAG, "Attempt to enable an unassigned processor " + pProcessorId);
+
+        if (pProcessorId == activeProcessorId) {
+            RobotLogCommon.d(TAG, "Ignoring request to enable processor " + pProcessorId + " which is already enabled");
+            return;
         }
 
-        visionPortal.setProcessorEnabled(activeProcessor, true);
-        activeProcessorEnabled = true;
-        RobotLogCommon.d(TAG, "Enabling the processor " + activeProcessorId);
+        // In our application we only allow one processor at a time to be enabled.
+        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS) {
+            RobotLogCommon.d(TAG, "The processor " + activeProcessorId + " is active, disable it");
+            visionPortal.setProcessorEnabled(activeProcessor, false);
+        }
+
+        visionPortal.setProcessorEnabled(processor, true);
+        activeProcessorId = pProcessorId;
+        activeProcessor = processor;
+        RobotLogCommon.d(TAG, "Enabling the processor " + pProcessorId);
     }
 
-    public void disableProcessor() {
-         if (!activeProcessorEnabled) {
-            RobotLogCommon.d(TAG, "Request to disable the processor " + activeProcessorId + " which is already disabled");
-            return; // already disabled
+    public void disableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
+            throw new AutonomousRobotException(TAG, "Attempting to disable the processor " + pProcessorId + " even though the webcam is not STREAMING");
+
+        VisionProcessor processor = assignedProcessors.get(pProcessorId).first;
+        if (processor == null)
+            throw new AutonomousRobotException(TAG, "Attempt to disable an unassigned processor " + pProcessorId);
+
+        if (activeProcessorId != pProcessorId) {
+            RobotLogCommon.d(TAG, "Request to disable the processor " + pProcessorId + " which is not active");
+            RobotLogCommon.d(TAG, "The active processor is " + activeProcessorId);
+            return;
         }
 
-        visionPortal.setProcessorEnabled(activeProcessor, false);
-        activeProcessorEnabled = false;
-        RobotLogCommon.d(TAG, "Disabling the processor " + activeProcessorId);
+        visionPortal.setProcessorEnabled(processor, false);
+        activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
+        activeProcessor = null;
+        RobotLogCommon.d(TAG, "Disabling the processor " + pProcessorId);
     }
 
     public void stopStreaming() {
         if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             RobotLogCommon.d(TAG, "Ignoring request to stop streaming the webcam " + configuredWebcam.internalWebcamId);
             RobotLogCommon.d(TAG, "The webcam is not streaming");
-            return;
-        }
-
-        visionPortal.stopStreaming();
-        RobotLogCommon.d(TAG, "Stop streaming the webcam " + configuredWebcam.internalWebcamId);
+        } else
+            visionPortal.stopStreaming();
     }
 
-    public void resumeStreaming() {
+    public boolean resumeStreaming(int pTimeoutMs) {
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
             RobotLogCommon.d(TAG, "Ignoring request to resume streaming the webcam " + configuredWebcam.internalWebcamId);
             RobotLogCommon.d(TAG, "The webcam is already streaming");
-            return;
+            return true;
         }
 
+        ElapsedTime streamingTimer = new ElapsedTime();
+        streamingTimer.reset(); // start
         visionPortal.resumeStreaming();
-        RobotLogCommon.d(TAG, "Resume streaming the webcam " + configuredWebcam.internalWebcamId);
+        while (streamingTimer.milliseconds() < pTimeoutMs && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            sleep(50);
+        }
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+            RobotLogCommon.d(TAG, "Resumed streaming the webcam " + configuredWebcam.internalWebcamId);
+            return true;
+        }
+
+        RobotLogCommon.d(TAG, "Timed out " + pTimeoutMs + " while attempting to resume streaming the webcam " + configuredWebcam.internalWebcamId);
+        return false;
     }
 
     // Completely shut down the webcam.
@@ -174,7 +236,6 @@ public abstract class VisionPortalWebcam {
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
           visionPortal.stopStreaming();
-
          */
 
         visionPortal.close();

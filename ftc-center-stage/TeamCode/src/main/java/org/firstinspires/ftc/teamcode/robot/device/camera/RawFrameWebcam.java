@@ -12,14 +12,15 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.Objects;
 
 public class RawFrameWebcam extends VisionPortalWebcam implements ImageProvider {
     private static final String TAG = RawFrameWebcam.class.getSimpleName();
 
     public RawFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                          Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pAssignedProcessor) {
-        super(pConfiguredWebcam, pAssignedProcessor);
+                          EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
+        super(pConfiguredWebcam, pAssignedProcessors);
     }
 
     public Pair<Mat, Date> getImage() {

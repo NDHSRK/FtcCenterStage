@@ -18,9 +18,9 @@ import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.PixelCountRendering;
-import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowRendering;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class PixelCountViewer extends LinearOpMode {
 
     private TeamPropParameters teamPropParameters;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
-    private CameraStreamProcessor cameraStreamProcessor;
+    private CameraStreamProcessor pixelCountProcessor;
     private FTCButton opModeBlueA2;
     private FTCButton opModeBlueA4;
     private FTCButton opModeRedF4;
@@ -71,9 +71,11 @@ public class PixelCountViewer extends LinearOpMode {
         VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                 robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
 
-        cameraStreamProcessor = new CameraStreamProcessor.Builder().build();
+        pixelCountProcessor = new CameraStreamProcessor.Builder().build();
         CameraStreamWebcam pixelCountWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
-                Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT, cameraStreamProcessor));
+                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
+                {{put(RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT, Pair.create(pixelCountProcessor, true));}});
+
 
         if (!pixelCountWebcam.waitForWebcamStart(2000))
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
@@ -166,7 +168,7 @@ public class PixelCountViewer extends LinearOpMode {
                 allianceMinWhitePixelCount = teamPropParameters.colorChannelPixelCountParameters.redMinWhitePixelCount;
             }
 
-            cameraStreamProcessor.setCameraStreamRendering(new PixelCountRendering(this, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows));
+            pixelCountProcessor.setCameraStreamRendering(new PixelCountRendering(this, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows));
             RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
             telemetry.addLine("Pixel count rendering for " + pOpMode);
             telemetry.update();

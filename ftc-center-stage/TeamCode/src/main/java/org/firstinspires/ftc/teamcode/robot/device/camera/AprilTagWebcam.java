@@ -13,6 +13,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,8 +21,8 @@ public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvid
     private static final String TAG = AprilTagWebcam.class.getSimpleName();
 
     public AprilTagWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                          Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> pAssignedProcessor) {
-        super(pConfiguredWebcam, pAssignedProcessor);
+                          EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> pAssignedProcessors) {
+        super(pConfiguredWebcam, pAssignedProcessors);
     }
 
     // Returns an empty List if no AprilTag detections are available.

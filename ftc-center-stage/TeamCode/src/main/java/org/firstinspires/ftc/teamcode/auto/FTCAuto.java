@@ -170,7 +170,9 @@ public class FTCAuto {
             if (frontWebcamConfiguration != null) {
                 VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
                 RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(frontWebcamConfiguration,
-                        Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, webcamFrameProcessor));
+                        new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
+                        {{put(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, Pair.create(webcamFrameProcessor, true));}});
+
                 if (!rawFrameWebcam.waitForWebcamStart(2000))
                     throw new AutonomousRobotException(TAG, "Unable to start front webcam");
                 frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
@@ -430,6 +432,16 @@ public class FTCAuto {
                 break;
             }
 
+            //**TODO You also need a way to parse out multiple <processor> elements
+// under <START_WEBCAM> - see getStartWebcamProcessors in
+// RobotActionXMLCenterStage.java. You need to make sure that these
+// processors belong to the camera's <processor_set> in RobotConfig.xml.
+
+//**TODO attribute for a <processor> element under <START_WEBCAM>,
+// e.g. <processor enable_on_start="raw_frame">. Only one processor
+// may be enabled on start - *check this*; if no processors are enabled
+// on start then an <ENABLE_PROCESSOR> element must be present in
+// RobotAction.xml.
             case "START_WEBCAM": {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
@@ -453,7 +465,9 @@ public class FTCAuto {
                     case RAW_FRAME: {
                         VisionProcessor webcamFrameProcessor = new RawFrameProcessor.Builder().build();
                         RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(configuredWebcam,
-                                Pair.create(processorId, webcamFrameProcessor));
+                                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
+                                {{put(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, Pair.create(webcamFrameProcessor, true));}});
+
                         configuredWebcam.setVisionPortalWebcam(rawFrameWebcam);
                         break;
                     }
@@ -467,7 +481,9 @@ public class FTCAuto {
                                 .build();
 
                         AprilTagWebcam aprilTagWebcam = new AprilTagWebcam(configuredWebcam,
-                                Pair.create(processorId, aprilTagProcessor));
+                                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
+                                {{put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG, Pair.create(aprilTagProcessor, true));}});
+
                         configuredWebcam.setVisionPortalWebcam(aprilTagWebcam);
                         break;
                     }
@@ -516,7 +532,6 @@ public class FTCAuto {
                 configuredWebcam.setVisionPortalWebcam(null);
                 openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
                 RobotLogCommon.d(TAG, "Stopped webcam " + webcamIdString);
-
                 break;
             }
 
@@ -539,7 +554,8 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to resume streaming webcam " + webcamId + " but it is not open");
 
-                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().resumeStreaming();
+                int timeout = actionXPath.getRequiredInt("timeout_ms");
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().resumeStreaming(timeout);
                 RobotLogCommon.d(TAG, "Resumed streaming webcam " + webcamIdString);
                 break;
             }
@@ -551,7 +567,10 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to enable processor on webcam " + webcamId + " but it is not open");
 
-                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().enableProcessor();
+                String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
+                RobotConstantsCenterStage.ProcessorIdentifier processorId = RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
+
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().enableProcessor(processorId);
                 RobotLogCommon.d(TAG, "Enabled processor on webcam " + webcamIdString);
                 break;
             }
@@ -563,7 +582,10 @@ public class FTCAuto {
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to disable processor on webcam " + webcamId + " but it is not open");
 
-                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().disableProcessor();
+                String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
+                RobotConstantsCenterStage.ProcessorIdentifier processorId = RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
+
+                Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam().disableProcessor(processorId);
                 RobotLogCommon.d(TAG, "Disabled processor on webcam " + webcamIdString);
                 break;
             }

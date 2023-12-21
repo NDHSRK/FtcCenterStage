@@ -6,19 +6,22 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
-import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowProcessor;
-import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
+import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowRendering;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.Objects;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -31,7 +34,7 @@ import javax.xml.xpath.XPathExpressionException;
 public class SpikeWindowViewer extends LinearOpMode {
     private static final String TAG = SpikeWindowViewer.class.getSimpleName();
 
-    private SpikeWindowProcessor spikeWindowProcessor;
+    private CameraStreamProcessor spikeWindowProcessor;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private FTCButton opModeBlueA2;
     private FTCButton opModeBlueA4;
@@ -53,14 +56,16 @@ public class SpikeWindowViewer extends LinearOpMode {
         VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                 robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
 
-        spikeWindowProcessor = new SpikeWindowProcessor.Builder().build();
-        SpikeWindowWebcam spikeWindowWebcam = new SpikeWindowWebcam(frontWebcamConfiguration,
-                Pair.create(RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW, spikeWindowProcessor));
+        spikeWindowProcessor = new CameraStreamProcessor.Builder().build();
+        CameraStreamWebcam spikeWindowWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
+                new EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>>(RobotConstantsCenterStage.ProcessorIdentifier.class)
+                {{put(RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW, Pair.create(spikeWindowProcessor, true));}});
+
 
         if (!spikeWindowWebcam.waitForWebcamStart(2000))
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
 
-        frontWebcamConfiguration.setVisionPortalWebcam(spikeWindowWebcam);
+        Objects.requireNonNull(frontWebcamConfiguration).setVisionPortalWebcam(spikeWindowWebcam);
         RobotLog.ii(TAG, "SpikeWindowViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
@@ -110,22 +115,22 @@ public class SpikeWindowViewer extends LinearOpMode {
     }
 
     private void updateOpModeBlueA2() {
-        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
+        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
     }
 
     private void updateOpModeBlueA4() {
-        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
+        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
     }
 
     private void updateOpModeRedF4() {
-        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
+        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
     }
 
     private void updateOpModeRedF2() {
-        setSpikeWindowMapping(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
+        setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
     }
 
-    private void setSpikeWindowMapping(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
+    private void setSpikeWindowRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
         if (pOpModeButton.is(FTCButton.State.TAP)) {
             RobotLog.dd(TAG, "Button " + pOpModeButton.getButtonValue() + " for " + pOpMode + " tapped");
 
@@ -135,9 +140,9 @@ public class SpikeWindowViewer extends LinearOpMode {
             if (spikeWindows == null)
                 return; // ignore the button click
 
-            // Show the spike window mapping for the camera stream
-            // on the Driver Station.
-            spikeWindowProcessor.setSpikeWindowMapping(spikeWindows);
+            // Show the spike window mapping on the Driver Station
+            // camera stream.
+            spikeWindowProcessor.setCameraStreamRendering(new SpikeWindowRendering(spikeWindows));
             RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);
             telemetry.addLine("Spike windows for " + pOpMode);
             telemetry.update();
