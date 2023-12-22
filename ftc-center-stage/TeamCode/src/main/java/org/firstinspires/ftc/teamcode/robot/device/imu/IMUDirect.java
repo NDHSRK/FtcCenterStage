@@ -11,29 +11,37 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 //## Created this class because of unexplained and irregular turning
 // errors in 11/04/2023 Meet 0.
 public class IMUDirect {
-    private final IMU imu;
+    private final IMU controlHubIMU;
+    private final IMU expansionHubIMU; // optional, may be null
 
     // The IMU must have been previously initialized.
-    public IMUDirect(IMU pInitializedIMU) {
-        imu = pInitializedIMU;
+    public IMUDirect(IMU pControlHubIMU, IMU pExpansionHubIMU) {
+        controlHubIMU = pControlHubIMU;
+        expansionHubIMU = pExpansionHubIMU;
     }
 
     public void resetIMUYaw() {
-        imu.resetYaw(); // necessary because sometimes the yaw carries over after a restart
+        controlHubIMU.resetYaw(); // necessary because sometimes the yaw carries over after a restart
+        if (expansionHubIMU != null)
+            controlHubIMU.resetYaw();
     }
 
+    //**TODO Switch to Expansion Hub IMU (if present) if the Control Hub
+    // IMU returns a heading of -0.0.
     public double getIMUHeading() {
-        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        YawPitchRollAngles angles = controlHubIMU.getRobotYawPitchRollAngles();
         return angles.getYaw(DEGREES);
     }
 
+    //**TODO Switch to Expansion Hub IMU (if present) - pitch
     public double getIMUPitch() {
-        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        YawPitchRollAngles angles = controlHubIMU.getRobotYawPitchRollAngles();
         return angles.getPitch(DEGREES);
     }
 
+    //**TODO Switch to Expansion Hub IMU (if present) - roll
     public double getIMURoll() {
-        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        YawPitchRollAngles angles = controlHubIMU.getRobotYawPitchRollAngles();
         return angles.getRoll(DEGREES);
     }
 

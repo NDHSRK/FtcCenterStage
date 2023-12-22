@@ -67,11 +67,11 @@ public class GenericIMU {
         }
     }
 
-    public IMU getControlHubImu() {
+    public IMU getControlHubIMU() {
         return controlHubIMU;
     }
 
-    public IMU getExpansionHubImu() {
+    public IMU getExpansionHubIMU() {
         return expansionHubIMU;
     }
 
