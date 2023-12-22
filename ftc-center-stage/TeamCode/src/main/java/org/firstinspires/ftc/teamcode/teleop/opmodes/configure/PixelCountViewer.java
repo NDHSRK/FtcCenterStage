@@ -99,6 +99,8 @@ public class PixelCountViewer extends LinearOpMode {
         opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
+        telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
+        telemetry.addLine("Press Y for RED_F4, B for RED_F2");
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch play to *END* the OpMode");
         telemetry.update();

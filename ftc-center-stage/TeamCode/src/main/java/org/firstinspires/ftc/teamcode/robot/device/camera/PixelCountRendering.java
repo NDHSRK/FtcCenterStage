@@ -55,14 +55,11 @@ public class PixelCountRendering implements CameraStreamRendering {
 
     public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
                                     int onscreenWidth, int onscreenHeight) {
-        Pair<Mat, Date> teamPropImage = Pair.create(pWebcamFrame, new Date()); // for compatibility the the TeamPropRecognition workflow
-        String fileDate = TimeStamp.getDateTimeStamp(teamPropImage.second);
-        String outputFilenamePreamble = ImageUtils.createOutputFilePreamble(spikeWindowMapping.imageParameters.image_source, WorkingDirectory.getWorkingDirectory(), fileDate);
-        Mat imageROI = ImageUtils.preProcessImage(teamPropImage.first, outputFilenamePreamble, spikeWindowMapping.imageParameters);
+        Mat imageROI = ImageUtils.preProcessImage(pWebcamFrame, null, spikeWindowMapping.imageParameters);
 
         // Use the grayscale and pixel count criteria parameters for the current alliance.
         VisionParameters.GrayParameters localGrayParameters = allianceGrayParameters.get();
-        Mat split = TeamPropRecognition.splitAndInvertChannels(imageROI, alliance, localGrayParameters, outputFilenamePreamble);
+        Mat split = TeamPropRecognition.splitAndInvertChannels(imageROI, alliance, localGrayParameters, null);
         Mat thresholded = new Mat(); // output binary image
         Imgproc.threshold(split, thresholded,
                 Math.abs(localGrayParameters.threshold_low),    // threshold value
@@ -83,6 +80,7 @@ public class PixelCountRendering implements CameraStreamRendering {
         Mat rightSpikeWindow = thresholded.submat(rightSpikeWindowBoundary);
         int rightNonZeroCount = Core.countNonZero(rightSpikeWindow);
         linear.telemetry.addLine(rightWindow.second.toString() + " white pixel count " + rightNonZeroCount);
+        linear.telemetry.update();
 
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.

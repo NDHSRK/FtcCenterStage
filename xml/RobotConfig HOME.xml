@@ -17,7 +17,7 @@
 
   <WINCH configured="no" />
 
-  <INTAKE configured="no"/>
+  <INTAKE configured="no" />
 
   <!-- Servos -->
   <INTAKE_ARM configured="no" />
@@ -53,7 +53,7 @@
           <principal_point_x>319.803</principal_point_x>
           <principal_point_y>241.251</principal_point_y>
         </webcam_calibration_for_apriltags>
-        </webcam>
+      </webcam>
     </webcam_set>
   </VISION_PORTAL_WEBCAM>
 
@@ -62,8 +62,10 @@
   <IMU>
     <!-- The IMU is not used in the HOME configuration; below is the
          configuration for the competition robot -->
-    <logo_facing_direction>LEFT</logo_facing_direction>
-    <usb_facing_direction>UP</usb_facing_direction>
+    <control_hub>
+      <logo_facing_direction>LEFT</logo_facing_direction>
+      <usb_facing_direction>UP</usb_facing_direction>
+    </control_hub>
   </IMU>
 
 </RobotConfig>
