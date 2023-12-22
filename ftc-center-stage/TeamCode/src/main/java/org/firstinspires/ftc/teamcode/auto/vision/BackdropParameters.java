@@ -9,16 +9,19 @@ public class BackdropParameters {
     public final double offsetCameraLensFromRobotCenter;
     public final double strafeAdjustmentPercent;
     public final double distanceAdjustmentPercent;
+    public final double outsideStrafeAdjustment;
 
     public BackdropParameters(DriveTrainConstants.Direction pDirection,
                               double pDistanceCameraLensToRobotCenter,
                               double pOffsetCameraLensFromRobotCenter,
                               double pStrafeAdjustmentPercent,
-                              double pDistanceAdjustmentPercent) {
+                              double pDistanceAdjustmentPercent,
+                              double pOutsideStrafeAdjustment) {
         direction = pDirection;
         distanceCameraLensToRobotCenter = pDistanceCameraLensToRobotCenter;
         offsetCameraLensFromRobotCenter = pOffsetCameraLensFromRobotCenter;
         strafeAdjustmentPercent = pStrafeAdjustmentPercent;
         distanceAdjustmentPercent = pDistanceAdjustmentPercent;
+        outsideStrafeAdjustment = pOutsideStrafeAdjustment;
     }
 }

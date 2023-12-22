@@ -154,9 +154,29 @@ public class BackdropParametersXML {
 
         distance_adjustment_percent /= 100.0;
 
+        // Parse <outside_strafe_adjustment>.
+        Node outside_strafe_node = distance_adjustment_node.getNextSibling();
+        outside_strafe_node = XMLUtils.getNextElement(outside_strafe_node);
+        if (outside_strafe_node == null || !outside_strafe_node.getNodeName().equals("outside_strafe_adjustment") ||
+                outside_strafe_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'outside_strafe_adjustment' not found");
+
+        String outsideStrafeText = outside_strafe_node.getTextContent();
+        double outside_strafe;
+        try {
+            outside_strafe = Double.parseDouble(outsideStrafeText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'outside_strafe_adjustment'");
+        }
+
+        if (outside_strafe < 0 || outside_strafe > 5.0) {
+            throw new AutonomousRobotException(TAG, "Element 'outside_strafe_adjustment' out of range");
+        }
+
         return new BackdropParameters(direction, distance_camera_lens_to_robot_center,
                 offset_camera_lens_from_robot_center,
-                strafe_adjustment_percent, distance_adjustment_percent);
+                strafe_adjustment_percent, distance_adjustment_percent,
+                outside_strafe);
     }
 
 }

@@ -821,6 +821,12 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Adjusting distance to strafe by " + backdropParameters.strafeAdjustmentPercent);
                     }
 
+                    if (!(targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_2 ||
+                          targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_5)) {
+                        distanceToStrafe += backdropParameters.outsideStrafeAdjustment;
+                        RobotLogCommon.d(TAG, "Adding outside strafe adjustement of " + backdropParameters.outsideStrafeAdjustment);
+                    }
+
                     int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
                     driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
                     RobotLogCommon.d(TAG, "Strafe towards the AprilTag " + distanceToStrafe + " inches at " + strafeDirection + " degrees");
@@ -849,7 +855,7 @@ public class FTCAuto {
                 }
 
                 double moveAngle = (direction == DriveTrainConstants.Direction.FORWARD) ? 0.0 : -180.0;
-                double straightLineVelocity = shortDistanceVelocity(distanceToMove);
+                double straightLineVelocity = .3;
                 if (Math.abs(distanceToMove) >= 1.0) {
                     RobotLogCommon.d(TAG, "Move robot towards the AprilTag " + distanceToMove + " inches");
                     int targetClicks = (int) (Math.abs(distanceToMove) * robot.driveTrain.getClicksPerInch());

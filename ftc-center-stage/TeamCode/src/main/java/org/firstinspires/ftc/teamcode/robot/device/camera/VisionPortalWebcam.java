@@ -89,9 +89,13 @@ public class VisionPortalWebcam {
                 if (enabledCount.addAndGet(1) > 1)
                     throw new AutonomousRobotException(TAG, "Only 1 processor may be enabled on start");
                 activeProcessorId = k;
+                activeProcessor = v.first;
+                RobotLogCommon.d(TAG, "Processor enabled on start " + activeProcessorId);
             }
-            else
+            else {
                 visionPortal.setProcessorEnabled(v.first, false);
+                RobotLogCommon.d(TAG, "Processor disabled on start " + v.first);
+            }
         });
 
         // The async camera startup happens behind the scenes in VisionPortalImpl.

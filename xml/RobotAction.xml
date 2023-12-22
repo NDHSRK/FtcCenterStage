@@ -13,18 +13,24 @@
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
 
-            <MOVE_ELEVATOR>
-                <position>pixel_clearance</position>
+            <!-- FORWARD>
+                <distance>29.0</distance>
+                <velocity>0.5</velocity>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </FORWARD -->
+
+            <STRAIGHT_BY>
+                <distance>29.0</distance>
+                <velocity>0.5</velocity>
+                <angle>10.0</angle>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </STRAIGHT_BY>
+
+            <!-- MOVE_ELEVATOR>
+                <position>GROUND</position>
             </MOVE_ELEVATOR>
 
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
-            <FORWARD>
-                <distance>30</distance>
-                <velocity>.5</velocity>
-            </FORWARD>
+            <DELIVER_PIXEL_TO_SPIKE / -->
 
             <SLEEP>
                 <ms>1500</ms>
@@ -640,9 +646,9 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>29.0</distance>
-                        <velocity>0.75</velocity>
-                        <angle>10.0</angle>
+                        <distance>31.0</distance>
+                        <velocity>0.5</velocity>
+                        <angle>7.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
