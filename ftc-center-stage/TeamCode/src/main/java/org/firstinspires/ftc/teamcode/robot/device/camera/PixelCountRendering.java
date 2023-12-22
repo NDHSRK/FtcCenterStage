@@ -35,7 +35,7 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightWindow;
 
     //**TODO it doesn't work to try to do telemetry from here.
-    // Make new method List<String> getTelemetryLines()
+    // Make new method in CameraStreamRendering -- List<String> getTelemetryLines()
     public PixelCountRendering(LinearOpMode pLinear, RobotConstants.Alliance pAlliance,
                                VisionParameters.GrayParameters pAllianceGrayParameters,
                                int pAllianceMinWhitePixelCount,
