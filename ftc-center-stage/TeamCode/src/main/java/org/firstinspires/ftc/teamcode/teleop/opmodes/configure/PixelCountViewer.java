@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.PixelCountRendering;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
-import org.firstinspires.ftc.vision.VisionProcessor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -33,12 +32,11 @@ import javax.xml.xpath.XPathExpressionException;
 // This OpMode gives the drive team a way to check the
 // alignment of the front camera to check the OpenCV
 // grayscale thresholding of the cropped webcam frame.
-//**TODO Later - allow the driver to alter the thresholding
-// values via the gamepads.
 @TeleOp(name = "PixelCountViewer", group = "Configure")
 //@Disabled
 public class PixelCountViewer extends LinearOpMode {
     private static final String TAG = PixelCountViewer.class.getSimpleName();
+    private static final int THRESHOLD_CHANGE = 5;
 
     private TeamPropParameters teamPropParameters;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
@@ -47,6 +45,13 @@ public class PixelCountViewer extends LinearOpMode {
     private FTCButton opModeBlueA4;
     private FTCButton opModeRedF4;
     private FTCButton opModeRedF2;
+
+    //**TODO DEFER private FTCButton increaseMedian/decreaseMedian
+    private FTCButton increaseThreshold;
+    private FTCButton decreaseThreshold;
+    private PixelCountRendering pixelCountRendering;
+    private VisionParameters.GrayParameters opModeGrayParameters;
+    private int currentThresholdLow;
 
     // In this OpMode all of the action takes place during init().
     @Override
@@ -98,6 +103,8 @@ public class PixelCountViewer extends LinearOpMode {
         opModeBlueA4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
         opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
+        increaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
+        decreaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
 
         telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
         telemetry.addLine("Press Y for RED_F4, B for RED_F2");
@@ -110,6 +117,12 @@ public class PixelCountViewer extends LinearOpMode {
             updatePlayerOne();
         }
 
+        //**TODO        if (opModeIsActive()) {
+        // If there have been any changes to the grayscale values
+        // write out the changes now -- ??WHERE?? back to TeamPropParameters
+        // Take the last change to either BLUE and/or RED ...
+        // }
+
         telemetry.addLine("Ending the SpikeWindowViewer");
         telemetry.update();
     }
@@ -119,6 +132,8 @@ public class PixelCountViewer extends LinearOpMode {
         opModeBlueA4.update();
         opModeRedF4.update();
         opModeRedF2.update();
+        increaseThreshold.update();
+        decreaseThreshold.update();
     }
 
     private void updatePlayerOne() {
@@ -126,6 +141,8 @@ public class PixelCountViewer extends LinearOpMode {
         updateOpModeBlueA4();
         updateOpModeRedF4();
         updateOpModeRedF2();
+        updateIncreaseThreshold();
+        updateDecreaseThreshold();
     }
 
     private void updateOpModeBlueA2() {
@@ -142,6 +159,26 @@ public class PixelCountViewer extends LinearOpMode {
 
     private void updateOpModeRedF2() {
         setPixelCountRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
+    }
+
+    private void updateIncreaseThreshold() {
+        if (increaseThreshold.is(FTCButton.State.TAP)) {
+            if (currentThresholdLow == 255)
+                return; // can't go above maximum
+
+            currentThresholdLow += THRESHOLD_CHANGE;
+            pixelCountRendering.setGrayscaleThresholdParameters(new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow));
+        }
+    }
+
+    private void updateDecreaseThreshold() {
+        if (decreaseThreshold.is(FTCButton.State.TAP)) {
+            if (currentThresholdLow == 0)
+                return; // can't go below minimum
+
+            currentThresholdLow -= THRESHOLD_CHANGE;
+            pixelCountRendering.setGrayscaleThresholdParameters(new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow));
+        }
     }
 
     private void setPixelCountRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
@@ -169,7 +206,11 @@ public class PixelCountViewer extends LinearOpMode {
                 allianceMinWhitePixelCount = teamPropParameters.colorChannelPixelCountParameters.redMinWhitePixelCount;
             }
 
-            pixelCountProcessor.setCameraStreamRendering(new PixelCountRendering(this, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows));
+            opModeGrayParameters = allianceGrayParameters;
+            currentThresholdLow = opModeGrayParameters.threshold_low;
+
+            pixelCountRendering = new PixelCountRendering(this, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows);
+            pixelCountProcessor.setCameraStreamRendering(pixelCountRendering);
             RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
             telemetry.addLine("Pixel count rendering for " + pOpMode);
             telemetry.update();

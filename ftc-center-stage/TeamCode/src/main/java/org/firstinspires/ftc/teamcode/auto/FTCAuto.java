@@ -809,9 +809,12 @@ public class FTCAuto {
                     double distanceToStrafe = sinTheta * distanceFromRobotCenterToAprilTag;
                     double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
 
-                    // Set the direction to strafe. A positive angle indicates that the
-                    // tag is to the left of the center of the robot (clockwise). Take
-                    // into account the robot's direction of travel.
+                    // From the point of view of an observer facing the robot from the
+                    // center of the field -- a positive angle from the camera to the
+                    // AprilTag indicates that the tag is to the left of the center of
+                    // the robot (counter-clockwise). But to set the direction of the
+                    // strafe we have to take into account whether the robot is facing
+                    // forward towards the backdrop or backward.
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
 
@@ -821,11 +824,19 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Adjusting distance to strafe by " + backdropParameters.strafeAdjustmentPercent);
                     }
 
+                    // From the point of view of an observer facing the robot from the
+                    // center of the field -- if the corrected angle from the center of
+                    // the robot to the AprilTag is negative
+                    //**TODO what about a correction that changes the direction of the
+                    // strafe!!??
                     if (!(targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_2 ||
                           targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_5)) {
                         distanceToStrafe += backdropParameters.outsideStrafeAdjustment;
                         RobotLogCommon.d(TAG, "Adding outside strafe adjustement of " + backdropParameters.outsideStrafeAdjustment);
                     }
+
+                    //**TODO Minimum distance to strafe? Below there is a check for a 1"
+                    // minimum forward or backward movement.
 
                     int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
                     driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);

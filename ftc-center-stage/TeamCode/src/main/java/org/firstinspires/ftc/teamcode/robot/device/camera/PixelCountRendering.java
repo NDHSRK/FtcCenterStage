@@ -66,6 +66,8 @@ public class PixelCountRendering implements CameraStreamRendering {
                 255,   // white
                 localGrayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
 
+        linear.telemetry.addLine("Grayscale median " + localGrayParameters.median_target);
+        linear.telemetry.addLine("Grayscale low threshold " + localGrayParameters.threshold_low);
         linear.telemetry.addLine("Minimum white pixel count " + allianceMinWhitePixelCount);
         linear.telemetry.addLine("Threshold values: low " + localGrayParameters.threshold_low + ", high 255");
 
