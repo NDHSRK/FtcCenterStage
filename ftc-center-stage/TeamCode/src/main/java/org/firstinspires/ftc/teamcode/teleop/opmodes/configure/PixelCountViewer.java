@@ -168,6 +168,9 @@ public class PixelCountViewer extends LinearOpMode {
 
             currentThresholdLow += THRESHOLD_CHANGE;
             pixelCountRendering.setGrayscaleThresholdParameters(new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow));
+            telemetry.addLine("Grayscale median " + opModeGrayParameters.median_target);
+            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
+            telemetry.update();
         }
     }
 
@@ -178,6 +181,9 @@ public class PixelCountViewer extends LinearOpMode {
 
             currentThresholdLow -= THRESHOLD_CHANGE;
             pixelCountRendering.setGrayscaleThresholdParameters(new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow));
+            telemetry.addLine("Grayscale median " + opModeGrayParameters.median_target);
+            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
+            telemetry.update();
         }
     }
 

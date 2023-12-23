@@ -279,6 +279,8 @@ public class RobotActionXMLCenterStage {
                 if (processor_node.getTextContent().isEmpty())
                     throw new AutonomousRobotException(TAG, "Element 'processor' is empty");
 
+                //**TODO change default - missing attribute defaults to "yes" or
+                // change name to disable_on_start??
                 enableOnStart.set(false);
                 NamedNodeMap processor_attributes = processor_node.getAttributes();
                 Node enable_node = processor_attributes.getNamedItem("enable_on_start");

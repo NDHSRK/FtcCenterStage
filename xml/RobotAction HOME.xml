@@ -45,7 +45,7 @@
                     </image_roi>
                 </image_parameters>
                 <team_prop_recognition>
-                    <recognition_path>color_channel_circles</recognition_path>
+                    <recognition_path>color_channel_pixel_count</recognition_path>
                     <left_window>
                         <width>322</width>
                         <prop_location>CENTER_SPIKE</prop_location>
@@ -58,21 +58,6 @@
                     </team_prop_npos>
                 </team_prop_recognition>
             </FIND_TEAM_PROP>
-
-            <AUTO_ENDING_POSITION>
-                <LEFT>
-                    <STRAFE_RIGHT>
-                        <distance>40.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_RIGHT>
-                </LEFT>
-                <RIGHT>
-                    <STRAFE_LEFT>
-                        <distance>10.0</distance>
-                        <velocity>0.5</velocity>
-                    </STRAFE_LEFT>
-                </RIGHT>
-            </AUTO_ENDING_POSITION>
             
         </actions>
     </OpMode>

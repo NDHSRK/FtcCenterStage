@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.ImageUtils;
@@ -18,6 +19,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.Date;
@@ -33,6 +35,8 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final SpikeWindowMapping spikeWindowMapping;
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow;
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightWindow;
+    private Mat bgrFrame = new Mat();
+    private boolean writeFirstThresholdedFile = true;
 
     //**TODO it doesn't work to try to do telemetry from here.
     // Make new method in CameraStreamRendering -- List<String> getTelemetryLines()
@@ -55,16 +59,32 @@ public class PixelCountRendering implements CameraStreamRendering {
 
     public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
                                     int onscreenWidth, int onscreenHeight) {
-        Mat imageROI = ImageUtils.preProcessImage(pWebcamFrame, null, spikeWindowMapping.imageParameters);
+        Imgproc.cvtColor(pWebcamFrame, bgrFrame, Imgproc.COLOR_RGBA2BGR);
+        Mat imageROI = ImageUtils.preProcessImage(bgrFrame, null, spikeWindowMapping.imageParameters);
 
         // Use the grayscale and pixel count criteria parameters for the current alliance.
         VisionParameters.GrayParameters localGrayParameters = allianceGrayParameters.get();
         Mat split = TeamPropRecognition.splitAndInvertChannels(imageROI, alliance, localGrayParameters, null);
+        //**TODO TEMP Maybe you need a button to capture these images with a variable filename (OpMode + int)?
+        if (writeFirstThresholdedFile) {
+            String outputFilename = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR + "PixelCount_INV.png";
+            Imgcodecs.imwrite(outputFilename, split);
+        }
+        //**TODO END TEMP
+
         Mat thresholded = new Mat(); // output binary image
         Imgproc.threshold(split, thresholded,
                 Math.abs(localGrayParameters.threshold_low),    // threshold value
                 255,   // white
                 localGrayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
+
+        //**TODO TEMP
+        if (writeFirstThresholdedFile) {
+            writeFirstThresholdedFile = false;
+            String outputFilename = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR + "PixelCount_THR.png";
+            Imgcodecs.imwrite(outputFilename, thresholded);
+        }
+        //**TODO END TEMP
 
         linear.telemetry.addLine("Grayscale median " + localGrayParameters.median_target);
         linear.telemetry.addLine("Grayscale low threshold " + localGrayParameters.threshold_low);
@@ -84,11 +104,13 @@ public class PixelCountRendering implements CameraStreamRendering {
         linear.telemetry.addLine(rightWindow.second.toString() + " white pixel count " + rightNonZeroCount);
         linear.telemetry.update();
 
+        //**TODO somehow you need to figure out how to scale the thresholded ibtmap
+        // to the Canvas.
+
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.
         // See https://stackoverflow.com/questions/44579822/convert-opencv-mat-to-android-bitmap
-        // ARGB_8888 works for grayscale also.
-        Bitmap bmp = Bitmap.createBitmap(thresholded.cols(), thresholded.rows(), Bitmap.Config.ARGB_8888);
+        Bitmap bmp = Bitmap.createBitmap(thresholded.cols(), thresholded.rows(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(thresholded, bmp);
 
         // The load the Bitmap onto the Canvas.
@@ -100,7 +122,7 @@ public class PixelCountRendering implements CameraStreamRendering {
          */
         android.graphics.Rect sourceRect = new android.graphics.Rect(0, 0, thresholded.cols(), thresholded.rows());
         android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
-        pDriverStationScreenCanvas.drawBitmap(bmp, sourceRect, destRect, null);
+        pDriverStationScreenCanvas.drawBitmap(bmp, null, destRect, null);
     }
 
 }
