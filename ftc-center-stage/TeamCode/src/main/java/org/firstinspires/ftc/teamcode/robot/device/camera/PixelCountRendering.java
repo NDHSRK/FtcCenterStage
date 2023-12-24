@@ -6,8 +6,6 @@ import android.graphics.Canvas;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.ImageUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
@@ -22,7 +20,6 @@ import org.opencv.core.Rect;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,13 +35,10 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final SpikeWindowMapping spikeWindowMapping;
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow;
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightWindow;
-    private final AtomicBoolean requestFrameCapture = new AtomicBoolean();
+    private final AtomicBoolean requestImageCapture = new AtomicBoolean();
     private int captureCount;
     private final static String outputFilePreamble = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR;
     private Mat bgrFrame = new Mat();
-
-    //**TODO Send in OpMode instead of alliance and figure out alliance here.
-    // Use OpMode as part of image capture file name.
 
     // Make new method in CameraStreamRendering -- List<String> getTelemetryLines()
     public PixelCountRendering(LinearOpMode pLinear, RobotConstantsCenterStage.OpMode pOpMode,
@@ -66,13 +60,13 @@ public class PixelCountRendering implements CameraStreamRendering {
         allianceGrayParameters.set(pGrayParameters);
     }
 
-    public void requestFrameCapture() {
-        requestFrameCapture.set(true);
+    public void requestImageCapture() {
+        requestImageCapture.set(true);
     }
 
     public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
                                     int onscreenWidth, int onscreenHeight) {
-        boolean captureNow = requestFrameCapture.getAndSet(false);
+        boolean captureNow = requestImageCapture.getAndSet(false);
         if (captureNow) captureCount++;
 
         Imgproc.cvtColor(pWebcamFrame, bgrFrame, Imgproc.COLOR_RGBA2BGR);
@@ -83,7 +77,7 @@ public class PixelCountRendering implements CameraStreamRendering {
         Mat split = TeamPropRecognition.splitAndInvertChannels(imageROI, alliance, localGrayParameters, null);
 
         if (captureNow) {
-            String outputFilename = outputFilePreamble + String.format(Locale.US, "PixelCount-%04d_INV.png", captureCount);
+            String outputFilename = outputFilePreamble + "PixelCount_" + opMode + String.format(Locale.US, "_%04d_INV.png", captureCount);
             Imgcodecs.imwrite(outputFilename, split);
         }
 
@@ -94,7 +88,7 @@ public class PixelCountRendering implements CameraStreamRendering {
                 localGrayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
 
         if (captureNow) {
-            String outputFilename = outputFilePreamble + String.format(Locale.US, "PixelCount-%04d_THR.png", captureCount);
+            String outputFilename = outputFilePreamble + "PixelCount_" + opMode + String.format(Locale.US, "_%04d_THR.png", captureCount);
             Imgcodecs.imwrite(outputFilename, thresholded);
         }
 
@@ -117,13 +111,21 @@ public class PixelCountRendering implements CameraStreamRendering {
         linear.telemetry.update();
 
         //**TODO somehow you need to figure out how to scale the thresholded ibtmap
-        // to the Canvas.
+        // to the Canvas. See SpikeWindowRendering.
+        /*
+        public static Bitmap createScaledBitmap (Bitmap src,
+                int dstWidth,
+                int dstHeight,
+                boolean filter) -> false
+         */
 
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.
         // See https://stackoverflow.com/questions/44579822/convert-opencv-mat-to-android-bitmap
         Bitmap bmp = Bitmap.createBitmap(thresholded.cols(), thresholded.rows(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(thresholded, bmp);
+
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bmp, onscreenWidth, onscreenHeight, false);
 
         // The load the Bitmap onto the Canvas.
         // See https://stackoverflow.com/questions/30630887/android-bitmap-on-canvas-from-external-file
@@ -132,9 +134,14 @@ public class PixelCountRendering implements CameraStreamRendering {
           Mark Barr
           Jun 4, 2015 at 17:38
          */
-        android.graphics.Rect sourceRect = new android.graphics.Rect(0, 0, thresholded.cols(), thresholded.rows());
-        android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
-        pDriverStationScreenCanvas.drawBitmap(bmp, null, destRect, null);
+        //android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
+        //pDriverStationScreenCanvas.drawBitmap(scaledBitmap, null, destRect, null);
+
+        //**TODO - OR -
+        /*
+        void 	drawBitmap(Bitmap bitmap, float left, float top, Paint paint)
+         */
+        pDriverStationScreenCanvas.drawBitmap(scaledBitmap, 0.0F, 0.0f, null);
     }
 
 }

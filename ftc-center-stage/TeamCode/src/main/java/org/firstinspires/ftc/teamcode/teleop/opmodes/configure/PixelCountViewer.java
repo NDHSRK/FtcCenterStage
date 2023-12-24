@@ -49,9 +49,7 @@ public class PixelCountViewer extends LinearOpMode {
     //**TODO DEFER private FTCButton increaseMedian/decreaseMedian
     private FTCButton increaseThreshold;
     private FTCButton decreaseThreshold;
-
-    //**TODO you need a button to capture intermediate OpenCV images.
-
+    private FTCButton requestImageCapture;
     private PixelCountRendering pixelCountRendering;
     private VisionParameters.GrayParameters opModeGrayParameters;
     private int currentThresholdLow;
@@ -108,6 +106,7 @@ public class PixelCountViewer extends LinearOpMode {
         opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
         increaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
         decreaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        requestImageCapture = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
         telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
         telemetry.addLine("Press Y for RED_F4, B for RED_F2");
@@ -137,6 +136,7 @@ public class PixelCountViewer extends LinearOpMode {
         opModeRedF2.update();
         increaseThreshold.update();
         decreaseThreshold.update();
+        requestImageCapture.update();
     }
 
     private void updatePlayerOne() {
@@ -146,6 +146,7 @@ public class PixelCountViewer extends LinearOpMode {
         updateOpModeRedF2();
         updateIncreaseThreshold();
         updateDecreaseThreshold();
+        updateRequestImageCapture();
     }
 
     private void updateOpModeBlueA2() {
@@ -189,6 +190,12 @@ public class PixelCountViewer extends LinearOpMode {
             telemetry.update();
         }
     }
+
+    private void updateRequestImageCapture() {
+        if (requestImageCapture.is(FTCButton.State.TAP)) {
+            pixelCountRendering.requestImageCapture();
+        }
+    };
 
     private void setPixelCountRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
         if (pOpModeButton.is(FTCButton.State.TAP)) {
