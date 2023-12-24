@@ -279,15 +279,16 @@ public class RobotActionXMLCenterStage {
                 if (processor_node.getTextContent().isEmpty())
                     throw new AutonomousRobotException(TAG, "Element 'processor' is empty");
 
-                //**TODO change default - missing attribute defaults to "yes" or
-                // change name to disable_on_start??
-                enableOnStart.set(false);
+                // Look for the "disable_on_start" attribute; if it is missing or its
+                // value is "no" then set the processor to be enabled when the webcam
+                // starts.
+                enableOnStart.set(true); // default
                 NamedNodeMap processor_attributes = processor_node.getAttributes();
-                Node enable_node = processor_attributes.getNamedItem("enable_on_start");
-                if (enable_node != null && enable_node.getTextContent().equals("yes")) {
+                Node disable_node = processor_attributes.getNamedItem("disable_on_start");
+                if (disable_node == null || disable_node.getTextContent().equals("no")) {
                     enableOnStart.set(true);
                     enabledProcessorCount.addAndGet(1);
-                }
+                } else enableOnStart.set(false);
 
                 RobotConstantsCenterStage.ProcessorIdentifier processorId =
                         RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processor_node.getTextContent().toUpperCase());

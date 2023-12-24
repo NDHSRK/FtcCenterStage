@@ -49,6 +49,9 @@ public class PixelCountViewer extends LinearOpMode {
     //**TODO DEFER private FTCButton increaseMedian/decreaseMedian
     private FTCButton increaseThreshold;
     private FTCButton decreaseThreshold;
+
+    //**TODO you need a button to capture intermediate OpenCV images.
+
     private PixelCountRendering pixelCountRendering;
     private VisionParameters.GrayParameters opModeGrayParameters;
     private int currentThresholdLow;
@@ -215,7 +218,7 @@ public class PixelCountViewer extends LinearOpMode {
             opModeGrayParameters = allianceGrayParameters;
             currentThresholdLow = opModeGrayParameters.threshold_low;
 
-            pixelCountRendering = new PixelCountRendering(this, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows);
+            pixelCountRendering = new PixelCountRendering(this, pOpMode, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows);
             pixelCountProcessor.setCameraStreamRendering(pixelCountRendering);
             RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
             telemetry.addLine("Pixel count rendering for " + pOpMode);

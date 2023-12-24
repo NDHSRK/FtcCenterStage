@@ -455,12 +455,12 @@ public class FTCAuto {
                 if (!processorIdString.equals("NPOS")) { // single processor id
                     RobotConstantsCenterStage.ProcessorIdentifier processorId = RobotConstantsCenterStage.ProcessorIdentifier.valueOf(processorIdString);
                     assignedProcessors = new ArrayList<Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean>>() {{
-                        add(Pair.create(processorId, true));
+                        add(Pair.create(processorId, true)); // default to enable on webcam start
                     }};
                 } else // multiple processors, i.e. a <processor_set>.
                     assignedProcessors = RobotActionXMLCenterStage.getStartWebcamProcessors(pAction);
 
-                // Check that the active processors are also present in
+                // Check that the assigned processors are also present in
                 // the camera's <processor_set> in RobotConfig.xml.
                 ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIdentifiers = configuredWebcam.processorIdentifiers;
                 for (Pair<RobotConstantsCenterStage.ProcessorIdentifier, Boolean> entry : assignedProcessors) {
