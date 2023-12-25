@@ -51,7 +51,7 @@ public class PixelCountViewer extends LinearOpMode {
     private FTCButton decreaseThreshold;
     private FTCButton requestImageCapture;
     private PixelCountRendering pixelCountRendering;
-    private RobotConstants.Alliance alliance;
+    private RobotConstants.Alliance alliance = RobotConstants.Alliance.NONE;
     private VisionParameters.GrayParameters opModeGrayParameters;
     private int currentThresholdLow;
     private boolean redGrayscaleParametersChanged = false;
@@ -164,6 +164,8 @@ public class PixelCountViewer extends LinearOpMode {
         setPixelCountRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
     }
 
+    //**TODO Don't allow this to be called before an OpMode is selected -
+    // pixelCountRendering will be null!
     private void updateIncreaseThreshold() {
         if (increaseThreshold.is(FTCButton.State.TAP)) {
             if (currentThresholdLow == 255)
@@ -195,6 +197,8 @@ public class PixelCountViewer extends LinearOpMode {
         }
     }
 
+    //**TODO Don't allow this to be called before an OpMode is selected -
+    // pixelCountRendering will be null!
     private void updateRequestImageCapture() {
         if (requestImageCapture.is(FTCButton.State.TAP)) {
             pixelCountRendering.requestImageCapture();
