@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -27,6 +28,7 @@ public class TeamPropParametersXML {
 
     private final Document document;
     private final XPath xpath;
+    private final String xmlFilePath;
     private final Node red_pixel_count_gray_median_node;
     private final Node red_pixel_count_gray_threshold_node;
     private final Node blue_pixel_count_gray_median_node;
@@ -36,6 +38,7 @@ public class TeamPropParametersXML {
     public TeamPropParametersXML(String pXMLDir) {
         Node team_prop_parameters_node;
         try {
+            xmlFilePath = pXMLDir + TEAM_PROP_FILE_NAME;
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             dbFactory.setIgnoringComments(true);
 
@@ -44,7 +47,7 @@ public class TeamPropParametersXML {
             // Not supported in Android Studio dbFactory.setXIncludeAware(true);
 
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            document = dBuilder.parse(new File(pXMLDir + TEAM_PROP_FILE_NAME));
+            document = dBuilder.parse(new File(xmlFilePath));
             XPathFactory xpathFactory = XPathFactory.newInstance();
             xpath = xpathFactory.newXPath();
 
@@ -358,17 +361,41 @@ public class TeamPropParametersXML {
                 new TeamPropParameters.BrightSpotParameters(redBrightSpotGrayParameters, redBlurKernel,
                         blueBrightSpotGrayParameters, blueBlurKernel);
 
-        teamPropParameters =  new TeamPropParameters(colorChannelCirclesParameters, colorChannelPixelCountParameters, brightSpotParameters);
+        teamPropParameters = new TeamPropParameters(colorChannelCirclesParameters, colorChannelPixelCountParameters, brightSpotParameters);
     }
 
+    // Warning: this method returns the team prop parameters from the XML
+    // XML file. Any changes made to the parameters by any "set" methods
+    // below are not reflected in the startParameters variable. If you do
+    // want to reflect the changes you will have to recreate colorChannelPixelCountParameters and include:
+    //  teamPropParameters =  new TeamPropParameters(colorChannelCirclesParameters, colorChannelPixelCountParameters, brightSpotParameters);
+    // after every change.
     public TeamPropParameters getTeamPropParameters() {
         return teamPropParameters;
     }
 
-    // Replaces the text value of the **TODO element.
+    // Replaces the text values of the children of the <gray_arameters> element
+    // under RED or BLUE <color_channel_pixel_count>.
     public void setPixelCountGrayParameters(RobotConstants.Alliance pAlliance,
-                                               VisionParameters.GrayParameters pGrayParameters) {
+                                            VisionParameters.GrayParameters pGrayParameters) {
+        RobotLog.ii(TAG, "Setting the grayscale parameters for alliance " + pAlliance + " for the color pixel countT recognition path in teamPropParameters");
+        if (pAlliance == RobotConstants.Alliance.RED) {
+            RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+            red_pixel_count_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
 
+            RobotLog.ii(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+            red_pixel_count_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
+        } else {
+            RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+            blue_pixel_count_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
+
+            RobotLog.ii(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+            blue_pixel_count_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
+        }
+    }
+
+    public void writeTeamPropParametersFile() {
+        XMLUtils.writeXMLFile(document, xmlFilePath, RobotConstants.XSLT_FILE_NAME);
     }
 
 }

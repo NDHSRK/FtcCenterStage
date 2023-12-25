@@ -131,25 +131,29 @@ public class StartParametersXML {
         });
 
         startParameters = new StartParameters(robotConfigFilename, robotActionFilename, autoStartDelay, autoEndingPositions);
-
         RobotLog.ii(TAG, "In StartParametersXML; opened and parsed the XML file");
     }
 
+    // Warning: this method returns the start parameters from the XML
+    // file. Any changes made to the parameters by any "set" methods
+    // below are not reflected in the startParameters variable. If you
+    // do want to reflect the changes you will have to include:
+    //  startParameters = new StartParameters(robotConfigFilename, robotActionFilename, autoStartDelay, autoEndingPositions);
+    // after every change.
     public StartParameters getStartParameters() {
         return startParameters;
     }
 
     // Replaces the text value of the <auto_start_delay> element.
     public void setAutoStartDelay(int pAutoStartDelay) {
-        RobotLog.ii(TAG, "Setting the Autonomous start delay in " + FILE_NAME + " to " + pAutoStartDelay);
-
+        RobotLog.ii(TAG, "Setting the Autonomous start delay in startParameters to " + pAutoStartDelay);
         autoStartDelay = pAutoStartDelay;
         delay_node.setTextContent(Integer.toString(pAutoStartDelay));
     }
 
     public void setAutoEndingPosition(RobotConstantsCenterStage.OpMode pAutoOpMode, String pEndingPositionText) {
         RobotConstantsCenterStage.AutoEndingPosition endingPosition = RobotConstantsCenterStage.AutoEndingPosition.valueOf(pEndingPositionText);
-        RobotLog.ii(TAG, "Setting ending position " + pEndingPositionText + " for Autonomous OpMode " + pAutoOpMode);
+        RobotLog.ii(TAG, "Setting ending position " + pEndingPositionText + " for Autonomous OpMode " + pAutoOpMode + " in in startParameters");
 
         autoEndingPositions.put(pAutoOpMode, endingPosition);
         Node endingPositionNode = autoEndingPositionNodes.get(pAutoOpMode);
