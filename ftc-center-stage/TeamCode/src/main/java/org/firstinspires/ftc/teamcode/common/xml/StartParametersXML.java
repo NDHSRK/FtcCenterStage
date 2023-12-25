@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
+import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.w3c.dom.Document;
@@ -15,16 +16,8 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.EnumMap;
 
@@ -152,11 +145,6 @@ public class StartParametersXML {
 
         autoStartDelay = pAutoStartDelay;
         delay_node.setTextContent(Integer.toString(pAutoStartDelay));
-
-        //**TODO Is this necessary?
-        // Update startParameters to reflect the change.
-        startParameters = new StartParameters(startParameters.robotConfigFilename, startParameters.robotConfigFilename,
-                autoStartDelay, autoEndingPositions);
     }
 
     public void setAutoEndingPosition(RobotConstantsCenterStage.OpMode pAutoOpMode, String pEndingPositionText) {
@@ -166,38 +154,10 @@ public class StartParametersXML {
         autoEndingPositions.put(pAutoOpMode, endingPosition);
         Node endingPositionNode = autoEndingPositionNodes.get(pAutoOpMode);
         endingPositionNode.setTextContent(pEndingPositionText);
-
-        //**TODO Is this necessary?
-        // Update startParameters to reflect the change.
-        startParameters = new StartParameters(startParameters.robotConfigFilename, startParameters.robotConfigFilename,
-                autoStartDelay, autoEndingPositions);
     }
 
     public void writeStartParametersFile() {
-        rewriteFile();
-    }
-
-    //**TODO Need a static version of this method in XMLUtils with parameters:
-    // String pXmlFilePath, String pXsltFilePath, Document pDocument)
-    // Based on a combination of --
-    // https://mkyong.com/java/how-to-modify-xml-file-in-java-dom-parser/#download-source-code
-    // https://www.baeldung.com/java-pretty-print-xml
-    // using the XSLT method to avoid extra blank lines in the output.
-    private void rewriteFile() {
-        String xsltFilePath = xmlDirectory + "StandardTransform.xslt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(xmlFilePath))) {
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            //## Not supported in Android!! transformerFactory.setAttribute("indent-number", 4);
-            Transformer transformer = transformerFactory.newTransformer(new StreamSource(new File(xsltFilePath)));
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            //## But the next line works (from https://www.baeldung.com/java-pretty-print-xml)
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            transformer.transform(new DOMSource(document), new StreamResult(writer));
-        } catch (IOException | TransformerException e) {
-            throw new AutonomousRobotException(TAG, e.getMessage());
-        }
+        XMLUtils.writeXMLFile(document, xmlFilePath, RobotConstants.XSLT_FILE_NAME);
     }
 
 }
