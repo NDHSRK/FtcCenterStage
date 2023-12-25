@@ -36,7 +36,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton winchUp;
     private final FTCButton winchDown;
 
-    //**TODO Uncomment to calibrate the winch by small steps
+    //&& Uncomment to calibrate the winch by small steps
     /*
     private final FTCButton winchIncrement;
     private final FTCButton winchDecrement;
@@ -76,7 +76,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final double elevatorVelocity;
     private CompletableFuture<Elevator.ElevatorLevel> asyncMoveElevator;
 
-    private Winch.WinchLevel currentWinchLevel = Winch.WinchLevel.GROUND; //**TODO ? field never accessed
+    //?? This field is assigned but never accessed.
+    private Winch.WinchLevel currentWinchLevel = Winch.WinchLevel.GROUND;
     private CompletableFuture<Winch.WinchLevel> asyncMoveWinch;
 
     private PixelStopperServo.PixelServoState pixelServoState;
@@ -107,7 +108,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         launchDrone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
 
-        //**TODO Uncomment to calibrate the winch by small steps
+        //&& Uncomment to calibrate the winch by small steps
         /*
         winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
         winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B);
@@ -184,7 +185,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         winchUp.update();
         winchDown.update();
 
-        //**TODO Uncomment to calibrate the winch by small steps
+        //&& Uncomment to calibrate the winch by small steps
         /*
         winchIncrement.update();
         winchDecrement.update();
@@ -284,7 +285,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateWinchUp();
         updateWinchDown();
 
-        //**TODO Uncomment to calibrate the winch by small steps
+        //&& Uncomment to calibrate the winch by small steps
         /*
         updateWinchIncrement();
         updateWinchDecrement();
@@ -452,7 +453,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
     }
 
-    //**TODO Uncomment to calibrate the winch by small steps
+    //&& Uncomment to calibrate the winch by small steps
     /*
     private void updateWinchIncrement() {
         if (winchIncrement.is(FTCButton.State.TAP)) {
@@ -632,7 +633,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         asyncMoveWinch = Threading.launchAsync(callableMoveWinch);
     }
 
-    private void updateWinchEncoderTelemetry() { //**TODO TEMP for winch calibration
+    private void updateWinchEncoderTelemetry() { //&& for winch calibration
         linearOpMode.telemetry.addData("current", robot.winch.getCurrentPosition(FTCRobot.MotorId.WINCH));
         linearOpMode.telemetry.update();
     }

@@ -155,19 +155,19 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
     public void runOpMode() {
 
         // Initialize the drive system variables.
-        //**TODO uncomment for the JV robot
+        //&& Uncomment for the JV robot
         //leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
         //leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         //rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         //rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
-        //**TODO Comment out for the varsity robot.
+        //&& Comment out for the JV robot.
         leftFrontDrive = hardwareMap.get(DcMotorEx.class, "lf");
         leftBackDrive = hardwareMap.get(DcMotorEx.class, "lb");
         rightFrontDrive = hardwareMap.get(DcMotorEx.class, "rf");
         rightBackDrive = hardwareMap.get(DcMotorEx.class, "rb");
 
-        //**TODO These directions apply to the varsity test robot - change for JV
+        //&& These directions apply to the varsity test robot - change for JV
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -181,7 +181,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
          *
          * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
-        //**TODO These settings are for the varsity test robot.
+        //&& These settings are for the varsity test robot.
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
@@ -223,7 +223,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
 
         /*
         driveStrafe(STRAFE_SPEED, 48.0, StrafeDirection.LEFT);
-        //**TODO DO NOT USE for straight or strafe; needs further testing  holdHeading(TURN_SPEED, 0.0, 0.5);
+        //&& DO NOT USE for straight or strafe; needs further testing  holdHeading(TURN_SPEED, 0.0, 0.5);
         sleep(2000);
 
         driveStrafe(STRAFE_SPEED, 48.0, StrafeDirection.RIGHT);
@@ -231,7 +231,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
          */
 
         driveStraight(DRIVE_SPEED, 48.0, 0.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-        //**TODO DO NOT USE for straight or strafe; needs further testing  holdHeading(TURN_SPEED, 0.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+        //&& DO NOT USE for straight or strafe; needs further testing  holdHeading(TURN_SPEED, 0.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
         sleep(2000);
 
         driveStraight(DRIVE_SPEED, -48.0, 0.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
@@ -432,7 +432,7 @@ public class RobotAutoDriveMecanum extends LinearOpMode {
      *                     If a relative angle is required, add/subtract from current heading.
      * @param holdTime     Length of time (in seconds) to hold the specified heading.
      */
-    //**TODO DO NOT USE for straight or strafe; needs further testing -
+    //&& DO NOT USE for straight or strafe; needs further testing -
     // and for strafe you would need to call strafeRobot().
     public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
 
