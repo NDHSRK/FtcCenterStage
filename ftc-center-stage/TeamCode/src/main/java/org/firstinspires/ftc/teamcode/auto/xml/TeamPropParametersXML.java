@@ -6,6 +6,7 @@ import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.*;
+import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.xml.ImageXML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -365,8 +366,9 @@ public class TeamPropParametersXML {
     }
 
     // Replaces the text value of the **TODO element.
-    public void setPixelCountRedGrayParameters() {
- //**TODO or send in alliance
+    public void setPixelCountGrayParameters(RobotConstants.Alliance pAlliance,
+                                               VisionParameters.GrayParameters pGrayParameters) {
+
     }
 
 }

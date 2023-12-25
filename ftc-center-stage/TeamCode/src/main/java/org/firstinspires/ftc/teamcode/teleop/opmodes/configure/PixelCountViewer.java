@@ -51,8 +51,11 @@ public class PixelCountViewer extends LinearOpMode {
     private FTCButton decreaseThreshold;
     private FTCButton requestImageCapture;
     private PixelCountRendering pixelCountRendering;
+    private RobotConstants.Alliance alliance;
     private VisionParameters.GrayParameters opModeGrayParameters;
     private int currentThresholdLow;
+    private boolean redGrayscaleParametersChanged = false;
+    private boolean blueGrayscaleParametersChanged = false;
 
     // In this OpMode all of the action takes place during init().
     @Override
@@ -61,11 +64,7 @@ public class PixelCountViewer extends LinearOpMode {
 
         // Read the parameters for team prop recognition from the xml file.
         TeamPropParametersXML teamPropParametersXML = new TeamPropParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
-        try {
             teamPropParameters = teamPropParametersXML.getTeamPropParameters();
-        } catch (XPathExpressionException e) {
-            throw new AutonomousRobotException(TAG, e.getMessage());
-        }
 
         // Get the camera configuration from RobotConfig.xml.
         FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
@@ -171,6 +170,11 @@ public class PixelCountViewer extends LinearOpMode {
                 return; // can't go above maximum
 
             currentThresholdLow += THRESHOLD_CHANGE;
+
+            // VisionParameters.GrayParameters updatedVisionParameters = new
+            // VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow);
+            //**TODO teamPropParametersXML.setPixelCountGrayParameters(alliance, updatedVisionParameters);
+            // if alliance == RED redGrayscaleParametersChanged = true; else BLUE
             pixelCountRendering.setGrayscaleThresholdParameters(new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow));
             telemetry.addLine("Grayscale median " + opModeGrayParameters.median_target);
             telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
@@ -207,7 +211,6 @@ public class PixelCountViewer extends LinearOpMode {
             if (spikeWindows == null)
                 return; // ignore the button click
 
-            RobotConstants.Alliance alliance;
             VisionParameters.GrayParameters allianceGrayParameters;
             int allianceMinWhitePixelCount;
             if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||

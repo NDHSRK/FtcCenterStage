@@ -40,7 +40,6 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final String outputFilePreamble;
     private Mat bgrFrame = new Mat();
 
-    // Make new method in CameraStreamRendering -- List<String> getTelemetryLines()
     public PixelCountRendering(LinearOpMode pLinear, RobotConstantsCenterStage.OpMode pOpMode,
                                RobotConstants.Alliance pAlliance,
                                VisionParameters.GrayParameters pAllianceGrayParameters,
@@ -111,8 +110,6 @@ public class PixelCountRendering implements CameraStreamRendering {
         int rightNonZeroCount = Core.countNonZero(rightSpikeWindow);
         linear.telemetry.addLine(rightWindow.second.toString() + " white pixel count " + rightNonZeroCount);
         linear.telemetry.update();
-
-
 
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.
