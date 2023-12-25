@@ -47,7 +47,13 @@ public class PixelCountViewer extends LinearOpMode {
     private FTCButton opModeRedF4;
     private FTCButton opModeRedF2;
 
-    //**TODO DEFER private FTCButton increaseMedian/decreaseMedian
+    //## Structures are in place - here and in TeamPropParametersXML -
+    // to support changes to the grayscale median target. But the
+    // buttons and associated methods must be created. It's not
+    // clear how useful it is to change the median.
+    // private FTCButton increaseMedian;
+    // private FTCButton decreaseMedian;
+
     private FTCButton increaseThreshold;
     private FTCButton decreaseThreshold;
     private FTCButton requestImageCapture;

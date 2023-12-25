@@ -27,7 +27,6 @@ public class TeamPropParametersXML {
     private static final String TEAM_PROP_FILE_NAME = "TeamPropParameters.xml";
 
     private final Document document;
-    private final XPath xpath;
     private final String xmlFilePath;
     private final Node red_pixel_count_gray_median_node;
     private final Node red_pixel_count_gray_threshold_node;
@@ -49,7 +48,7 @@ public class TeamPropParametersXML {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             document = dBuilder.parse(new File(xmlFilePath));
             XPathFactory xpathFactory = XPathFactory.newInstance();
-            xpath = xpathFactory.newXPath();
+            XPath xpath = xpathFactory.newXPath();
 
             // Point to the first node.
             RobotLogCommon.c(TAG, "Parsing XML team_prop_parameters");
