@@ -153,6 +153,7 @@ public class StartParametersXML {
         autoStartDelay = pAutoStartDelay;
         delay_node.setTextContent(Integer.toString(pAutoStartDelay));
 
+        //**TODO Is this necessary?
         // Update startParameters to reflect the change.
         startParameters = new StartParameters(startParameters.robotConfigFilename, startParameters.robotConfigFilename,
                 autoStartDelay, autoEndingPositions);
@@ -166,6 +167,7 @@ public class StartParametersXML {
         Node endingPositionNode = autoEndingPositionNodes.get(pAutoOpMode);
         endingPositionNode.setTextContent(pEndingPositionText);
 
+        //**TODO Is this necessary?
         // Update startParameters to reflect the change.
         startParameters = new StartParameters(startParameters.robotConfigFilename, startParameters.robotConfigFilename,
                 autoStartDelay, autoEndingPositions);
@@ -175,6 +177,8 @@ public class StartParametersXML {
         rewriteFile();
     }
 
+    //**TODO Need a static version of this method in XMLUtils with parameters:
+    // String pXmlFilePath, String pXsltFilePath, Document pDocument)
     // Based on a combination of --
     // https://mkyong.com/java/how-to-modify-xml-file-in-java-dom-parser/#download-source-code
     // https://www.baeldung.com/java-pretty-print-xml

@@ -211,6 +211,8 @@ public class TeamPropParametersXML {
 
         VisionParameters.GrayParameters redPixelCountGrayParameters = ImageXML.parseGrayParameters(red_pixel_count_gray_node);
 
+        //**TODO Need setColorPixelCountRedGrayscalParameters. Need access to the text nodes; use XPath.
+
         // Point to the criteria for the red pixel count.
         Node red_pixel_count_criteria_node = red_pixel_count_gray_node.getNextSibling();
         red_pixel_count_criteria_node = XMLUtils.getNextElement(red_pixel_count_criteria_node);
@@ -245,6 +247,8 @@ public class TeamPropParametersXML {
             throw new AutonomousRobotException(TAG, "Element 'color_channel_pixel_count/BLUE/gray_parameters' not found");
 
         VisionParameters.GrayParameters bluePixelCountGrayParameters = ImageXML.parseGrayParameters(blue_pixel_count_gray_node);
+
+        //**TODO Need setColorPixelCountBlueGrayscalParameters. Need access to the text nodes; use XPath.
 
         // Point to the criteria for the blue pixel count.
         Node blue_pixel_count_criteria_node = blue_pixel_count_gray_node.getNextSibling();

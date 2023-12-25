@@ -22,6 +22,10 @@ public class SpikeWindowRendering implements CameraStreamRendering {
         spikeWindowMapping = pSpikeWindowMapping;
     }
 
+    //## Keep this method of rendering, i.e. drawing directly on the Android
+    // Canvas, as a demonstration. The alternative is to use OpenCV to draw
+    // on the Mat and then convert the Mat to an Android Bitmap and load it
+    // onto the Canvas.
     public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
                                             int onscreenWidth, int onscreenHeight) {
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);

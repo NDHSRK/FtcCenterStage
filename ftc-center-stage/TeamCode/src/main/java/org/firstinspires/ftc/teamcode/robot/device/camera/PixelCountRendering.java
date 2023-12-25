@@ -37,7 +37,7 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightWindow;
     private final AtomicBoolean requestImageCapture = new AtomicBoolean();
     private int captureCount;
-    private final static String outputFilePreamble = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR;
+    private final String outputFilePreamble;
     private Mat bgrFrame = new Mat();
 
     // Make new method in CameraStreamRendering -- List<String> getTelemetryLines()
@@ -54,6 +54,7 @@ public class PixelCountRendering implements CameraStreamRendering {
         spikeWindowMapping = pSpikeWindowMapping;
         leftWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
         rightWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT);
+        outputFilePreamble = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR;
     }
 
     public void setGrayscaleThresholdParameters(VisionParameters.GrayParameters pGrayParameters) {
@@ -67,7 +68,8 @@ public class PixelCountRendering implements CameraStreamRendering {
     public void renderFrameToCanvas(Mat pWebcamFrame, Canvas pDriverStationScreenCanvas,
                                     int onscreenWidth, int onscreenHeight) {
         boolean captureNow = requestImageCapture.getAndSet(false);
-        if (captureNow) captureCount++;
+        if (captureNow)
+            captureCount++;
 
         Imgproc.cvtColor(pWebcamFrame, bgrFrame, Imgproc.COLOR_RGBA2BGR);
         Mat imageROI = ImageUtils.preProcessImage(bgrFrame, null, spikeWindowMapping.imageParameters);
@@ -110,14 +112,7 @@ public class PixelCountRendering implements CameraStreamRendering {
         linear.telemetry.addLine(rightWindow.second.toString() + " white pixel count " + rightNonZeroCount);
         linear.telemetry.update();
 
-        //**TODO somehow you need to figure out how to scale the thresholded ibtmap
-        // to the Canvas. See SpikeWindowRendering.
-        /*
-        public static Bitmap createScaledBitmap (Bitmap src,
-                int dstWidth,
-                int dstHeight,
-                boolean filter) -> false
-         */
+
 
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.
@@ -125,7 +120,12 @@ public class PixelCountRendering implements CameraStreamRendering {
         Bitmap bmp = Bitmap.createBitmap(thresholded.cols(), thresholded.rows(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(thresholded, bmp);
 
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bmp, onscreenWidth, onscreenHeight, false);
+        // What to do about scaling the thresholded Bitmap for display on the
+        // Canvas? This is not so easy because of the odd ROI sizes. So for a
+        // Canvas (onscreenWidth, onscreenHeight) of 960x720, an ROI of 492x259
+        // produces a vertically elongated image. Scaling in Gimp produces an image
+        // of 960x466. So we can either live with the elongated image - because it
+        // does show the thresholding - or use an inset that is the size of the ROI.
 
         // The load the Bitmap onto the Canvas.
         // See https://stackoverflow.com/questions/30630887/android-bitmap-on-canvas-from-external-file
@@ -134,14 +134,15 @@ public class PixelCountRendering implements CameraStreamRendering {
           Mark Barr
           Jun 4, 2015 at 17:38
          */
-        //android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
-        //pDriverStationScreenCanvas.drawBitmap(scaledBitmap, null, destRect, null);
 
-        //**TODO - OR -
-        /*
-        void 	drawBitmap(Bitmap bitmap, float left, float top, Paint paint)
-         */
-        pDriverStationScreenCanvas.drawBitmap(scaledBitmap, 0.0F, 0.0f, null);
+        //## Implicit scaling - where you use bmp as the bitmap - shows the same elongated image.
+        //android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
+        //pDriverStationScreenCanvas.drawBitmap(bmp, null, destRect, null);
+
+        // This method displays a centered inset.
+        float insetLeft = (onscreenWidth / 2) - (spikeWindowMapping.imageParameters.image_roi.width / 2);
+        float insetTop = (onscreenHeight / 2) - (spikeWindowMapping.imageParameters.image_roi.height / 2);
+        pDriverStationScreenCanvas.drawBitmap(bmp, insetLeft, insetTop, null);
     }
 
 }
