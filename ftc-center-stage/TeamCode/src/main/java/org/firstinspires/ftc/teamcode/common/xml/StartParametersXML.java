@@ -161,7 +161,7 @@ public class StartParametersXML {
     }
 
     public void writeStartParametersFile() {
-        XMLUtils.writeXMLFile(document, xmlFilePath, RobotConstants.XSLT_FILE_NAME);
+        XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
     }
 
 }

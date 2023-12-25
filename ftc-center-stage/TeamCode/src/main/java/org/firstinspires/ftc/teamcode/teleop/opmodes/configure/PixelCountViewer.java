@@ -124,16 +124,19 @@ public class PixelCountViewer extends LinearOpMode {
             updatePlayerOne();
         }
 
-        //**TODO        if (opModeIsActive()) {
-        // If there have been any changes to the grayscale values
-        // if (grayscaleParametersChanged) {
-        // write out the changes now --
-        // Take the last change to either BLUE and/or RED ...
-        //teamPropParametersXML.writeTeamPropParametersFile();
-        // }
-
-        telemetry.addLine("Ending the PixelCountViewer");
-        telemetry.update();
+        if (opModeIsActive()) {
+            // If there have been any changes to the grayscale values
+            // write them out to TeamPropParameters.xml now.
+            if (grayscaleParametersChanged) {
+                teamPropParametersXML.writeTeamPropParametersFile();
+                RobotLog.ii(TAG, "Writing TeamPropParameters.xml");
+                telemetry.addLine("Writing TeamPropParameters.xml");
+                telemetry.update();
+                sleep(1500);
+            }
+            telemetry.addLine("Ending the PixelCountViewer");
+            telemetry.update();
+        }
     }
 
     private void updateButtons() {

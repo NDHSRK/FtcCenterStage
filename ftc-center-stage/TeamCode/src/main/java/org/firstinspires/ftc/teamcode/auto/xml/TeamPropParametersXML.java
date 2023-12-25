@@ -27,6 +27,7 @@ public class TeamPropParametersXML {
     private static final String TEAM_PROP_FILE_NAME = "TeamPropParameters.xml";
 
     private final Document document;
+    private final String xmlDirectory;
     private final String xmlFilePath;
     private final Node red_pixel_count_gray_median_node;
     private final Node red_pixel_count_gray_threshold_node;
@@ -37,7 +38,9 @@ public class TeamPropParametersXML {
     public TeamPropParametersXML(String pXMLDir) {
         Node team_prop_parameters_node;
         try {
+            xmlDirectory = pXMLDir;
             xmlFilePath = pXMLDir + TEAM_PROP_FILE_NAME;
+
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             dbFactory.setIgnoringComments(true);
 
@@ -394,7 +397,7 @@ public class TeamPropParametersXML {
     }
 
     public void writeTeamPropParametersFile() {
-        XMLUtils.writeXMLFile(document, xmlFilePath, RobotConstants.XSLT_FILE_NAME);
+        XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
     }
 
 }
