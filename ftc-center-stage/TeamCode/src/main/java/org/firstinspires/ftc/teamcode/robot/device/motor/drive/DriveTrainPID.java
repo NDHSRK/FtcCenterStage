@@ -46,6 +46,9 @@ public class DriveTrainPID {
     // http://brettbeauregard.com/blog/2011/04/improving-the-beginner’s-pid-sample-time/
     // If you introduce a fixed sampling rate, watch the integral and derivative
     // calculations below. Use fractions of a second, not milliseconds.
+
+    //**TODO Log every 5th iteration ... but this method doesn't run in
+    // a loop - so need a flag logVV.
     @SuppressLint("DefaultLocale")
     public double getPIDValue(double pError) {
         timeChange = pidTimer.time(); // elapsed time since last call
@@ -62,7 +65,6 @@ public class DriveTrainPID {
         prevError = pError;
         pidTimer.reset(); // restart elapsed timer
 
-        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "p " + String.format("%.2f", proportional) +
                 ", i " + String.format("%.2f", integrated) +
                 ", d " + String.format("%.2f", derivative) +

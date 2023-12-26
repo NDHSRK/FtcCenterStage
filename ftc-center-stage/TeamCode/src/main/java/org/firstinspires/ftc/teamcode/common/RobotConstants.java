@@ -9,6 +9,8 @@ public class RobotConstants {
     // For standard indented formatting of an XML file.
     public static final String XSLT_FILE_NAME = "StandardTransform.xslt";
 
+    public static final int VV_LOGGING_SAMPLING_FREQUENCY = 5;
+
     public enum RunType {
         AUTONOMOUS, TELEOP,
         TELEOP_WITH_EMBEDDED_AUTONOMOUS,
