@@ -48,7 +48,7 @@ public class BasicDrive extends TeleOpBase {
     // Execute the action(s) controlled by Player 1.  This method
     // should be called once per cycle.
     private void updatePlayerOne() {
-        robot.driveTrain.setPowerAll(DriveStick.updateDrivePower(this, driveMotorPower));
+        robot.driveTrain.runAtPowerAll(DriveStick.updateDrivePower(this, driveMotorPower));
         togglePowerLevel();
     }
 

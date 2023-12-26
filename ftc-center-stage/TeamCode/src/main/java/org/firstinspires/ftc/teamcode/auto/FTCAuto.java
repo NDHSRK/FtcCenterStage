@@ -286,7 +286,8 @@ public class FTCAuto {
 
            /*
             if (!keepCamerasRunning) {
-                //**TODO Attempt at an orderly shutdown causes the Robot Controller to crash in easyopencv.
+                //&& Attempt at an orderly shutdown causes the Robot Controller to crash in easyopencv.
+                // Reported to FTC.
                 if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                     RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
                     robot.configuredWebcams.forEach((k, v) -> {
@@ -683,7 +684,7 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO TEMP for testing 10/20/2023
+            //&& TEMP for testing 10/20/2023
             case "TEST_MULTIPORTAL_SAMPLE": {
                 MultiPortalAuto multiPortalAuto = new MultiPortalAuto(linearOpMode,
                         Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM)).getWebcamName(), // assume this is "Webcam 1"

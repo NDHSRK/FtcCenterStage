@@ -17,9 +17,9 @@ public class MotionUtils {
     // Do not let the absolute value of the velocity or power go below the lower limit
     // or above the fixed maximum of 1.0. Return a value with the same sign as the
     // input argument.
-    //**TODO Make two different clipping methods: one for RTP velocity (which may never
-    // fall below zero but may be zero for subordinate motors) and one for RWE, i.e.
-    // turning - with velocity that ranges between -1.0 and +1.0.
+    //## Reviewed 12/2023 Maybe a little too clever but it does work. Velocity when
+    // used with RUN_TO_POSITION is positive (actually the sign is ignored); when
+    // used with RUN_USING_ENCODER it ranges between -1.0 and +1.0.
     public static double clip(double pValue, double pLimit) {
         return Range.clip(Math.abs(pValue), pLimit, 1.0) * (pValue < 0 ? -1 : 1);
     }
@@ -59,10 +59,11 @@ public class MotionUtils {
                 continue;
             }
 
+            //**TODO Restore and re-test. The increases/decreases in velocity
+            // according to the value of "steer" look correct.
             // If the angle is 90.0 or -90.0 then the robot is strafing to
             // the left or right and the application of the steering correction
             // varies.
-            /*
             if (pAngle == 90.0) { // strafe left?
                 switch (motorId) {
                     case LEFT_FRONT_DRIVE:
@@ -100,8 +101,6 @@ public class MotionUtils {
 
                 continue;
             }
-
-             */
 
             //**TODO For all other angles the PID corrections are tricky.
             // So at this point just return the ramped-down velocity.

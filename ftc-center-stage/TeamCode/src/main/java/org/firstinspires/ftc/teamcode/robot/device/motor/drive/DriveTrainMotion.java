@@ -118,7 +118,7 @@ public class DriveTrainMotion {
         StraightDriveRampdown straightDriveRampdown = new StraightDriveRampdown(robot, rampDownAtClicksRemaining, allDriveMotors, dominantMotorId);
 
         // Start moving.
-        robot.driveTrain.setVelocityAll(velocityMap);
+        robot.driveTrain.runAtVelocityAll(velocityMap);
         DriveTrainPID driveTrainPID = new DriveTrainPID(DriveTrainConstants.P_DRIVE_COEFF);
 
         // Keep moving until one of the dominant motors has reached its target
@@ -249,7 +249,7 @@ public class DriveTrainMotion {
         TurnRampdown turnRampdown = new TurnRampdown(robot, startRampDown, powerMap);
 
         // Start turn.
-        robot.driveTrain.setPowerAll(powerMap);
+        robot.driveTrain.runAtPowerAll(powerMap);
 
         try {
             // Keep looping while we are still active and have not yet reached the desired heading.
@@ -280,6 +280,7 @@ public class DriveTrainMotion {
                 degreesTurned += degreeDifference;
                 remainingAngle = turnData.actualTurn - degreesTurned;
                 //##!! floods log RobotLogCommon.vv(TAG, "Current heading " + currentHeading + " remaining angle " + remainingAngle);
+                //**TODO Log every 5th iteration ...
 
                 // Make sure that the sign of the remaining angle is the same as that of
                 // the original turn.
@@ -330,6 +331,8 @@ public class DriveTrainMotion {
                                            DriveTrainPID pPID, double pRampDownFactor) {
 
         double error = DEGREES.normalize(pDesiredHeading - pCurrentHeading);
+
+        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "IMU " + String.format("%.2f", pCurrentHeading) +
                 ", error " + String.format("%.2f", error));
         double steer = pPID.getPIDValue(error);
@@ -338,8 +341,9 @@ public class DriveTrainMotion {
             return steer; // velocity increment too small, skip
 
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, pAngle, steer, pRampDownFactor);
-        Objects.requireNonNull(robot.driveTrain).setVelocityAll(newVelocityMap);
+        Objects.requireNonNull(robot.driveTrain).runAtVelocityAll(newVelocityMap);
 
+        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "Straight velocity lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
                 ", rf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
                 ", lb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +

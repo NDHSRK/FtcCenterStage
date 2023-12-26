@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 // webcam is started. For TeleOp Opmodes such as the SpikeWindowViewer the
 // name(s) of the processor(s) must be supplied when the webcam is started.
 
-//**TODO To support both a RawFrameProcessor and an AprilTagProcessor on the
+//&& To support both a RawFrameProcessor and an AprilTagProcessor on the
 // same webcam you need a DualProcessorWebcam that implements both
 // RawFrameProvider and AprilTagProvider.
 
@@ -241,7 +241,8 @@ public class VisionPortalWebcam {
     // To be called from the finally block of FTCAuto or any TeleOp
     // OpMode that uses the webcam.
     public void finalShutdown() {
-        //**TODO avoid crash in easyopencv by simply closing the camera ...
+        //&& avoid crash in easyopencv by simply closing the camera ...
+        // Reported to FTC
         /*
         // Shut down the active processor. Stop streaming.
         if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)

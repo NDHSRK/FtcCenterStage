@@ -260,7 +260,7 @@ public class AprilTagNavigation {
         powerMap.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, leftBackPower);
         powerMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, rightBackPower);
 
-        Objects.requireNonNull(robot.driveTrain).setPowerAll(powerMap);
+        Objects.requireNonNull(robot.driveTrain).runAtPowerAll(powerMap);
         powerMap.clear();
     }
 

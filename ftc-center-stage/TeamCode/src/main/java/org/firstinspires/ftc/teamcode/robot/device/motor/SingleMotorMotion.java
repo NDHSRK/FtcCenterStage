@@ -61,7 +61,7 @@ public class SingleMotorMotion {
         singleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Start moving.
-        singleMotor.setVelocity(velocity);
+        singleMotor.runAtVelocity(velocity);
 
         // Keep moving until one of the motors has reached its target position.
         try {
@@ -79,7 +79,7 @@ public class SingleMotorMotion {
             // Only stop the motor if the user has requested a stop;
             // otherwise hold the position of the motor.
             if (pMotorAction == MotorAction.MOVE_AND_STOP)
-                singleMotor.setVelocity(0.0);
+                singleMotor.runAtVelocity(0.0);
 
             // Log ending click counts for both motors.
             RobotLogCommon.d(TAG, "Single motor motion complete");

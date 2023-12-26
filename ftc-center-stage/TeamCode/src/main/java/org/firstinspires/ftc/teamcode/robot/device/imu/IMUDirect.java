@@ -63,13 +63,13 @@ public class IMUDirect {
         return heading;
     }
 
-    //**TODO Switch to Expansion Hub IMU (if present) - pitch
+    //&& Switch to Expansion Hub IMU (if present) - pitch
     public double getIMUPitch() {
         YawPitchRollAngles angles = controlHubIMU.getRobotYawPitchRollAngles();
         return angles.getPitch(DEGREES);
     }
 
-    //**TODO Switch to Expansion Hub IMU (if present) - roll
+    //&& Switch to Expansion Hub IMU (if present) - roll
     public double getIMURoll() {
         YawPitchRollAngles angles = controlHubIMU.getRobotYawPitchRollAngles();
         return angles.getRoll(DEGREES);

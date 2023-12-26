@@ -95,12 +95,12 @@ public class IntakeMotorCalibration extends TeleOpBase {
 
                 // Note that negative velocity pulls pixels in from the front.
                 robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.intakeMotor.setVelocity(-robot.intakeMotor.velocity);
+                robot.intakeMotor.runAtVelocity(-robot.intakeMotor.velocity);
             }
         } else {
             if (intakeInProgress) {
                 intakeInProgress = false;
-                robot.intakeMotor.setVelocity(0.0);
+                robot.intakeMotor.runAtVelocity(0.0);
                 updateEncoderTelemetry();
             }
         }
@@ -113,13 +113,13 @@ public class IntakeMotorCalibration extends TeleOpBase {
 
                 // Note that positive velocity ejects pixels to the front.
                 robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.intakeMotor.setVelocity(robot.intakeMotor.velocity);
+                robot.intakeMotor.runAtVelocity(robot.intakeMotor.velocity);
             }
         } else {
             if (reverseIntakeInProgress) {
                 reverseIntakeInProgress = false;
 
-                robot.intakeMotor.setVelocity(0.0);
+                robot.intakeMotor.runAtVelocity(0.0);
                 updateEncoderTelemetry();
             }
         }
@@ -141,13 +141,13 @@ public class IntakeMotorCalibration extends TeleOpBase {
                 // Note that with the stopper down negative velocity ejects
                 // pixels out the back.
                 robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.intakeMotor.setVelocity(-robot.intakeMotor.velocity);
+                robot.intakeMotor.runAtVelocity(-robot.intakeMotor.velocity);
             }
         } else {
             if (outtakeInProgress) {
                 outtakeInProgress = false;
 
-                robot.intakeMotor.setVelocity(0.0);
+                robot.intakeMotor.runAtVelocity(0.0);
                 updateEncoderTelemetry();
 
                 // Get ready for the next intake.

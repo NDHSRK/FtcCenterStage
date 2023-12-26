@@ -7,7 +7,6 @@ import org.firstinspires.ftc.ftcdevcommon.AutoWorker;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.motor.MotionUtils;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrain;
 
 import java.io.IOException;
@@ -110,7 +109,7 @@ public class ParallelDrive {
                         powerMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE) == 0.0) {
                     if (robotHasMoved) {
                         robotHasMoved = false;
-                        driveTrain.setPowerAll(powerMap);
+                        driveTrain.runAtPowerAll(powerMap);
                     }
                 } else {
                     // If the driver has manipulated the stick(s) but a non-interruptible
@@ -118,7 +117,7 @@ public class ParallelDrive {
                     if (driveLock.tryLock()) {
                         try {
                             robotHasMoved = true;
-                            driveTrain.setPowerAll(powerMap);
+                            driveTrain.runAtPowerAll(powerMap);
                         } finally {
                             driveLock.unlock();
                         }

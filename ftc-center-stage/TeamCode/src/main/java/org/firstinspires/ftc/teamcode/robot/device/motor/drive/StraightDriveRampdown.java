@@ -74,6 +74,7 @@ public class StraightDriveRampdown {
         // update the motor velocity.
         double currentDominantVelocity =
                 Math.abs(MotionUtils.clip(Objects.requireNonNull(allDriveMotors.get(dominantMotorId)).initialVelocity * rampDownFactor, DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY));
+        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "Next candidate for velocity ramp-down " + String.format("%.2f", currentDominantVelocity) +
                 " using factor " + String.format("%.3f", rampDownFactor) +
                 ", previous " + String.format("%.2f", previousDominantVelocity) +
@@ -84,8 +85,9 @@ public class StraightDriveRampdown {
 
         previousDominantVelocity = currentDominantVelocity;
         newVelocityMap = MotionUtils.updateDriveTrainVelocity(allDriveMotors, pAngle, pSteer, rampDownFactor);
-        robot.driveTrain.setVelocityAll(newVelocityMap);
+        robot.driveTrain.runAtVelocityAll(newVelocityMap);
 
+        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "Straight line velocity ramped down to lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
                 ", rf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
                 ", lb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +

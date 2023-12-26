@@ -64,8 +64,9 @@ public class TurnRampdown {
             newPowerMap.put(oneMotor.getKey(), clippedPower);
         }
 
-        robot.driveTrain.setPowerAll(newPowerMap);
+        robot.driveTrain.runAtPowerAll(newPowerMap);
 
+        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "Turn power lf " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
                 ", rf " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
                 ", lb " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +

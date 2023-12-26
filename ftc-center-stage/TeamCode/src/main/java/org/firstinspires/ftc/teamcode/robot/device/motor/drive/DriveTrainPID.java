@@ -62,6 +62,7 @@ public class DriveTrainPID {
         prevError = pError;
         pidTimer.reset(); // restart elapsed timer
 
+        //**TODO Log every 5th iteration ...
         RobotLogCommon.vv(TAG, "p " + String.format("%.2f", proportional) +
                 ", i " + String.format("%.2f", integrated) +
                 ", d " + String.format("%.2f", derivative) +

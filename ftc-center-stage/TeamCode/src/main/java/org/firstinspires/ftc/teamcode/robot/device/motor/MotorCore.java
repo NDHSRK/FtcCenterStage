@@ -81,12 +81,9 @@ public abstract class MotorCore {
         Objects.requireNonNull(motorMap.get(pMotorId)).setTargetPosition(pTargetClicks);
     }
 
-    //**TODO Confusing naming: all variations of setVelocity... and setPower...
-    // really mean runAt or runWith Velocity/Power
-
     // Assumes all clipping and all final modifications to the velocity,
     // e.g. running at .5 velocity, have already been performed.
-    public void setVelocity(FTCRobot.MotorId pMotorId, double pVelocity) {
+    public void runAtVelocity(FTCRobot.MotorId pMotorId, double pVelocity) {
         DcMotorEx motor = motorMap.get(pMotorId);
         if (Objects.requireNonNull(motor).getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             throw new AutonomousRobotException(TAG, "Motor " + pMotorId + ": setVelocity incompatible with RUN_WITHOUT_ENCODER");
@@ -94,7 +91,7 @@ public abstract class MotorCore {
         Objects.requireNonNull(motorMap.get(pMotorId)).setVelocity(pVelocity * maxVelocity);
     }
 
-    public void setVelocityAll(EnumMap<FTCRobot.MotorId, Double> pVelocityMap) {
+    public void runAtVelocityAll(EnumMap<FTCRobot.MotorId, Double> pVelocityMap) {
         pVelocityMap.forEach((k, v) ->
         {
             if (Objects.requireNonNull(motorMap.get(k)).getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
@@ -109,7 +106,7 @@ public abstract class MotorCore {
     // e.g. running at .5 power, have already been performed.
     //## Note that with either of the run modes RUN_USING_ENCODER or
     // RUN_TO_POSITION, setPower has no effect!!
-    public void setPower(FTCRobot.MotorId pMotorId, double pPower) {
+    public void runAtPower(FTCRobot.MotorId pMotorId, double pPower) {
         DcMotorEx motor = motorMap.get(pMotorId);
         if (Objects.requireNonNull(motor).getMode() != DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             throw new AutonomousRobotException(TAG, "Motor " + pMotorId + ": setPower requires RUN_WITHOUT_ENCODER");
@@ -117,7 +114,7 @@ public abstract class MotorCore {
         Objects.requireNonNull(motorMap.get(pMotorId)).setPower(pPower);
     }
 
-    public void setPowerAll(EnumMap<FTCRobot.MotorId, Double> pPowerMap) {
+    public void runAtPowerAll(EnumMap<FTCRobot.MotorId, Double> pPowerMap) {
         pPowerMap.forEach((k, v) ->
         {
             if (Objects.requireNonNull(motorMap.get(k)).getMode() != DcMotor.RunMode.RUN_WITHOUT_ENCODER)

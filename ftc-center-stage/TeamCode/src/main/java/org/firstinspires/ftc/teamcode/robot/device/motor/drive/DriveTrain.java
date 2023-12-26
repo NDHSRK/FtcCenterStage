@@ -77,7 +77,7 @@ public class DriveTrain extends MotorCore {
         velocityMap.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, lbVelocity);
         velocityMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, rbVelocity);
 
-        setVelocityAll(velocityMap);
+        runAtVelocityAll(velocityMap);
     }
 
     public void driveAllByPower(double pLeftFrontPower, double pRightFrontPower,
@@ -88,7 +88,7 @@ public class DriveTrain extends MotorCore {
         powerMap.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, pLeftBackPower);
         powerMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, pRightBackPower);
 
-        setPowerAll(powerMap);
+        runAtPowerAll(powerMap);
     }
 
 }
