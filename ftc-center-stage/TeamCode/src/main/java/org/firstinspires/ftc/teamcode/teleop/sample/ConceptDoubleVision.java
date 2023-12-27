@@ -166,6 +166,8 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .build();
 
         //**TODO ONE more time - try disabling both processors here ...
+        myVisionPortal.setProcessorEnabled(webcamFrame, false);
+        myVisionPortal.setProcessorEnabled(aprilTag, false);
 
     }   // end initDoubleVision()
 

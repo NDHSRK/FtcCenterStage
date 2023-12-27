@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.robot.device.motor.drive;
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
@@ -45,7 +47,7 @@ public class StraightDriveRampdown {
     // at the velocity specified in RobotAction.xml, and decreases as the robot nears
     // its target.
     @SuppressLint("DefaultLocale")
-    public double rampDown(int pRemainingClicks, double pAngle, double pSteer) {
+    public double rampDown(int pRemainingClicks, double pAngle, double pSteer, boolean pLogVV) {
 
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap;
 
@@ -74,11 +76,12 @@ public class StraightDriveRampdown {
         // update the motor velocity.
         double currentDominantVelocity =
                 Math.abs(MotionUtils.clip(Objects.requireNonNull(allDriveMotors.get(dominantMotorId)).initialVelocity * rampDownFactor, DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY));
-        //**TODO Log every 5th iteration ... need boolean parameter
-        RobotLogCommon.vv(TAG, "Next candidate for velocity ramp-down " + String.format("%.2f", currentDominantVelocity) +
-                " using factor " + String.format("%.3f", rampDownFactor) +
-                ", previous " + String.format("%.2f", previousDominantVelocity) +
-                ", difference " + String.format("%.3f", Math.abs(currentDominantVelocity - previousDominantVelocity)));
+
+        if (pLogVV)
+            RobotLog.vv(TAG, "Next candidate for velocity ramp-down " + String.format("%.2f", currentDominantVelocity) +
+                    " using factor " + String.format("%.3f", rampDownFactor) +
+                    ", previous " + String.format("%.2f", previousDominantVelocity) +
+                    ", difference " + String.format("%.3f", Math.abs(currentDominantVelocity - previousDominantVelocity)));
 
         if (currentDominantVelocity == DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY || Math.abs(currentDominantVelocity - previousDominantVelocity) < DriveTrainConstants.MINIMUM_DRIVE_POWER_STEP)
             return rampDownFactor;
@@ -87,11 +90,11 @@ public class StraightDriveRampdown {
         newVelocityMap = MotionUtils.updateDriveTrainVelocity(allDriveMotors, pAngle, pSteer, rampDownFactor);
         robot.driveTrain.runAtVelocityAll(newVelocityMap);
 
-        //**TODO Log every 5th iteration ... need boolean parameter
-        RobotLogCommon.vv(TAG, "Straight line velocity ramped down to lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
-                ", rf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
-                ", lb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +
-                ", rb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE)));
+        if (pLogVV)
+            RobotLog.vv(TAG, "Straight line velocity ramped down to lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
+                    ", rf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
+                    ", lb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +
+                    ", rb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE)));
 
         return rampDownFactor;
     }

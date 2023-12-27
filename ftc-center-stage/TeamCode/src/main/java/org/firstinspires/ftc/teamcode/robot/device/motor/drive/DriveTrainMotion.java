@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
@@ -48,7 +49,7 @@ public class DriveTrainMotion {
     // This overload is the normal path.
     @SuppressLint("DefaultLocale")
     public void straight(int pTargetClicks, double pAngle, double pVelocity,
-                         int pRampDownAtClicksRemaining, double pDesiredHeading) throws IOException, InterruptedException, TimeoutException {
+                         int pRampDownAtClicksRemaining, double pDesiredHeading) {
         straight(pTargetClicks, pAngle, pVelocity,
                 pRampDownAtClicksRemaining, pDesiredHeading,
                 () -> false);
@@ -125,7 +126,9 @@ public class DriveTrainMotion {
         // Keep moving until one of the dominant motors has reached its target
         // position.
         try {
-            int logVV = -1;
+            int logVVCount = -1;
+            boolean logVV;
+
             double currentHeading;
             double steer;
             int dominantMotorClickCount;
@@ -149,10 +152,11 @@ public class DriveTrainMotion {
                         .anyMatch(e -> !robot.driveTrain.isBusy(e.getKey())))
                     break; // exit while loop
 
-                //**TODO                if (turnLogVV % RobotConstants.VV_LOGGING_SAMPLING_FREQUENCY == 0)
+                logVV = ++logVVCount % RobotConstants.VV_LOGGING_SAMPLING_FREQUENCY == 0 &&
+                        RobotLogCommon.isLoggable("vv");
                 currentHeading = Objects.requireNonNull(robot.imuDirect).getIMUHeading();
                 steer = applyConstantHeadingPID(pDesiredHeading, currentHeading, pAngle,
-                        allDriveMotors, driveTrainPID, rampDownFactor);
+                        allDriveMotors, driveTrainPID, rampDownFactor, logVV);
 
                 // Make sure the next call to straightDriveRampdown does not
                 // counteract the PID. The PID method only changes motor velocity
@@ -168,7 +172,8 @@ public class DriveTrainMotion {
                 if (rampDownAtClicksRemaining != 0.0 &&
                         dominantMotorClickCount < targetClicks &&
                         remainingClickCount <= rampDownAtClicksRemaining)
-                    rampDownFactor = straightDriveRampdown.rampDown(remainingClickCount, pAngle, steer);
+                    rampDownFactor = straightDriveRampdown.rampDown(remainingClickCount,
+                            pAngle, steer, logVV);
             } // while
         } finally {
             robot.driveTrain.stopAllZeroVelocity();
@@ -209,7 +214,8 @@ public class DriveTrainMotion {
     public double turn(double pDesiredHeadingBeforeTurn, double pCurrentHeading, double pTurnDegrees, double pPower, double pStartRampDownDegrees, DriveTrainConstants.TurnNormalization pTurnNormalization,
                        Supplier<Boolean> pCutShort) throws IOException, InterruptedException, TimeoutException {
 
-        int turnLogVV = -1;
+        int logVVCount = -1;
+        boolean logVV;
         double startRampDown = Math.abs(pStartRampDownDegrees); // abs for consistency
 
         RobotLogCommon.d(TAG, "Start turn, desired heading before turn " + String.format("%.2f", pDesiredHeadingBeforeTurn) +
@@ -268,15 +274,17 @@ public class DriveTrainMotion {
 
                 // If the robot has reached the turn window, e.g. 2 degrees, stop here.
                 // Otherwise keep turning.
-                turnLogVV++;
+                logVV = ++logVVCount % RobotConstants.VV_LOGGING_SAMPLING_FREQUENCY == 0 &&
+                        RobotLogCommon.isLoggable("vv");
+
                 previousCurrentHeading = currentHeading;
                 currentHeading = robot.imuDirect.getIMUHeading();
                 degreeDifference = Headings.normalize(currentHeading - previousCurrentHeading, -180, 180);
                 degreesTurned += degreeDifference;
                 remainingAngle = turnData.actualTurn - degreesTurned;
 
-                if (turnLogVV % RobotConstants.VV_LOGGING_SAMPLING_FREQUENCY == 0)
-                  RobotLogCommon.vv(TAG, "Current heading " + currentHeading + " remaining angle " + remainingAngle);
+                if (logVV)
+                    RobotLog.vv(TAG, "Current heading " + currentHeading + " remaining angle " + remainingAngle);
 
                 // Make sure that the sign of the remaining angle is the same as that of
                 // the original turn.
@@ -297,7 +305,7 @@ public class DriveTrainMotion {
 
                 // Check for a ramp-down in power as the robot approaches its target.
                 if (startRampDown != 0.0 && remainingAngle <= startRampDown)
-                    turnRampdown.rampDown(remainingAngle);
+                    turnRampdown.rampDown(remainingAngle, logVV);
             }
 
             return turnData.desiredHeadingAfterTurn;
@@ -324,26 +332,26 @@ public class DriveTrainMotion {
     @SuppressLint("DefaultLocale")
     private double applyConstantHeadingPID(double pDesiredHeading, double pCurrentHeading, double pAngle,
                                            EnumMap<FTCRobot.MotorId, AutoDrive.DriveMotorData> pCurrentMotorData,
-                                           DriveTrainPID pPID, double pRampDownFactor) {
+                                           DriveTrainPID pPID, double pRampDownFactor, boolean pLogVV) {
 
         double error = DEGREES.normalize(pDesiredHeading - pCurrentHeading);
 
-        //**TODO Log every 5th iteration ... need boolean parameter
-        RobotLogCommon.vv(TAG, "IMU " + String.format("%.2f", pCurrentHeading) +
-                ", error " + String.format("%.2f", error));
-        double steer = pPID.getPIDValue(error);
+        if (pLogVV)
+            RobotLog.vv(TAG, "IMU " + String.format("%.2f", pCurrentHeading) +
+                    ", error " + String.format("%.2f", error));
 
+        double steer = pPID.getPIDValue(error, pLogVV);
         if (Math.abs(steer) < DriveTrainConstants.MINIMUM_DRIVE_POWER_STEP)
             return steer; // velocity increment too small, skip
 
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, pAngle, steer, pRampDownFactor);
         Objects.requireNonNull(robot.driveTrain).runAtVelocityAll(newVelocityMap);
 
-        //**TODO Log every 5th iteration ... need boolean parameter
-        RobotLogCommon.vv(TAG, "Straight velocity lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
-                ", rf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
-                ", lb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +
-                ", rb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE)));
+        if (pLogVV)
+            RobotLog.vv(TAG, "Straight velocity lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
+                    ", rf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
+                    ", lb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +
+                    ", rb " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE)));
 
         return steer;
     }

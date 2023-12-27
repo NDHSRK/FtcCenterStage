@@ -20,6 +20,8 @@ public class MotionUtils {
     //## Reviewed 12/2023 Maybe a little too clever but it does work. Velocity when
     // used with RUN_TO_POSITION is positive (actually the sign is ignored); when
     // used with RUN_USING_ENCODER it ranges between -1.0 and +1.0.
+    //**TODO 12/26/2023 NO GOOD for PID - drive train RTP velocity may never go below 0;
+    // BUT valid for clipping directional velocity, which may be negative.
     public static double clip(double pValue, double pLimit) {
         return Range.clip(Math.abs(pValue), pLimit, 1.0) * (pValue < 0 ? -1 : 1);
     }
@@ -59,7 +61,7 @@ public class MotionUtils {
                 continue;
             }
 
-            //**TODO Restore and re-test. The increases/decreases in velocity
+            //**TODO Re-test with vv logging. The increases/decreases in velocity
             // according to the value of "steer" look correct.
             // If the angle is 90.0 or -90.0 then the robot is strafing to
             // the left or right and the application of the steering correction
@@ -110,6 +112,7 @@ public class MotionUtils {
         return newVelocityMap;
     }
 
+    //**TODO velocity must never be allowed to go below zero!!
     private static void setRampedDownVelocity(FTCRobot.MotorId pMotorId, AutoDrive.DriveMotorData pMotorData,
                                     double pRampDownFactor, double pSteer,
                                     EnumMap<FTCRobot.MotorId, Double> pVelocityMap) {

@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.robot.device.motor.drive;
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
@@ -19,7 +21,8 @@ public class TurnRampdown {
     private final EnumMap<FTCRobot.MotorId, Double> currentPowerMap;
 
     @SuppressLint("DefaultLocale")
-    public TurnRampdown(FTCRobot pRobot, double pRampDownDegrees, EnumMap<FTCRobot.MotorId, Double> pCurrentPowerMap) {
+    public TurnRampdown(FTCRobot pRobot, double pRampDownDegrees,
+                        EnumMap<FTCRobot.MotorId, Double> pCurrentPowerMap) {
         robot = pRobot;
         rampDownDegrees = Math.abs(pRampDownDegrees);
         currentPowerMap = pCurrentPowerMap;
@@ -33,7 +36,7 @@ public class TurnRampdown {
     }
 
     @SuppressLint("DefaultLocale")
-    public void rampDown(double pRemainingAngle) {
+    public void rampDown(double pRemainingAngle, boolean pLogVV) {
         double remainingAngle = Math.abs(pRemainingAngle); // take no chances
 
         EnumMap<FTCRobot.MotorId, Double> newPowerMap = new EnumMap<>(FTCRobot.MotorId.class);
@@ -66,8 +69,8 @@ public class TurnRampdown {
 
         robot.driveTrain.runAtPowerAll(newPowerMap);
 
-        //**TODO Log every 5th iteration ...
-        RobotLogCommon.vv(TAG, "Turn power lf " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
+        if (pLogVV)
+        RobotLog.vv(TAG, "Turn power lf " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
                 ", rf " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.RIGHT_FRONT_DRIVE)) +
                 ", lb " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.LEFT_BACK_DRIVE)) +
                 ", rb " + String.format("%.2f", newPowerMap.get(FTCRobot.MotorId.RIGHT_BACK_DRIVE)));

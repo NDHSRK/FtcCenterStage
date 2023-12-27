@@ -30,6 +30,9 @@ public class AutoDrive {
     @SuppressLint("DefaultLocale")
     public AutoDrive(double pFtcAngle, double pVelocity, double pDominantMotorVelocityLimit) {
 
+        // Sanity: the pVelocity parameter and the pDominantMotorVelocityLimit
+        // parameter must always be positive for RUN_TO_POSITION.
+        double velocity = Math.abs(pVelocity);
         double dominantVelocityLimit = Math.abs(pDominantMotorVelocityLimit);
 
         // To ensure that the trigonometry produces values that match the
@@ -63,10 +66,10 @@ public class AutoDrive {
         // (90 degrees), and strafe right (-90 degrees) all motors will be
         // in play, all will be dominant, and all will have the same velocity.
         if (angle360 % 90.0 == 0.0) {
-            allDriveMotors.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, new DriveMotorData(lfv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
-            allDriveMotors.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, new DriveMotorData(rfv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
-            allDriveMotors.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, new DriveMotorData(lbv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
-            allDriveMotors.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, new DriveMotorData(rbv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, new DriveMotorData(lfv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, new DriveMotorData(rfv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, new DriveMotorData(lbv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, new DriveMotorData(rbv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
             return;
         }
 
@@ -82,34 +85,34 @@ public class AutoDrive {
             double dominantRawVelocityLFRB = Math.abs(lfv);
 
             RobotLogCommon.d(TAG, "Dominant motor " + FTCRobot.MotorId.LEFT_FRONT_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, new DriveMotorData(lfv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, new DriveMotorData(lfv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
 
             RobotLogCommon.d(TAG, "Dominant motor " + FTCRobot.MotorId.RIGHT_BACK_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, new DriveMotorData(rbv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, new DriveMotorData(rbv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
 
             // Make the subordinate velocity proportional to the dominant velocity.
             RobotLogCommon.d(TAG, "Subordinate motor " + FTCRobot.MotorId.RIGHT_FRONT_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, new DriveMotorData((dominantRawVelocityLFRB <= 1.0 ? rfv : rfv/dominantRawVelocityLFRB), pVelocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
+            allDriveMotors.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, new DriveMotorData((dominantRawVelocityLFRB <= 1.0 ? rfv : rfv/dominantRawVelocityLFRB), velocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
 
             RobotLogCommon.d(TAG, "Subordinate motor " + FTCRobot.MotorId.LEFT_BACK_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, new DriveMotorData((dominantRawVelocityLFRB <= 1.0 ? lbv : lbv/dominantRawVelocityLFRB), pVelocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
+            allDriveMotors.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, new DriveMotorData((dominantRawVelocityLFRB <= 1.0 ? lbv : lbv/dominantRawVelocityLFRB), velocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
         }
         else {
             // right front and left back are dominant
             double dominantRawVelocityRFLB = Math.abs(rfv);
 
             RobotLogCommon.d(TAG, "Dominant motor " + FTCRobot.MotorId.RIGHT_FRONT_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, new DriveMotorData(rfv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.RIGHT_FRONT_DRIVE, new DriveMotorData(rfv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
  
             RobotLogCommon.d(TAG, "Dominant motor " + FTCRobot.MotorId.LEFT_BACK_DRIVE); 
-            allDriveMotors.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, new DriveMotorData(lbv, pVelocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
+            allDriveMotors.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, new DriveMotorData(lbv, velocity, dominantVelocityLimit, DriveTrainConstants.MotorRank.DOMINANT));
  
             // Make the subordinate velocity proportional to the dominant velocity.
             RobotLogCommon.d(TAG, "Subordinate motor " + FTCRobot.MotorId.LEFT_FRONT_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, new DriveMotorData((dominantRawVelocityRFLB <= 1.0 ? lfv : lfv/dominantRawVelocityRFLB), pVelocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
+            allDriveMotors.put(FTCRobot.MotorId.LEFT_FRONT_DRIVE, new DriveMotorData((dominantRawVelocityRFLB <= 1.0 ? lfv : lfv/dominantRawVelocityRFLB), velocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
 
             RobotLogCommon.d(TAG, "Subordinate motor " + FTCRobot.MotorId.RIGHT_BACK_DRIVE);
-            allDriveMotors.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, new DriveMotorData((dominantRawVelocityRFLB <= 1.0 ? rbv : rbv/dominantRawVelocityRFLB), pVelocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
+            allDriveMotors.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, new DriveMotorData((dominantRawVelocityRFLB <= 1.0 ? rbv : rbv/dominantRawVelocityRFLB), velocity, subordinateVelocityLimit, DriveTrainConstants.MotorRank.SUBORDINATE));
         }
     }
 
@@ -137,19 +140,21 @@ public class AutoDrive {
         public DriveMotorData(double pDirectionalVelocity, double pVelocity, double pVelocityLimit,
                               DriveTrainConstants.MotorRank pMotorRank) {
             directionSignum = (int) Math.signum(pDirectionalVelocity);
-            velocityLimit = pVelocityLimit;
+            double velocity = Math.abs(pVelocity); // sanity: must always be positive
+            velocityLimit = Math.abs(pVelocityLimit); // sanity: must always be positive
             motorRank = pMotorRank;
 
             RobotLogCommon.vv(TAG, "Directional velocity " + String.format("%.3f", pDirectionalVelocity));
-            RobotLogCommon.vv(TAG, "Requested velocity " + String.format("%.3f", pVelocity));
+            RobotLogCommon.vv(TAG, "Requested velocity " + String.format("%.3f", velocity));
             
             double clippedDirectionalVelocity = MotionUtils.clip(pDirectionalVelocity, velocityLimit);
             RobotLogCommon.vv(TAG, "Clipped directional velocity " + String.format("%.3f", clippedDirectionalVelocity));
             
-            initialVelocity = MotionUtils.clip(clippedDirectionalVelocity * pVelocity, velocityLimit);
+            initialVelocity = MotionUtils.clip(clippedDirectionalVelocity * velocity, velocityLimit);
             RobotLogCommon.vv(TAG, "Clipped initial velocity " + initialVelocity);
         }
 
+        //**TODO Where do you check that velocity may never go below 0?
         public double clipUpdatedVelocity(double pVelocity) {
             return MotionUtils.clip(pVelocity, velocityLimit);
         }

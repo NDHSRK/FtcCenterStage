@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.robot.device.motor.drive;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 
@@ -47,10 +48,8 @@ public class DriveTrainPID {
     // If you introduce a fixed sampling rate, watch the integral and derivative
     // calculations below. Use fractions of a second, not milliseconds.
 
-    //**TODO Log every 5th iteration ... but this method doesn't run in
-    // a loop - so need a flag logVV.
     @SuppressLint("DefaultLocale")
-    public double getPIDValue(double pError) {
+    public double getPIDValue(double pError, boolean pLogVV) {
         timeChange = pidTimer.time(); // elapsed time since last call
 
         // If the current offset and the accumulated offset don't have the same
@@ -65,11 +64,12 @@ public class DriveTrainPID {
         prevError = pError;
         pidTimer.reset(); // restart elapsed timer
 
-        RobotLogCommon.vv(TAG, "p " + String.format("%.2f", proportional) +
-                ", i " + String.format("%.2f", integrated) +
-                ", d " + String.format("%.2f", derivative) +
-                ", steer " + String.format("%.2f", (proportional + integrated + derivative)) +
-                ", cycle time ms " + timeChange);
+        if (pLogVV)
+            RobotLog.vv(TAG, "p " + String.format("%.2f", proportional) +
+                    ", i " + String.format("%.2f", integrated) +
+                    ", d " + String.format("%.2f", derivative) +
+                    ", steer " + String.format("%.2f", (proportional + integrated + derivative)) +
+                    ", cycle time ms " + timeChange);
 
         return proportional + integrated + derivative;
     }
