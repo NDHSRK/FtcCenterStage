@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotConstants;
 
 // For use by the action "STRAIGHT_BY" and all specializations.
 public class DriveTrainPID {
@@ -68,8 +69,7 @@ public class DriveTrainPID {
             RobotLog.vv(TAG, "p " + String.format("%.2f", proportional) +
                     ", i " + String.format("%.2f", integrated) +
                     ", d " + String.format("%.2f", derivative) +
-                    ", steer " + String.format("%.2f", (proportional + integrated + derivative)) +
-                    ", cycle time ms " + timeChange);
+                    ", steer " + String.format("%.2f", (proportional + integrated + derivative)));
 
         return proportional + integrated + derivative;
     }

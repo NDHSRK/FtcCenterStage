@@ -57,7 +57,7 @@ import java.util.List;
 // WebcamFrameProcessor.
 
 @TeleOp(name = "Concept: Double Vision", group = "Concept")
-@Disabled
+//@Disabled
 public class ConceptDoubleVision extends LinearOpMode {
 
     /**
@@ -165,7 +165,9 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .addProcessor(aprilTag)
                 .build();
 
-        //**TODO ONE more time - try disabling both processors here ...
+        //## 12/27/2023 Tested disabling both processors here more time -
+        // and everything worked; all buttons and actions performed as
+        // expected.
         myVisionPortal.setProcessorEnabled(webcamFrame, false);
         myVisionPortal.setProcessorEnabled(aprilTag, false);
 

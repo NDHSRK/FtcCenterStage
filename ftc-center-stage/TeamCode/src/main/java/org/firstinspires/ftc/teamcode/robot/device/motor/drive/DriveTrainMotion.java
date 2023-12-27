@@ -69,6 +69,9 @@ public class DriveTrainMotion {
                 String.format("%.2f", pAngle) +
                 ", ramp down at abs " + rampDownAtClicksRemaining +
                 " clicks remaining, desired heading " + String.format("%.2f", pDesiredHeading));
+        if (RobotLogCommon.isLoggable("vv"))
+            RobotLog.vv(TAG, "Start straight line drive of " + targetClicks + " clicks at angle " +
+                            String.format("%.2f", pAngle)); // for collating the matchLog and the FTCAutoLog.
 
         RobotLogCommon.d(TAG, "Straight drive velocity " + pVelocity);
         AutoDrive adc = new AutoDrive(pAngle, pVelocity, DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY);
@@ -180,6 +183,9 @@ public class DriveTrainMotion {
 
             // Log ending click counts for all dominant motors.
             RobotLogCommon.d(TAG, "Straight line drive complete");
+            if (RobotLogCommon.isLoggable("vv"))
+                RobotLog.vv(TAG, "Straight line drive complete"); // for collating the matchLog and the FTCAutoLog.
+
             allDriveMotors.forEach((motorId, motorData) -> {
                 if (motorData.motorRank == DriveTrainConstants.MotorRank.DOMINANT)
                     RobotLogCommon.d(TAG, "Dominant motor " + motorId +
@@ -188,9 +194,9 @@ public class DriveTrainMotion {
         }
     }
 
-    //**TODO Why can't you use RUN_USING_ENCODER and velocity here? If you do this
-    // then RobotAction.xml and XPath matching will also have to change.
-    // See the sample RobotAutoDriveByGyro_Linear, which uses power - try there first.
+    //&& DEFER to off-season Why can't you use RUN_USING_ENCODER and velocity here?
+    // If you do this then RobotAction.xml and XPath matching will also have to change.
+    // So will a fair amount of motion code and comments.
 
     // Executes a turn.
     // Takes into account the fact that the desired heading of the robot before the turn may not be the same
@@ -231,6 +237,8 @@ public class DriveTrainMotion {
         Headings.TurnData turnData = Headings.getActualTurn(pDesiredHeadingBeforeTurn, currentHeading, pTurnDegrees, pTurnNormalization);
         RobotLogCommon.d(TAG, "Start turn: actual angle to turn " + String.format("%.2f", turnData.actualTurn) +
                 ", desired heading after turn " + String.format("%.2f", turnData.desiredHeadingAfterTurn));
+        if (RobotLogCommon.isLoggable("vv"))
+            RobotLog.vv(TAG, "Start turn of " + String.format("%.2f", turnData.actualTurn)); // for collating the matchLog and the FTCAutoLog.
 
         // Sanity check: nothing to do for a turn of 0 degrees.
         if (turnData.actualTurn == 0.0)

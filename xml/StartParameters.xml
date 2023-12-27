@@ -1,6 +1,6 @@
 <StartParameters>
-    <robot_config>RobotConfig.xml</robot_config>
-    <robot_action>RobotAction.xml</robot_action>
+    <robot_config>RobotConfig TEST.xml</robot_config>
+    <robot_action>RobotAction TEST.xml</robot_action>
     <auto_start_delay>0</auto_start_delay>
     <auto_ending_position>
         <RED_F4>left</RED_F4>
