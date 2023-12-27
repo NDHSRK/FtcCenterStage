@@ -30,8 +30,9 @@ public class AutoDrive {
     @SuppressLint("DefaultLocale")
     public AutoDrive(double pFtcAngle, double pVelocity, double pDominantMotorVelocityLimit) {
 
-        // Sanity: the pVelocity parameter and the pDominantMotorVelocityLimit
-        // parameter must always be positive for RUN_TO_POSITION.
+        // Sanity: for RUN_TO_POSITION velocity is always positive - so
+        // make sure the parameters pVelocity and pDominantMotorVelocityLimit
+        // are positive.
         double velocity = Math.abs(pVelocity);
         double dominantVelocityLimit = Math.abs(pDominantMotorVelocityLimit);
 
@@ -46,20 +47,21 @@ public class AutoDrive {
         double directionX = Math.sin(Math.toRadians(angle360));
         double directionY = Math.cos(Math.toRadians(angle360));
 
-        // Calculate the unclipped, unfactored directional velocity
-        // for the mecanum drive motors. These values are used to
-        // set the initial velocity and also determine the direction
-        // signum below.
+        // Calculate the unclipped, unfactored directional
+        // velocity for each of the mecanum drive motors.
+        // For example:
+        // At 45, 135, 225, and 315 degrees two of the motors
+        // will have a directional value of 0. For example,
+        // sin 45 deg = 0.70710678118; cos = 0.70710678118
+        // sin 135 deg = 0.70710678118; cos = -0.70710678118
         double lfv = directionY + directionX;
         double rfv = directionY - directionX;
         double lbv = directionY - directionX;
         double rbv = directionY + directionX;
 
         // Determine which motors have the dominant velocity values.
-        // The sign of the velocity for each motor can be used to
-        // to determine the sign of the target click count for
-        // RUN_TO_POSITION. Also, only the dominant motors need to
-        // be checked for isBusy() during RUN_TO_POSITION.
+        // Only the dominant motors need to be checked for isBusy()
+        //  during RUN_TO_POSITION.
 
         // Take a shortcut for all angles evenly divisible by 90 degrees.
         // For forward (0 degrees), backward (-180 degrees), strafe left
@@ -74,8 +76,8 @@ public class AutoDrive {
         }
 
         // For all other angles, two of the four motors will be dominant
-        // and will both have the same raw unclipped, unfactored directional
-        // velocity as each other. The other two motors will be subordinate
+        // and will both have the same raw unclipped, unfactored velocity
+        // as each other. The other two motors will be subordinate and
         // and will both have the same raw velocity as each other. The
         // dominant velocity will always be greater than the subordinate
         // velocity.
@@ -120,17 +122,11 @@ public class AutoDrive {
         return allDriveMotors;
     }
 
-    // Very important! [comment updated 11/29/2023]
-    // For motors set to RUN_TO_POSITION, the SDK does not look at
-    // the sign of the velocity. However, for the PID control to
-    // work correctly we need to look at the sign of the velocity
-    // while applying the PID and its "steer" value so that we never
-    // allow the final velocity to fall below zero (for subordinate
-    // motors) or below the minimum motor velocity (for dominant motors).
-
     public static class DriveMotorData {
         private static final String TAG = DriveMotorData.class.getSimpleName();
 
+        // The direction signum eventually determines the sign of the
+        // click count for each motor used in RUN_TO_POSITION.
         public final int directionSignum;
         public final DriveTrainConstants.MotorRank motorRank;
         private final double velocityLimit;
@@ -140,23 +136,22 @@ public class AutoDrive {
         public DriveMotorData(double pDirectionalVelocity, double pVelocity, double pVelocityLimit,
                               DriveTrainConstants.MotorRank pMotorRank) {
             directionSignum = (int) Math.signum(pDirectionalVelocity);
-            double velocity = Math.abs(pVelocity); // sanity: must always be positive
-            velocityLimit = Math.abs(pVelocityLimit); // sanity: must always be positive
+            velocityLimit = Math.abs(pVelocityLimit); // sanity: must always be 0 or positive
             motorRank = pMotorRank;
 
             RobotLogCommon.vv(TAG, "Directional velocity " + String.format("%.3f", pDirectionalVelocity));
-            RobotLogCommon.vv(TAG, "Requested velocity " + String.format("%.3f", velocity));
+            RobotLogCommon.vv(TAG, "Requested velocity " + String.format("%.3f", pVelocity));
             
-            double clippedDirectionalVelocity = MotionUtils.clip(pDirectionalVelocity, velocityLimit);
+            double clippedDirectionalVelocity = MotionUtils.clipVelocity(pDirectionalVelocity, velocityLimit);
             RobotLogCommon.vv(TAG, "Clipped directional velocity " + String.format("%.3f", clippedDirectionalVelocity));
-            
-            initialVelocity = MotionUtils.clip(clippedDirectionalVelocity * velocity, velocityLimit);
+
+            // initialVelocity is guaranteed to be positive.
+            initialVelocity = MotionUtils.clipVelocity(clippedDirectionalVelocity * pVelocity, velocityLimit);
             RobotLogCommon.vv(TAG, "Clipped initial velocity " + initialVelocity);
         }
 
-        //**TODO Where do you check that velocity may never go below 0?
         public double clipUpdatedVelocity(double pVelocity) {
-            return MotionUtils.clip(pVelocity, velocityLimit);
+            return MotionUtils.clipVelocity(pVelocity, velocityLimit);
         }
     }
 

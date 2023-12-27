@@ -56,14 +56,14 @@ public class TurnRampdown {
         // power OR the difference between the current power and the previous power
         // is less than the minimum power step, e.g. .05, then do NOT update the power
         // to the motors.
-        double currentPower = Math.abs(MotionUtils.clip(currentPowerMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE) * rampDownFactor, DriveTrainConstants.MINIMUM_TURN_POWER));
+        double currentPower = Math.abs(MotionUtils.clipPower(currentPowerMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE) * rampDownFactor, DriveTrainConstants.MINIMUM_TURN_POWER));
         if (currentPower == DriveTrainConstants.MINIMUM_TURN_POWER || Math.abs(currentPower - previousPower) < DriveTrainConstants.MINIMUM_TURN_POWER_STEP)
             return;
 
         previousPower = currentPower;
         double clippedPower;
         for (EnumMap.Entry<FTCRobot.MotorId, Double> oneMotor : currentPowerMap.entrySet()) {
-            clippedPower = MotionUtils.clip(oneMotor.getValue() * rampDownFactor, DriveTrainConstants.MINIMUM_TURN_POWER);
+            clippedPower = MotionUtils.clipPower(oneMotor.getValue() * rampDownFactor, DriveTrainConstants.MINIMUM_TURN_POWER);
             newPowerMap.put(oneMotor.getKey(), clippedPower);
         }
 

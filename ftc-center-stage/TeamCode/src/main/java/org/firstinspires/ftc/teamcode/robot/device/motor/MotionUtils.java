@@ -13,16 +13,16 @@ public class MotionUtils {
 
     private static final String TAG = MotionUtils.class.getSimpleName();
 
-    // Clip velocity or power.
-    // Do not let the absolute value of the velocity or power go below the lower limit
-    // or above the fixed maximum of 1.0. Return a value with the same sign as the
-    // input argument.
-    //## Reviewed 12/2023 Maybe a little too clever but it does work. Velocity when
-    // used with RUN_TO_POSITION is positive (actually the sign is ignored); when
-    // used with RUN_USING_ENCODER it ranges between -1.0 and +1.0.
-    //**TODO 12/26/2023 NO GOOD for PID - drive train RTP velocity may never go below 0;
-    // BUT valid for clipping directional velocity, which may be negative.
-    public static double clip(double pValue, double pLimit) {
+    // The lower limit for velocity is always 0 so this method guarantees
+    // that the return value will be 0 or positive.
+    public static double clipVelocity(double pValue, double pLowerLimit) {
+        double lowerLimit = Math.abs(pLowerLimit);
+        return Range.clip(pValue, lowerLimit, 1.0);
+    }
+
+    // For use with power where the sign must be preserved since it
+    // determines the direction of the motors.
+    public static double clipPower(double pValue, double pLimit) {
         return Range.clip(Math.abs(pValue), pLimit, 1.0) * (pValue < 0 ? -1 : 1);
     }
 
@@ -112,7 +112,6 @@ public class MotionUtils {
         return newVelocityMap;
     }
 
-    //**TODO velocity must never be allowed to go below zero!!
     private static void setRampedDownVelocity(FTCRobot.MotorId pMotorId, AutoDrive.DriveMotorData pMotorData,
                                     double pRampDownFactor, double pSteer,
                                     EnumMap<FTCRobot.MotorId, Double> pVelocityMap) {
