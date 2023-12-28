@@ -93,7 +93,7 @@ public class AprilTagNavigation {
     @SuppressLint("DefaultLocale")
     public boolean navigateToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
         // Set the correct motor mode for running by power.
-        Objects.requireNonNull(robot.driveTrain).setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Objects.requireNonNull(robot.driveTrain).setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         double drive; // Desired forward power/speed (-1 to +1)
         double strafe; // Desired strafe power/speed (-1 to +1)

@@ -50,7 +50,7 @@ public abstract class DualMotors extends MotorCore {
         }};
 
         setZeroPowerBrakeAll();
-        setModeAll(DcMotor.RunMode.RUN_USING_ENCODER); // defaults to velocity
+        setRunModeAll(DcMotor.RunMode.RUN_USING_ENCODER); // defaults to velocity
 
         velocity = pConfigXPath.getRequiredDouble("velocity");
         if (velocity <= 0.0 || velocity > 1.0)
@@ -70,7 +70,7 @@ public abstract class DualMotors extends MotorCore {
     }
 
     public void setModeDual(DcMotor.RunMode pRunMode) {
-        setModeAll(pRunMode);
+        setRunModeAll(pRunMode);
     }
 
     public void setTargetPositions(int pPosition) {

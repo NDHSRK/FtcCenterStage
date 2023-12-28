@@ -43,34 +43,51 @@ public abstract class MotorCore {
     }
 
     public DcMotor.RunMode getRunMode(FTCRobot.MotorId pMotorId) {
-        return Objects.requireNonNull(motorMap.get(pMotorId)).getMode();
+        return Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " getRunMode: motor " + pMotorId + " is not in the current configuration").getMode();
     }
 
     public int getCurrentPosition(FTCRobot.MotorId pMotorId) {
-        return Objects.requireNonNull(motorMap.get(pMotorId)).getCurrentPosition();
+        return Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " getCurrentPosition: motor " + pMotorId + " is not in the current configuration").getCurrentPosition();
     }
 
     public int getTargetPosition(FTCRobot.MotorId pMotorId) {
-        return Objects.requireNonNull(motorMap.get(pMotorId)).getTargetPosition();
+        return Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " getTargetPosition: motor " + pMotorId + " is not in the current configuration").getTargetPosition();
     }
 
     public boolean isBusy(FTCRobot.MotorId pMotorId) {
-        if (Objects.requireNonNull(motorMap.get(pMotorId)).getMode() != DcMotor.RunMode.RUN_TO_POSITION)
-            throw new AutonomousRobotException(TAG, "Illegal test of isBusy((); motor " + pMotorId + " has not been set to RUN_TO_POSITION");
+        if (Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").getMode() != DcMotor.RunMode.RUN_TO_POSITION)
+            throw new AutonomousRobotException(TAG, "Illegal test of isBusy((); motor " + pMotorId +
+                    " has not been set to RUN_TO_POSITION; motor mode is " + getRunMode(pMotorId));
 
-        return Objects.requireNonNull(motorMap.get(pMotorId)).isBusy();
+        return Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").isBusy();
     }
 
-    public void setMode(FTCRobot.MotorId pMotorId, DcMotor.RunMode pMode) {
-        Objects.requireNonNull(motorMap.get(pMotorId)).setMode(pMode);
+    public void setRunMode(FTCRobot.MotorId pMotorId, DcMotor.RunMode pMode) {
+        Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " setRunMode: motor " + pMotorId + " is not in the current configuration").setMode(pMode);
     }
 
-    public void setModeAll(DcMotor.RunMode pMode) {
+    public void setRunModeAll(DcMotor.RunMode pMode) {
         motorMap.forEach((k, v) -> v.setMode(pMode));
     }
 
     public void setZeroPowerBrake(FTCRobot.MotorId pMotorId) {
-        Objects.requireNonNull(motorMap.get(pMotorId)).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " setZeroPowerBrake: motor " + pMotorId + " is not in the current configuration").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    //**TODO STOPPED HERE 12/28/2023 Call from setZeroPowerBrake ...
+    public void setZeroPowerBrakeBehavior() {
+
+    }
+
+    public void setZeroPowerBrakeBehaviorAll() {
+
     }
 
     public void setZeroPowerBrakeAll() {
@@ -78,23 +95,25 @@ public abstract class MotorCore {
     }
 
     public void setTargetPosition(FTCRobot.MotorId pMotorId, int pTargetClicks) {
-        Objects.requireNonNull(motorMap.get(pMotorId)).setTargetPosition(pTargetClicks);
+        Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " setTargetPosition: motor " + pMotorId + " is not in the current configuration").setTargetPosition(pTargetClicks);
     }
 
     // Assumes all clipping and all final modifications to the velocity,
     // e.g. running at .5 velocity, have already been performed.
     public void runAtVelocity(FTCRobot.MotorId pMotorId, double pVelocity) {
-        DcMotorEx motor = motorMap.get(pMotorId);
-        if (Objects.requireNonNull(motor).getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+        if (getRunMode(pMotorId) == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             throw new AutonomousRobotException(TAG, "Motor " + pMotorId + ": setVelocity incompatible with RUN_WITHOUT_ENCODER");
 
-        Objects.requireNonNull(motorMap.get(pMotorId)).setVelocity(pVelocity * maxVelocity);
+        Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " runAtVelocity: motor " + pMotorId + " is not in the current configuration").setVelocity(pVelocity * maxVelocity);
     }
 
     public void runAtVelocityAll(EnumMap<FTCRobot.MotorId, Double> pVelocityMap) {
         pVelocityMap.forEach((k, v) ->
         {
-            if (Objects.requireNonNull(motorMap.get(k)).getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            if (Objects.requireNonNull(motorMap.get(k),
+                    TAG + " runAtVelocityAll: motor " + k + " is null in pVelocityMap").getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
                 throw new AutonomousRobotException(TAG, "Motor " + k + ": setVelocityAll incompatible with RUN_WITHOUT_ENCODER");
 
             Objects.requireNonNull(motorMap.get(k)).setVelocity(v * maxVelocity);

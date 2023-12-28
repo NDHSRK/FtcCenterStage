@@ -56,7 +56,7 @@ public class DriveTrain extends MotorCore {
         */
         //## Note that with either of the run modes RUN_USING_ENCODER or RUN_TO_POSITION,
         // setPower has no effect!!
-        setModeAll(DcMotor.RunMode.RUN_USING_ENCODER);
+        setRunModeAll(DcMotor.RunMode.RUN_USING_ENCODER);
         setZeroPowerBrakeAll();
 
         double wheelDiameterIn = pConfigXPath.getRequiredDouble("motors/@wheel_diameter_in");

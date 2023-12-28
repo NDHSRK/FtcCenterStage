@@ -43,7 +43,7 @@ public abstract class SingleMotor extends MotorCore {
         }};
 
         setZeroPowerBrake(pMotorId);
-        setMode(pMotorId, DcMotor.RunMode.RUN_USING_ENCODER); // default to velocity
+        setRunMode(pMotorId, DcMotor.RunMode.RUN_USING_ENCODER); // default to velocity
 
         velocity = pConfigXPath.getRequiredDouble("velocity");
         if (velocity <= 0.0 || velocity > 1.0)
@@ -63,7 +63,7 @@ public abstract class SingleMotor extends MotorCore {
     }
 
     public void setMode(DcMotor.RunMode pRunMode) {
-        setMode(motorId, pRunMode);
+        setRunMode(motorId, pRunMode);
     }
 
     public void setTargetPosition(int pPosition) {

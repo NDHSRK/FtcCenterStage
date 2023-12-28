@@ -83,8 +83,8 @@ public class DriveTrainMotion {
         // RUN_USING_ENCODER. Then, if running to a position, call
         // setTargetPosition followed by a run mode of RUN_TO_POSITION.
         EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
-        Objects.requireNonNull(robot.driveTrain).setModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.driveTrain.setModeAll(DcMotor.RunMode.RUN_USING_ENCODER);
+        Objects.requireNonNull(robot.driveTrain).setRunModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.driveTrain.setRunModeAll(DcMotor.RunMode.RUN_USING_ENCODER);
         RobotLogCommon.d(TAG, "Initial motor settings");
 
         FTCRobot.MotorId dominantMotorId = FTCRobot.MotorId.MOTOR_ID_NPOS;
@@ -96,7 +96,7 @@ public class DriveTrainMotion {
             // Set all motors to use RUN_TO_POSITION.
             if (oneMotor.motorRank == DriveTrainConstants.MotorRank.DOMINANT) {
                 robot.driveTrain.setTargetPosition(motorId, targetClicks * oneMotor.directionSignum);
-                robot.driveTrain.setMode(motorId, DcMotor.RunMode.RUN_TO_POSITION);
+                robot.driveTrain.setRunMode(motorId, DcMotor.RunMode.RUN_TO_POSITION);
                 dominantMotorId = motorId; // can be any one
             } else {
                 // We use RUN_TO_POSITION with non-dominant motors also for consistent
@@ -106,7 +106,7 @@ public class DriveTrainMotion {
                 // motors receive zero velocity. Below we only check the dominant motors
                 // for isBusy().
                 robot.driveTrain.setTargetPosition(motorId, (int) (RUN_TO_POSITION_NPOS * oneMotor.directionSignum));
-                robot.driveTrain.setMode(motorId, DcMotor.RunMode.RUN_TO_POSITION);
+                robot.driveTrain.setRunMode(motorId, DcMotor.RunMode.RUN_TO_POSITION);
             }
 
             velocityMap.put(motorId, oneMotor.initialVelocity);
@@ -230,8 +230,8 @@ public class DriveTrainMotion {
                 ", power " + String.format("%.2f", pPower) +
                 ", start ramp down at " + String.format("%.2f", startRampDown) + " degrees remaining, turn normalization " + pTurnNormalization);
 
-        Objects.requireNonNull(robot.driveTrain).setModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // the IMU controls the turn
+        Objects.requireNonNull(robot.driveTrain).setRunModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.driveTrain.setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // the IMU controls the turn
 
         double currentHeading = pCurrentHeading;
         Headings.TurnData turnData = Headings.getActualTurn(pDesiredHeadingBeforeTurn, currentHeading, pTurnDegrees, pTurnNormalization);

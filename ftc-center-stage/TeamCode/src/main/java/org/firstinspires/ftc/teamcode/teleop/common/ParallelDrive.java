@@ -44,7 +44,7 @@ public class ParallelDrive {
 
         // Override the default run mode for driving by the game
         // controller.
-        driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        driveTrain.setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         power.set(pInitialPower);
     }
 

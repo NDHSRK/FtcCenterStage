@@ -21,16 +21,16 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
-import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
-import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
@@ -57,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -546,7 +545,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
-                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + "Webcam " + webcamId + " is not in the current configuration");
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to stop streaming webcam " + webcamId + " but it is not open");
@@ -561,7 +560,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
-                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + "Webcam " + webcamId + " is not in the current configuration");
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to resume streaming webcam " + webcamId + " but it is not open");
@@ -577,7 +576,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
-                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + "Webcam " + webcamId + " is not in the current configuration");
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to enable processor on webcam " + webcamId + " but it is not open");
@@ -595,7 +594,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
-                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + "Webcam " + webcamId + " is not in the current configuration");
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to disable processor on webcam " + webcamId + " but it is not open");
@@ -616,7 +615,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
-                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + "Webcam " + webcamId + " is not in the current configuration");
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
@@ -657,7 +656,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
-                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + "Webcam " + webcamId + " is not in the current configuration");
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
@@ -691,7 +690,7 @@ public class FTCAuto {
                 // actions.
                 if (teamPropLocationActions != null)
                     teamPropLocationInsert = new ArrayList<>(Objects.requireNonNull(teamPropLocationActions.get(finalTeamPropLocation),
-                            TAG + "No team prop location insert for " + finalTeamPropLocation));
+                            TAG + " No team prop location insert for " + finalTeamPropLocation));
                 break;
             }
 
@@ -703,13 +702,13 @@ public class FTCAuto {
                 break;
             }
 
-            //**TODO  Objects.requireNonNull STOPPED HERE 12/17/2023
-
             //&& TEMP for testing 10/20/2023
             case "TEST_MULTIPORTAL_SAMPLE": {
                 MultiPortalAuto multiPortalAuto = new MultiPortalAuto(linearOpMode,
-                        Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM)).getWebcamName(), // assume this is "Webcam 1"
-                        Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM)).getWebcamName()); // assume this is "Webcam 2"
+                        Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM),
+                                TAG + " REAR_WEBCAM is not in the current configuration").getWebcamName(), // assume this is "Webcam 1"
+                        Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM),
+                                TAG + " FRONT_WEBCAM is not in the current configuration").getWebcamName()); // assume this is "Webcam 2"
                 multiPortalAuto.runOpMode();
                 break;
             }
@@ -719,10 +718,11 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+                AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+                        TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
+
                 if (openWebcam != webcamId)
                     throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
-
-                AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
 
                 ElapsedTime aprilTagTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
                 aprilTagTimer.reset();
@@ -917,7 +917,8 @@ public class FTCAuto {
                 if (aprilTagNavigation == null || aprilTagNavigation.getInternalWebcamId() !=
                         webcamId) {
                     RobotLogCommon.d(TAG, "Switching AprilTag navigation to " + webcamIdString);
-                    AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
+                    AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+                            TAG +  "Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
                     aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagWebcam);
                 }
 
@@ -1038,7 +1039,8 @@ public class FTCAuto {
                 // to the backdrop.
                 if (pOpMode.getOpModeType() != RobotConstantsCenterStage.OpMode.OpModeType.COMPETITION)
                     throw new AutonomousRobotException(TAG, "AUTO_ENDING_POSITION only applies to competition OpModes");
-                switch (autoEndingPositions.get(pOpMode)) {
+                switch (Objects.requireNonNull(autoEndingPositions.get(pOpMode),
+                TAG + " No ending position defined for OpMode " + pOpMode)) {
                     case LEFT: {
                         // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
                         // and execute it.
@@ -1356,9 +1358,9 @@ public class FTCAuto {
     }
 
     //## We noticed that the robot took time starting and stopping for
-    // small angles (such as 3 degrees) at .3 velocity while at larger
-    // angles we sometimes want to keep the low velocity.
-    private double smallAngleVelocity(double pAngle) {
+    // small angles (such as 3 degrees) at .3 power while at larger
+    // angles we sometimes want to keep the low power.
+    private double smallAnglePower(double pAngle) {
         return Math.abs(pAngle) < 5.0 ? 0.5 : 0.3;
     }
 
@@ -1367,12 +1369,14 @@ public class FTCAuto {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
                 RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
+        AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+                TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
+
         if (openWebcam != webcamId)
             throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
 
         int timeout = pActionXPath.getRequiredInt("timeout_ms");
 
-        AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId)).getVisionPortalWebcam();
         List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
         AprilTagDetection targetDetection = null;
         AprilTagDetection backupDetection = null;
@@ -1497,7 +1501,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to AUTONOMOUS");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to AUTONOMOUS");
-                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").autonomous, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS);
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").autonomous, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS);
                 if (robot.winch != null) // the winch is configured in
                     localAsyncWinch = async_move_winch(robot.winch.autonomous, Winch.WinchLevel.AUTONOMOUS);
                 break;
@@ -1507,7 +1511,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to LEVEL_1");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_1");
-                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").level_1, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_1);
+                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").level_1, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_1);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.level_1, Winch.WinchLevel.LEVEL_1);
                 break;
@@ -1517,7 +1521,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to LEVEL_2");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_2");
-                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").level_2, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_2);
+                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").level_2, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_2);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.level_2, Winch.WinchLevel.LEVEL_2);
                 break;
@@ -1527,7 +1531,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to the DRONE level");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to DRONE");
-                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").drone, robot.elevator.getVelocity(), Elevator.ElevatorLevel.DRONE);
+                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").drone, robot.elevator.getVelocity(), Elevator.ElevatorLevel.DRONE);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.drone, Winch.WinchLevel.DRONE);
                 break;
@@ -1537,7 +1541,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at ABOVE_TRUSS before moving to ON_TRUSS");
 
                 RobotLogCommon.d(TAG, "Moving elevator from ABOVE_TRUSS to ON_TRUSS");
-                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").on_truss, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").on_truss, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.ON_TRUSS;
                 break;
             }
@@ -1546,7 +1550,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at DRONE before moving to ABOVE_TRUSS");
 
                 RobotLogCommon.d(TAG, "Moving elevator from DRONE to ABOVE_TRUSS");
-                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").above_truss, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").above_truss, robot.elevator.getVelocity(), DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.ABOVE_TRUSS;
                 break;
             }
@@ -1611,7 +1615,7 @@ public class FTCAuto {
         }
 
         // Simply move the elevator to GROUND.
-        robot.elevatorMotion.moveDualMotors(robot.elevator.ground, Objects.requireNonNull(robot.elevator, TAG + "The elevator is not in the current configuration").getVelocity(),
+        robot.elevatorMotion.moveDualMotors(robot.elevator.ground, Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").getVelocity(),
                 DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
 
         RobotLogCommon.i(TAG, "Done with failsafe actions");

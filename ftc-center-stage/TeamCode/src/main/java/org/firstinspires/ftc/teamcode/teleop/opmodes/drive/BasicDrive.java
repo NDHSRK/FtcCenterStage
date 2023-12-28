@@ -27,7 +27,7 @@ public class BasicDrive extends TeleOpBase {
     @Override
     public void initialize() {
         toggleHalfPower = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
-        robot.driveTrain.setModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.driveTrain.setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
    @Override
