@@ -212,7 +212,7 @@ public class TeamPropRecognition {
                 Math.abs(allianceGrayParameters.threshold_low),    // threshold value
                 255,   // white
                 allianceGrayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
-        RobotLogCommon.d(TAG, "Threshold values: low " + allianceGrayParameters.threshold_low + ", high 255");
+        RobotLogCommon.v(TAG, "Threshold values: low " + allianceGrayParameters.threshold_low + ", high 255");
 
         String thrFilename = pOutputFilenamePreamble + "_THR.png";
         Imgcodecs.imwrite(thrFilename, thresholded);
@@ -220,14 +220,16 @@ public class TeamPropRecognition {
 
         // Get the white pixel count for both the left and right
         // spike windows.
-        Rect leftSpikeWindowBoundary = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT).first;
-        Mat leftSpikeWindow = thresholded.submat(leftSpikeWindowBoundary);
-        int leftNonZeroCount = Core.countNonZero(leftSpikeWindow);
+        Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftSpikeWindow =
+                spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
+        Mat leftSpikeWindowBoundary = thresholded.submat(leftSpikeWindow.first);
+        int leftNonZeroCount = Core.countNonZero(leftSpikeWindowBoundary);
         RobotLogCommon.d(TAG, "Left spike window white pixel count " + leftNonZeroCount);
 
-        Rect rightSpikeWindowBoundary = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT).first;
-        Mat rightSpikeWindow = thresholded.submat(rightSpikeWindowBoundary);
-        int rightNonZeroCount = Core.countNonZero(rightSpikeWindow);
+        Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightSpikeWindow =
+                spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT);
+        Mat rightSpikeWindowBoundary = thresholded.submat(rightSpikeWindow.first);
+        int rightNonZeroCount = Core.countNonZero(rightSpikeWindowBoundary);
         RobotLogCommon.d(TAG, "Right spike window white pixel count " + rightNonZeroCount);
 
         // If both counts are less than the minimum then we infer that
@@ -244,21 +246,23 @@ public class TeamPropRecognition {
         // windows against each other.
         Mat pixelCountOut = pImageROI.clone();
         if (leftNonZeroCount >= rightNonZeroCount) {
-            Point leftSpikeWindowCentroid = new Point((leftSpikeWindowBoundary.x + leftSpikeWindowBoundary.width) / 2.0,
-                    (leftSpikeWindowBoundary.y + leftSpikeWindowBoundary.height) / 2.0);
+            Point leftSpikeWindowCentroid = new Point((leftSpikeWindow.first.x + leftSpikeWindow.first.width) / 2.0,
+                    (leftSpikeWindow.first.y + leftSpikeWindow.first.height) / 2.0);
             RobotLogCommon.d(TAG, "Center of left spike window " + leftSpikeWindowCentroid);
 
             Imgproc.circle(pixelCountOut, leftSpikeWindowCentroid, 10, new Scalar(0, 255, 0));
-            return lookThroughWindows(pixelCountOut, leftSpikeWindowCentroid, pOutputFilenamePreamble);
+            SpikeWindowUtils.drawSpikeWindows(pixelCountOut, spikeWindows, pOutputFilenamePreamble);
+            return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, leftSpikeWindow.second);
         }
 
         // Go with the right spike window.
-        Point rightSpikeWindowCentroid = new Point(rightSpikeWindowBoundary.x + (rightSpikeWindowBoundary.width / 2.0),
-                (rightSpikeWindowBoundary.y + rightSpikeWindowBoundary.height) / 2.0);
+        Point rightSpikeWindowCentroid = new Point(rightSpikeWindow.first.x + (rightSpikeWindow.first.width / 2.0),
+                (rightSpikeWindow.first.y + rightSpikeWindow.first.height) / 2.0);
         RobotLogCommon.d(TAG, "Center of right spike window " + rightSpikeWindowCentroid);
 
         Imgproc.circle(pixelCountOut, rightSpikeWindowCentroid, 10, new Scalar(0, 255, 0));
-        return lookThroughWindows(pixelCountOut, rightSpikeWindowCentroid, pOutputFilenamePreamble);
+        SpikeWindowUtils.drawSpikeWindows(pixelCountOut, spikeWindows, pOutputFilenamePreamble);
+        return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, rightSpikeWindow.second);
     }
 
     private TeamPropReturn colorChannelBrightSpotPath(Mat pImageROI, String pOutputFilenamePreamble,
