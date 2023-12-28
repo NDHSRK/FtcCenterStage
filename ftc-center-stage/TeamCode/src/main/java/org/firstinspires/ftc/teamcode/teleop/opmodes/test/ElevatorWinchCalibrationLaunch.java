@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCTeleOpDispatch;
 import org.firstinspires.ftc.teamcode.teleop.opmodes.drive.CenterStageTeleOp;
 
+// Calibration of the closely correlated elevator and winch
+// is built into the main TeleOp OpMode, CenterStageTeleOp.
 @TeleOp(name = "ElevatorWinchCalibration", group = "Test")
 @Disabled
 public class ElevatorWinchCalibrationLaunch extends LinearOpMode {

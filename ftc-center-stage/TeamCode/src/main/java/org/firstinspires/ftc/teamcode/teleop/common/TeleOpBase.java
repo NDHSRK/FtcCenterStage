@@ -38,8 +38,15 @@ public abstract class TeleOpBase extends LinearOpMode {
             telemetry.addData("Initialized!", "Ready to run");
             telemetry.update();
 
-            //**TODO Where does control go if there's a crash or
-            // a requested termination in init?
+            //?? Where does control go if there's a crash in init?
+            // The error message is written to the Driver Station
+            // but it is quickly replaced by this message:
+            // "The OpMode which was just initialized ended prematurely ...
+            // Did you forget to call waitForStart()?"
+            // The error message may not be written to the FTCTeleOpLog
+            // (not enough time?) but it is written to the match log, e.g.
+            // 12-27 16:20:43.644  1673  1856 E TeleOpBase:  ** FATAL Java Exception ** Unable to find a hardware device with name "drone_launcher" and type Servo
+
             waitForStart();
             run(); // run derived class
         } catch (Exception ex) {

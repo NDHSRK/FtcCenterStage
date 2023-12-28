@@ -40,8 +40,12 @@ public class FTCAutoDispatch {
             pLinear.telemetry.addData(TAG, "Waiting for start ...");
             pLinear.telemetry.update();
 
-            //**TODO Where does control go if there's a crash or
-            // a requested termination in init?
+            //?? Where does control go if there's a crash in init?
+            // The exception message appears on the Driver Station,
+            // it may or may not be written to the FTCAutoLog (not
+            // (not time?) but it is always written to the match log,
+            // e.g.
+            // 12-27 16:34:06.616  1673  2774 E FTCAutoDispatch:  ** FATAL Java Exception ** expected: /BORWARD read: FORWARD (position:END_TAG </FORWARD>@16:23 in java.io.InputStreamReader@d2b7e51)
             pLinear.waitForStart();
 
             //## 12/28/2022 Note: if initialization is complete and the play

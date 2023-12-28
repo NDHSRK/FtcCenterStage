@@ -64,8 +64,8 @@ public class FTCTeleOpDispatch {
             pLinear.telemetry.addData(TAG, "Waiting for start ...");
             pLinear.telemetry.update();
 
-            //**TODO Where does control go if there's a crash or
-            // a requested termination in init?
+            //?? Where does control go if there's a crash in init?
+            // See comments in TeleOpBase.
             pLinear.waitForStart();
 
             pLinear.telemetry.addData(TAG, "Running ...");
