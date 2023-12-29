@@ -50,11 +50,12 @@ public class SpikeWindowViewer extends LinearOpMode {
         FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
 
         // Start the front webcam with the spike window processor.
-        if (robot.configuredWebcams == null || robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM) == null)
-            throw new AutonomousRobotException(TAG, "Front camera is not in the current configuration");
+        if (robot.configuredWebcams == null)
+            throw new AutonomousRobotException(TAG, "There are no webcams in the current configuration");
 
         VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
-                robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
+                Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM),
+                        TAG + " The FRONT_WEBCAM is not configured");
 
         spikeWindowProcessor = new CameraStreamProcessor.Builder().build();
         CameraStreamWebcam spikeWindowWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
@@ -64,7 +65,7 @@ public class SpikeWindowViewer extends LinearOpMode {
         if (!spikeWindowWebcam.waitForWebcamStart(2000))
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
 
-        Objects.requireNonNull(frontWebcamConfiguration).setVisionPortalWebcam(spikeWindowWebcam);
+        frontWebcamConfiguration.setVisionPortalWebcam(spikeWindowWebcam);
         RobotLog.ii(TAG, "SpikeWindowViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains

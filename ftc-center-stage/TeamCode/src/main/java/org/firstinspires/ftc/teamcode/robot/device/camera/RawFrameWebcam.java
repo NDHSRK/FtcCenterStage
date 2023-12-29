@@ -34,7 +34,7 @@ public class RawFrameWebcam extends VisionPortalWebcam implements ImageProvider 
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < 1000) {
-            frameVal = Objects.requireNonNull(rawFrameProcessor, "getImage(): rawFrameProcessor unexpectedly null").getWebcamFrame();
+            frameVal = Objects.requireNonNull(rawFrameProcessor, TAG + " getImage(): rawFrameProcessor unexpectedly null").getWebcamFrame();
             if (frameVal != null)
                 break;
             else {

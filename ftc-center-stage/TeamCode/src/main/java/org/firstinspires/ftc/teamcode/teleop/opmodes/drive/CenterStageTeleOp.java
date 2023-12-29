@@ -87,7 +87,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                              @Nullable FTCAuto pAutonomous) {
         super(pAlliance, pLinearOpMode, pRobot, pAutonomous);
         RobotLogCommon.c(TAG, "Constructing CenterStageTeleOp");
-        RobotLogCommon.setMostDetailedLogLevel(Objects.requireNonNull(robot.teleOpSettings, "robot.teleOpSettings unexpectedly null").logLevel);
+        RobotLogCommon.setMostDetailedLogLevel(Objects.requireNonNull(robot.teleOpSettings, TAG + " teleOpSettings unexpectedly null").logLevel);
 
         driveTrainPowerHigh = robot.teleOpSettings.driveTrainPowerHigh;
         driveTrainPower = driveTrainPowerHigh;
@@ -546,9 +546,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_1");
-                async_move_elevator(Objects.requireNonNull(robot.elevator).level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);
+                async_move_elevator(Objects.requireNonNull(robot.elevator,
+                        TAG + "  The elevator is not in the current configuration").level_1, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_1);
                 if (robot.winch != null) // the winch is configured in
-                    async_move_winch(Objects.requireNonNull(robot.winch).level_1, Winch.WinchLevel.LEVEL_1);
+                    async_move_winch(robot.winch.level_1, Winch.WinchLevel.LEVEL_1);
                 break;
             }
             case LEVEL_2: {
@@ -558,9 +559,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_2");
-                async_move_elevator(Objects.requireNonNull(robot.elevator).level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
+                async_move_elevator(Objects.requireNonNull(robot.elevator,
+                        TAG + " The elevator is not in the current configuration").level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
                 if (robot.winch != null) // the winch is configured in
-                    async_move_winch(Objects.requireNonNull(robot.winch).level_2, Winch.WinchLevel.LEVEL_2);
+                    async_move_winch(robot.winch.level_2, Winch.WinchLevel.LEVEL_2);
                 break;
             }
             case DRONE: {
@@ -570,9 +572,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to DRONE");
-                async_move_elevator(Objects.requireNonNull(robot.elevator).drone, elevatorVelocity, Elevator.ElevatorLevel.DRONE);
+                async_move_elevator(Objects.requireNonNull(robot.elevator,
+                        TAG + " The elevator is not in the current configuration").drone, elevatorVelocity, Elevator.ElevatorLevel.DRONE);
                 if (robot.winch != null) // the winch is configured in
-                    async_move_winch(Objects.requireNonNull(robot.winch).drone, Winch.WinchLevel.DRONE);
+                    async_move_winch(robot.winch.drone, Winch.WinchLevel.DRONE);
                 break;
             }
             case ON_TRUSS: {
@@ -582,7 +585,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
 
                 RobotLogCommon.d(TAG, "Moving elevator from ABOVE_TRUSS to ON_TRUSS");
-                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator).on_truss, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator,
+                        TAG + " The elevator is not in the current configuration").on_truss, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.ON_TRUSS;
 
                 // No need to run the winch motor for this small movement
@@ -597,7 +601,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 }
 
                 RobotLogCommon.d(TAG, "Moving elevator from DRONE to ABOVE_TRUSS");
-                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator).above_truss, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
+                robot.elevatorMotion.moveDualMotors(Objects.requireNonNull(robot.elevator,
+                        TAG + " The elevator is not in the current configuration").above_truss, elevatorVelocity, DualMotorMotion.DualMotorAction.MOVE_AND_HOLD_VELOCITY);
                 currentElevatorLevel = Elevator.ElevatorLevel.ABOVE_TRUSS;
 
                 // No need to run the winch motor for this small movement

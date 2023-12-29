@@ -324,21 +324,25 @@ public class RobotLogCommon {
             countDownLatch.countDown();
             while (true) {
                 try {
-                    Objects.requireNonNull(currentLogData.logWriterLock).lock();
+                    Objects.requireNonNull(currentLogData.logWriterLock,
+                            TAG + " The logWriterLock is unexpectedly null").lock();
                     while (!currentLogData.logWriterNotification)
-                        Objects.requireNonNull(currentLogData.logWriterCondition).await();
+                        Objects.requireNonNull(currentLogData.logWriterCondition,
+                                TAG + " The logWriterCondition is unexpectedly null").await();
 
                     currentLogData.logWriterNotification = false;
 
                     // If there is a request to close the LogWriter, write a maximum
                     // number of 10 entries to the log *inside* the lock.
                     if (currentLogData.closeLogWriter) {
-                        Objects.requireNonNull(currentLogData.logEntryQueue).drainTo(drain); // must be protected by a lock
+                        Objects.requireNonNull(currentLogData.logEntryQueue,
+                                TAG + " The logQueueEntry is unexpectedly null").drainTo(drain); // must be protected by a lock
                         int drainCount = drain.size();
                         int drainIndex = 0;
 
                         Log.d(TAG, "Closing the log with " + drainCount + " entries on the queue");
-                        Objects.requireNonNull(currentLogData.logger).log(Level.INFO, "Closing the log with " + drainCount + " entries on the queue");
+                        Objects.requireNonNull(currentLogData.logger,
+                                TAG + " The logger is unexpectedly null").log(Level.INFO, "Closing the log with " + drainCount + " entries on the queue");
                         if (drainCount > 10) {
                             Log.d(TAG, "Writing out the last 10 entries on the queue");
                             currentLogData.logger.log(Level.INFO, "Writing out the last 10 entries on the queue");
@@ -355,18 +359,21 @@ public class RobotLogCommon {
                     // This is the normal path.
                     // Drain one or more entries from the queue to a local collection
                     // and then write them out *after* the lock is released.
-                    Objects.requireNonNull(currentLogData.logEntryQueue).drainTo(drain); // must be protected by a lock
+                    Objects.requireNonNull(currentLogData.logEntryQueue,
+                            TAG + " The logQueueEntry is unexpectedly null").drainTo(drain); // must be protected by a lock
                 } catch (InterruptedException iex) {  // await() can throw InterruptedException
                     break; // LogWriter will exit
                 } finally {
-                    Objects.requireNonNull(currentLogData.logWriterLock).unlock();
+                    Objects.requireNonNull(currentLogData.logWriterLock,
+                            TAG + " The logWriterLock is unexpectedly null").unlock();
                 }
 
                 // We're *outside* the lock so more queue entries or a close request
                 // may come in. But we won't see them until the following writes to
                 // the log file have completed.
                 for (Pair<Level, String> oneLogEntry : drain) {
-                    Objects.requireNonNull(currentLogData.logger).log(oneLogEntry.first, oneLogEntry.second);
+                    Objects.requireNonNull(currentLogData.logger,
+                            TAG + " The logger is unexpectedly null").log(oneLogEntry.first, oneLogEntry.second);
                 }
                 drain.clear();
             }
