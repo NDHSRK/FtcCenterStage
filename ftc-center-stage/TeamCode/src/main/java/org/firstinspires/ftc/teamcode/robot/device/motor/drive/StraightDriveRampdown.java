@@ -37,7 +37,8 @@ public class StraightDriveRampdown {
         rampDownClicks = Math.abs(pRampDownClicks);
         allDriveMotors = pAllDriveMotors;
         dominantMotorId = pDominantMotorId;
-        previousDominantVelocity = Math.abs(Objects.requireNonNull(allDriveMotors.get(dominantMotorId)).initialVelocity);
+        previousDominantVelocity = Math.abs(Objects.requireNonNull(allDriveMotors.get(dominantMotorId),
+                TAG + " constructor: allDriveMotors is null or get() returned null").initialVelocity);
 
         RobotLogCommon.d(TAG, "Ramp down initial velocity of " + String.format("%.2f", previousDominantVelocity) +
                 " starting at " + rampDownClicks + " clicks from the target");
@@ -75,7 +76,8 @@ public class StraightDriveRampdown {
         // velocity is less than the minimum velocity step, e.g. .05, then do NOT
         // update the motor velocity.
         double currentDominantVelocity =
-                Math.abs(MotionUtils.clipVelocity(Objects.requireNonNull(allDriveMotors.get(dominantMotorId)).initialVelocity * rampDownFactor, DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY));
+                Math.abs(MotionUtils.clipVelocity(Objects.requireNonNull(allDriveMotors.get(dominantMotorId),
+                        TAG + " rampDown: allDriveMotors is null or get() returned null").initialVelocity * rampDownFactor, DriveTrainConstants.MINIMUM_DOMINANT_MOTOR_VELOCITY));
 
         if (pLogVV)
             RobotLog.vv(TAG, "Next candidate for velocity ramp-down " + String.format("%.2f", currentDominantVelocity) +

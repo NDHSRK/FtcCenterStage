@@ -93,7 +93,8 @@ public class AprilTagNavigation {
     @SuppressLint("DefaultLocale")
     public boolean navigateToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
         // Set the correct motor mode for running by power.
-        Objects.requireNonNull(robot.driveTrain).setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Objects.requireNonNull(robot.driveTrain,
+                TAG + " navigateToAprilTag: drive train is not in configuration").setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         double drive; // Desired forward power/speed (-1 to +1)
         double strafe; // Desired strafe power/speed (-1 to +1)
@@ -260,7 +261,8 @@ public class AprilTagNavigation {
         powerMap.put(FTCRobot.MotorId.LEFT_BACK_DRIVE, leftBackPower);
         powerMap.put(FTCRobot.MotorId.RIGHT_BACK_DRIVE, rightBackPower);
 
-        Objects.requireNonNull(robot.driveTrain).runAtPowerAll(powerMap);
+        Objects.requireNonNull(robot.driveTrain,
+                TAG + " navigateToAprilTag: drive train is not in configuration").runAtPowerAll(powerMap);
         powerMap.clear();
     }
 

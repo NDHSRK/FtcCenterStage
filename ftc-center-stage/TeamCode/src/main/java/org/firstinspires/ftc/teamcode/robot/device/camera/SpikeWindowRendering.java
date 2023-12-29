@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class SpikeWindowRendering implements CameraStreamRendering {
-
+private static final String TAG = SpikeWindowRendering.class.getSimpleName();
     private final SpikeWindowMapping spikeWindowMapping;
 
     public SpikeWindowRendering(SpikeWindowMapping pSpikeWindowMapping) {
@@ -48,7 +48,8 @@ public class SpikeWindowRendering implements CameraStreamRendering {
 
         // Draw the vertical line that separates the left and right
         // spike windows.
-        float spikeWindowBoundaryX = left + (Objects.requireNonNull(leftWindow).first.width * xFactor);
+        float spikeWindowBoundaryX = left + (Objects.requireNonNull(leftWindow,
+                TAG + " renderFrameToCanvas: left window is null").first.width * xFactor);
         pDriverStationScreenCanvas.drawLine(spikeWindowBoundaryX, top, spikeWindowBoundaryX, bottom, greenAxisPaint);
     }
 

@@ -168,7 +168,9 @@ public class TeamPropRecognition {
         }
 
         // Draw a black circle at the center of the largest circle.
-        Imgproc.circle(propOut, Objects.requireNonNull(centerOfLargestCircle), 10, new Scalar(0, 0, 0), 4);
+        Imgproc.circle(propOut, Objects.requireNonNull(centerOfLargestCircle,
+                TAG + " colorChannelCirclesPath: centerOfLargestCircle is null"),
+                10, new Scalar(0, 0, 0), 4);
 
         String teamPropFilename = pOutputFilenamePreamble + "_CIR.png";
         RobotLogCommon.d(TAG, "Writing " + teamPropFilename);

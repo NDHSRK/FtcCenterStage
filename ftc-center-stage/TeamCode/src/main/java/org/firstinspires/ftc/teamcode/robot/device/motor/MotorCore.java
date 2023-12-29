@@ -81,13 +81,13 @@ public abstract class MotorCore {
                 TAG + " setZeroPowerBrake: motor " + pMotorId + " is not in the current configuration").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    //**TODO STOPPED HERE 12/28/2023 Call from setZeroPowerBrake ...
-    public void setZeroPowerBrakeBehavior() {
-
+    public void setZeroPowerBrakeBehavior(FTCRobot.MotorId pMotorId, DcMotor.ZeroPowerBehavior pBehavior) {
+        Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " setZeroPowerBrakeBehavior: motor " + pMotorId + " is not in the current configuration").setZeroPowerBehavior(pBehavior);
     }
 
-    public void setZeroPowerBrakeBehaviorAll() {
-
+    public void setZeroPowerBrakeBehaviorAll(DcMotor.ZeroPowerBehavior pBehavior) {
+        motorMap.forEach((k, v) -> v.setZeroPowerBehavior(pBehavior));
     }
 
     public void setZeroPowerBrakeAll() {
@@ -116,7 +116,8 @@ public abstract class MotorCore {
                     TAG + " runAtVelocityAll: motor " + k + " is null in pVelocityMap").getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
                 throw new AutonomousRobotException(TAG, "Motor " + k + ": setVelocityAll incompatible with RUN_WITHOUT_ENCODER");
 
-            Objects.requireNonNull(motorMap.get(k)).setVelocity(v * maxVelocity);
+            Objects.requireNonNull(motorMap.get(k),
+                    TAG + " setTargetPosition: motor " + k + " is null in pVelocityMap").setVelocity(v * maxVelocity);
         });
     }
 
@@ -126,17 +127,19 @@ public abstract class MotorCore {
     //## Note that with either of the run modes RUN_USING_ENCODER or
     // RUN_TO_POSITION, setPower has no effect!!
     public void runAtPower(FTCRobot.MotorId pMotorId, double pPower) {
-        DcMotorEx motor = motorMap.get(pMotorId);
-        if (Objects.requireNonNull(motor).getMode() != DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+        if (getRunMode(pMotorId) != DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             throw new AutonomousRobotException(TAG, "Motor " + pMotorId + ": setPower requires RUN_WITHOUT_ENCODER");
 
-        Objects.requireNonNull(motorMap.get(pMotorId)).setPower(pPower);
+        Objects.requireNonNull(motorMap.get(pMotorId),
+                TAG + " runAtPower: motor " + pMotorId + " is not in the current configuration").setPower(pPower);
     }
 
+    //**TODO STOPPED HERE
     public void runAtPowerAll(EnumMap<FTCRobot.MotorId, Double> pPowerMap) {
         pPowerMap.forEach((k, v) ->
         {
-            if (Objects.requireNonNull(motorMap.get(k)).getMode() != DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            if (Objects.requireNonNull(motorMap.get(k),
+                    TAG + " runAtPowerAll: motor " + k + " is null in pPowerMap").getMode() != DcMotor.RunMode.RUN_WITHOUT_ENCODER)
                 throw new AutonomousRobotException(TAG, "Motor " + k + ": setPowerAll requires RUN_WITHOUT_ENCODER");
 
             Objects.requireNonNull(motorMap.get(k)).setPower(v);

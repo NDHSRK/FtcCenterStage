@@ -83,7 +83,8 @@ public class DriveTrainMotion {
         // RUN_USING_ENCODER. Then, if running to a position, call
         // setTargetPosition followed by a run mode of RUN_TO_POSITION.
         EnumMap<FTCRobot.MotorId, Double> velocityMap = new EnumMap<>(FTCRobot.MotorId.class);
-        Objects.requireNonNull(robot.driveTrain).setRunModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Objects.requireNonNull(robot.driveTrain,
+                TAG + " straight: drive train not configured").setRunModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.driveTrain.setRunModeAll(DcMotor.RunMode.RUN_USING_ENCODER);
         RobotLogCommon.d(TAG, "Initial motor settings");
 
@@ -157,7 +158,8 @@ public class DriveTrainMotion {
 
                 logVV = ++logVVCount % RobotConstants.VV_LOGGING_SAMPLING_FREQUENCY == 0 &&
                         RobotLogCommon.isLoggable("vv");
-                currentHeading = Objects.requireNonNull(robot.imuDirect).getIMUHeading();
+                currentHeading = Objects.requireNonNull(robot.imuDirect,
+                        TAG + " straight: IMU not configured").getIMUHeading();
                 steer = applyConstantHeadingPID(pDesiredHeading, currentHeading, pAngle,
                         allDriveMotors, driveTrainPID, rampDownFactor, logVV);
 
@@ -230,7 +232,8 @@ public class DriveTrainMotion {
                 ", power " + String.format("%.2f", pPower) +
                 ", start ramp down at " + String.format("%.2f", startRampDown) + " degrees remaining, turn normalization " + pTurnNormalization);
 
-        Objects.requireNonNull(robot.driveTrain).setRunModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Objects.requireNonNull(robot.driveTrain,
+                TAG + " straight: drive train not configured").setRunModeAll(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.driveTrain.setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // the IMU controls the turn
 
         double currentHeading = pCurrentHeading;
@@ -353,7 +356,8 @@ public class DriveTrainMotion {
             return steer; // velocity increment too small, skip
 
         EnumMap<FTCRobot.MotorId, Double> newVelocityMap = MotionUtils.updateDriveTrainVelocity(pCurrentMotorData, pAngle, steer, pRampDownFactor);
-        Objects.requireNonNull(robot.driveTrain).runAtVelocityAll(newVelocityMap);
+        Objects.requireNonNull(robot.driveTrain,
+                TAG + " straight: drive train not configured").runAtVelocityAll(newVelocityMap);
 
         if (pLogVV)
             RobotLog.vv(TAG, "Straight velocity lf " + String.format("%.2f", newVelocityMap.get(FTCRobot.MotorId.LEFT_FRONT_DRIVE)) +
