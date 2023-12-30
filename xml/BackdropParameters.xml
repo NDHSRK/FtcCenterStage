@@ -1,7 +1,5 @@
     <backdrop_parameters>
         <direction>back</direction>
-        <distance_camera_lens_to_robot_center>8.5</distance_camera_lens_to_robot_center>
-        <offset_camera_lens_from_robot_center>2.5</offset_camera_lens_from_robot_center>
         <strafe_adjustment_percent>0.10</strafe_adjustment_percent>
         <distance_adjustment_percent>0.10</distance_adjustment_percent>
         <outside_strafe_adjustment>2.0</outside_strafe_adjustment>
