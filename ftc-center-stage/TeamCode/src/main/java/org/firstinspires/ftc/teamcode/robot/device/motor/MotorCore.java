@@ -133,8 +133,7 @@ public abstract class MotorCore {
         Objects.requireNonNull(motorMap.get(pMotorId),
                 TAG + " runAtPower: motor " + pMotorId + " is not in the current configuration").setPower(pPower);
     }
-
-    //**TODO STOPPED HERE
+    
     public void runAtPowerAll(EnumMap<FTCRobot.MotorId, Double> pPowerMap) {
         pPowerMap.forEach((k, v) ->
         {

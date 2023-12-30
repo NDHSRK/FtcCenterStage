@@ -56,6 +56,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -84,7 +85,7 @@ public class FTCAuto {
     private final SpikeWindowMappingXML spikeWindowMappingXML;
     private SpikeWindowMapping currentSpikeWindowData;
 
-    private RobotConstantsCenterStage.InternalWebcamId openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
+    private final EnumSet<RobotConstantsCenterStage.InternalWebcamId> openWebcams = EnumSet.noneOf(RobotConstantsCenterStage.InternalWebcamId.class);
     private double desiredHeading = 0.0; // always normalized
     private final DriveTrainMotion driveTrainMotion;
     private CompletableFuture<Void> asyncStraight;
@@ -175,7 +176,7 @@ public class FTCAuto {
                 if (!rawFrameWebcam.waitForWebcamStart(2000))
                     throw new AutonomousRobotException(TAG, "Unable to start front webcam");
                 frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
-                openWebcam = RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM;
+                openWebcams.add(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             }
         }
 
@@ -437,10 +438,8 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                if (openWebcam != RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS)
-                    throw new AutonomousRobotException(TAG, "Attempt to start webcam " + webcamId + " but " + openWebcam + " is open");
-
-                openWebcam = webcamId;
+                if (!openWebcams.add(webcamId))
+                    throw new AutonomousRobotException(TAG, "Attempt to start webcam " + webcamId + " but it is already open");
 
                 VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
                         robot.configuredWebcams.get(webcamId);
@@ -504,7 +503,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to wait for the startup of webcam " + webcamId + " but it is not open");
 
                 VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
@@ -525,7 +524,7 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to close webcam " + webcamId + " but it is not open");
 
                 VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam =
@@ -535,7 +534,7 @@ public class FTCAuto {
 
                 configuredWebcam.getVisionPortalWebcam().finalShutdown();
                 configuredWebcam.setVisionPortalWebcam(null);
-                openWebcam = RobotConstantsCenterStage.InternalWebcamId.WEBCAM_NPOS;
+                openWebcams.remove(webcamId);
                 RobotLogCommon.d(TAG, "Stopped webcam " + webcamIdString);
                 break;
             }
@@ -547,7 +546,7 @@ public class FTCAuto {
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
                         Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to stop streaming webcam " + webcamId + " but it is not open");
 
                 webcam.getVisionPortalWebcam().stopStreaming();
@@ -562,7 +561,7 @@ public class FTCAuto {
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
                         Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to resume streaming webcam " + webcamId + " but it is not open");
 
                 int timeout = actionXPath.getRequiredInt("timeout_ms");
@@ -578,7 +577,7 @@ public class FTCAuto {
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
                         Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to enable processor on webcam " + webcamId + " but it is not open");
 
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
@@ -596,7 +595,7 @@ public class FTCAuto {
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
                         Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to disable processor on webcam " + webcamId + " but it is not open");
 
                 String processorIdString = actionXPath.getRequiredText("processor").toUpperCase();
@@ -617,7 +616,7 @@ public class FTCAuto {
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
                         Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
 
                 RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) webcam.getVisionPortalWebcam();
@@ -658,7 +657,7 @@ public class FTCAuto {
                 VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
                         Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
 
                 RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) webcam.getVisionPortalWebcam();
@@ -721,7 +720,7 @@ public class FTCAuto {
                 AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
                         TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
 
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
 
                 ElapsedTime aprilTagTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -909,7 +908,7 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
-                if (openWebcam != webcamId)
+                if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to navigate to AprilTags using webcam " + webcamId + " but it is not open");
 
                 // If the internal id of the webcam in the current AprilTagNavigation object
@@ -1372,7 +1371,7 @@ public class FTCAuto {
         AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
                 TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
 
-        if (openWebcam != webcamId)
+        if (!openWebcams.contains(webcamId))
             throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
 
         int timeout = pActionXPath.getRequiredInt("timeout_ms");

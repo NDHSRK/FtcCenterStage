@@ -76,7 +76,7 @@ public class BackdropParametersXML {
         distance_center_node = XMLUtils.getNextElement(distance_center_node);
         if (distance_center_node == null || !distance_center_node.getNodeName().equals("distance_camera_lens_to_robot_center") ||
                 distance_center_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'distance_camera_lenst_to_robot_center' not found");
+            throw new AutonomousRobotException(TAG, "Element 'distance_camera_lens_to_robot_center' not found");
 
         String distanceCenterText = distance_center_node.getTextContent();
         double distance_camera_lens_to_robot_center;
