@@ -213,8 +213,38 @@ public class RobotConfigXML {
             throw new AutonomousRobotException(TAG, "Invalid number format in element 'resolution_height'");
         }
 
+        // <distance_camera_lens_to_robot_center>
+        Node distance_center_node = resolution_height_node.getNextSibling();
+        distance_center_node = XMLUtils.getNextElement(distance_center_node);
+        if (distance_center_node == null || !distance_center_node.getNodeName().equals("distance_camera_lens_to_robot_center") ||
+                distance_center_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'distance_camera_lens_to_robot_center' not found");
+
+        String distanceCenterText = distance_center_node.getTextContent();
+        double distance_camera_lens_to_robot_center;
+        try {
+            distance_camera_lens_to_robot_center = Double.parseDouble(distanceCenterText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'distance_camera_lens_to_robot_center'");
+        }
+
+        // <offset_camera_lens_from_robot_center>
+        Node offset_center_node = distance_center_node.getNextSibling();
+        offset_center_node = XMLUtils.getNextElement(offset_center_node);
+        if (offset_center_node == null || !offset_center_node.getNodeName().equals("offset_camera_lens_from_robot_center") ||
+                offset_center_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'offset_camera_lens_from_robot_center' not found or empty");
+
+        String offsetCenterText = offset_center_node.getTextContent();
+        double offset_camera_lens_from_robot_center;
+        try {
+            offset_camera_lens_from_robot_center = Double.parseDouble(offsetCenterText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'offset_camera_lens_from_robot_center'");
+        }
+
         // Parse the <processor_set> element.
-        Node processor_set_node = resolution_height_node.getNextSibling();
+        Node processor_set_node = offset_center_node.getNextSibling();
         processor_set_node = XMLUtils.getNextElement(processor_set_node);
         if (processor_set_node == null || !processor_set_node.getNodeName().equals("processor_set") ||
                 processor_set_node.getTextContent().isEmpty())
@@ -310,8 +340,9 @@ public class RobotConfigXML {
         }
 
         return new VisionPortalWebcamConfiguration.ConfiguredWebcam(webcamId,
-                serial_number, resolution_width, resolution_height, processorIds,
-                calibration);
+                serial_number, resolution_width, resolution_height,
+                distance_camera_lens_to_robot_center, offset_camera_lens_from_robot_center,
+                processorIds, calibration);
     }
 
 }

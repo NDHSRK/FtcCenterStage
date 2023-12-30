@@ -775,8 +775,8 @@ public class FTCAuto {
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
                 RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
 
-                Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> detectionData = findBackdropAprilTag(targetTagId, actionXPath);
-                if (detectionData.second == null) {
+                AprilTagDetectionData detectionData = findBackdropAprilTag(targetTagId, actionXPath);
+                if (detectionData.ftcDetectionData == null) {
                     return false; // no sure path to the backdrop
                 }
 
@@ -784,23 +784,23 @@ public class FTCAuto {
                 // then infer the position of the target tag.
                 double aprilTagDistance;
                 double aprilTagAngle;
-                if (detectionData.first != targetTagId) {
+                if (detectionData.aprilTagId != targetTagId) {
                     RobotLogCommon.d(TAG, "Did not detect the target AprilTag " + targetTagId);
-                    RobotLogCommon.d(TAG, "Inferring its position from tag " + detectionData.first);
-                    Pair<Double, Double> inferredPosition = AprilTagUtils.inferAprilTag(targetTagId, detectionData.first,
-                            detectionData.second.ftcPose.range, detectionData.second.ftcPose.bearing);
+                    RobotLogCommon.d(TAG, "Inferring its position from tag " + detectionData.aprilTagId);
+                    Pair<Double, Double> inferredPosition = AprilTagUtils.inferAprilTag(targetTagId, detectionData.aprilTagId,
+                            detectionData.ftcDetectionData.ftcPose.range, detectionData.ftcDetectionData.ftcPose.bearing);
                     aprilTagDistance = inferredPosition.first;
                     aprilTagAngle = inferredPosition.second;
                     RobotLogCommon.d(TAG, "Inferred distance " + aprilTagDistance + ", angle " + aprilTagAngle);
                 } else {
-                    aprilTagDistance = detectionData.second.ftcPose.range;
-                    aprilTagAngle = detectionData.second.ftcPose.bearing;
+                    aprilTagDistance = detectionData.ftcDetectionData.ftcPose.range;
+                    aprilTagAngle = detectionData.ftcDetectionData.ftcPose.bearing;
                     RobotLogCommon.d(TAG, "Using target AprilTag distance " + aprilTagDistance + ", angle " + aprilTagAngle);
                 }
 
                 // The deskew above should have taken care of the yaw but let's see
                 // what the AprilTag detector thinks it is.
-                RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + detectionData.second.ftcPose.yaw);
+                RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + detectionData.ftcDetectionData.ftcPose.yaw);
 
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
                 String directionString = actionXPath.getRequiredText("direction").toUpperCase();
@@ -815,13 +815,15 @@ public class FTCAuto {
                 // AprilTag in relation to the camera, we need the angle and distance
                 // from the center of the robot, particularly if the camera is not
                 // centered on the robot.
+                VisionPortalWebcamConfiguration.ConfiguredWebcam aprilTagWebcamConfiguration = Objects.requireNonNull(robot.configuredWebcams.get(detectionData.webcamId),
+                        TAG + " Webcam " + detectionData.webcamId + " is not in the current configuration");
                 double angleFromRobotCenterToAprilTag =
-                        CameraToCenterCorrections.getCorrectedAngle(backdropParameters.distanceCameraLensToRobotCenter,
-                                backdropParameters.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
+                        CameraToCenterCorrections.getCorrectedAngle(aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter,
+                                aprilTagWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
 
                 double distanceFromRobotCenterToAprilTag =
-                        CameraToCenterCorrections.getCorrectedDistance(backdropParameters.distanceCameraLensToRobotCenter,
-                                backdropParameters.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
+                        CameraToCenterCorrections.getCorrectedDistance(aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter,
+                                aprilTagWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
 
                 double distanceToMove;
                 if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
@@ -867,10 +869,10 @@ public class FTCAuto {
                     // distanceFromRobotCenterToAprilTag (hypotenuse) squared = distanceToStrafe squared + adjacent squared.
                     double adjacentSquared = Math.pow(distanceFromRobotCenterToAprilTag, 2) - Math.pow(distanceToStrafe, 2);
                     double adjacent = Math.sqrt(adjacentSquared); // center of robot to AprilTag
-                    distanceToMove = adjacent - (backdropParameters.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                    distanceToMove = adjacent - (aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
                     RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
                 } else {
-                    distanceToMove = distanceFromRobotCenterToAprilTag - (backdropParameters.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                    distanceToMove = distanceFromRobotCenterToAprilTag - (aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
                     RobotLogCommon.d(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
                 }
 
@@ -1364,7 +1366,7 @@ public class FTCAuto {
     }
 
     @SuppressLint("DefaultLocale")
-    private Pair<RobotConstantsCenterStage.AprilTagId, AprilTagDetection> findBackdropAprilTag(RobotConstantsCenterStage.AprilTagId pTargetTagId, XPathAccess pActionXPath) throws XPathExpressionException {
+    private AprilTagDetectionData findBackdropAprilTag(RobotConstantsCenterStage.AprilTagId pTargetTagId, XPathAccess pActionXPath) throws XPathExpressionException {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
                 RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
@@ -1410,7 +1412,7 @@ public class FTCAuto {
             RobotLogCommon.d(TAG, range);
             RobotLogCommon.d(TAG, bearing);
             RobotLogCommon.d(TAG, yaw);
-            return Pair.create(pTargetTagId, targetDetection);
+            return new AprilTagDetectionData(webcamId, pTargetTagId, targetDetection);
         }
 
         // If we have not found the target target, see if we've found one of
@@ -1419,7 +1421,7 @@ public class FTCAuto {
             linearOpMode.telemetry.addLine("No AprilTags found within " + timeout + "ms");
             linearOpMode.telemetry.update();
             RobotLogCommon.d(TAG, "No AprilTags found within " + timeout + "ms");
-            return Pair.create(pTargetTagId, null);
+            return new AprilTagDetectionData(webcamId, pTargetTagId, null);
         }
 
         // Found a backup detection.
@@ -1436,7 +1438,7 @@ public class FTCAuto {
         RobotLogCommon.d(TAG, range);
         RobotLogCommon.d(TAG, bearing);
         RobotLogCommon.d(TAG, yaw);
-        return Pair.create(backupTagId, backupDetection);
+        return new AprilTagDetectionData(webcamId, backupTagId, backupDetection);
     }
 
     private Callable<Void> async_move_elevator_and_winch(Elevator.ElevatorLevel pElevatorTargetLevel) {
@@ -1618,6 +1620,20 @@ public class FTCAuto {
                 DualMotorMotion.DualMotorAction.MOVE_AND_STOP);
 
         RobotLogCommon.i(TAG, "Done with failsafe actions");
+    }
+
+    private static class AprilTagDetectionData {
+        public final RobotConstantsCenterStage.InternalWebcamId webcamId;
+        public final RobotConstantsCenterStage.AprilTagId aprilTagId;
+        public final AprilTagDetection ftcDetectionData;
+
+        public AprilTagDetectionData(RobotConstantsCenterStage.InternalWebcamId pWebcamId,
+                                     RobotConstantsCenterStage.AprilTagId pAprilTagId,
+                                     AprilTagDetection pFtcDetectionData) {
+            webcamId = pWebcamId;
+            aprilTagId = pAprilTagId;
+            ftcDetectionData = pFtcDetectionData;
+        }
     }
 
 }

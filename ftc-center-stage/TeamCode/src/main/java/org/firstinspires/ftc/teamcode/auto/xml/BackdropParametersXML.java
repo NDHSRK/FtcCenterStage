@@ -72,40 +72,11 @@ public class BackdropParametersXML {
         DriveTrainConstants.Direction direction =
                 DriveTrainConstants.Direction.valueOf(direction_node.getTextContent().toUpperCase());
 
-        Node distance_center_node = direction_node.getNextSibling();
-        distance_center_node = XMLUtils.getNextElement(distance_center_node);
-        if (distance_center_node == null || !distance_center_node.getNodeName().equals("distance_camera_lens_to_robot_center") ||
-                distance_center_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'distance_camera_lens_to_robot_center' not found");
-
-        String distanceCenterText = distance_center_node.getTextContent();
-        double distance_camera_lens_to_robot_center;
-        try {
-            distance_camera_lens_to_robot_center = Double.parseDouble(distanceCenterText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'distance_camera_lens_to_robot_center'");
-        }
-
-        // <offset_camera_lens_from_robot_center>
-        Node offset_center_node = distance_center_node.getNextSibling();
-        offset_center_node = XMLUtils.getNextElement(offset_center_node);
-        if (offset_center_node == null || !offset_center_node.getNodeName().equals("offset_camera_lens_from_robot_center") ||
-                offset_center_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'offset_camera_lens_from_robot_center' not found or empty");
-
-        String offsetCenterText = offset_center_node.getTextContent();
-        double offset_camera_lens_from_robot_center;
-        try {
-            offset_camera_lens_from_robot_center = Double.parseDouble(offsetCenterText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'offset_camera_lens_from_robot_center'");
-        }
-
         // Strafe and distance adjustment percentages should be in the range
         // of > -100.0 and < +100.0. But if someone has entered a value in
         // the range of > -1.0 and < 1.0 then we'll multiply by 100.
         // <strafe_adjustment_percent>
-        Node strafe_adjustment_node = offset_center_node.getNextSibling();
+        Node strafe_adjustment_node = direction_node.getNextSibling();
         strafe_adjustment_node = XMLUtils.getNextElement(strafe_adjustment_node);
         if (strafe_adjustment_node == null || !strafe_adjustment_node.getNodeName().equals("strafe_adjustment_percent") ||
                 strafe_adjustment_node.getTextContent().isEmpty())
@@ -173,8 +144,7 @@ public class BackdropParametersXML {
             throw new AutonomousRobotException(TAG, "Element 'outside_strafe_adjustment' out of range");
         }
 
-        return new BackdropParameters(direction, distance_camera_lens_to_robot_center,
-                offset_camera_lens_from_robot_center,
+        return new BackdropParameters(direction,
                 strafe_adjustment_percent, distance_adjustment_percent,
                 outside_strafe);
     }

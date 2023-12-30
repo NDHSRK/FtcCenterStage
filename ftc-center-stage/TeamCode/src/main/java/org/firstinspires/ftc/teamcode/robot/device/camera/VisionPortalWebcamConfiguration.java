@@ -13,6 +13,8 @@ public class VisionPortalWebcamConfiguration {
         public final String serialNumber;
         public final int resolutionWidth;
         public final int resolutionHeight;
+        public final double distanceCameraLensToRobotCenter;
+        public final double offsetCameraLensFromRobotCenter;
 
         // A webcam may support more than one processor but only one may be
         // active at any given time.
@@ -27,12 +29,16 @@ public class VisionPortalWebcamConfiguration {
                                 String pSerialNumber,
                                 int pResolutionWidth,
                                 int pResolutionHeight,
+                                double pDistanceCameraLensToRobotCenter,
+                                double pOffsetCameraLensFromRobotCenter,
                                 ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessorIdentifiers,
                                 CameraCalibration pCameraCalibration) {
             internalWebcamId = pCameraId;
             serialNumber = pSerialNumber;
             resolutionWidth = pResolutionWidth;
             resolutionHeight = pResolutionHeight;
+            distanceCameraLensToRobotCenter = pDistanceCameraLensToRobotCenter;
+            offsetCameraLensFromRobotCenter = pOffsetCameraLensFromRobotCenter;
             processorIdentifiers = pProcessorIdentifiers;
             cameraCalibration = pCameraCalibration;
         }
