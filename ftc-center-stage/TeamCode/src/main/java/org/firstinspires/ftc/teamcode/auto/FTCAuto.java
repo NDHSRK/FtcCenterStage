@@ -32,8 +32,10 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
+import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagProvider;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.DualPurposeWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.ImageProvider;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameWebcam;
@@ -645,8 +647,8 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
 
-                RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) webcam.getVisionPortalWebcam();
-                Pair<Mat, Date> image = rawFrameWebcam.getImage();
+                ImageProvider rawFrameProvider = (ImageProvider) webcam.getVisionPortalWebcam();
+                Pair<Mat, Date> image = rawFrameProvider.getImage();
                 if (image == null) {
                     RobotLogCommon.d(TAG, "Unable to get image from " + webcamIdString);
                     linearOpMode.telemetry.addData("Take picture:", "unable to get image from " + webcamIdString);
@@ -686,7 +688,7 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
 
-                RawFrameWebcam rawFrameWebcam = (RawFrameWebcam) webcam.getVisionPortalWebcam();
+                ImageProvider rawFrameProvider = (ImageProvider) webcam.getVisionPortalWebcam();
 
                 // Get the recognition path from the XML file.
                 RobotConstantsCenterStage.TeamPropRecognitionPath teamPropRecognitionPath =
@@ -695,7 +697,7 @@ public class FTCAuto {
 
                 // Perform image recognition.
                 TeamPropReturn teamPropReturn =
-                        teamPropRecognition.recognizeTeamProp(rawFrameWebcam, teamPropRecognitionPath, teamPropParameters, opModeSpikeWindowMapping);
+                        teamPropRecognition.recognizeTeamProp(rawFrameProvider, teamPropRecognitionPath, teamPropParameters, opModeSpikeWindowMapping);
 
                 RobotConstantsCenterStage.TeamPropLocation finalTeamPropLocation;
                 if (teamPropReturn.recognitionResults == RobotConstants.RecognitionResults.RECOGNITION_INTERNAL_ERROR ||
@@ -743,7 +745,7 @@ public class FTCAuto {
                 String webcamIdString = actionXPath.getRequiredText("internal_webcam_id").toUpperCase();
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
-                AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+                AprilTagProvider aprilTagProvider = (AprilTagProvider) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
                         TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
 
                 if (!openWebcams.contains(webcamId))
@@ -755,7 +757,7 @@ public class FTCAuto {
                 boolean aprilTagDetected;
                 while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
                     aprilTagDetected = false;
-                    currentDetections = aprilTagWebcam.getAprilTagData(500);
+                    currentDetections = aprilTagProvider.getAprilTagData(500);
                     for (AprilTagDetection detection : currentDetections) {
                         if (detection.metadata != null) {
                             aprilTagDetected = true;
@@ -944,9 +946,9 @@ public class FTCAuto {
                 if (aprilTagNavigation == null || aprilTagNavigation.getInternalWebcamId() !=
                         webcamId) {
                     RobotLogCommon.d(TAG, "Switching AprilTag navigation to " + webcamIdString);
-                    AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+                    AprilTagProvider aprilTagProvider = (AprilTagProvider) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
                             TAG + "Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
-                    aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagWebcam);
+ //*TODO STUCK here - really need AprilTagWebcam                   aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagProvider);
                 }
 
                 int desiredTagId = actionXPath.getRequiredInt("tag_id");
@@ -1396,7 +1398,7 @@ public class FTCAuto {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
                 RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
-        AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+        AprilTagProvider aprilTagProvider = (AprilTagProvider) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
                 TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
 
         if (!openWebcams.contains(webcamId))
@@ -1404,7 +1406,7 @@ public class FTCAuto {
 
         int timeout = pActionXPath.getRequiredInt("timeout_ms");
 
-        List<AprilTagDetection> currentDetections = aprilTagWebcam.getAprilTagData(timeout);
+        List<AprilTagDetection> currentDetections = aprilTagProvider.getAprilTagData(timeout);
         AprilTagDetection targetDetection = null;
         AprilTagDetection backupDetection = null;
         double smallestBackupAngle = 360.0; // impossibly high
