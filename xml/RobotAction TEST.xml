@@ -13,21 +13,44 @@
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM>
 
+            <DISABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>raw_frame</processor>
+            </DISABLE_PROCESSOR>
+
+            <ENABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </ENABLE_PROCESSOR>
+
+            <!-- //**TODO TEST THIS - replace the above
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM>
 
             <START_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
+                <processor_set>
+                    <processor>raw_frame</processor>
+                    <processor disable_on_start="yes">april_tag</processor>
+                <processor_set>
             </START_WEBCAM>
 
             <WAIT_FOR_WEBCAM_START>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
                 <timeout_ms>2000</timeout_ms>
             </WAIT_FOR_WEBCAM_START>
-            
-            <!-- ENABLE_PROCESSOR>
+
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
+
+            <DISABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>raw_frame</processor>
+            </DISABLE_PROCESSOR>
+
+            <ENABLE_PROCESSOR>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
                 <processor>april_tag</processor>
             </ENABLE_PROCESSOR -->
