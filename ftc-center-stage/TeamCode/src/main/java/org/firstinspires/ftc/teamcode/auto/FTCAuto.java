@@ -806,6 +806,11 @@ public class FTCAuto {
                     return false; // no sure path to the backdrop
                 }
 
+                // From the point of view of an observer facing the robot from the
+                // center of the field -- a positive angle from the camera to the
+                // AprilTag indicates that the tag is to the left of the center of
+                // the robot (counter-clockwise).
+
                 // If the backstop AprilTag that was found is not our target tag
                 // then infer the position of the target tag.
                 double aprilTagDistance;
@@ -855,17 +860,8 @@ public class FTCAuto {
                 if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
                     // Strafe to place the center of the robot opposite the AprilTag.
                     double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
-                    double distanceToStrafe = sinTheta * distanceFromRobotCenterToAprilTag;
+                    double distanceToStrafe = Math.abs(sinTheta * distanceFromRobotCenterToAprilTag);
                     double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
-
-                    // From the point of view of an observer facing the robot from the
-                    // center of the field -- a positive angle from the camera to the
-                    // AprilTag indicates that the tag is to the left of the center of
-                    // the robot (counter-clockwise). But to set the direction of the
-                    // strafe we have to take into account whether the robot is facing
-                    // forward towards the backdrop or backward.
-                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
-                    double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
 
                     // Add in strafe percentage adjustment.
                     if (backdropParameters.strafeAdjustmentPercent != 0.0) {
@@ -873,23 +869,27 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Adjusting distance to strafe by " + backdropParameters.strafeAdjustmentPercent);
                     }
 
-                    // From the point of view of an observer facing the robot from the
-                    // center of the field -- if the corrected angle from the center of
-                    // the robot to the AprilTag is negative
-                    //**TODO what about a correction that changes the direction of the
-                    // strafe!!??
-                    if (!(targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_2 ||
-                            targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_5)) {
-                        distanceToStrafe += backdropParameters.outsideStrafeAdjustment;
-                        RobotLogCommon.d(TAG, "Adding outside strafe adjustement of " + backdropParameters.outsideStrafeAdjustment);
+                    //**TODO Call a method that adjusts the distance of the strafe depending
+                    // on the AprilTag. The "first" member of the returned Pair is the strafe
+                    // angle (90.0 degrees or -90.0 degrees) from the point of view of an
+                    // observer facing the robot from the center. The "second" member of the
+                    // Pair is the positive distance to strafe.
+                    RobotLogCommon.d(TAG, "Adding outside strafe adjustement of " + backdropParameters.outsideStrafeAdjustment);
+                    Pair<Double, Double> adjustment = Pair.create(-90.0, 1.0); //**TODO TEST
+                    // strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe, backdropParameters.outsideStrafeAdjustment);
+
+                    // Change the direction of the strafe depending on the location of the
+                    // camera on the robot.
+                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
+                    double strafeDirection = adjustment.first * directionFactor;
+                    distanceToStrafe += adjustment.second;
+
+                    // Check for a minimum distance to strafe.
+                    if (distanceToStrafe >= 1.0) {
+                        int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
+                        driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
+                        RobotLogCommon.d(TAG, "Strafe towards the AprilTag " + distanceToStrafe + " inches at " + strafeDirection + " degrees");
                     }
-
-                    //**TODO Minimum distance to strafe? Below there is a check for a 1"
-                    // minimum forward or backward movement.
-
-                    int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
-                    driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
-                    RobotLogCommon.d(TAG, "Strafe towards the AprilTag " + distanceToStrafe + " inches at " + strafeDirection + " degrees");
 
                     // Calculate the distance to move towards the backstop based on our triangle.
                     // distanceFromRobotCenterToAprilTag (hypotenuse) squared = distanceToStrafe squared + adjacent squared.
