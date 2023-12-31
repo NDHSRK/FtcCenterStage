@@ -5,11 +5,40 @@
          or TestBLUE (to run the TEST OpMode under the blue alliance -->
     <OpMode id="TEST">
         <parameters>
-            <log_level>vv</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
+          
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
 
-            <FORWARD>
+            <STOP_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+            </STOP_WEBCAM>
+
+            <START_WEBCAM>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </START_WEBCAM>
+
+            <WAIT_FOR_WEBCAM_START>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <timeout_ms>2000</timeout_ms>
+            </WAIT_FOR_WEBCAM_START>
+            
+            <!-- ENABLE_PROCESSOR>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <processor>april_tag</processor>
+            </ENABLE_PROCESSOR -->
+
+            <FIND_APRIL_TAG>
+                <internal_webcam_id>front_webcam</internal_webcam_id>
+                <tag_id>tag_id_10</tag_id>
+                <timeout_ms>1000</timeout_ms>
+            </FIND_APRIL_TAG>
+
+            <!-- FORWARD>
                 <distance>48.0</distance>
                 <velocity>.75</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -43,23 +72,7 @@
                 <distance>48.0</distance>
                 <velocity>.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAFE_RIGHT>
-
-             <!-- START_WEBCAM>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
-            </START_WEBCAM>
-
-            <WAIT_FOR_WEBCAM_START>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <timeout_ms>2000</timeout_ms>
-            </WAIT_FOR_WEBCAM_START>
-
-            <FIND_APRIL_TAG>
-                <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <tag_id>tag_id_5</tag_id>
-                <timeout_ms>1000</timeout_ms>
-            </FIND_APRIL_TAG -->
+            </STRAFE_RIGHT -->
 
             <SLEEP>
                 <ms>1500</ms>

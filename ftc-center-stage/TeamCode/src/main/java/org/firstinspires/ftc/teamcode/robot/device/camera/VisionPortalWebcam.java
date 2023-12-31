@@ -135,11 +135,14 @@ public class VisionPortalWebcam {
     public void setManualExposure(int exposureMS, int gain, int pTimeoutMs) {
         // Wait for the camera to be open, then use the controls
         // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+        if (!(visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM)) {
             boolean webcamIsStreaming = false;
             ElapsedTime streamingTimer = new ElapsedTime();
             streamingTimer.reset(); // start
-            while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING && streamingTimer.milliseconds() < pTimeoutMs) {
+            while (!(visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                    visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM)
+                    && streamingTimer.milliseconds() < pTimeoutMs) {
                 sleep(20);
             }
 
@@ -162,7 +165,8 @@ public class VisionPortalWebcam {
     }
 
     public void enableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
+        if (!(visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM))
             throw new AutonomousRobotException(TAG, "Attempting to enable the processor " + pProcessorId + " even though the webcam is not STREAMING");
 
         VisionProcessor processor = assignedProcessors.get(pProcessorId).first;
@@ -187,7 +191,8 @@ public class VisionPortalWebcam {
     }
 
     public void disableProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
+        if (!(visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM))
             throw new AutonomousRobotException(TAG, "Attempting to disable the processor " + pProcessorId + " even though the webcam is not STREAMING");
 
         VisionProcessor processor = assignedProcessors.get(pProcessorId).first;
@@ -207,7 +212,8 @@ public class VisionPortalWebcam {
     }
 
     public void stopStreaming() {
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+        if (!(visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM)) {
             RobotLogCommon.d(TAG, "Ignoring request to stop streaming the webcam " + configuredWebcam.internalWebcamId);
             RobotLogCommon.d(TAG, "The webcam is not streaming");
         } else
@@ -215,7 +221,8 @@ public class VisionPortalWebcam {
     }
 
     public boolean resumeStreaming(int pTimeoutMs) {
-        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM) {
             RobotLogCommon.d(TAG, "Ignoring request to resume streaming the webcam " + configuredWebcam.internalWebcamId);
             RobotLogCommon.d(TAG, "The webcam is already streaming");
             return true;
@@ -228,7 +235,8 @@ public class VisionPortalWebcam {
             sleep(50);
         }
 
-        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING ||
+                visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM) {
             RobotLogCommon.d(TAG, "Resumed streaming the webcam " + configuredWebcam.internalWebcamId);
             return true;
         }

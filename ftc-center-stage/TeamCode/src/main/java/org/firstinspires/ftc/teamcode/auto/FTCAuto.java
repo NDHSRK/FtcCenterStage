@@ -33,9 +33,11 @@ import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.DualPurposeWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.robot.device.motor.DualMotorMotion;
 import org.firstinspires.ftc.teamcode.robot.device.motor.Elevator;
@@ -160,22 +162,46 @@ public class FTCAuto {
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
         backdropParameters = backdropParametersXML.getBackdropParameters();
 
-        // Start the front webcam with the webcam frame processor.
+        // Start the front webcam with the raw webcam frame processor.
         // We can start a camera by using the <START_CAMERA> action in RobotAction.xml
         // but since the first task in Autonomous is to find the Team Prop, we save
-        // time by starting the front webcam here with a processor for raw frames. The
-        // only time this camera might not be in the configuration is during testing.
+        // time by starting the front webcam here with two processors: one for raw
+        // frames (enabled) and one for AprilTags (disabled) OR a single processor for
+        // raw frames (enabled). The only time this camera might not be in the
+        // configuration is during testing.
         if (robot.configuredWebcams != null) { // if webcam(s) are configured in
             VisionPortalWebcamConfiguration.ConfiguredWebcam frontWebcamConfiguration =
                     robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             if (frontWebcamConfiguration != null) {
-                VisionProcessor rawFrameProcessor = new RawFrameProcessor.Builder().build();
-                RawFrameWebcam rawFrameWebcam = new RawFrameWebcam(frontWebcamConfiguration,
-                        RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME,
-                        Pair.create(rawFrameProcessor, true));
-                if (!rawFrameWebcam.waitForWebcamStart(2000))
+                // The front webcam may configured for raw frames only or for both
+                // raw frames and AprilTags.
+                VisionPortalWebcam visionPortalWebcam;
+                if (frontWebcamConfiguration.processorIdentifiers.contains(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME) &&
+                        frontWebcamConfiguration.processorIdentifiers.contains(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)) {
+                    EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> assignedProcessors =
+                            new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
+
+                    VisionProcessor rawFrameProcessor = new RawFrameProcessor.Builder().build();
+                    assignedProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME, Pair.create(rawFrameProcessor, true));
+
+                    VisionProcessor aprilTagProcessor = new AprilTagProcessor.Builder().build();
+                    assignedProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG, Pair.create(aprilTagProcessor, false));
+                    visionPortalWebcam = new DualPurposeWebcam(frontWebcamConfiguration, assignedProcessors);
+                } else {
+                    // Just the raw frame webcam.
+                    if (frontWebcamConfiguration.processorIdentifiers.contains(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME)) {
+                        VisionProcessor rawFrameProcessor = new RawFrameProcessor.Builder().build();
+                        visionPortalWebcam = new RawFrameWebcam(frontWebcamConfiguration,
+                                RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME,
+                                Pair.create(rawFrameProcessor, true));
+                    } else
+                        throw new AutonomousRobotException(TAG, "The front webcam must be configured with processors for raw frames and april tags or just raw frames");
+                }
+
+                if (!visionPortalWebcam.waitForWebcamStart(2000))
                     throw new AutonomousRobotException(TAG, "Unable to start front webcam");
-                frontWebcamConfiguration.setVisionPortalWebcam(rawFrameWebcam);
+
+                frontWebcamConfiguration.setVisionPortalWebcam(visionPortalWebcam);
                 openWebcams.add(RobotConstantsCenterStage.InternalWebcamId.FRONT_WEBCAM);
             }
         }
@@ -853,7 +879,7 @@ public class FTCAuto {
                     //**TODO what about a correction that changes the direction of the
                     // strafe!!??
                     if (!(targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_2 ||
-                          targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_5)) {
+                            targetTagId == RobotConstantsCenterStage.AprilTagId.TAG_ID_5)) {
                         distanceToStrafe += backdropParameters.outsideStrafeAdjustment;
                         RobotLogCommon.d(TAG, "Adding outside strafe adjustement of " + backdropParameters.outsideStrafeAdjustment);
                     }
@@ -919,7 +945,7 @@ public class FTCAuto {
                         webcamId) {
                     RobotLogCommon.d(TAG, "Switching AprilTag navigation to " + webcamIdString);
                     AprilTagWebcam aprilTagWebcam = (AprilTagWebcam) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
-                            TAG +  "Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
+                            TAG + "Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
                     aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagWebcam);
                 }
 
@@ -1041,7 +1067,7 @@ public class FTCAuto {
                 if (pOpMode.getOpModeType() != RobotConstantsCenterStage.OpMode.OpModeType.COMPETITION)
                     throw new AutonomousRobotException(TAG, "AUTO_ENDING_POSITION only applies to competition OpModes");
                 switch (Objects.requireNonNull(autoEndingPositions.get(pOpMode),
-                TAG + " No ending position defined for OpMode " + pOpMode)) {
+                        TAG + " No ending position defined for OpMode " + pOpMode)) {
                     case LEFT: {
                         // Follow the XPath to the STRAFE child of AUTO_ENDING_POSITION/left
                         // and execute it.
