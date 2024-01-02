@@ -14,6 +14,8 @@ import org.opencv.core.Mat;
 import java.util.Date;
 import java.util.Objects;
 
+// Use the ImageProvider interface to provide cross-project compatibility
+// with IntelliJ feeder projects that get images from files.
 public class RawFrameAccess implements ImageProvider {
     private static final String TAG = RawFrameAccess.class.getSimpleName();
 

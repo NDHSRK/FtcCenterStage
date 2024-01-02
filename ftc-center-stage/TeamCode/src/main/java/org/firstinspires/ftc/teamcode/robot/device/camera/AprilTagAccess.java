@@ -16,24 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class AprilTagAccess implements AprilTagProvider {
+public class AprilTagAccess {
     private static final String TAG = AprilTagAccess.class.getSimpleName();
 
-    private final AprilTagProcessor aprilTagProcessor;
-
-    public AprilTagAccess(AprilTagProcessor pAprilTagProcessor) {
-        aprilTagProcessor = pAprilTagProcessor;
-    }
-
     // Returns an empty List if no AprilTag detections are available.
-    public List<AprilTagDetection> getAprilTagData(int pTimeoutMs) {
+    public static List<AprilTagDetection> getAprilTagData(AprilTagProcessor pAprilTagProcessor, int pTimeoutMs) {
         List<AprilTagDetection> currentDetections = null;
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start
         while (dataAcquiredTimer.milliseconds() < pTimeoutMs) {
             // The FTC samples use getDetections but we always want the
             // //latest - so use getFreshDetections()
-            currentDetections = Objects.requireNonNull(aprilTagProcessor,
+            currentDetections = Objects.requireNonNull(pAprilTagProcessor,
                     TAG + " getAprilTagData: aprilTagProcessor is null").getFreshDetections();
             if (currentDetections != null && !currentDetections.isEmpty())
                 break;

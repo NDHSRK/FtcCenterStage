@@ -43,6 +43,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagAccess;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -72,15 +73,15 @@ public class AprilTagNavigation {
 
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
-    private final AprilTagAccess aprilTagAccess;
+    private final AprilTagProcessor aprilTagProcessor;
 
     private final EnumMap<FTCRobot.MotorId, Double> powerMap = new EnumMap<>(FTCRobot.MotorId.class);
 
     public AprilTagNavigation(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
-                              AprilTagAccess pAprilTagAccess) {
+                              AprilTagProcessor pAprilTagProcessor) {
         linearOpMode = pLinearOpMode;
         robot = pRobot; // robot hardware
-        aprilTagAccess = pAprilTagAccess;
+        aprilTagProcessor = pAprilTagProcessor;
    }
 
     @SuppressLint("DefaultLocale")
@@ -112,7 +113,7 @@ public class AprilTagNavigation {
         while (linearOpMode.opModeIsActive()) {
             // Step through the list of detected tags and look for a matching tag.
             desiredTag = null;
-            currentDetections = aprilTagAccess.getAprilTagData(1000);
+            currentDetections = AprilTagAccess.getAprilTagData(aprilTagProcessor, 1000);
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.metadata != null && detection.id == pDesiredTagId) {
                     desiredTag = detection;

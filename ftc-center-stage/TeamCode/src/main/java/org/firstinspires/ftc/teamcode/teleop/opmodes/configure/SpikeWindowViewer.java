@@ -12,11 +12,10 @@ import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
-import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowRendering;
+import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
-import org.firstinspires.ftc.vision.VisionProcessor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class SpikeWindowViewer extends LinearOpMode {
                         TAG + " The FRONT_WEBCAM is not configured");
 
         spikeWindowProcessor = new CameraStreamProcessor.Builder().build();
-        CameraStreamWebcam spikeWindowWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
+        VisionPortalWebcam spikeWindowWebcam = new VisionPortalWebcam(frontWebcamConfiguration,
                 RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW,
                 Pair.create(spikeWindowProcessor, true));
 

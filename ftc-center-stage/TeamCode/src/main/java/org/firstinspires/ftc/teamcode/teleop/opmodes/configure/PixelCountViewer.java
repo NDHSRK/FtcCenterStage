@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
-import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.PixelCountRendering;
+import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.xml.sax.SAXException;
@@ -84,7 +84,7 @@ public class PixelCountViewer extends LinearOpMode {
                 TAG + " The FRONT_WEBCAM is not configured");
 
         pixelCountProcessor = new CameraStreamProcessor.Builder().build();
-        CameraStreamWebcam pixelCountWebcam = new CameraStreamWebcam(frontWebcamConfiguration,
+        VisionPortalWebcam pixelCountWebcam = new VisionPortalWebcam(frontWebcamConfiguration,
                 RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT,
                 Pair.create(pixelCountProcessor, true));
 

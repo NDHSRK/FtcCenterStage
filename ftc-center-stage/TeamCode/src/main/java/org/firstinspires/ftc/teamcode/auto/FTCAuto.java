@@ -33,7 +33,6 @@ import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagAccess;
-import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagProvider;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameAccess;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
@@ -756,20 +755,25 @@ public class FTCAuto {
                 RobotConstantsCenterStage.InternalWebcamId webcamId =
                         RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
 
-                //**TODO Follow findBackdropAprilTag to create AprilTagAccess ...
-                AprilTagProvider aprilTagProvider = (AprilTagProvider) Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
-                        TAG + " Webcam " + webcamId + " is not in the current configuration").getVisionPortalWebcam();
+                VisionPortalWebcamConfiguration.ConfiguredWebcam webcam =
+                        Objects.requireNonNull(robot.configuredWebcams.get(webcamId), TAG + " Webcam " + webcamId + " is not in the current configuration");
 
                 if (!openWebcams.contains(webcamId))
-                    throw new AutonomousRobotException(TAG, "Attempt to find AprilTags using webcam " + webcamId + " but it is not open");
+                    throw new AutonomousRobotException(TAG, "Attempt to find an AprilTag on webcam " + webcamId + " but it is not open");
 
+                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagContainer =
+                        webcam.getVisionPortalWebcam().getActiveProcessor();
+                if (aprilTagContainer.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
+                    throw new AutonomousRobotException(TAG, "The active processor is not APRIL_TAG");
+
+                AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) aprilTagContainer.second;
                 ElapsedTime aprilTagTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
                 aprilTagTimer.reset();
                 List<AprilTagDetection> currentDetections;
                 boolean aprilTagDetected;
                 while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
                     aprilTagDetected = false;
-                    currentDetections = aprilTagProvider.getAprilTagData(500);
+                    currentDetections = AprilTagAccess.getAprilTagData(aprilTagProcessor, 500);
                     for (AprilTagDetection detection : currentDetections) {
                         if (detection.metadata != null) {
                             aprilTagDetected = true;
@@ -956,13 +960,13 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to navigate to AprilTag on webcam " + webcamId + " but it is not open");
 
-                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagProcessor =
+                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagContainer =
                         webcam.getVisionPortalWebcam().getActiveProcessor();
-                if (aprilTagProcessor.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
+                if (aprilTagContainer.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
                     throw new AutonomousRobotException(TAG, "The active processor is not APRIL_TAG");
 
-                AprilTagAccess aprilTagAccess = new AprilTagAccess((AprilTagProcessor) aprilTagProcessor.second);
-                AprilTagNavigation aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagAccess);
+                AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) aprilTagContainer.second;
+                AprilTagNavigation aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagProcessor);
 
                 int desiredTagId = actionXPath.getRequiredInt("tag_id");
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
@@ -1418,15 +1422,14 @@ public class FTCAuto {
         if (!openWebcams.contains(webcamId))
             throw new AutonomousRobotException(TAG, "Attempt to find an AprilTag on webcam " + webcamId + " but it is not open");
 
-        Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagProcessor =
+        Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagContainer =
                 webcam.getVisionPortalWebcam().getActiveProcessor();
-        if (aprilTagProcessor.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
+        if (aprilTagContainer.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
             throw new AutonomousRobotException(TAG, "The active processor is not APRIL_TAG");
 
-        AprilTagAccess aprilTagAccess = new AprilTagAccess((AprilTagProcessor) aprilTagProcessor.second);
-
+        AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) aprilTagContainer.second;
         int timeout = pActionXPath.getRequiredInt("timeout_ms");
-        List<AprilTagDetection> currentDetections = aprilTagAccess.getAprilTagData(timeout);
+        List<AprilTagDetection> currentDetections = AprilTagAccess.getAprilTagData(aprilTagProcessor, timeout);
         AprilTagDetection targetDetection = null;
         AprilTagDetection backupDetection = null;
         double smallestBackupAngle = 360.0; // impossibly high
