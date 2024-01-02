@@ -94,10 +94,6 @@ public class BackdropParametersXML {
             throw new AutonomousRobotException(TAG, "Element 'strafe_adjustment_percent' must be > -100.0 and < +100.0");
         }
 
-        if (strafe_adjustment_percent > -1.0 && strafe_adjustment_percent > 1.0) {
-            strafe_adjustment_percent *= 100.0;
-        }
-
         strafe_adjustment_percent /= 100.0;
 
         // <distance_adjustment_percent>
@@ -117,10 +113,6 @@ public class BackdropParametersXML {
 
         if (distance_adjustment_percent < -100.0 || distance_adjustment_percent > 100.0) {
             throw new AutonomousRobotException(TAG, "Element 'distance_adjustment_percent' must be > -100.0 and < +100.0");
-        }
-
-        if (distance_adjustment_percent > -1.0 && distance_adjustment_percent > 1.0) {
-            distance_adjustment_percent *= 100.0;
         }
 
         distance_adjustment_percent /= 100.0;

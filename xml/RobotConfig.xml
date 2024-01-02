@@ -161,14 +161,13 @@
     <!-- The IMU may not be configured out. -->
     <IMU>
         <control_hub> <!-- required -->
-            <!-- production robot -->
             <logo_facing_direction>LEFT</logo_facing_direction>
             <usb_facing_direction>UP</usb_facing_direction>
-            <!-- test robot 
-        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection.UP;
-    -->
         </control_hub>
+        <expansion_hub>
+            <logo_facing_direction>LEFT</logo_facing_direction>
+            <usb_facing_direction>UP</usb_facing_direction>
+        </expansion_hub>
     </IMU>
 
 </RobotConfig>

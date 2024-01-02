@@ -31,8 +31,16 @@ public class IMUDirect {
 
     public void resetIMUYaw() {
         controlHubIMU.resetYaw(); // necessary because sometimes the yaw carries over after a restart
-        if (expansionHubIMU != null)
+        angles = controlHubIMU.getRobotYawPitchRollAngles();
+        heading = angles.getYaw(DEGREES);
+        RobotLogCommon.d(TAG, "Control Hub IMU after reset " + heading);
+
+        if (expansionHubIMU != null) {
             expansionHubIMU.resetYaw();
+            angles = expansionHubIMU.getRobotYawPitchRollAngles();
+            heading = angles.getYaw(DEGREES);
+            RobotLogCommon.d(TAG, "Expansion Hub IMU after reset " + heading);
+        }
     }
 
     // Switch to Expansion Hub IMU (if present) if the Control Hub

@@ -880,27 +880,29 @@ public class FTCAuto {
                     double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
                     double distanceToStrafe = Math.abs(sinTheta * distanceFromRobotCenterToAprilTag);
                     double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
+                    RobotLogCommon.d(TAG, "Calculated distance to strafe " + distanceToStrafe);
 
                     // Add in strafe percentage adjustment.
                     if (backdropParameters.strafeAdjustmentPercent != 0.0) {
                         distanceToStrafe += (distanceToStrafe * backdropParameters.strafeAdjustmentPercent);
-                        RobotLogCommon.d(TAG, "Adjusting distance to strafe by " + backdropParameters.strafeAdjustmentPercent);
+                        RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + backdropParameters.strafeAdjustmentPercent + " for a distance to strafe of " + distanceToStrafe);
                     }
 
-                    //**TODO Call a method that adjusts the distance of the strafe depending
+                    // Call a method that adjusts the distance of the strafe depending
                     // on the AprilTag. The "first" member of the returned Pair is the strafe
                     // angle (90.0 degrees or -90.0 degrees) from the point of view of an
                     // observer facing the robot from the center. The "second" member of the
                     // Pair is the positive distance to strafe.
-                    RobotLogCommon.d(TAG, "Adding outside strafe adjustement of " + backdropParameters.outsideStrafeAdjustment);
-                    Pair<Double, Double> adjustment = Pair.create(-90.0, 1.0); //**TODO TEST
-                    // strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe, backdropParameters.outsideStrafeAdjustment);
+                    RobotLogCommon.d(TAG, "Adding outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
+                    Pair<Double, Double> adjustment =
+                        AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe, backdropParameters.outsideStrafeAdjustment);
 
                     // Change the direction of the strafe depending on the location of the
                     // camera on the robot.
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = adjustment.first * directionFactor;
-                    distanceToStrafe += adjustment.second;
+                    distanceToStrafe = adjustment.second;
+                    RobotLogCommon.d(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
 
                     // Check for a minimum distance to strafe.
                     if (distanceToStrafe >= 1.0) {

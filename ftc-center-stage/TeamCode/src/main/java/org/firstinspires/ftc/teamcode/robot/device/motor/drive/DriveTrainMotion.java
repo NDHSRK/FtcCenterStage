@@ -160,8 +160,9 @@ public class DriveTrainMotion {
                         RobotLogCommon.isLoggable("vv");
                 currentHeading = Objects.requireNonNull(robot.imuDirect,
                         TAG + " straight: IMU not configured").getIMUHeading();
-                steer = applyConstantHeadingPID(pDesiredHeading, currentHeading, pAngle,
-                        allDriveMotors, driveTrainPID, rampDownFactor, logVV);
+                //**TODO SUSPECT
+                steer = 0; // applyConstantHeadingPID(pDesiredHeading, currentHeading, pAngle,
+                        //allDriveMotors, driveTrainPID, rampDownFactor, logVV);
 
                 // Make sure the next call to straightDriveRampdown does not
                 // counteract the PID. The PID method only changes motor velocity

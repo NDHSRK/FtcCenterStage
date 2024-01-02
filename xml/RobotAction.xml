@@ -12,19 +12,53 @@
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
+                        
+            <FORWARD>
+                <distance>48.0</distance>
+                <velocity>0.5</velocity>
+            </FORWARD>
+           
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <BACK>
+                <distance>48.0</distance>
+                <velocity>0.5</velocity>
+            </BACK>
+           
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <STRAFE_LEFT>
+                <distance>48.0</distance>
+                <velocity>.5</velocity>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </STRAFE_LEFT>
+           
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <STRAFE_RIGHT>
+                <distance>48.0</distance>
+                <velocity>.5</velocity>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </STRAFE_RIGHT>
 
             <!-- FORWARD>
                 <distance>29.0</distance>
                 <velocity>0.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </FORWARD -->
+            </FORWARD>
 
             <STRAIGHT_BY>
                 <distance>29.0</distance>
                 <velocity>0.5</velocity>
                 <angle>10.0</angle>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAIGHT_BY>
+            </STRAIGHT_BY -->
 
             <!-- MOVE_ELEVATOR>
                 <position>GROUND</position>
@@ -512,7 +546,7 @@
 
     <OpMode id="BLUE_A4">
         <parameters>
-            <log_level>d</log_level>
+            <log_level>vv</log_level>
         </parameters>
         <actions>
 

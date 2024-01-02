@@ -8,7 +8,10 @@ import java.util.EnumSet;
 
 public class AprilTagUtils {
 
-    private static String TAG = AprilTagUtils.class.getSimpleName();
+    private static final String TAG = AprilTagUtils.class.getSimpleName();
+
+    private static final double STRAFE_LEFT = 90.0;
+    private static final double STRAFE_RIGHT = -90.0;
 
     // For validation of the AprilTags on the BLUE side backdrop.
     private static final EnumSet<RobotConstantsCenterStage.AprilTagId> blueBackdropAprilTags =
@@ -65,6 +68,69 @@ public class AprilTagUtils {
         double distanceFive = Math.sqrt(d * d + f * f);
 
         return Pair.create(distanceFive, newAngleApril);
+    }
+
+    public static Pair<Double, Double> strafeAdjustment(int aprilTag, double distanceFromCenter, double adjustment) {
+        // for center april tags
+        // no change is needed for center april tags
+        if (aprilTag == 2 || aprilTag == 5) {
+            if (distanceFromCenter >= 0) {
+                return Pair.create(STRAFE_RIGHT, distanceFromCenter);
+            } else {
+                return Pair.create(STRAFE_LEFT, Math.abs(distanceFromCenter));
+            }
+        }
+
+        // for left april tags
+        else if (aprilTag == 1 || aprilTag == 4) {
+
+            // left of april tag
+            if (distanceFromCenter >= 0) {
+                // not far enough to the left from april tag
+                // if robot is not far enough to the left the robot has to move a small amount more left
+                if (distanceFromCenter - adjustment < 0) {
+                    return Pair.create(STRAFE_LEFT, Math.abs(distanceFromCenter - adjustment));
+                }
+
+                // too far to the left of april tag
+                // if robot too far from april tag robot has to move right to be adjustment inches from april tag
+                else {
+                    return Pair.create(STRAFE_RIGHT, Math.abs(distanceFromCenter - adjustment));
+                }
+            }
+
+            // right of april tag
+            // has to move more left to reach adjustment inches from april tag
+            else {
+                return Pair.create(STRAFE_LEFT, Math.abs(Math.abs(distanceFromCenter) + adjustment));
+            }
+        }
+
+        // for right april tags
+        else {
+
+            // left of april tag
+            // has to move more right to reach adjustment inches from april tag
+            if (distanceFromCenter >= 0) {
+                return Pair.create(STRAFE_RIGHT, Math.abs(Math.abs(distanceFromCenter) + adjustment));
+            }
+
+            // right of april tag
+            else {
+
+                // too far to the left of april tag
+                // if robot too far from april tag robot has to move right to be adjustment inches from april tag
+                if (distanceFromCenter + adjustment < 0) {
+                    return Pair.create(STRAFE_LEFT, Math.abs(distanceFromCenter + adjustment));
+                }
+
+                // not far enough to the left from april tag
+                // if robot is not far enough to the right the robot has to move a small amount more right
+                else {
+                    return Pair.create(STRAFE_RIGHT, Math.abs(distanceFromCenter + adjustment));
+                }
+            }
+        }
     }
 
 }
