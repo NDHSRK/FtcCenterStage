@@ -13,25 +13,20 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 
-public class AprilTagWebcam extends VisionPortalWebcam implements AprilTagProvider {
-    private static final String TAG = AprilTagWebcam.class.getSimpleName();
+public class AprilTagAccess implements AprilTagProvider {
+    private static final String TAG = AprilTagAccess.class.getSimpleName();
 
-    public AprilTagWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                          RobotConstantsCenterStage.ProcessorIdentifier pProcessorId,
-                          Pair<VisionProcessor, Boolean> pAssignedProcessor) {
-        super(pConfiguredWebcam, pProcessorId, pAssignedProcessor);
+    private final AprilTagProcessor aprilTagProcessor;
+
+    public AprilTagAccess(AprilTagProcessor pAprilTagProcessor) {
+        aprilTagProcessor = pAprilTagProcessor;
     }
 
     // Returns an empty List if no AprilTag detections are available.
     public List<AprilTagDetection> getAprilTagData(int pTimeoutMs) {
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
-            throw new AutonomousRobotException(TAG, "APRIL_TAG is not the active processor");
-
-        AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) activeProcessor;
         List<AprilTagDetection> currentDetections = null;
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start

@@ -12,24 +12,18 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.Objects;
 
-public class RawFrameWebcam extends VisionPortalWebcam implements ImageProvider {
-    private static final String TAG = RawFrameWebcam.class.getSimpleName();
+public class RawFrameAccess implements ImageProvider {
+    private static final String TAG = RawFrameAccess.class.getSimpleName();
 
-    public RawFrameWebcam(VisionPortalWebcamConfiguration.ConfiguredWebcam pConfiguredWebcam,
-                          RobotConstantsCenterStage.ProcessorIdentifier pProcessorId,
-                          Pair<VisionProcessor, Boolean> pAssignedProcessor) {
-        super(pConfiguredWebcam, pProcessorId, pAssignedProcessor);
+    private final RawFrameProcessor rawFrameProcessor;
+
+    public RawFrameAccess(RawFrameProcessor pRawFrameProcessor) {
+        rawFrameProcessor = pRawFrameProcessor;
     }
 
     public Pair<Mat, Date> getImage() {
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME)
-            throw new AutonomousRobotException(TAG, "RAW_FRAME is not the active processor");
-
-        RawFrameProcessor rawFrameProcessor = (RawFrameProcessor) activeProcessor;
-
         Pair<Mat, Date> frameVal = null;
         ElapsedTime dataAcquiredTimer = new ElapsedTime();
         dataAcquiredTimer.reset(); // start

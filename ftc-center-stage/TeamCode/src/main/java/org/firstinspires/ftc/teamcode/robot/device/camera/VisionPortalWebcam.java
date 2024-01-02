@@ -94,7 +94,7 @@ public class VisionPortalWebcam {
             }
             else {
                 visionPortal.setProcessorEnabled(v.first, false);
-                RobotLogCommon.d(TAG, "Processor disabled on start " + v.first);
+                RobotLogCommon.d(TAG, "Processor disabled on start " + k);
             }
         });
 
@@ -102,7 +102,7 @@ public class VisionPortalWebcam {
     }
 
     // Wait here with timeout until VisionPortal.CameraState.STREAMING but
-    // STARTING_STREAM also seems to be good enough.
+    //**TODO Why? STARTING_STREAM also seems to be good enough.
     public boolean waitForWebcamStart(int pTimeoutMs) {
         RobotLogCommon.d(TAG, "Waiting for webcam " + configuredWebcam.internalWebcamId + " to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
@@ -123,8 +123,8 @@ public class VisionPortalWebcam {
         return true;
     }
 
-    public RobotConstantsCenterStage.InternalWebcamId getInternalWebcamId() {
-        return configuredWebcam.internalWebcamId;
+    public Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> getActiveProcessor() {
+        return Pair.create(activeProcessorId, activeProcessor);
     }
 
     // Adapted from the FTC SDK 9.0 sample RobotAutoDriveToAprilTagOmni.

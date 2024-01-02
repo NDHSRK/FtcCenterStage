@@ -40,9 +40,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
-import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
-import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagWebcam;
+import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagAccess;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.math.BigDecimal;
@@ -71,24 +70,18 @@ public class AprilTagNavigation {
     final double MAX_AUTO_STRAFE = 0.5; // Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN = 0.3; // Clip the turn speed to this max value (adjust for your robot)
 
-    private final RobotConstants.Alliance alliance;
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
-    private final AprilTagWebcam webcam;
+    private final AprilTagAccess aprilTagAccess;
 
     private final EnumMap<FTCRobot.MotorId, Double> powerMap = new EnumMap<>(FTCRobot.MotorId.class);
 
     public AprilTagNavigation(RobotConstants.Alliance pAlliance, LinearOpMode pLinearOpMode, FTCRobot pRobot,
-                              AprilTagWebcam pWebcam) {
-        alliance = pAlliance;
+                              AprilTagAccess pAprilTagAccess) {
         linearOpMode = pLinearOpMode;
         robot = pRobot; // robot hardware
-        webcam = pWebcam;
+        aprilTagAccess = pAprilTagAccess;
    }
-
-    public RobotConstantsCenterStage.InternalWebcamId getInternalWebcamId() {
-        return webcam.getInternalWebcamId();
-    }
 
     @SuppressLint("DefaultLocale")
     public boolean navigateToAprilTag(int pDesiredTagId, double pDesiredDistanceFromTag, DriveTrainConstants.Direction pDirection) {
@@ -119,7 +112,7 @@ public class AprilTagNavigation {
         while (linearOpMode.opModeIsActive()) {
             // Step through the list of detected tags and look for a matching tag.
             desiredTag = null;
-            currentDetections = webcam.getAprilTagData(1000);
+            currentDetections = aprilTagAccess.getAprilTagData(1000);
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.metadata != null && detection.id == pDesiredTagId) {
                     desiredTag = detection;
