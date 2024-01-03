@@ -295,6 +295,7 @@ public class FTCAuto {
                 }
             }
         } finally {
+            // The finally
             if (!linearOpMode.opModeIsActive()) {
                 RobotLog.d(TAG, "FTCAuto OpMode not active in finally block");
                 RobotLogCommon.i(TAG, "FTCAuto OpMode not active in finally block");
@@ -888,27 +889,34 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + backdropParameters.strafeAdjustmentPercent + " for a distance to strafe of " + distanceToStrafe);
                     }
 
+                    // Set the direction to strafe. A positive angle indicates that the
+                    // tag is to the left of the center of the robot (clockwise). Take
+                    // into account the robot's direction of travel.
+                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
+                    double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
+
                     // Call a method that adjusts the distance of the strafe depending
                     // on the AprilTag. The "first" member of the returned Pair is the strafe
                     // angle (90.0 degrees or -90.0 degrees) from the point of view of an
                     // observer facing the robot from the center. The "second" member of the
                     // Pair is the positive distance to strafe.
-                    RobotLogCommon.d(TAG, "Adding outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
-                    Pair<Double, Double> adjustment =
-                        AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe, backdropParameters.outsideStrafeAdjustment);
+                    if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
+                            pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
+                        RobotLogCommon.d(TAG, "Adding outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
+                        Pair<Double, Double> adjustment =
+                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe, backdropParameters.outsideStrafeAdjustment);
 
-                    // Change the direction of the strafe depending on the location of the
-                    // camera on the robot.
-                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
-                    double strafeDirection = adjustment.first * directionFactor;
-                    distanceToStrafe = adjustment.second;
-                    RobotLogCommon.d(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
+                        // Change the direction of the strafe depending on the location of the
+                        // camera on the robot.
+                        strafeDirection = adjustment.first * directionFactor;
+                        distanceToStrafe = adjustment.second;
+                    }
 
                     // Check for a minimum distance to strafe.
                     if (distanceToStrafe >= 1.0) {
                         int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
                         driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
-                        RobotLogCommon.d(TAG, "Strafe towards the AprilTag " + distanceToStrafe + " inches at " + strafeDirection + " degrees");
+                        RobotLogCommon.d(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
                     }
 
                     // Calculate the distance to move towards the backstop based on our triangle.

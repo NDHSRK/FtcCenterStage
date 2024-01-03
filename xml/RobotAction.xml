@@ -5,15 +5,24 @@
          or TestBLUE (to run the TEST OpMode under the blue alliance -->
     <OpMode id="TEST">
         <parameters>
-            <log_level>d</log_level>
+            <log_level>vv</log_level>
         </parameters>
         <actions>
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
+
+            
+            <MOVE_ELEVATOR>
+                <position>AUTONOMOUS</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>30000</ms>
+            </SLEEP>           
                         
-            <FORWARD>
+            <!-- FORWARD>
                 <distance>48.0</distance>
                 <velocity>0.5</velocity>
             </FORWARD>
@@ -45,7 +54,7 @@
                 <distance>48.0</distance>
                 <velocity>.5</velocity>
                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-            </STRAFE_RIGHT>
+            </STRAFE_RIGHT -->
 
             <!-- FORWARD>
                 <distance>29.0</distance>

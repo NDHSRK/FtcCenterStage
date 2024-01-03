@@ -33,6 +33,8 @@ public class IntakeArmServoCalibration extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        //**TODO need button for actual intake
+
         //** Hardcode tandem servo to be tested here.
         leftServo = hardwareMap.tryGet(Servo.class, "intake_arm_left");
         rightServo = hardwareMap.tryGet(Servo.class, "intake_arm_right");
