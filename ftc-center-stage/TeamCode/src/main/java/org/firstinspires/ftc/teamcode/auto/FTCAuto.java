@@ -82,17 +82,17 @@ public class FTCAuto {
     private final int autoStartDelay;
     private final EnumMap<RobotConstantsCenterStage.OpMode, RobotConstantsCenterStage.AutoEndingPosition> autoEndingPositions;
     private final RobotActionXMLCenterStage actionXML;
+
+    private final DriveTrainMotion driveTrainMotion;
     private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private final SpikeWindowMappingXML spikeWindowMappingXML;
     private SpikeWindowMapping currentSpikeWindowData;
-
+    private final BackdropParameters backdropParameters;
     private final EnumSet<RobotConstantsCenterStage.InternalWebcamId> openWebcams = EnumSet.noneOf(RobotConstantsCenterStage.InternalWebcamId.class);
-    private double desiredHeading = 0.0; // always normalized
-    private final DriveTrainMotion driveTrainMotion;
-    private CompletableFuture<Void> asyncStraight;
-    private CompletableFuture<Double> asyncTurn;
 
+    private double desiredHeading = 0.0; // always normalized
     private boolean keepCamerasRunning = false;
+    public static AutonomousTimer autonomousTimer; // grant visibility to all of Autonomous
 
     // Image recognition.
     private final TeamPropParameters teamPropParameters;
@@ -101,7 +101,8 @@ public class FTCAuto {
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
 
-    private final BackdropParameters backdropParameters;
+    private CompletableFuture<Void> asyncStraight;
+    private CompletableFuture<Double> asyncTurn;
 
     private CompletableFuture<Void> asyncMoveElevator;
     private Elevator.ElevatorLevel currentElevatorLevel = Elevator.ElevatorLevel.GROUND;
@@ -221,11 +222,17 @@ public class FTCAuto {
             // 12/28/2022 From the FTC SDK documentation: "whether the OpMode is
             // currently active. If this returns false, you should break out of
             // the loop in your runOpMode() method and return to its caller.
+            //**TODO 1/3/2024 Not clear that this condition has ever occurred.
+            // But leave the check here and watch the logs.
             if (!linearOpMode.opModeIsActive()) {
                 //## Do *not* do this throw new AutonomousRobotException(TAG, "OpMode unexpectedly inactive in runRobot()");
-                RobotLogCommon.e(TAG, "OpMode unexpectedly inactive in runRobot()");
+                RobotLog.dd(TAG, "OpMode unexpectedly inactive at the start of runRobot()");
+                RobotLogCommon.e(TAG, "OpMode unexpectedly inactive at the start of runRobot()");
                 return;
             }
+
+            // Start the Autonomous period expiration timer.
+            autonomousTimer = new AutonomousTimer(linearOpMode);
 
             RobotLogCommon.i(TAG, "FTCAuto runRobot()");
             robot.imuDirect.resetIMUYaw();
@@ -267,8 +274,18 @@ public class FTCAuto {
             // all processing immediately.
             List<RobotXMLElement> actions = actionData.actions;
             for (RobotXMLElement action : actions) {
-                if (!linearOpMode.opModeIsActive())
-                    return; // better to just bail out
+                if (!linearOpMode.opModeIsActive()) {
+                    RobotLog.dd(TAG, "OpMode went inactive in the main Autonomous loop");
+                    RobotLogCommon.d(TAG, "OpMode went inactive in the main Autonomous loop");
+                    break;
+                }
+
+                // If we're running Autonomous check the timer.
+                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                    RobotLog.dd(TAG, "Autonomous panic stop triggered during the main Autonomous loop");
+                    RobotLogCommon.d(TAG, "Autonomous panic stop triggered during the main Autonomous loop");
+                    break;
+                }
 
                 if (!executeTeamPropLocationActions) { // execute steps specific to team prop locations now?
                     // No, but executeAction may change that.
@@ -285,8 +302,18 @@ public class FTCAuto {
                         if (insertedStep.getRobotXMLElementName().equals("TEAM_PROP_LOCATION_CHOICE"))
                             throw new AutonomousRobotException(TAG, "Nesting of TEAM_PROP_LOCATION_CHOICE is not allowed");
 
-                        if (!linearOpMode.opModeIsActive())
-                            return; // better to just bail out
+                        if (!linearOpMode.opModeIsActive()) {
+                            RobotLog.dd(TAG, "OpMode went inactive in the Team Prop sub-loop");
+                            RobotLogCommon.d(TAG, "OpMode went inactive in the Team Prop sub-loop");
+                            break;
+                        }
+
+                        // If we're running Autonomous check the timer.
+                        if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                            RobotLog.dd(TAG, "Autonomous panic stop triggered during the Team Prop sub-loop");
+                            RobotLogCommon.d(TAG, "Autonomous panic stop triggered during the Team Prop sub-loop");
+                            break;
+                        }
 
                         if (!executeAction(insertedStep, pOpMode))
                             return;
@@ -295,14 +322,18 @@ public class FTCAuto {
                 }
             }
         } finally {
-            // The finally
+            //**TODO 1/3/2024 Experiments (such as letting Autonomous time out)
+            // have shown that our finally() block is not executed when the
+            // OpMode goes inactive. But leave this check here and watch the logs.
             if (!linearOpMode.opModeIsActive()) {
-                RobotLog.d(TAG, "FTCAuto OpMode not active in finally block");
+                RobotLog.dd(TAG, "FTCAuto OpMode not active in finally block");
                 RobotLogCommon.i(TAG, "FTCAuto OpMode not active in finally block");
             } else {
+                RobotLog.dd(TAG, "In FTCAuto finally block");
                 RobotLogCommon.i(TAG, "In FTCAuto finally block");
 
                 failsafeElevator(); // bring the elevator to GROUND
+                autonomousTimer.stopAutonomousTimer();
 
            /*
             if (!keepCamerasRunning) {
@@ -772,7 +803,8 @@ public class FTCAuto {
                 aprilTagTimer.reset();
                 List<AprilTagDetection> currentDetections;
                 boolean aprilTagDetected;
-                while (linearOpMode.opModeIsActive() && aprilTagTimer.time() < 10000) {
+                while (linearOpMode.opModeIsActive() && !autonomousTimer.autoTimerIsExpired() &&
+                        aprilTagTimer.time() < 10000) {
                     aprilTagDetected = false;
                     currentDetections = AprilTagAccess.getAprilTagData(aprilTagProcessor, 500);
                     for (AprilTagDetection detection : currentDetections) {
@@ -1142,7 +1174,8 @@ public class FTCAuto {
                 //sleepInLoop(1000);
                 imuTimer.reset();
 
-                while (linearOpMode.opModeIsActive() && imuTimer.time() < 10000) {
+                while (linearOpMode.opModeIsActive() && !autonomousTimer.autoTimerIsExpired() &&
+                        imuTimer.time() < 10000) {
                     heading = robot.imuDirect.getIMUHeading();
                     pitch = robot.imuDirect.getIMUPitch();
                     roll = robot.imuDirect.getIMURoll();
@@ -1179,12 +1212,13 @@ public class FTCAuto {
         int numSleeps = pMilliseconds / 100;
         int sleepRemainder = pMilliseconds % 100;
         for (int i = 0; i < numSleeps; i++) {
-            if (!linearOpMode.opModeIsActive())
+            if (!linearOpMode.opModeIsActive() || autonomousTimer.autoTimerIsExpired())
                 return;
             linearOpMode.sleep(100);
         }
 
-        if (linearOpMode.opModeIsActive() && sleepRemainder != 0)
+        if (linearOpMode.opModeIsActive() && !autonomousTimer.autoTimerIsExpired()
+                && sleepRemainder != 0)
             linearOpMode.sleep(sleepRemainder);
     }
 

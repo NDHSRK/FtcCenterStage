@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.auto.FTCAuto;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.motor.MotionUtils;
@@ -140,10 +141,18 @@ public class DriveTrainMotion {
             double rampDownFactor = 1.0; // start with no ramp-down
             while (true) {
                 if (!linearOpMode.opModeIsActive()) {
-                    RobotLogCommon.d(TAG, "OpMode went inactive during straight line run");
+                   RobotLog.dd(TAG, "OpMode went inactive during a straight line run");
+                    RobotLogCommon.d(TAG, "OpMode went inactive during a straight line run");
                     break;
                 }
 
+                // If we're running Autonomous check the timer.
+                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                   RobotLog.dd(TAG, "Autonomous panic stop triggered during a straight line run");
+                    RobotLogCommon.d(TAG, "Autonomous panic stop triggered during a straight line run");
+                    break;
+                }
+                
                 if (pCutShort.get()) {
                     RobotLogCommon.d(TAG, "Stop straight run at request of caller");
                     break;
@@ -271,7 +280,14 @@ public class DriveTrainMotion {
             boolean turnComplete = false;
             while (!turnComplete) {
                 if (!linearOpMode.opModeIsActive()) {
-                    RobotLogCommon.d(TAG, "OpMode went inactive during turn");
+                   RobotLog.dd(TAG, "OpMode went inactive during a turn");
+                    break;
+                }
+
+                // If we're running Autonomous check the timer.
+                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                   RobotLog.dd(TAG, "Autonomous panic stop triggered during a turn");
+                    RobotLogCommon.d(TAG, "Autonomous panic stop triggered during a turn");
                     break;
                 }
 

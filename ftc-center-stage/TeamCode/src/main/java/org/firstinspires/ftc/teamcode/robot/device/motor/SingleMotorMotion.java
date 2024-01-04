@@ -6,8 +6,10 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.auto.FTCAuto;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 
 // Move a single motor.
@@ -67,11 +69,17 @@ public class SingleMotorMotion {
         try {
             while (singleMotor.isBusy()) {
                 if (!linearOpMode.opModeIsActive()) {
-                    RobotLogCommon.d(TAG, "OpMode went inactive during " + motorId + " movement");
+                   RobotLog.dd(TAG, "OpMode went inactive during movement of single motor " + motorId);
+                    RobotLogCommon.d(TAG, "OpMode went inactive during movement of single motor " + motorId);
                     break;
                 }
 
-                //RobotLogCommon.v(TAG, motorId + "  encoder " + singleMotor.getCurrentPosition());
+                // If we're running Autonomous check the timer.
+                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                   RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
+                    RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
+                    break;
+                }
 
                 sleep(10);
             } // while

@@ -6,9 +6,11 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.auto.FTCAuto;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 
 // Move two motors in tandem.
@@ -65,9 +67,18 @@ public class DualMotorMotion {
         try {
             while (dualMotors.dualMotorsAreBusy()) {
                 if (!linearOpMode.opModeIsActive()) {
+                   RobotLog.dd(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     RobotLogCommon.d(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     break;
                 }
+                
+                // If we're running Autonomous check the timer.
+                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                   RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
+                    RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
+                    break;
+                }
+                
                 sleep(10);
             }
         } finally {
