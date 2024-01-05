@@ -1,20 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.SortedSet;
 
 // Inherit from TeleOpBase because we need FTCRobot to
 // set up several devices.
@@ -24,12 +16,13 @@ public class IntakeArmServoCalibration extends TeleOpBase {
 
     private static final String TAG = ServoCalibration.class.getSimpleName();
     private static final double NEUTRAL_SERVO_POSITION = 0.5;
-    private static double SERVO_POSITION_CHANGE = 0.02;
+    private static final double SERVO_POSITION_CHANGE = 0.02;
 
     private FTCButton intake;
     private boolean intakeInProgress = false;
     private FTCButton servoIncrementButton;
     private FTCButton servoDecrementButton;
+    private FTCButton moveToPosition;
     private double leftServoPosition = NEUTRAL_SERVO_POSITION;
     private double rightServoPosition = NEUTRAL_SERVO_POSITION;
     private PixelStopperServo.PixelServoState pixelServoState;
@@ -43,6 +36,7 @@ public class IntakeArmServoCalibration extends TeleOpBase {
     public void initialize() {
         servoIncrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         servoDecrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        moveToPosition = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
         intake = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
         telemetry.setAutoClear(true);
@@ -55,9 +49,6 @@ public class IntakeArmServoCalibration extends TeleOpBase {
 
     @Override
     public void run() {
-        // The intake arm must be down before TeleOp can start.
-        if (robot.intakeArmServo != null) // will only be null in testing
-            robot.intakeArmServo.down(); // needed only once
 
         // Set the initial state of the pixel stopper to HOLD
         // so that pixels can be taken in from the front.
@@ -76,6 +67,7 @@ public class IntakeArmServoCalibration extends TeleOpBase {
             updateIncrement();
             updateDecrement();
             updateIntake();
+            updateMoveToPosition();
         }
     }
 
@@ -83,6 +75,7 @@ public class IntakeArmServoCalibration extends TeleOpBase {
         servoIncrementButton.update();
         servoDecrementButton.update();
         intake.update();
+        moveToPosition.update();
     }
 
     private void updateIncrement() {
@@ -129,6 +122,13 @@ public class IntakeArmServoCalibration extends TeleOpBase {
                 intakeInProgress = false;
                 robot.intakeMotor.runAtVelocity(0.0);
             }
+        }
+    }
+
+    private void updateMoveToPosition() {
+        if (moveToPosition.is(FTCButton.State.TAP)) {
+            robot.intakeArmServo.stack();
+            sleep(1000);
         }
     }
 

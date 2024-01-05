@@ -18,7 +18,7 @@ public class AutonomousTimer {
 
     private static final String TAG = AutonomousTimer.class.getSimpleName();
 
-    private static double SAFE_SHUTDOWN_LIMIT = 27.0; // seconds
+    private static double SAFE_SHUTDOWN_LIMIT = 26.0; // seconds
 
     private final LinearOpMode linearOpMode;
     private boolean isRunning = true;
@@ -45,6 +45,8 @@ public class AutonomousTimer {
 
     // To be called from the finally block of FTCAuto.
     public void stopAutonomousTimer() throws IOException, InterruptedException, TimeoutException {
+        panicStop.set(false);
+
         if (!isRunning) // already stopped?
             return;
 

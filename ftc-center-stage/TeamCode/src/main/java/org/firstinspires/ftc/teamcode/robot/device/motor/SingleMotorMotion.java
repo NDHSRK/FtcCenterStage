@@ -75,7 +75,7 @@ public class SingleMotorMotion {
                 }
 
                 // If we're running Autonomous check the timer.
-                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                if (FTCAuto.autonomousTimer != null && FTCAuto.autonomousTimer.autoTimerIsExpired()) {
                    RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
                     break;

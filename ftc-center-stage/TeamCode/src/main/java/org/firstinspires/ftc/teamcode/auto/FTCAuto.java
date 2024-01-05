@@ -233,6 +233,7 @@ public class FTCAuto {
             }
 
             // Start the Autonomous period expiration timer.
+            linearOpMode.resetRuntime();
             autonomousTimer = new AutonomousTimer(linearOpMode);
 
             RobotLogCommon.i(TAG, "FTCAuto runRobot()");
@@ -333,8 +334,8 @@ public class FTCAuto {
                 RobotLog.dd(TAG, "In FTCAuto finally block");
                 RobotLogCommon.i(TAG, "In FTCAuto finally block");
 
-                failsafeElevator(); // bring the elevator to GROUND
                 autonomousTimer.stopAutonomousTimer();
+                failsafeElevator(); // bring the elevator to GROUND
 
            /*
             if (!keepCamerasRunning) {

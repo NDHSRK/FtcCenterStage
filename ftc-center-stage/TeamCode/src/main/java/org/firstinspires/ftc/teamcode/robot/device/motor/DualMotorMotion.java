@@ -73,7 +73,7 @@ public class DualMotorMotion {
                 }
                 
                 // If we're running Autonomous check the timer.
-                if (FTCAuto.autonomousTimer.autoTimerIsExpired()) {
+                if (FTCAuto.autonomousTimer != null && FTCAuto.autonomousTimer.autoTimerIsExpired()) {
                    RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     break;

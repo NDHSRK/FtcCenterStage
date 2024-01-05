@@ -89,6 +89,7 @@
         <positions>
             <up>0.27</up>
             <down>0.27</down>
+            <stack>.16</stack>
         </positions>
     </INTAKE_ARM>
 

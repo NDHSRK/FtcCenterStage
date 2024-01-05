@@ -316,11 +316,13 @@
                     <BACK>
                         <distance>80.0</distance>
                         <velocity>.75</velocity>
+                        <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>40.0</distance>
+                        <distance>37.0</distance>
                         <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
 
                     <DESKEW />
@@ -356,6 +358,7 @@
                             <STRAFE_LEFT>
                                 <distance>40.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
                         </RIGHT>
                     </AUTO_ENDING_POSITION>
@@ -382,7 +385,6 @@
                     </MOVE_ELEVATOR>
 
                     <FORWARD>
-
                         <distance>22.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
@@ -402,11 +404,13 @@
                     <BACK>
                         <distance>80.0</distance>
                         <velocity>.75</velocity>
+                        <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>28.0</distance>
+                        <distance>25.0</distance>
                         <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
 
                     <DESKEW />
@@ -470,6 +474,7 @@
                     <FORWARD>
                         <distance>34.0</distance>
                         <velocity>.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
 
                     <MOVE_ELEVATOR>
@@ -487,11 +492,13 @@
                     <BACK>
                         <distance>80.0</distance>
                         <velocity>.75</velocity>
+                        <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>22.0</distance>
+                        <distance>19.0</distance>
                         <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
 
                     <DESKEW />
@@ -521,6 +528,7 @@
                             <STRAFE_RIGHT>
                                 <distance>38.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
@@ -645,7 +653,7 @@
                     </BACK>
                     
                     <STRAFE_LEFT>
-                        <distance>5.0</distance>
+                        <distance>8.0</distance>
                         <velocity>.5</velocity>
                     </STRAFE_LEFT>
 
@@ -680,6 +688,7 @@
                             <STRAFE_LEFT>
                                 <distance>40.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
                         </RIGHT>
                     </AUTO_ENDING_POSITION>
@@ -825,6 +834,7 @@
                             <STRAFE_RIGHT>
                                 <distance>38.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
@@ -927,6 +937,7 @@
                     <FORWARD>
                         <distance>34.0</distance>
                         <velocity>.5</velocity>
+                        <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
                     </FORWARD>
 
                     <MOVE_ELEVATOR>
@@ -944,11 +955,13 @@
                     <BACK>
                         <distance>80.0</distance>
                         <velocity>.75</velocity>
+                        <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
                     <STRAFE_LEFT>
-                        <distance>22.0</distance>
+                        <distance>25.0</distance>
                         <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
 
                     <DESKEW />
@@ -984,6 +997,7 @@
                             <STRAFE_LEFT>
                                 <distance>38.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
                         </RIGHT>
                     </AUTO_ENDING_POSITION>
@@ -1012,6 +1026,7 @@
                     <FORWARD>
                         <distance>22.0</distance>
                         <velocity>.5</velocity>
+                        <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
                     </FORWARD>
 
                     <MOVE_ELEVATOR>
@@ -1029,11 +1044,13 @@
                     <BACK>
                         <distance>80.0</distance>
                         <velocity>.75</velocity>
+                        <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
                     <STRAFE_LEFT>
-                        <distance>28.0</distance>
+                        <distance>31.0</distance>
                         <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
 
                     <DESKEW />
@@ -1139,11 +1156,13 @@
                     <BACK>
                         <distance>80.0</distance>
                         <velocity>.75</velocity>
+                        <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
                     <STRAFE_LEFT>
-                        <distance>40.0</distance>
+                        <distance>43.0</distance>
                         <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
 
                     <DESKEW />
@@ -1173,6 +1192,7 @@
                             <STRAFE_RIGHT>
                                 <distance>40.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
@@ -1326,6 +1346,7 @@
                             <STRAFE_LEFT>
                                 <distance>38.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
                         </RIGHT>
                     </AUTO_ENDING_POSITION>
@@ -1446,7 +1467,7 @@
                     </BACK>
                     
                     <STRAFE_RIGHT>
-                        <distance>5.0</distance>
+                        <distance>8.0</distance>
                         <velocity>.5</velocity>
                     </STRAFE_RIGHT>
 
@@ -1477,6 +1498,7 @@
                             <STRAFE_RIGHT>
                                 <distance>40.0</distance>
                                 <velocity>0.5</velocity>
+                                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>

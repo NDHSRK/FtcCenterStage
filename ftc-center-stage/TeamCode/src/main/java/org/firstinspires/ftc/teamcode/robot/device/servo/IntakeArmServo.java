@@ -9,7 +9,7 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import javax.xml.xpath.XPathExpressionException;
 
 public class IntakeArmServo {
-    public enum IntakeArmState {UP, DOWN}
+    public enum IntakeArmState {UP, DOWN, STACK}
 
     // Allow public access for testing.
     public final Servo leftServo;
@@ -17,6 +17,7 @@ public class IntakeArmServo {
 
     private final double set_up;
     private final double set_down;
+    private final double set_stack;
 
     private IntakeArmState intakeArmState;
 
@@ -33,13 +34,15 @@ public class IntakeArmServo {
         // Get the servo positions
         /*
         <positions>
-            <up>0.3</up>
-            <down>0.2</down>
+            <up></up>
+            <down></down>
+            <stack></stack>
         </positions>
          */
 
         set_up = pConfigXPath.getRequiredDouble("positions/up");
         set_down = pConfigXPath.getRequiredDouble("positions/down");
+        set_stack = pConfigXPath.getRequiredDouble("positions/stack");
 
         // Always start with the intake arm in the up position.
         up();
@@ -55,6 +58,12 @@ public class IntakeArmServo {
         leftServo.setPosition(0.5 - set_down);
         rightServo.setPosition(0.5 + set_down);
         intakeArmState = IntakeArmState.DOWN;
+    }
+
+    public void stack() {
+        leftServo.setPosition(0.5 - set_stack);
+        rightServo.setPosition(0.5 + set_stack);
+        intakeArmState = IntakeArmState.STACK;
     }
 
     public IntakeArmState getIntakeArmState() {
