@@ -64,7 +64,9 @@ public class AutonomousTimer {
 
     // Gets the amount of time used in the Autonomous period
     // and posts a panic stop if the time used exceeds our
-    // safe shutdown limit.
+    // safe shutdown limit. Used to ensure that there's enough
+    // time to lower the elevator in the event that the Autonomous
+    // period is close to expiring.
     private class AutoTimerCallable extends AutoWorker<Void> {
         AutoTimerCallable() {
             super();
@@ -77,6 +79,8 @@ public class AutonomousTimer {
                     panicStop.set(true);
                     break;
                 }
+
+                linearOpMode.sleep(25);
             }
 
             return null;

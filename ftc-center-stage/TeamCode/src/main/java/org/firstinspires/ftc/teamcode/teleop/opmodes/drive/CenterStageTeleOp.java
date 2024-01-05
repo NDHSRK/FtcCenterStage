@@ -145,8 +145,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 return;
             }
 
-            // The intake arm must be down before the TeleOp
-            // can start.
+            // The intake arm must be down before TeleOp can start.
             if (robot.intakeArmServo != null) // will only be null in testing
                 robot.intakeArmServo.down(); // needed only once
 
