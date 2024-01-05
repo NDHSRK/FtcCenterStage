@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
+import org.firstinspires.ftc.teamcode.common.AngleDistance;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
@@ -869,10 +870,10 @@ public class FTCAuto {
                 if (detectionData.aprilTagId != targetTagId) {
                     RobotLogCommon.d(TAG, "Did not detect the target AprilTag " + targetTagId);
                     RobotLogCommon.d(TAG, "Inferring its position from tag " + detectionData.aprilTagId);
-                    Pair<Double, Double> inferredPosition = AprilTagUtils.inferAprilTag(targetTagId, detectionData.aprilTagId,
+                    AngleDistance inferredPosition = AprilTagUtils.inferAprilTag(targetTagId, detectionData.aprilTagId,
                             detectionData.ftcDetectionData.ftcPose.range, detectionData.ftcDetectionData.ftcPose.bearing);
-                    aprilTagDistance = inferredPosition.first;
-                    aprilTagAngle = inferredPosition.second;
+                    aprilTagAngle = inferredPosition.angle;
+                    aprilTagDistance = inferredPosition.distance;
                     RobotLogCommon.d(TAG, "Inferred distance " + aprilTagDistance + ", angle " + aprilTagAngle);
                 } else {
                     aprilTagDistance = detectionData.ftcDetectionData.ftcPose.range;
@@ -935,13 +936,13 @@ public class FTCAuto {
                     if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
                             pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
                         RobotLogCommon.d(TAG, "Adding outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
-                        Pair<Double, Double> adjustment =
+                        AngleDistance adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe, backdropParameters.outsideStrafeAdjustment);
 
                         // Change the direction of the strafe depending on the location of the
                         // camera on the robot.
-                        strafeDirection = adjustment.first * directionFactor;
-                        distanceToStrafe = adjustment.second;
+                        strafeDirection = adjustment.angle * directionFactor;
+                        distanceToStrafe = adjustment.distance;
                     }
 
                     // Check for a minimum distance to strafe.
