@@ -223,7 +223,7 @@ public class FTCAuto {
             // 12/28/2022 From the FTC SDK documentation: "whether the OpMode is
             // currently active. If this returns false, you should break out of
             // the loop in your runOpMode() method and return to its caller.
-            //**TODO 1/3/2024 Not clear that this condition has ever occurred.
+            //&& 1/3/2024 Not clear that this condition has ever occurred.
             // But leave the check here and watch the logs.
             if (!linearOpMode.opModeIsActive()) {
                 //## Do *not* do this throw new AutonomousRobotException(TAG, "OpMode unexpectedly inactive in runRobot()");
@@ -324,7 +324,7 @@ public class FTCAuto {
                 }
             }
         } finally {
-            //**TODO 1/3/2024 Experiments (such as letting Autonomous time out)
+            //&& 1/3/2024 Experiments (such as letting Autonomous time out)
             // have shown that our finally() block is not executed when the
             // OpMode goes inactive. But leave this check here and watch the logs.
             if (!linearOpMode.opModeIsActive()) {

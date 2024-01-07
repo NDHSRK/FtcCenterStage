@@ -112,7 +112,7 @@ public class MotionUtils {
                 continue;
             }
 
-            //**TODO For all other angles the PID corrections are tricky.
+            //&& For all other angles the PID corrections are tricky.
             // So at this point just return the ramped-down velocity.
             updateVelocity(motorId, motorData, pRampDownFactor, 0, newVelocityMap);
         }
