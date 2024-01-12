@@ -467,6 +467,8 @@
 
                     <DELIVER_PIXEL_TO_SPIKE />
 
+                    <!--for new route comment code below until comment-->
+
                     <MOVE_ELEVATOR>
                         <position>PIXEL_CLEARANCE</position>
                     </MOVE_ELEVATOR>
@@ -488,6 +490,52 @@
                     </TURN>
 
                     <DESKEW />
+
+                    <!--comment all above until comment-->
+
+                    <!--new route with white pixel from stack-->
+                    <!--BACK>
+                        <distance>5.0</distance>
+                        <velocity>.75</velocity>
+                    </BACK>
+                     
+                    <TURN>
+                        <angle>-90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN>
+
+                    <AprilTag recognition for stack of pixels and grab 1 white pixel>
+
+                    <BACK>
+                        <distance>3.0</distance>
+                        <velocity>.75</velocity>
+                    </BACK>
+
+                    <STRAFE_LEFT>
+                        <distance>25.0</distance>
+                        <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
+                    </STRAFE_LEFT-->
+
+                    <!--end of new route with white pixel from stack-->
+
+                    <!--new route no white pixel (can be adapted to grab white pixel from stack without AprilTag-->
+
+                    <!--STRAIGHT_BY>
+                        <distance>30.0</distance>
+                        <velocity>0.75</velocity>
+                        <angle>33.0</angle>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAIGHT_BY>
+
+                    <TURN>
+                        <angle>-90.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
+                    </TURN-->
+
+                    <!--end of new route without white pixel-->
 
                     <BACK>
                         <distance>80.0</distance>
