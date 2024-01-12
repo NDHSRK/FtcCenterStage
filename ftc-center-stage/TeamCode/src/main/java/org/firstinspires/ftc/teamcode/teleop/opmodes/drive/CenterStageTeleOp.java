@@ -431,23 +431,22 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                 outtakeInProgress = false;
 
                 robot.intakeMotor.runAtVelocity(0.0);
-
-                // Get ready for the next intake.
-                robot.pixelStopperServo.hold();
-                linearOpMode.sleep(500); // give the servo time to actuate
-                pixelServoState = PixelStopperServo.PixelServoState.HOLD;
             }
         }
     }
 
     private void updateDeliveryLevel1() {
         if (deliveryLevel1.is(FTCButton.State.TAP)) {
+            robot.pixelStopperServo.release();
+            pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
             move_elevator_to_selected_level(Elevator.ElevatorLevel.LEVEL_1);
         }
     }
 
     private void updateDeliveryLevel2() {
         if (deliveryLevel2.is(FTCButton.State.TAP)) {
+            robot.pixelStopperServo.release();
+            pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
             move_elevator_to_selected_level(Elevator.ElevatorLevel.LEVEL_2);
         }
     }
@@ -472,6 +471,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
+            robot.pixelStopperServo.hold();
+            pixelServoState = PixelStopperServo.PixelServoState.HOLD;
             move_elevator_to_selected_level(Elevator.ElevatorLevel.SAFE);
         }
     }
