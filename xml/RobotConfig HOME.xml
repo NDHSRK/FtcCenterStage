@@ -32,7 +32,6 @@
   <!-- Sensors -->
   <!-- None defined -->
 
-  <!-- There is a maximum of two webcams in a set. -->
   <VISION_PORTAL_WEBCAM configured="yes">
     <webcam_set>
       <webcam>

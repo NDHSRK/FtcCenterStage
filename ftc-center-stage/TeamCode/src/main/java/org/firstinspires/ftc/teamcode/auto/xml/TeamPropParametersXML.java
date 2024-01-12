@@ -38,6 +38,8 @@ public class TeamPropParametersXML {
     public TeamPropParametersXML(String pXMLDir) {
         Node team_prop_parameters_node;
         try {
+            RobotLogCommon.c(TAG, "Parsing TeamPropParameters.xml");
+
             xmlDirectory = pXMLDir;
             xmlFilePath = pXMLDir + TEAM_PROP_FILE_NAME;
 
@@ -54,8 +56,6 @@ public class TeamPropParametersXML {
             XPath xpath = xpathFactory.newXPath();
 
             // Point to the first node.
-            RobotLogCommon.c(TAG, "Parsing XML team_prop_parameters");
-
             XPathExpression expr = xpath.compile("//team_prop_parameters");
             team_prop_parameters_node = (Node) expr.evaluate(document, XPathConstants.NODE);
             if (team_prop_parameters_node == null)
