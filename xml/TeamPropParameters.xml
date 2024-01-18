@@ -36,7 +36,7 @@
         <threshold_low>175</threshold_low>
       </gray_parameters>
       <criteria>
-        <min_white_pixel_count>3000</min_white_pixel_count>
+        <min_white_pixel_count>4000</min_white_pixel_count>
       </criteria>
     </RED>
     <BLUE>
@@ -45,7 +45,7 @@
         <threshold_low>200</threshold_low>
       </gray_parameters>
       <criteria>
-        <min_white_pixel_count>3000</min_white_pixel_count>
+        <min_white_pixel_count>4500</min_white_pixel_count>
       </criteria>
     </BLUE>
   </color_channel_pixel_count>

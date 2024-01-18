@@ -54,6 +54,12 @@ public class AutoDrive {
         // will have a directional value of 0. For example,
         // sin 45 deg = 0.70710678118; cos = 0.70710678118
         // sin 135 deg = 0.70710678118; cos = -0.70710678118
+
+        // These values are used to set the direction signum,
+        // which eventually determines the sign of the click
+        // counts for each motor in RUN_TO_POSITION and which
+        // also determines the (always positive) initial velocity
+        // for each motor.
         double lfv = directionY + directionX;
         double rfv = directionY - directionX;
         double lbv = directionY - directionX;
@@ -61,7 +67,7 @@ public class AutoDrive {
 
         // Determine which motors have the dominant velocity values.
         // Only the dominant motors need to be checked for isBusy()
-        //  during RUN_TO_POSITION.
+        // during RUN_TO_POSITION.
 
         // Take a shortcut for all angles evenly divisible by 90 degrees.
         // For forward (0 degrees), backward (-180 degrees), strafe left
