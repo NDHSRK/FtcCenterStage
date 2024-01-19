@@ -929,7 +929,7 @@ public class FTCAuto {
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
 
-                    // Call a method that adjusts the distance of the strafe depending
+                    //**TODO Revise/move comment  Call a method that adjusts the distance of the strafe depending
                     // on the AprilTag. The returned angle (90.0 degrees or -90.0 degrees)
                     // is from the point of view of an observer facing the robot from the
                     // center of the field. The returned distance is the positive distance
@@ -938,7 +938,7 @@ public class FTCAuto {
                             pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
                         RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
 
-                        // From the same point of view give the strafeAdjustment
+                        //**TODO Revise/move comment From the same point of view give the strafeAdjustment
                         // method the number of inches that the center of the robot
                         // is left (positive) or right (negative) of the AprilTag.
                         // Mke the sign of the number of inches the same as the
