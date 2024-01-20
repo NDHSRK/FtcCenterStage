@@ -20,6 +20,8 @@ public class IntakeArmServoCalibration extends TeleOpBase {
 
     private FTCButton intake;
     private boolean intakeInProgress = false;
+    private FTCButton outtake;
+    private boolean outtakeInProgress = false;
     private FTCButton servoIncrementButton;
     private FTCButton servoDecrementButton;
     private FTCButton moveToPosition;
@@ -38,12 +40,14 @@ public class IntakeArmServoCalibration extends TeleOpBase {
         servoDecrementButton = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
         moveToPosition = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
         intake = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
+        outtake = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
 
         telemetry.setAutoClear(true);
         telemetry.addData("-----", "controls");
         telemetry.addData("increment servo", "Y");
         telemetry.addData("decrement servo", "A");
         telemetry.addData("intake", "hold LEFT BUMPER");
+        telemetry.addData("outtake", "hold RIGHT BUMPER");
         telemetry.update();
     }
 
@@ -67,6 +71,7 @@ public class IntakeArmServoCalibration extends TeleOpBase {
             updateIncrement();
             updateDecrement();
             updateIntake();
+            updateOuttake();
             updateMoveToPosition();
         }
     }
@@ -75,6 +80,7 @@ public class IntakeArmServoCalibration extends TeleOpBase {
         servoIncrementButton.update();
         servoDecrementButton.update();
         intake.update();
+        outtake.update();
         moveToPosition.update();
     }
 
@@ -120,6 +126,33 @@ public class IntakeArmServoCalibration extends TeleOpBase {
         } else {
             if (intakeInProgress) {
                 intakeInProgress = false;
+                robot.intakeMotor.runAtVelocity(0.0);
+            }
+        }
+    }
+
+    // Continuous outtake out the back.
+    private void updateOuttake() {
+        if (outtake.is(FTCButton.State.TAP) || outtake.is(FTCButton.State.HELD)) {
+            if (outtake.is(FTCButton.State.TAP)) { // first time
+                outtakeInProgress = true;
+
+                // Sanity check - make sure the pixel stopper is in the release position.
+                if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
+                    robot.pixelStopperServo.release();
+                    sleep(500); // give the servo time to actuate
+                    pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+                }
+
+                // Note that with the stopper down negative velocity ejects
+                // pixels out the back.
+                robot.intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.intakeMotor.runAtVelocity(-robot.intakeMotor.velocity);
+            }
+        } else {
+            if (outtakeInProgress) {
+                outtakeInProgress = false;
+
                 robot.intakeMotor.runAtVelocity(0.0);
             }
         }

@@ -241,6 +241,9 @@ public class FTCAuto {
             robot.imuDirect.resetIMUYaw();
             RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuDirect.getIMUHeading());
 
+            if (robot.intakeArmServo != null) // will only be null in testing
+                robot.intakeArmServo.auto(); // needed only once
+
             // If the StartParameters.xml file contains a non-zero start delay
             // for Autonomous wait here.
             if (autoStartDelay != 0)

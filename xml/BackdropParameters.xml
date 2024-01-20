@@ -3,6 +3,7 @@
         <strafe_adjustment_percent>10.0</strafe_adjustment_percent>
         <distance_adjustment_percent>10.0</distance_adjustment_percent>
         <outside_strafe_adjustment>3.5</outside_strafe_adjustment>
+        <yellow_pixel_adjustment>1.0</yellow_pixel_adjustment>
     </backdrop_parameters>
 
     <!-- unlikely but may need pixel stack target also -->
