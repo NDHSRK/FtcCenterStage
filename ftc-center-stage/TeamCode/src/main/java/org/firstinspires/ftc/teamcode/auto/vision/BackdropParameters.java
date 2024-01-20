@@ -8,14 +8,17 @@ public class BackdropParameters {
     public final double strafeAdjustmentPercent;
     public final double distanceAdjustmentPercent;
     public final double outsideStrafeAdjustment;
+    public final double yellowPixelAdjustment;
 
     public BackdropParameters(DriveTrainConstants.Direction pDirection,
                               double pStrafeAdjustmentPercent,
                               double pDistanceAdjustmentPercent,
-                              double pOutsideStrafeAdjustment) {
+                              double pOutsideStrafeAdjustment,
+                              double pYellowPixelAdjustment) {
         direction = pDirection;
         strafeAdjustmentPercent = pStrafeAdjustmentPercent;
         distanceAdjustmentPercent = pDistanceAdjustmentPercent;
         outsideStrafeAdjustment = pOutsideStrafeAdjustment;
+        yellowPixelAdjustment = pYellowPixelAdjustment;
     }
 }

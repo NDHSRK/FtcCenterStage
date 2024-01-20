@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.checkerframework.checker.units.qual.Angle;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
@@ -929,31 +930,33 @@ public class FTCAuto {
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
 
-                    // Call a method that adjusts the distance of the strafe depending
+                    // Call one of two methods that adjust the distance of the strafe depending
                     // on the AprilTag. The returned angle (90.0 degrees or -90.0 degrees)
                     // is from the point of view of an observer facing the robot from the
                     // center of the field. The returned distance is the positive distance
                     // to strafe.
+                    AngleDistance adjustment;
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT; //**TODO TEMP for testing
                     if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
                             pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
                         RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
 
-                        // From the same point of view give the strafeAdjustment
-                        // method the number of inches that the center of the robot
-                        // is left (positive) or right (negative) of the AprilTag.
-                        // Mke the sign of the number of inches the same as the
-                        // inverse of the sign of the angle from the center of the
-                        // robot to the AprilTag.
                         double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
-                        AngleDistance adjustment =
+                        adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment);
-
-                        // Change the direction of the strafe depending on the location of the
-                        // camera on the robot.
-                        strafeDirection = adjustment.angle * directionFactor;
-                        distanceToStrafe = adjustment.distance;
-                        RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
                     }
+                    else {
+                        RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
+                        double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
+                        adjustment =
+                                AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);
+                    }
+
+                    // Change the direction of the strafe depending on the location of the
+                    // camera on the robot.
+                    strafeDirection = adjustment.angle * directionFactor;
+                    distanceToStrafe = adjustment.distance;
+                    RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
 
                     // Check for a minimum distance to strafe.
                     if (distanceToStrafe >= 1.0) {

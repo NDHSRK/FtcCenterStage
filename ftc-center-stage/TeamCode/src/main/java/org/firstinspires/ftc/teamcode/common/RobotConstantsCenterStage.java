@@ -116,6 +116,10 @@ public class RobotConstantsCenterStage {
         }
     }
 
+    public enum BackdropPixelOpenSlot {
+        LEFT, RIGHT, ANY_OPEN_SLOT, OPEN_SLOT_NPOS
+    }
+
     public enum AutoEndingPosition {LEFT, RIGHT}
 
 }

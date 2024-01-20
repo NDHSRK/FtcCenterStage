@@ -136,9 +136,24 @@ public class BackdropParametersXML {
             throw new AutonomousRobotException(TAG, "Element 'outside_strafe_adjustment' out of range");
         }
 
+        // Parse <yellow_pixel_adjustment>.
+        Node yellow_pixel_node = outside_strafe_node.getNextSibling();
+        yellow_pixel_node = XMLUtils.getNextElement(yellow_pixel_node);
+        if (yellow_pixel_node == null || !yellow_pixel_node.getNodeName().equals("yellow_pixel_adjustment") ||
+                yellow_pixel_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'yellow_pixel_adjustment' not found");
+
+        String yellowPixelText = yellow_pixel_node.getTextContent();
+        double yellowPixelAdjustment;
+        try {
+            yellowPixelAdjustment = Double.parseDouble(yellowPixelText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'yellow_pixel_adjustment'");
+        }
+
         return new BackdropParameters(direction,
                 strafe_adjustment_percent, distance_adjustment_percent,
-                outside_strafe);
+                outside_strafe, yellowPixelAdjustment);
     }
 
 }
