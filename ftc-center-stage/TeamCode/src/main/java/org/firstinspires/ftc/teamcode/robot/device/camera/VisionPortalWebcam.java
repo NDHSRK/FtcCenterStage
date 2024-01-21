@@ -19,19 +19,14 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 // Support a single camera and one or more processors, e.g. a RawFrameProcessor
 // and an AprilTag processor. Even if multiple processors are identified in the
 // webcam configuration, the XML element <START_WEBCAM> in RobotAction.xml
 // controls which processors are attached to the webcam for a particular
-// task or tasks and which one, if any, of the processors is enabled when the
+// task or tasks and which, if any, of the processors is enabled when the
 // webcam is started. For TeleOp Opmodes such as the SpikeWindowViewer the
 // name(s) of the processor(s) must be supplied when the webcam is started.
-
-//&& To support both a RawFrameProcessor and an AprilTagProcessor on the
-// same webcam you need a DualProcessorWebcam that implements both
-// RawFrameProvider and AprilTagProvider.
 
 // It is an application-wide assumption that there is only one instance of
 // this class per webcam and that its methods are called from a single thread.
@@ -40,8 +35,6 @@ public class VisionPortalWebcam {
 
     private final VisionPortalWebcamConfiguration.ConfiguredWebcam configuredWebcam;
     private final EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> assignedProcessors;
-    protected RobotConstantsCenterStage.ProcessorIdentifier activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
-    protected VisionProcessor activeProcessor;
     protected final VisionPortal visionPortal;
 
     // Constructor that can be used to attach a single processor to a webcam.
@@ -80,17 +73,11 @@ public class VisionPortalWebcam {
         if (visionPortal.getCameraState() == VisionPortal.CameraState.ERROR)
             throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
-        // Check that only one webcam may be marked to be enabled on start;
-        // disable all others. It is also possible that all processors may be disabled
-        // on start.
-        AtomicInteger enabledCount = new AtomicInteger();
+        // Check which processors are to remain enabled; disable all others.
+        // It is possible that all processors may be disabled on start.
         assignedProcessors.forEach((k, v) -> {
             if (v.second) {
-                if (enabledCount.addAndGet(1) > 1)
-                    throw new AutonomousRobotException(TAG, "Only 1 processor may be enabled on start");
-                activeProcessorId = k;
-                activeProcessor = v.first;
-                RobotLogCommon.d(TAG, "Processor enabled on start " + activeProcessorId);
+                RobotLogCommon.d(TAG, "Processor enabled on start " + k);
             }
             else {
                 visionPortal.setProcessorEnabled(v.first, false);
@@ -123,8 +110,16 @@ public class VisionPortalWebcam {
         return true;
     }
 
-    public Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> getActiveProcessor() {
-        return Pair.create(activeProcessorId, activeProcessor);
+    // Returns null if the requested processor is not enabled.
+    public VisionProcessor getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier pProcessorId) {
+        Pair<VisionProcessor, Boolean> assignedProcessor = assignedProcessors.get(pProcessorId);
+        if (assignedProcessor == null)
+            throw new AutonomousRobotException(TAG, "Attempt to enable an unassigned processor " + pProcessorId);
+
+        VisionProcessor processor = assignedProcessor.first;
+        if (!visionPortal.getProcessorEnabled(processor))
+            return null;
+        return processor;
     }
 
     // Adapted from the FTC SDK 9.0 sample RobotAutoDriveToAprilTagOmni.
@@ -169,24 +164,17 @@ public class VisionPortalWebcam {
                 visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM))
             throw new AutonomousRobotException(TAG, "Attempting to enable the processor " + pProcessorId + " even though the webcam is not STREAMING");
 
-        VisionProcessor processor = assignedProcessors.get(pProcessorId).first;
-        if (processor == null)
+        Pair<VisionProcessor, Boolean> assignedProcessor = assignedProcessors.get(pProcessorId);
+        if (assignedProcessor == null)
             throw new AutonomousRobotException(TAG, "Attempt to enable an unassigned processor " + pProcessorId);
 
-        if (pProcessorId == activeProcessorId) {
+        VisionProcessor processor = assignedProcessor.first;
+        if (visionPortal.getProcessorEnabled(processor)) {
             RobotLogCommon.d(TAG, "Ignoring request to enable processor " + pProcessorId + " which is already enabled");
             return;
         }
 
-        // In our application we only allow one processor at a time to be enabled.
-        if (activeProcessorId != RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS) {
-            RobotLogCommon.d(TAG, "The processor " + activeProcessorId + " is active, disable it");
-            visionPortal.setProcessorEnabled(activeProcessor, false);
-        }
-
         visionPortal.setProcessorEnabled(processor, true);
-        activeProcessorId = pProcessorId;
-        activeProcessor = processor;
         RobotLogCommon.d(TAG, "Enabling the processor " + pProcessorId);
     }
 
@@ -195,19 +183,17 @@ public class VisionPortalWebcam {
                 visionPortal.getCameraState() == VisionPortal.CameraState.STARTING_STREAM))
             throw new AutonomousRobotException(TAG, "Attempting to disable the processor " + pProcessorId + " even though the webcam is not STREAMING");
 
-        VisionProcessor processor = assignedProcessors.get(pProcessorId).first;
-        if (processor == null)
-            throw new AutonomousRobotException(TAG, "Attempt to disable an unassigned processor " + pProcessorId);
+        Pair<VisionProcessor, Boolean> assignedProcessor = assignedProcessors.get(pProcessorId);
+        if (assignedProcessor == null)
+            throw new AutonomousRobotException(TAG, "Attempt to enable an unassigned processor " + pProcessorId);
 
-        if (activeProcessorId != pProcessorId) {
-            RobotLogCommon.d(TAG, "Request to disable the processor " + pProcessorId + " which is not active");
-            RobotLogCommon.d(TAG, "The active processor is " + activeProcessorId);
+        VisionProcessor processor = assignedProcessor.first;
+        if (!visionPortal.getProcessorEnabled(processor)) {
+            RobotLogCommon.d(TAG, "Request to disable the processor " + pProcessorId + " which is not enabled");
             return;
         }
 
         visionPortal.setProcessorEnabled(processor, false);
-        activeProcessorId = RobotConstantsCenterStage.ProcessorIdentifier.PROCESSOR_NPOS;
-        activeProcessor = null;
         RobotLogCommon.d(TAG, "Disabling the processor " + pProcessorId);
     }
 

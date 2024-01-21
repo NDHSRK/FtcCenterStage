@@ -88,7 +88,7 @@
         </servos>
         <positions>
             <up>0.27</up>
-            <down>0.225</down>
+            <down>0.27</down> <!-- for the rake 0.225-->
             <auto>0.16</auto>
             <stack>.16</stack>
         </positions>

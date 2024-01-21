@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.checkerframework.checker.units.qual.Angle;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
@@ -248,8 +247,8 @@ public class FTCAuto {
             robot.imuDirect.resetIMUYaw();
             RobotLogCommon.i(TAG, "IMU heading at start " + robot.imuDirect.getIMUHeading());
 
-            if (robot.intakeArmServo != null) // will only be null in testing
-                robot.intakeArmServo.auto(); // needed only once
+            //**TODO remove comment for rake if (robot.intakeArmServo != null) // will only be null in testing
+            //    robot.intakeArmServo.auto(); // needed only once
 
             // If the StartParameters.xml file contains a non-zero start delay
             // for Autonomous wait here.
@@ -523,10 +522,10 @@ public class FTCAuto {
                 } else // multiple processors, i.e. a <processor_set>.
                     requestedProcessors = RobotActionXMLCenterStage.getStartWebcamProcessors(pAction);
 
-                // It is guaranteed that assignedProcessors contains either zero or one
-                // processors to be enabled when the webcam starts. But we do have to
-                // create all processors and check that each is present in the webcam's
-                // <processor_set> in RobotConfig.xml.
+                // The collection requestedProcessors contains the ids of one or
+                // more processors to be assigned to the webcam. Check that each
+                // processor id is present in the webcam's <processor_set> in
+                // RobotConfig.xml and create the actual VisionProcessor objects.
                 EnumMap<RobotConstantsCenterStage.ProcessorIdentifier, Pair<VisionProcessor, Boolean>> assignedProcessors =
                         new EnumMap<>(RobotConstantsCenterStage.ProcessorIdentifier.class);
                 ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> processorIdentifiers = configuredWebcam.processorIdentifiers;
@@ -552,7 +551,7 @@ public class FTCAuto {
 
                             assignedProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG,
                                     Pair.create(aprilTagProcessor, entry.second));
-                           break;
+                            break;
                         }
 
                         default:
@@ -690,12 +689,12 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to take picture on webcam " + webcamId + " but it is not open");
 
-                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> rawFrameProcessor =
-                        webcam.getVisionPortalWebcam().getActiveProcessor();
-                if (rawFrameProcessor.first != RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME)
-                    throw new AutonomousRobotException(TAG, "The active processor is not RAW_FRAME");
+                VisionProcessor rawFrameProcessor =
+                        webcam.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME);
+                if (rawFrameProcessor == null)
+                    throw new AutonomousRobotException(TAG, "The RAW_FRAME processor is not active");
 
-                RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor.second);
+                RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor);
                 Pair<Mat, Date> image = rawFrameAccess.getImage();
                 if (image == null) {
                     RobotLogCommon.d(TAG, "Unable to get image from " + webcamIdString);
@@ -736,12 +735,12 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to find the team prop using webcam " + webcamId + " but it is not open");
 
-                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> rawFrameProcessor =
-                        webcam.getVisionPortalWebcam().getActiveProcessor();
-                if (rawFrameProcessor.first != RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME)
-                    throw new AutonomousRobotException(TAG, "The active processor is not RAW_FRAME");
+                VisionProcessor rawFrameProcessor =
+                        webcam.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME);
+                if (rawFrameProcessor == null)
+                    throw new AutonomousRobotException(TAG, "The RAW_FRAME processor is not active");
 
-                RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor.second);
+                RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor);
 
                 // Get the recognition path from the XML file.
                 RobotConstantsCenterStage.TeamPropRecognitionPath teamPropRecognitionPath =
@@ -805,12 +804,11 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to find an AprilTag on webcam " + webcamId + " but it is not open");
 
-                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagContainer =
-                        webcam.getVisionPortalWebcam().getActiveProcessor();
-                if (aprilTagContainer.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
-                    throw new AutonomousRobotException(TAG, "The active processor is not APRIL_TAG");
+                VisionProcessor aprilTagProcessor =
+                        webcam.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG);
+                if (aprilTagProcessor == null)
+                    throw new AutonomousRobotException(TAG, "The APRIL_TAG processor is not active");
 
-                AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) aprilTagContainer.second;
                 ElapsedTime aprilTagTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
                 aprilTagTimer.reset();
                 List<AprilTagDetection> currentDetections;
@@ -818,7 +816,7 @@ public class FTCAuto {
                 while (linearOpMode.opModeIsActive() && !autonomousTimer.autoTimerIsExpired() &&
                         aprilTagTimer.time() < 10000) {
                     aprilTagDetected = false;
-                    currentDetections = AprilTagAccess.getAprilTagData(aprilTagProcessor, 500);
+                    currentDetections = AprilTagAccess.getAprilTagData((AprilTagProcessor) aprilTagProcessor, 500);
                     for (AprilTagDetection detection : currentDetections) {
                         if (detection.metadata != null) {
                             aprilTagDetected = true;
@@ -849,10 +847,10 @@ public class FTCAuto {
 
             // Locate a specific AprilTag and drive the robot into position
             // in front of it with the method we used in PowerPlay.
-                //**TODO Change to DRIVE_TO_BACKSTOP_APRIL_TAG
+            //**TODO Change to DRIVE_TO_BACKSTOP_APRIL_TAG
             case "DRIVE_TO_APRIL_TAG": {
-                // This check is crucial here because the code in this case block
-                // moves the elevator asynchronously.
+                // This check is crucial here because the code under this case
+                // label moves the elevator asynchronously.
                 if (asyncMoveElevator != null) // Prevent double initialization
                     throw new AutonomousRobotException(TAG, "asyncMoveElevator is already in progress");
 
@@ -869,11 +867,6 @@ public class FTCAuto {
                 if (detectionData.ftcDetectionData == null) {
                     return false; // no sure path to the backdrop
                 }
-
-                // From the point of view of an observer facing the robot from the
-                // center of the field -- a positive angle from the camera to the
-                // AprilTag indicates that the tag is to the left of the center of
-                // the robot (counter-clockwise).
 
                 // If the backstop AprilTag that was found is not our target tag
                 // then infer the position of the target tag.
@@ -910,6 +903,11 @@ public class FTCAuto {
                 // AprilTag in relation to the camera, we need the angle and distance
                 // from the center of the robot, particularly if the camera is not
                 // centered on the robot.
+
+                // From the point of view of an observer facing the robot from the
+                // center of the field -- a positive angle from the camera to the
+                // AprilTag indicates that the tag is to the left of the center of
+                // the robot (counter-clockwise).
                 VisionPortalWebcamConfiguration.ConfiguredWebcam aprilTagWebcamConfiguration = Objects.requireNonNull(robot.configuredWebcams.get(detectionData.webcamId),
                         TAG + " Webcam " + detectionData.webcamId + " is not in the current configuration");
                 double angleFromRobotCenterToAprilTag =
@@ -934,44 +932,37 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + backdropParameters.strafeAdjustmentPercent + " for a distance to strafe of " + distanceToStrafe);
                     }
 
-                    // Set the direction to strafe. A positive angle indicates that the
-                    // tag is to the left of the center of the robot (clockwise). Take
-                    // into account the robot's direction of travel.
-                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
-                    double strafeDirection = (angleFromRobotCenterToAprilTag > 0 ? 90.0 : -90.0) * directionFactor;
-
                     // Call one of two methods that adjust the distance of the strafe depending
-                    // on the AprilTag. The returned angle (90.0 degrees or -90.0 degrees)
-                    // is from the point of view of an observer facing the robot from the
-                    // center of the field. The returned distance is the positive distance
-                    // to strafe.
+                    // on the AprilTag. For both methods the sign of the parameter "distanceToStrafe"
+                    // indicates the direction the robot must move from the point of view of an
+                    // observer facing the backdrop. Note that the sign is the inverse of the sign
+                    // of the angle from the center of the robot to the AprilTag. The returned angle
+                    // (90.0 degrees or -90.0 degrees) is also from the point of view of an observer
+                    // facing the facing the backdrop. This value may have to be inverted depending
+                    // on whether the camera facing the AprilTag is on the front or back of the
+                    // robot.
+                    double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
                     AngleDistance adjustment;
                     if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
                             pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
                         RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
-
-                        double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
                         adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment);
-                    }
-                    else { // Must be BLUE_A2 or RED_F2
+                    } else { // Must be BLUE_A2 or RED_F2
                         //**TODO To perform BackdropPixelRecognition the raw_frame processor
-                        // on the camera must be enabled. Enable it now - since we only
-                        // support one enabled processor at a time under the current
-                        // architecture you have to disable the APRIL_TAG processor first -
-                        // or change the architecture to allow multiple processors to be
-                        // enabled.
-                        RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT; //**TODO TEMP for testing
+                        // on the camera must be enabled.
 
+                        RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT; //**TODO TEMP for testing
                         RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
-                        double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
                         adjustment =
                                 AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);
                     }
 
-                    // Change the direction of the strafe depending on the location of the
-                    // camera on the robot.
-                    strafeDirection = adjustment.angle * directionFactor;
+                    // Set the direction to strafe. A positive angle indicates that the
+                    // tag is to the left of the center of the robot (clockwise). Take
+                    // into account the robot's direction of travel.
+                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
+                    double strafeDirection = adjustment.angle * directionFactor;
                     distanceToStrafe = adjustment.distance;
                     RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
 
@@ -1033,13 +1024,12 @@ public class FTCAuto {
                 if (!openWebcams.contains(webcamId))
                     throw new AutonomousRobotException(TAG, "Attempt to navigate to AprilTag on webcam " + webcamId + " but it is not open");
 
-                Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagContainer =
-                        webcam.getVisionPortalWebcam().getActiveProcessor();
-                if (aprilTagContainer.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
-                    throw new AutonomousRobotException(TAG, "The active processor is not APRIL_TAG");
+                VisionProcessor aprilTagProcessor =
+                        webcam.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG);
+                if (aprilTagProcessor == null)
+                    throw new AutonomousRobotException(TAG, "The APRIL_TAG processor is not active");
 
-                AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) aprilTagContainer.second;
-                AprilTagNavigation aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, aprilTagProcessor);
+                AprilTagNavigation aprilTagNavigation = new AprilTagNavigation(alliance, linearOpMode, robot, (AprilTagProcessor) aprilTagProcessor);
 
                 int desiredTagId = actionXPath.getRequiredInt("tag_id");
                 double desiredDistanceFromTag = actionXPath.getRequiredDouble("desired_distance_from_tag");
@@ -1497,14 +1487,13 @@ public class FTCAuto {
         if (!openWebcams.contains(webcamId))
             throw new AutonomousRobotException(TAG, "Attempt to find an AprilTag on webcam " + webcamId + " but it is not open");
 
-        Pair<RobotConstantsCenterStage.ProcessorIdentifier, VisionProcessor> aprilTagContainer =
-                webcam.getVisionPortalWebcam().getActiveProcessor();
-        if (aprilTagContainer.first != RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG)
-            throw new AutonomousRobotException(TAG, "The active processor is not APRIL_TAG");
+        VisionProcessor aprilTagProcessor =
+                webcam.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG);
+        if (aprilTagProcessor == null)
+            throw new AutonomousRobotException(TAG, "The APRIL_TAG processor is not active");
 
-        AprilTagProcessor aprilTagProcessor = (AprilTagProcessor) aprilTagContainer.second;
         int timeout = pActionXPath.getRequiredInt("timeout_ms");
-        List<AprilTagDetection> currentDetections = AprilTagAccess.getAprilTagData(aprilTagProcessor, timeout);
+        List<AprilTagDetection> currentDetections = AprilTagAccess.getAprilTagData((AprilTagProcessor) aprilTagProcessor, timeout);
         AprilTagDetection targetDetection = null;
         AprilTagDetection backupDetection = null;
         double smallestBackupAngle = 360.0; // impossibly high
