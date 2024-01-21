@@ -80,7 +80,7 @@ public class VisionPortalWebcam {
         if (visionPortal.getCameraState() == VisionPortal.CameraState.ERROR)
             throw new AutonomousRobotException(TAG, "Error in opening webcam " + configuredWebcam.internalWebcamId + " on " + pConfiguredWebcam.getWebcamName().getDeviceName());
 
-        // Check that only one webcam may be marked for "enable_on_start";
+        // Check that only one webcam may be marked to be enabled on start;
         // disable all others. It is also possible that all processors may be disabled
         // on start.
         AtomicInteger enabledCount = new AtomicInteger();

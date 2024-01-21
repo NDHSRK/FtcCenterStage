@@ -21,11 +21,13 @@ import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
+import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
+import org.firstinspires.ftc.teamcode.auto.xml.BackdropPixelParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
 import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
 import org.firstinspires.ftc.teamcode.common.AngleDistance;
@@ -90,6 +92,7 @@ public class FTCAuto {
     private final SpikeWindowMappingXML spikeWindowMappingXML;
     private SpikeWindowMapping currentSpikeWindowData;
     private final BackdropParameters backdropParameters;
+    private final BackdropPixelParameters backdropPixelParameters;
     private final EnumSet<RobotConstantsCenterStage.InternalWebcamId> openWebcams = EnumSet.noneOf(RobotConstantsCenterStage.InternalWebcamId.class);
 
     private double desiredHeading = 0.0; // always normalized
@@ -162,6 +165,10 @@ public class FTCAuto {
         // Read the parameters for the backdrop from the xml file.
         BackdropParametersXML backdropParametersXML = new BackdropParametersXML(xmlDirectory);
         backdropParameters = backdropParametersXML.getBackdropParameters();
+
+        // Read the parameters for backdrop pixel recognition from the xml file.
+        BackdropPixelParametersXML backdropPixelParametersXML = new BackdropPixelParametersXML(xmlDirectory);
+        backdropPixelParameters = backdropPixelParametersXML.getBackdropPixelParameters();
 
         // Start the front webcam with the raw webcam frame processor.
         // We can start a camera by using the <START_CAMERA> action in RobotAction.xml
@@ -545,19 +552,18 @@ public class FTCAuto {
 
                             assignedProcessors.put(RobotConstantsCenterStage.ProcessorIdentifier.APRIL_TAG,
                                     Pair.create(aprilTagProcessor, entry.second));
-
-                            // Now actuall create the VisionPortalWebcam with the active
-                            // (but not necessarily enabled) processors.
-                            VisionPortalWebcam visionPortalWebcam = new VisionPortalWebcam(configuredWebcam, assignedProcessors);
-                            configuredWebcam.setVisionPortalWebcam(visionPortalWebcam);
-                            openWebcams.add(webcamId);
-
-                            break;
+                           break;
                         }
 
                         default:
                             throw new AutonomousRobotException(TAG, "Invalid processor id " + entry.first);
                     }
+
+                    // Now actually create the VisionPortalWebcam with the active
+                    // (but not necessarily enabled) processors.
+                    VisionPortalWebcam visionPortalWebcam = new VisionPortalWebcam(configuredWebcam, assignedProcessors);
+                    configuredWebcam.setVisionPortalWebcam(visionPortalWebcam);
+                    openWebcams.add(webcamId);
                 }
 
                 break;
@@ -843,6 +849,7 @@ public class FTCAuto {
 
             // Locate a specific AprilTag and drive the robot into position
             // in front of it with the method we used in PowerPlay.
+                //**TODO Change to DRIVE_TO_BACKSTOP_APRIL_TAG
             case "DRIVE_TO_APRIL_TAG": {
                 // This check is crucial here because the code in this case block
                 // moves the elevator asynchronously.
@@ -939,7 +946,6 @@ public class FTCAuto {
                     // center of the field. The returned distance is the positive distance
                     // to strafe.
                     AngleDistance adjustment;
-                    RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT; //**TODO TEMP for testing
                     if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
                             pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
                         RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
@@ -948,7 +954,15 @@ public class FTCAuto {
                         adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment);
                     }
-                    else {
+                    else { // Must be BLUE_A2 or RED_F2
+                        //**TODO To perform BackdropPixelRecognition the raw_frame processor
+                        // on the camera must be enabled. Enable it now - since we only
+                        // support one enabled processor at a time under the current
+                        // architecture you have to disable the APRIL_TAG processor first -
+                        // or change the architecture to allow multiple processors to be
+                        // enabled.
+                        RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT; //**TODO TEMP for testing
+
                         RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
                         double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
                         adjustment =

@@ -116,6 +116,10 @@ public class RobotConstantsCenterStage {
         }
     }
 
+    public enum BackdropPixelRecognitionPath {
+        RED_CHANNEL_GRAYSCALE
+    }
+
     public enum BackdropPixelOpenSlot {
         LEFT, RIGHT, ANY_OPEN_SLOT, OPEN_SLOT_NPOS
     }
