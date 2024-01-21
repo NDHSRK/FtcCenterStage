@@ -64,7 +64,7 @@
                 <ms>1500</ms>
             </SLEEP>
 
-            <!-- MOVE_ELEVATOR>
+            <MOVE_ELEVATOR>
                 <position>LEVEL_1</position>
             </MOVE_ELEVATOR>
 
@@ -94,7 +94,7 @@
 
             <SLEEP>
                 <ms>1500</ms>
-            </SLEEP -->
+            </SLEEP>
 
             <MOVE_ELEVATOR>
                 <position>GROUND</position>

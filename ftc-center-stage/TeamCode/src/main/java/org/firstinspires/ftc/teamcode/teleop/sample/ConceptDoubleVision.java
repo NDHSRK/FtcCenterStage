@@ -87,6 +87,9 @@ public class ConceptDoubleVision extends LinearOpMode {
 
         waitForStart();
 
+        //## PY note: at this point both processors are enabled, which is
+        // the default when you include them both when buildng the VisionPortal.
+        
         // This OpMode loops continuously, allowing the user to switch between
         // AprilTag and WebcamFrame processors.
         while (!isStopRequested()) {
@@ -165,7 +168,7 @@ public class ConceptDoubleVision extends LinearOpMode {
                 .addProcessor(aprilTag)
                 .build();
 
-        //## 12/27/2023 Tested disabling both processors here more time -
+        //## 12/27/2023 Tested disabling both processors here one more time -
         // and everything worked; all buttons and actions performed as
         // expected.
         myVisionPortal.setProcessorEnabled(webcamFrame, false);
