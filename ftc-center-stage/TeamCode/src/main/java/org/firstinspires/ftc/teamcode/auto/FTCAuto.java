@@ -21,10 +21,13 @@ import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelParameters;
+import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelRecognition;
+import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelReturn;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
+import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropPixelParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
@@ -90,20 +93,21 @@ public class FTCAuto {
     private final EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private final SpikeWindowMappingXML spikeWindowMappingXML;
     private SpikeWindowMapping currentSpikeWindowData;
-    private final BackdropParameters backdropParameters;
-    private final BackdropPixelParameters backdropPixelParameters;
     private final EnumSet<RobotConstantsCenterStage.InternalWebcamId> openWebcams = EnumSet.noneOf(RobotConstantsCenterStage.InternalWebcamId.class);
 
     private double desiredHeading = 0.0; // always normalized
     private boolean keepCamerasRunning = false;
     public static AutonomousTimer autonomousTimer; // grant visibility to all of Autonomous
 
-    // Image recognition.
+    // AprilTag and image recognition.
     private final TeamPropParameters teamPropParameters;
     private final TeamPropRecognition teamPropRecognition;
     EnumMap<RobotConstantsCenterStage.TeamPropLocation, List<RobotXMLElement>> teamPropLocationActions;
     private List<RobotXMLElement> teamPropLocationInsert;
     private boolean executeTeamPropLocationActions = false;
+    private final BackdropParameters backdropParameters;
+    private final BackdropPixelParameters backdropPixelParameters;
+    private final BackdropPixelRecognition backdropPixelRecognition;
 
     private CompletableFuture<Void> asyncStraight;
     private CompletableFuture<Double> asyncTurn;
@@ -168,6 +172,7 @@ public class FTCAuto {
         // Read the parameters for backdrop pixel recognition from the xml file.
         BackdropPixelParametersXML backdropPixelParametersXML = new BackdropPixelParametersXML(xmlDirectory);
         backdropPixelParameters = backdropPixelParametersXML.getBackdropPixelParameters();
+        backdropPixelRecognition = new BackdropPixelRecognition(alliance);
 
         // Start the front webcam with the raw webcam frame processor.
         // We can start a camera by using the <START_CAMERA> action in RobotAction.xml
@@ -847,7 +852,7 @@ public class FTCAuto {
 
             // Locate a specific AprilTag and drive the robot into position
             // in front of it with the method we used in PowerPlay.
-            //**TODO Change to DRIVE_TO_BACKSTOP_APRIL_TAG
+            //**TODO Change to DRIVE_TO_BACKDROP_APRIL_TAG
             case "DRIVE_TO_APRIL_TAG": {
                 // This check is crucial here because the code under this case
                 // label moves the elevator asynchronously.
@@ -856,15 +861,13 @@ public class FTCAuto {
 
                 // Movement must start at the SAFE level.
                 if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
-                    throw new AutonomousRobotException(TAG, "Move to the AUTONOMOUS level may not start at elevator " + currentElevatorLevel);
+                    throw new AutonomousRobotException(TAG, "Elevator movement must start at the SAFE level, not " + currentElevatorLevel);
 
                 deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
 
+                // First find the target AprilTag on the backdrop.
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
                 RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
-
-                //**TODO Change findBackdropAprilTag to return a Pair<VisionPortalWebcamConfiguration.ConfiguredWebcam, AprilTagDetectionData>
-                // The ConfiguredWebcam is needed below for BackdropPixelRecognition ...
                 AprilTagDetectionData detectionData = findBackdropAprilTag(targetTagId, actionXPath);
                 if (detectionData.ftcDetectionData == null) {
                     return false; // no sure path to the backdrop
@@ -906,19 +909,19 @@ public class FTCAuto {
                 // from the center of the robot, particularly if the camera is not
                 // centered on the robot.
 
-                // From the point of view of an observer facing the robot from the
-                // center of the field -- a positive angle from the camera to the
-                // AprilTag indicates that the tag is to the left of the center of
-                // the robot (counter-clockwise).
-                VisionPortalWebcamConfiguration.ConfiguredWebcam aprilTagWebcamConfiguration = Objects.requireNonNull(robot.configuredWebcams.get(detectionData.webcamId),
+                // From the point of view of an observer facing the robot and the
+                // backdrop from the center of the field -- a positive angle from
+                // the camera to the AprilTag indicates that the tag is to the left
+                // of the center of the robot (counter-clockwise).
+                VisionPortalWebcamConfiguration.ConfiguredWebcam backdropWebcamConfiguration = Objects.requireNonNull(robot.configuredWebcams.get(detectionData.webcamId),
                         TAG + " Webcam " + detectionData.webcamId + " is not in the current configuration");
                 double angleFromRobotCenterToAprilTag =
-                        CameraToCenterCorrections.getCorrectedAngle(aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter,
-                                aprilTagWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
+                        CameraToCenterCorrections.getCorrectedAngle(backdropWebcamConfiguration.distanceCameraLensToRobotCenter,
+                                backdropWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
 
                 double distanceFromRobotCenterToAprilTag =
-                        CameraToCenterCorrections.getCorrectedDistance(aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter,
-                                aprilTagWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
+                        CameraToCenterCorrections.getCorrectedDistance(backdropWebcamConfiguration.distanceCameraLensToRobotCenter,
+                                backdropWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
 
                 double distanceToMove;
                 if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
@@ -942,8 +945,8 @@ public class FTCAuto {
                     // inverse of the sign of the angle from the center of the robot to
                     // the AprilTag.
 
-                    // The returned angle (90.0 degrees or -90.0 degrees) is also from the point
-                    // of view of an observer facing the backdrop.
+                    // The returned strafe angle (90.0 degrees or -90.0 degrees) is also
+                    // given from the point of view of an observer facing the backdrop.
                     double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
                     AngleDistance adjustment;
                     if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
@@ -952,8 +955,32 @@ public class FTCAuto {
                         adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment);
                     } else { // Must be BLUE_A2 or RED_F2
-                        //**TODO To perform BackdropPixelRecognition the raw_frame processor
+                        // To perform BackdropPixelRecognition the raw_frame processor
                         // on the camera must be enabled.
+                        VisionProcessor rawFrameProcessor =
+                                backdropWebcamConfiguration.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME);
+                        if (rawFrameProcessor == null)
+                            throw new AutonomousRobotException(TAG, "The RAW_FRAME processor is not active for BackdropPixelRecognition");
+
+                        RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor);
+
+                        // Get the <image_parameters> for the backdrop pixels from the RobotAction XML file.
+                        VisionParameters.ImageParameters backdropPixelImageParameters =
+                                actionXML.getImageParametersFromXPath(pAction, "yellow_pixel/image_parameters");
+                        RobotConstantsCenterStage.InternalWebcamId webcamId =
+                                RobotConstantsCenterStage.InternalWebcamId.valueOf(backdropPixelImageParameters.image_source.toUpperCase());
+
+                        if (webcamId != backdropWebcamConfiguration.internalWebcamId)
+                            throw new AutonomousRobotException(TAG, "The AprilTag webcam id and the backstop pixel webcam id are not the same");
+
+                        // Get the recognition path from the XML file.
+                        String recognitionPathString = actionXPath.getRequiredText("backdrop_pixel_recognition/recognition_path");
+                        RobotConstantsCenterStage.BackdropPixelRecognitionPath backdropPixelRecognitionPath =
+                                RobotConstantsCenterStage.BackdropPixelRecognitionPath.valueOf(recognitionPathString.toUpperCase());
+                        RobotLogCommon.d(TAG, "Backdrop pixel recognition path " + backdropPixelRecognitionPath);
+
+                        BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters, backdropPixelRecognitionPath);
+                        RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
 
                         RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT; //**TODO TEMP for testing
                         RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
@@ -963,7 +990,7 @@ public class FTCAuto {
 
                     // Set the final angle to strafe with respect to the front of the
                     // robot. The adjusted angle may have to be inverted depending on
-                    // whether the camera facing the AprilTag is on the front (no
+                    // whether the camera facing the backdrop is on the front (no
                     // inversion) or back (inversion) of the robot.
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = adjustment.angle * directionFactor;
@@ -981,10 +1008,10 @@ public class FTCAuto {
                     // distanceFromRobotCenterToAprilTag (hypotenuse) squared = distanceToStrafe squared + adjacent squared.
                     double adjacentSquared = Math.pow(distanceFromRobotCenterToAprilTag, 2) - Math.pow(distanceToStrafe, 2);
                     double adjacent = Math.sqrt(adjacentSquared); // center of robot to AprilTag
-                    distanceToMove = adjacent - (aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                    distanceToMove = adjacent - (backdropWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
                     RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
                 } else {
-                    distanceToMove = distanceFromRobotCenterToAprilTag - (aprilTagWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                    distanceToMove = distanceFromRobotCenterToAprilTag - (backdropWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
                     RobotLogCommon.d(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
                 }
 
