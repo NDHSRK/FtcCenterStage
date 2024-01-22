@@ -15,7 +15,10 @@
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>raw_frame</processor>
+                <processor_set>
+                    <processor>april_tag</processor>
+                    <processor>raw_frame</processor>
+                </processor_set>
             </START_WEBCAM>
 
             <WAIT_FOR_WEBCAM_START>
@@ -23,9 +26,32 @@
                 <timeout_ms>1000</timeout_ms>
             </WAIT_FOR_WEBCAM_START>
 
-            <TAKE_PICTURE>
+            <!-- Change name to DRIVE_TO_BACKDROP_APRIL_TAG (FTCAuto also) -->
+            <DRIVE_TO_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-            </TAKE_PICTURE>
+                <tag_id>tag_id_1</tag_id>
+                <timeout_ms>1000</timeout_ms>
+                <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                <direction>back</direction>
+                <yellow_pixel>
+                    <image_parameters>
+                        <image_source>rear_webcam</image_source>
+                        <resolution>
+                            <width>640</width>
+                            <height>480</height>
+                        </resolution>
+                        <image_roi>
+                            <x>140</x>
+                            <y>50</y>
+                            <width>345</width>
+                            <height>250</height>
+                        </image_roi>
+                    </image_parameters>
+                    <backdrop_pixel_recognition>
+                        <recognition_path>red_channel_grayscale</recognition_path>
+                    </backdrop_pixel_recognition>
+                </yellow_pixel>
+            </DRIVE_TO_BACKDROP_APRIL_TAG>
 
             <SLEEP>
                 <ms>1500</ms>
@@ -1154,7 +1180,7 @@
                     </STRAFE_RIGHT>
 
                     <DESKEW />
-                    
+
                     <STRAIGHT_BY>
                         <distance>34.0</distance>
                         <velocity>0.75</velocity>
