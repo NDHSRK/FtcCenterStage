@@ -71,30 +71,28 @@ public class AprilTagUtils {
         return new AngleDistance(newAngleApril, distanceFive);
     }
 
-    //**TODO adapt and correct comments ...
-    // Method that adjusts the distance of the strafe depending
-    // on the AprilTag. The returned angle (90.0 degrees or -90.0 degrees)
-    // is from the point of view of an observer facing the robot from the
-    // center of the field. The returned distance is the positive distance
-    // to strafe.
-    // From the same point of view give the strafeAdjustment
-    // method the number of inches that the center of the robot
-    // is left (positive) or right (negative) of the AprilTag.
-    // Mke the sign of the number of inches the same as the
-    // inverse of the sign of the angle from the center of the
-    // robot to the AprilTag.
-
     // The method strafeAdjustment is used for positions F4 and A4.
-    // It is used for ending on the right or left side of the backdrop. It moves the robot to
-    // the edge of the backdrop in order to drop the yellow pixel.
-    public static AngleDistance strafeAdjustment(int aprilTag, double distanceToStrafe, double outsideAdjustment) {
+    // It is used for ending on the right or left side of the backdrop.
+    // It adjusts the amount of the strafe so that the robot can drop
+    // the yellow pixel at the edge of the backdrop.
+
+    // This method assumes that an observer is facing the robot and
+    // the backdrop from the center of the field. The parameter
+    // "strafeDistanceFromAprilTagToRobotCenter" is the number
+    // of inches that the center of the robot is left (positive) or
+    // right (negative) of the AprilTag.
+
+    // The returned angle to strafe (90.0 degrees or -90.0 degrees)
+    // assumes the same point of view. The returned distance is the
+    // positive distance to strafe.
+    public static AngleDistance strafeAdjustment(int aprilTag, double strafeDistanceFromAprilTagToRobotCenter, double outsideAdjustment) {
         // for center april tags
         // no change is needed for center april tags
         if (aprilTag == 2 || aprilTag == 5) {
-            if (distanceToStrafe >= 0) {
-                return new AngleDistance(STRAFE_RIGHT, distanceToStrafe);
+            if (strafeDistanceFromAprilTagToRobotCenter >= 0) {
+                return new AngleDistance(STRAFE_RIGHT, strafeDistanceFromAprilTagToRobotCenter);
             } else {
-                return new AngleDistance(STRAFE_LEFT, Math.abs(distanceToStrafe));
+                return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter));
             }
         }
 
@@ -102,24 +100,24 @@ public class AprilTagUtils {
         else if (aprilTag == 1 || aprilTag == 4) {
 
             // left of april tag
-            if (distanceToStrafe >= 0) {
+            if (strafeDistanceFromAprilTagToRobotCenter >= 0) {
                 // not far enough to the left from april tag
                 // if robot is not far enough to the left the robot has to move a small amount more left
-                if (distanceToStrafe - outsideAdjustment < 0) {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(distanceToStrafe - outsideAdjustment));
+                if (strafeDistanceFromAprilTagToRobotCenter - outsideAdjustment < 0) {
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - outsideAdjustment));
                 }
 
                 // too far to the left of april tag
                 // if robot too far from april tag robot has to move right to be outsideAdjustment inches from april tag
                 else {
-                    return new AngleDistance(STRAFE_RIGHT, Math.abs(distanceToStrafe - outsideAdjustment));
+                    return new AngleDistance(STRAFE_RIGHT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - outsideAdjustment));
                 }
             }
 
             // right of april tag
             // has to move more left to reach outsideAdjustment inches from april tag
             else {
-                return new AngleDistance(STRAFE_LEFT, Math.abs(Math.abs(distanceToStrafe) + outsideAdjustment));
+                return new AngleDistance(STRAFE_LEFT, Math.abs(Math.abs(strafeDistanceFromAprilTagToRobotCenter) + outsideAdjustment));
             }
         }
 
@@ -128,8 +126,8 @@ public class AprilTagUtils {
 
             // left of april tag
             // has to move more right to reach outsideAdjustment inches from april tag
-            if (distanceToStrafe >= 0) {
-                return new AngleDistance(STRAFE_RIGHT, Math.abs(Math.abs(distanceToStrafe) + outsideAdjustment));
+            if (strafeDistanceFromAprilTagToRobotCenter >= 0) {
+                return new AngleDistance(STRAFE_RIGHT, Math.abs(Math.abs(strafeDistanceFromAprilTagToRobotCenter) + outsideAdjustment));
             }
 
             // right of april tag
@@ -137,14 +135,14 @@ public class AprilTagUtils {
 
                 // too far to the left of april tag
                 // if robot too far from april tag robot has to move right to be outsideAdjustment inches from april tag
-                if (distanceToStrafe + outsideAdjustment < 0) {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(distanceToStrafe + outsideAdjustment));
+                if (strafeDistanceFromAprilTagToRobotCenter + outsideAdjustment < 0) {
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + outsideAdjustment));
                 }
 
                 // not far enough to the left from april tag
                 // if robot is not far enough to the right the robot has to move a small amount more right
                 else {
-                    return new AngleDistance(STRAFE_RIGHT, Math.abs(distanceToStrafe + outsideAdjustment));
+                    return new AngleDistance(STRAFE_RIGHT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + outsideAdjustment));
                 }
             }
         }
@@ -153,35 +151,35 @@ public class AprilTagUtils {
     // The method yellowPixelAdjustment is used for positions F2 and A2.
     // It is used in order to move the robot a small distance left or right
     // in order to place the yellow pixel in the other slot on the backdrop.
-    public static AngleDistance yellowPixelAdjustment(int aprilTag, double distanceToStrafe, RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot, double yellowPixelAdjustment, double outsideAdjustment) {
-        if (distanceToStrafe >= 0) {
+    public static AngleDistance yellowPixelAdjustment(int aprilTag, double strafeDistanceFromAprilTagToRobotCenter, RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot, double yellowPixelAdjustment, double outsideAdjustment) {
+        if (strafeDistanceFromAprilTagToRobotCenter >= 0) {
             switch (openSlot) {
                 case LEFT: {
-                    return new AngleDistance(STRAFE_RIGHT, Math.abs(distanceToStrafe - yellowPixelAdjustment));
+                    return new AngleDistance(STRAFE_RIGHT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - yellowPixelAdjustment));
                 }
                 case RIGHT: {
-                    return new AngleDistance(STRAFE_RIGHT, Math.abs(distanceToStrafe + yellowPixelAdjustment));
+                    return new AngleDistance(STRAFE_RIGHT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
-                    return strafeAdjustment(aprilTag, distanceToStrafe, outsideAdjustment);
+                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment);
                 }
                 default: {
-                    return new AngleDistance(STRAFE_RIGHT, distanceToStrafe);
+                    return new AngleDistance(STRAFE_RIGHT, strafeDistanceFromAprilTagToRobotCenter);
                 }
             }
         } else {
             switch (openSlot) {
                 case LEFT: {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(distanceToStrafe + yellowPixelAdjustment));
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment));
                 }
                 case RIGHT: {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(distanceToStrafe - yellowPixelAdjustment));
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
-                    return strafeAdjustment(aprilTag, distanceToStrafe, outsideAdjustment);
+                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment);
                 }
                 default: {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(distanceToStrafe));
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter));
                 }
             }
         }

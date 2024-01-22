@@ -863,6 +863,8 @@ public class FTCAuto {
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
                 RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
 
+                //**TODO Change findBackdropAprilTag to return a Pair<VisionPortalWebcamConfiguration.ConfiguredWebcam, AprilTagDetectionData>
+                // The ConfiguredWebcam is needed below for BackdropPixelRecognition ...
                 AprilTagDetectionData detectionData = findBackdropAprilTag(targetTagId, actionXPath);
                 if (detectionData.ftcDetectionData == null) {
                     return false; // no sure path to the backdrop
@@ -870,8 +872,8 @@ public class FTCAuto {
 
                 // If the backstop AprilTag that was found is not our target tag
                 // then infer the position of the target tag.
-                double aprilTagDistance;
                 double aprilTagAngle;
+                double aprilTagDistance;
                 if (detectionData.aprilTagId != targetTagId) {
                     RobotLogCommon.d(TAG, "Did not detect the target AprilTag " + targetTagId);
                     RobotLogCommon.d(TAG, "Inferring its position from tag " + detectionData.aprilTagId);
@@ -932,15 +934,16 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + backdropParameters.strafeAdjustmentPercent + " for a distance to strafe of " + distanceToStrafe);
                     }
 
-                    // Call one of two methods that adjust the distance of the strafe depending
-                    // on the AprilTag. For both methods the sign of the parameter "distanceToStrafe"
-                    // indicates the direction the robot must move from the point of view of an
-                    // observer facing the backdrop. Note that the sign is the inverse of the sign
-                    // of the angle from the center of the robot to the AprilTag. The returned angle
-                    // (90.0 degrees or -90.0 degrees) is also from the point of view of an observer
-                    // facing the facing the backdrop. This value may have to be inverted depending
-                    // on whether the camera facing the AprilTag is on the front or back of the
-                    // robot.
+                    // Call one of two methods that adjust the distance of the
+                    // strafe depending on the AprilTag. For both methods the parameter
+                    // "strafeDistanceFromAprilTagToRobotCenter" is the number of inches
+                    // that the center of the robot is left (positive) or right (negative)
+                    // of the AprilTag. The sign of the parameter is the same as the
+                    // inverse of the sign of the angle from the center of the robot to
+                    // the AprilTag.
+
+                    // The returned angle (90.0 degrees or -90.0 degrees) is also from the point
+                    // of view of an observer facing the backdrop.
                     double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
                     AngleDistance adjustment;
                     if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
@@ -958,9 +961,10 @@ public class FTCAuto {
                                 AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);
                     }
 
-                    // Set the direction to strafe. A positive angle indicates that the
-                    // tag is to the left of the center of the robot (clockwise). Take
-                    // into account the robot's direction of travel.
+                    // Set the final angle to strafe with respect to the front of the
+                    // robot. The adjusted angle may have to be inverted depending on
+                    // whether the camera facing the AprilTag is on the front (no
+                    // inversion) or back (inversion) of the robot.
                     double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
                     double strafeDirection = adjustment.angle * directionFactor;
                     distanceToStrafe = adjustment.distance;
