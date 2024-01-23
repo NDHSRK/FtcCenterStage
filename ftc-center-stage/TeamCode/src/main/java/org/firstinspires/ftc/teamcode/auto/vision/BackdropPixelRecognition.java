@@ -113,7 +113,7 @@ public class BackdropPixelRecognition {
             contourPoints2f = new MatOfPoint2f(oneContour.toArray()); // Point2f for approxPolyDP
             double perimeter = Imgproc.arcLength(contourPoints2f, true);
             MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(contourPoints2f, approx, 0.03 * perimeter, true); // simplify the contour
+            Imgproc.approxPolyDP(contourPoints2f, approx, 0.2 * perimeter, true); // was 0.03 simplify the contour
             Point[] points = approx.toArray();
 
             if (points.length == 4) {
@@ -194,7 +194,7 @@ public class BackdropPixelRecognition {
             // position is at 420 x then it is 1.27 more than the AprilTag and is
             // misplaced to the right.
             double PIXEL_OUT_OF_RAGE_LOW = .71;
-            double PIXEL_OUT_OF_RANGE_HIGH= 1.27;
+            double PIXEL_OUT_OF_RANGE_HIGH = 1.27;
             RobotConstantsCenterStage.BackdropPixelOpenSlot backdropPixelOpenSlot;
             if ((validatedPixelCenterX / (double) mostCentralAprilTagCenterX) <= PIXEL_OUT_OF_RAGE_LOW) {
                 backdropPixelOpenSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT;
@@ -226,13 +226,13 @@ public class BackdropPixelRecognition {
             // Not so bad: there are no pixels already on the backdrop.
             ShapeDrawing.drawOneRectangle(mostCentralAprilTagRect, drawnRectangle, 2);
             RobotLogCommon.d(TAG, "Did not find a pixel (hexagon); both slots are open");
-        } else {
+        } else if (foundAPixel) {
             // Not good at all: only found a pixel but I don't know where it is.
             ShapeDrawing.drawOneRectangle(validatedPixelRect, drawnRectangle, 2);
             RobotLogCommon.d(TAG, "Found a pixel but not an AprilTag");
         }
 
-        if (RobotLogCommon.isLoggable("v")) {
+        if ((foundAnAprilTag || foundAPixel) && RobotLogCommon.isLoggable("v")) {
             Imgcodecs.imwrite(pOutputFilenamePreamble + "_BRECT.png", drawnRectangle);
             RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_BRECT.png");
         }

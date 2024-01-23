@@ -562,13 +562,13 @@ public class FTCAuto {
                         default:
                             throw new AutonomousRobotException(TAG, "Invalid processor id " + entry.first);
                     }
-
-                    // Now actually create the VisionPortalWebcam with the active
-                    // (but not necessarily enabled) processors.
-                    VisionPortalWebcam visionPortalWebcam = new VisionPortalWebcam(configuredWebcam, assignedProcessors);
-                    configuredWebcam.setVisionPortalWebcam(visionPortalWebcam);
-                    openWebcams.add(webcamId);
                 }
+
+                // Now actually create the VisionPortalWebcam with the active
+                // (but not necessarily enabled) processors.
+                VisionPortalWebcam visionPortalWebcam = new VisionPortalWebcam(configuredWebcam, assignedProcessors);
+                configuredWebcam.setVisionPortalWebcam(visionPortalWebcam);
+                openWebcams.add(webcamId);
 
                 break;
             }
@@ -923,6 +923,9 @@ public class FTCAuto {
                         CameraToCenterCorrections.getCorrectedDistance(backdropWebcamConfiguration.distanceCameraLensToRobotCenter,
                                 backdropWebcamConfiguration.offsetCameraLensFromRobotCenter, aprilTagDistance, aprilTagAngle);
 
+                RobotLogCommon.d(TAG, "Angle from robot center to AprilTag " + angleFromRobotCenterToAprilTag);
+                RobotLogCommon.d(TAG, "Distance from robot center to AprilTag " + distanceFromRobotCenterToAprilTag);
+
                 double distanceToMove;
                 if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
                     // Strafe to place the center of the robot opposite the AprilTag.
@@ -953,7 +956,7 @@ public class FTCAuto {
                             pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
                         RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
                         adjustment =
-                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment);
+                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment, backdropParameters.yellowPixelAdjustment);
                     } else { // Must be BLUE_A2 or RED_F2
                         // To perform BackdropPixelRecognition the raw_frame processor
                         // on the camera must be enabled.
@@ -974,7 +977,7 @@ public class FTCAuto {
                             throw new AutonomousRobotException(TAG, "The AprilTag webcam id and the backstop pixel webcam id are not the same");
 
                         // Get the recognition path from the XML file.
-                        String recognitionPathString = actionXPath.getRequiredText("backdrop_pixel_recognition/recognition_path");
+                        String recognitionPathString = actionXPath.getRequiredText("yellow_pixel/backdrop_pixel_recognition/recognition_path");
                         RobotConstantsCenterStage.BackdropPixelRecognitionPath backdropPixelRecognitionPath =
                                 RobotConstantsCenterStage.BackdropPixelRecognitionPath.valueOf(recognitionPathString.toUpperCase());
                         RobotLogCommon.d(TAG, "Backdrop pixel recognition path " + backdropPixelRecognitionPath);
@@ -982,7 +985,7 @@ public class FTCAuto {
                         BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters, backdropPixelRecognitionPath);
                         RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
 
-                        RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT; //**TODO TEMP for testing
+                        RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = backdropPixelReturn.backdropPixelOpenSlot;
                         RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
                         adjustment =
                                 AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);

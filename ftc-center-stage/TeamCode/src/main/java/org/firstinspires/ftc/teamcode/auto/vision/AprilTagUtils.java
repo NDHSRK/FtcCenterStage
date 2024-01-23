@@ -85,14 +85,14 @@ public class AprilTagUtils {
     // The returned angle to strafe (90.0 degrees or -90.0 degrees)
     // assumes the same point of view. The returned distance is the
     // positive distance to strafe.
-    public static AngleDistance strafeAdjustment(int aprilTag, double strafeDistanceFromAprilTagToRobotCenter, double outsideAdjustment) {
+    public static AngleDistance strafeAdjustment(int aprilTag, double strafeDistanceFromAprilTagToRobotCenter, double outsideAdjustment, double yellowPixelAdjustment) {
         // for center april tags
         // no change is needed for center april tags
         if (aprilTag == 2 || aprilTag == 5) {
             if (strafeDistanceFromAprilTagToRobotCenter >= 0) {
-                return new AngleDistance(STRAFE_RIGHT, strafeDistanceFromAprilTagToRobotCenter);
+                return new AngleDistance(STRAFE_RIGHT, strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment);
             } else {
-                return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter));
+                return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter) + yellowPixelAdjustment);
             }
         }
 
@@ -161,7 +161,7 @@ public class AprilTagUtils {
                     return new AngleDistance(STRAFE_RIGHT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
-                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment);
+                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment, yellowPixelAdjustment);
                 }
                 default: {
                     return new AngleDistance(STRAFE_RIGHT, strafeDistanceFromAprilTagToRobotCenter);
@@ -176,7 +176,7 @@ public class AprilTagUtils {
                     return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
-                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment);
+                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment, yellowPixelAdjustment);
                 }
                 default: {
                     return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter));

@@ -146,7 +146,7 @@
                 <distance_camera_lens_to_robot_center>8.5</distance_camera_lens_to_robot_center>
                 <offset_camera_lens_from_robot_center>2.5</offset_camera_lens_from_robot_center>
                 <processor_set>
-                    <!-- processor>raw_frame</processor -->
+                    <processor>raw_frame</processor>
                     <processor>april_tag</processor>
                 </processor_set>
                 <webcam_calibration_for_apriltags>
