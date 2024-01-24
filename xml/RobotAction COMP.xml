@@ -30,13 +30,13 @@
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
 
-            <!-- Change name to DRIVE_TO_BACKDROP_APRIL_TAG (FTCAuto also) -->
-            <DRIVE_TO_APRIL_TAG>
+            <DRIVE_TO_BACKDROP_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <tag_id>tag_id_2</tag_id>
                 <timeout_ms>1000</timeout_ms>
                 <desired_distance_from_tag>5.0</desired_distance_from_tag>
                 <direction>back</direction>
+                <!-- Include the following in all spike paths under A2 and F2 -->
                 <yellow_pixel>
                     <image_parameters>
                         <image_source>rear_webcam</image_source>
@@ -55,7 +55,7 @@
                         <recognition_path>red_channel_grayscale</recognition_path>
                     </backdrop_pixel_recognition>
                 </yellow_pixel>
-            </DRIVE_TO_APRIL_TAG>
+            </DRIVE_TO_BACKDROP_APRIL_TAG>
 
             <SLEEP>
                 <ms>1500</ms>
@@ -314,13 +314,31 @@
                         <timeout_ms>2000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                        <yellow_pixel>
+                            <image_parameters>
+                                <image_source>rear_webcam</image_source>
+                                <resolution>
+                                    <width>640</width>
+                                    <height>480</height>
+                                </resolution>
+                                <image_roi>
+                                    <x>140</x>
+                                    <y>0</y>
+                                    <width>345</width>
+                                    <height>250</height>
+                                </image_roi>
+                            </image_parameters>
+                            <backdrop_pixel_recognition>
+                                <recognition_path>red_channel_grayscale</recognition_path>
+                            </backdrop_pixel_recognition>
+                        </yellow_pixel>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -409,13 +427,31 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                        <yellow_pixel>
+                            <image_parameters>
+                                <image_source>rear_webcam</image_source>
+                                <resolution>
+                                    <width>640</width>
+                                    <height>480</height>
+                                </resolution>
+                                <image_roi>
+                                    <x>140</x>
+                                    <y>0</y>
+                                    <width>345</width>
+                                    <height>250</height>
+                                </image_roi>
+                            </image_parameters>
+                            <backdrop_pixel_recognition>
+                                <recognition_path>red_channel_grayscale</recognition_path>
+                            </backdrop_pixel_recognition>
+                        </yellow_pixel>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -497,13 +533,31 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                        <yellow_pixel>
+                            <image_parameters>
+                                <image_source>rear_webcam</image_source>
+                                <resolution>
+                                    <width>640</width>
+                                    <height>480</height>
+                                </resolution>
+                                <image_roi>
+                                    <x>140</x>
+                                    <y>0</y>
+                                    <width>345</width>
+                                    <height>250</height>
+                                </image_roi>
+                            </image_parameters>
+                            <backdrop_pixel_recognition>
+                                <recognition_path>red_channel_grayscale</recognition_path>
+                            </backdrop_pixel_recognition>
+                        </yellow_pixel>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -651,13 +705,13 @@
                         <timeout_ms>2000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -726,13 +780,13 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -803,13 +857,13 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -984,13 +1038,31 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                        <yellow_pixel>
+                            <image_parameters>
+                                <image_source>rear_webcam</image_source>
+                                <resolution>
+                                    <width>640</width>
+                                    <height>480</height>
+                                </resolution>
+                                <image_roi>
+                                    <x>140</x>
+                                    <y>0</y>
+                                    <width>345</width>
+                                    <height>250</height>
+                                </image_roi>
+                            </image_parameters>
+                            <backdrop_pixel_recognition>
+                                <recognition_path>red_channel_grayscale</recognition_path>
+                            </backdrop_pixel_recognition>
+                        </yellow_pixel>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -1078,13 +1150,31 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                        <yellow_pixel>
+                            <image_parameters>
+                                <image_source>rear_webcam</image_source>
+                                <resolution>
+                                    <width>640</width>
+                                    <height>480</height>
+                                </resolution>
+                                <image_roi>
+                                    <x>140</x>
+                                    <y>0</y>
+                                    <width>345</width>
+                                    <height>250</height>
+                                </image_roi>
+                            </image_parameters>
+                            <backdrop_pixel_recognition>
+                                <recognition_path>red_channel_grayscale</recognition_path>
+                            </backdrop_pixel_recognition>
+                        </yellow_pixel>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -1239,13 +1329,31 @@
                         <timeout_ms>2000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                        <yellow_pixel>
+                            <image_parameters>
+                                <image_source>rear_webcam</image_source>
+                                <resolution>
+                                    <width>640</width>
+                                    <height>480</height>
+                                </resolution>
+                                <image_roi>
+                                    <x>140</x>
+                                    <y>0</y>
+                                    <width>345</width>
+                                    <height>250</height>
+                                </image_roi>
+                            </image_parameters>
+                            <backdrop_pixel_recognition>
+                                <recognition_path>red_channel_grayscale</recognition_path>
+                            </backdrop_pixel_recognition>
+                        </yellow_pixel>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -1387,13 +1495,13 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -1464,13 +1572,13 @@
                         <timeout_ms>1000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 
@@ -1545,13 +1653,13 @@
                         <timeout_ms>2000</timeout_ms>
                     </WAIT_FOR_WEBCAM_START>
 
-                    <DRIVE_TO_APRIL_TAG>
+                    <DRIVE_TO_BACKDROP_APRIL_TAG>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
                         <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
-                    </DRIVE_TO_APRIL_TAG>
+                    </DRIVE_TO_BACKDROP_APRIL_TAG>
 
                     <DELIVER_PIXEL_TO_BACKSTOP />
 

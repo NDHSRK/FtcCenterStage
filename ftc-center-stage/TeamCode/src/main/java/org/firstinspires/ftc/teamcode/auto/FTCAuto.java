@@ -852,8 +852,7 @@ public class FTCAuto {
 
             // Locate a specific AprilTag and drive the robot into position
             // in front of it with the method we used in PowerPlay.
-            //**TODO Change to DRIVE_TO_BACKDROP_APRIL_TAG
-            case "DRIVE_TO_APRIL_TAG": {
+            case "DRIVE_TO_BACKDROP_APRIL_TAG": {
                 // This check is crucial here because the code under this case
                 // label moves the elevator asynchronously.
                 if (asyncMoveElevator != null) // Prevent double initialization

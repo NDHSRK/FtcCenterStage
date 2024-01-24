@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
@@ -67,18 +68,18 @@ public class DualMotorMotion {
         try {
             while (dualMotors.dualMotorsAreBusy()) {
                 if (!linearOpMode.opModeIsActive()) {
-                   RobotLog.dd(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
+                    RobotLog.dd(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     RobotLogCommon.d(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     break;
                 }
-                
+
                 // If we're running Autonomous check the timer.
                 if (FTCAuto.autonomousTimer != null && FTCAuto.autonomousTimer.autoTimerIsExpired()) {
-                   RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
+                    RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     break;
                 }
-                
+
                 sleep(10);
             }
         } finally {
@@ -93,6 +94,47 @@ public class DualMotorMotion {
                     " ending position " + dualMotorPositions.first);
             RobotLogCommon.d(TAG, "Motor " + motorIds.second +
                     " ending position " + dualMotorPositions.second);
+        }
+    }
+
+    //**TODO Move both motors downward until they each trip their respective magnetic switch.
+    public void moveDualMotorsDownToMagneticLimit(TouchSensor pLeftSwitch, TouchSensor pRightSwitch, double pVelocity) {
+        dualMotors.setModeDual(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Pair<FTCRobot.MotorId, FTCRobot.MotorId> motorIds = dualMotors.getMotorIds();
+        RobotLogCommon.d(TAG, "Moving dual motors " + motorIds.first + ", " +
+                motorIds.second + " down to their magnetic limit");
+
+        try {
+            boolean reachedLeftLimit = false;
+            boolean reachedRightLimit = false;
+            double velocity = -Math.abs(pVelocity); // velocity is always negative
+            dualMotors.runDualMotorsAtVelocity(velocity); // start moving
+
+            while (!reachedLeftLimit || !reachedRightLimit) {
+                if (!reachedLeftLimit && pLeftSwitch.isPressed()) {
+                    reachedLeftLimit = true;
+                    dualMotors.runAtVelocity(motorIds.first, 0.0);
+                }
+
+                if (!reachedRightLimit && pRightSwitch.isPressed()) {
+                    reachedRightLimit = true;
+                    dualMotors.runAtVelocity(motorIds.second, 0.0);
+                }
+
+                sleep(10);
+            }
+        } finally {
+            dualMotors.stopVelocityDual(); // for safety in case of an exception
+
+            RobotLogCommon.d(TAG, "Dual motor motion down to magnetic limit complete");
+            Pair<Integer, Integer> dualMotorPositions = dualMotors.getCurrentPositions();
+            RobotLogCommon.d(TAG, "Motor " + motorIds.first +
+                    " ending position " + dualMotorPositions.first);
+            RobotLogCommon.d(TAG, "Motor " + motorIds.second +
+                    " ending position " + dualMotorPositions.second);
+
+            // Reset the zero point of the encoders.
+            dualMotors.setModeDual(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
 
