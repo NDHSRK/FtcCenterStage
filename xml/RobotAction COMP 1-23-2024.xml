@@ -9,40 +9,9 @@
         </parameters>
         <actions>
 
-            <FIND_TEAM_PROP>
-                <image_parameters>
-                    <image_source>front_webcam</image_source>
-                    <resolution>
-                        <width>640</width>
-                        <height>480</height>
-                    </resolution>
-                    <image_roi>
-                        <x>132</x>
-                        <y>160</y>
-                        <width>489</width>
-                        <height>248</height>
-                    </image_roi>
-                </image_parameters>
-                <team_prop_recognition>
-                    <recognition_path>color_channel_pixel_count</recognition_path>
-                    <left_window>
-                        <width>312</width>
-                        <prop_location>CENTER_SPIKE</prop_location>
-                    </left_window>
-                    <right_window>
-                        <prop_location>RIGHT_SPIKE</prop_location>
-                    </right_window>
-                    <team_prop_npos>
-                        <prop_location>LEFT_SPIKE</prop_location>
-                    </team_prop_npos>
-                </team_prop_recognition>
-            </FIND_TEAM_PROP>
-
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM>
-
-            <STOP/>
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -1530,7 +1499,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -1544,13 +1513,13 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>22.0</distance>
+                                <distance>18.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>40.0</distance>
+                                <distance>38.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
@@ -1607,7 +1576,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -1621,13 +1590,13 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>32.0</distance>
+                                <distance>28.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>32.0</distance>
+                                <distance>28.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>
@@ -1688,7 +1657,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>7.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -1702,14 +1671,14 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>43.0</distance>
+                                <distance>40.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>22.0</distance>
+                                <distance>18.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>
