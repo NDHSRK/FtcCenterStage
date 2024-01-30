@@ -71,7 +71,7 @@
             clicks_per_motor_rev="384.5" rpm="435.0" direction="FORWARD">
             <id>intake_main</id> <!-- id as configured on the robot -->
         </single_motor>
-        <velocity>1.0</velocity>
+        <velocity>0.7</velocity>
         <positions>
             <rest>0</rest>
             <intake>0</intake>
@@ -88,7 +88,7 @@
         </servos>
         <positions>
             <up>0.27</up>
-            <down>0.27</down> <!-- for the rake 0.225-->
+            <down>0.22</down> <!-- previously 0.21-->
             <auto>0.16</auto>
             <stack>.16</stack>
         </positions>
