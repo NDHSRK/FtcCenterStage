@@ -9,7 +9,7 @@
         </parameters>
         <actions>
 
-            <FIND_TEAM_PROP>
+            <!-- FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
                     <resolution>
@@ -36,13 +36,11 @@
                         <prop_location>LEFT_SPIKE</prop_location>
                     </team_prop_npos>
                 </team_prop_recognition>
-            </FIND_TEAM_PROP>
+            </FIND_TEAM_PROP -->
 
             <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM>
-
-            <STOP/>
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -56,8 +54,12 @@
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <timeout_ms>1000</timeout_ms>
             </WAIT_FOR_WEBCAM_START>
+            
+            <TAKE_PICTURE_WEBCAM>
+                <internal_webcam_id>rear_webcam</internal_webcam_id>
+            </TAKE_PICTURE_WEBCAM>
            
-            <MOVE_ELEVATOR>
+            <!-- MOVE_ELEVATOR>
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
 
@@ -67,7 +69,6 @@
                 <timeout_ms>1000</timeout_ms>
                 <desired_distance_from_tag>7.0</desired_distance_from_tag>
                 <direction>back</direction>
-                <!-- Include the following in all spike paths under A2 and F2 -->
                 <yellow_pixel>
                     <image_parameters>
                         <image_source>rear_webcam</image_source>
@@ -86,7 +87,7 @@
                         <recognition_path>red_channel_grayscale</recognition_path>
                     </backdrop_pixel_recognition>
                 </yellow_pixel>
-            </DRIVE_TO_BACKDROP_APRIL_TAG>
+            </DRIVE_TO_BACKDROP_APRIL_TAG -->
 
             <SLEEP>
                 <ms>1500</ms>
