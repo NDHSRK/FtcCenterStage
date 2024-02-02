@@ -51,7 +51,7 @@ public class BackdropPixelRecognition {
         if (backdropPixelImage == null)
             return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_INTERNAL_ERROR); // don't crash
 
-        // The image is in BGR order (OpenCV imread from a file).
+        // The image is in BGR order.
         String fileDate = TimeStamp.getDateTimeStamp(backdropPixelImage.second);
         String outputFilenamePreamble = ImageUtils.createOutputFilePreamble(pImageParameters.image_source, workingDirectory, fileDate);
         Mat imageROI = ImageUtils.preProcessImage(backdropPixelImage.first, outputFilenamePreamble, pImageParameters);

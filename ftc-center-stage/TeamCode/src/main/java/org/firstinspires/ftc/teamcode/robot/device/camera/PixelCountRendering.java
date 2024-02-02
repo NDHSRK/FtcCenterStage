@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PixelCountRendering implements CameraStreamRendering {
-    private static final String TAG = PixelCountRendering.class.getSimpleName();
 
     private final LinearOpMode linear;
     private final RobotConstantsCenterStage.OpMode opMode;
@@ -38,7 +37,7 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final AtomicBoolean requestImageCapture = new AtomicBoolean();
     private int captureCount;
     private final String outputFilePreamble;
-    private Mat bgrFrame = new Mat();
+    private final Mat bgrFrame = new Mat();
 
     public PixelCountRendering(LinearOpMode pLinear, RobotConstantsCenterStage.OpMode pOpMode,
                                RobotConstants.Alliance pAlliance,
@@ -71,6 +70,12 @@ public class PixelCountRendering implements CameraStreamRendering {
             captureCount++;
 
         Imgproc.cvtColor(pWebcamFrame, bgrFrame, Imgproc.COLOR_RGBA2BGR);
+
+        if (captureNow) {
+            String outputFilename = outputFilePreamble + "PixelCount_" + opMode + String.format(Locale.US, "_%04d_IMG.png", captureCount);
+            Imgcodecs.imwrite(outputFilename, bgrFrame);
+        }
+
         Mat imageROI = ImageUtils.preProcessImage(bgrFrame, null, spikeWindowMapping.imageParameters);
 
         // Use the grayscale and pixel count criteria parameters for the current alliance.
@@ -94,9 +99,8 @@ public class PixelCountRendering implements CameraStreamRendering {
         }
 
         linear.telemetry.addLine("Grayscale median " + localGrayParameters.median_target);
-        linear.telemetry.addLine("Grayscale low threshold " + localGrayParameters.threshold_low);
-        linear.telemetry.addLine("Minimum white pixel count " + allianceMinWhitePixelCount);
         linear.telemetry.addLine("Threshold values: low " + localGrayParameters.threshold_low + ", high 255");
+        linear.telemetry.addLine("Minimum white pixel count " + allianceMinWhitePixelCount);
 
         // Get the white pixel count for both the left and right
         // spike windows.
@@ -137,8 +141,8 @@ public class PixelCountRendering implements CameraStreamRendering {
         //pDriverStationScreenCanvas.drawBitmap(bmp, null, destRect, null);
 
         // This method displays a centered inset.
-        float insetLeft = (onscreenWidth / 2) - (spikeWindowMapping.imageParameters.image_roi.width / 2);
-        float insetTop = (onscreenHeight / 2) - (spikeWindowMapping.imageParameters.image_roi.height / 2);
+        float insetLeft = (float) ((onscreenWidth / 2) - (spikeWindowMapping.imageParameters.image_roi.width / 2));
+        float insetTop = (float) ((onscreenHeight / 2) - (spikeWindowMapping.imageParameters.image_roi.height / 2));
         pDriverStationScreenCanvas.drawBitmap(bmp, insetLeft, insetTop, null);
     }
 
