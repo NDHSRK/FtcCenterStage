@@ -24,12 +24,12 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-// Class whose job it is to read an XML file that contains all of the information
-// needed for our OpenCV methods to recognize a pixel on the backdrop
-// during Autonomous.
+// Class whose job it is to read an XML file that contains all of the
+// information needed for our OpenCV methods to recognize a pixel on
+// the backdrop during Autonomous.
 public class BackdropPixelParametersXML {
     public static final String TAG = BackdropPixelParametersXML.class.getSimpleName();
-    private static final String BDP_FILE_NAME = "BackdropPixelParameters.xml";
+    private static final String BPP_FILE_NAME = "BackdropPixelParameters.xml";
 
     private final Document document;
     private final String xmlDirectory;
@@ -42,7 +42,7 @@ public class BackdropPixelParametersXML {
         Node backdrop_pixel_parameters_node;
         try {
             xmlDirectory = pXMLDir;
-            xmlFilePath = pXMLDir + BDP_FILE_NAME;
+            xmlFilePath = pXMLDir + BPP_FILE_NAME;
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             dbFactory.setIgnoringComments(true);

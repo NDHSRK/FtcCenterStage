@@ -9,6 +9,7 @@ import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
+import org.firstinspires.ftc.teamcode.auto.xml.BackdropPixelImageParametersXML;
 import org.firstinspires.ftc.teamcode.auto.xml.BackdropPixelParametersXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
@@ -18,8 +19,13 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.util.Objects;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 // This OpMode gives the drive team a way to check and
 // modify the grayscale thresholding of the
@@ -33,10 +39,7 @@ public class BackdropPixelViewer extends LinearOpMode {
 
     private BackdropPixelParametersXML backdropPixelParametersXML;
     private BackdropPixelParameters backdropPixelParameters;
-
-    //**TODO private BackdropPixelImageXML backdropPixelImageXML;
-    // private BackdropPixelImageParameters backdropPixelImageParameters;
-
+    private BackdropPixelImageParametersXML backdropPixelImageParametersXML;
     private CameraStreamProcessor backdropPixelProcessor;
 
     private FTCButton increaseThreshold;
@@ -78,19 +81,12 @@ public class BackdropPixelViewer extends LinearOpMode {
         rearWebcamConfiguration.setVisionPortalWebcam(backdropPixelWebcam);
         RobotLog.ii(TAG, "BackdropPixelViewer successfully started on the rear webcam");
 
-        //**TODO To avoid parsing RobotAction.XML for the ROI definitions for the
+        //!! To avoid parsing RobotAction.XML for the ROI definitions for the
         // backdrop under DRIVE_TO_BACKDROP_APRIL_TAG - which should be the same
         // for all OpModes - put the definitions in a separate file *with the risk
         // that these definitions must be kept in sync*.
-        /*
-        try {
-            //**TODO BackdropPixelImageXML backdropPixelImageXML = new BackdropImageXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
-            //**TODO VisionParameters.ImageParameters backdropPixelImageParameters = backdropPixelImageXML.getBackdropPixelImageParameters();
-        } catch (ParserConfigurationException | IOException | SAXException |
-                 XPathExpressionException ex) {
-            throw new AutonomousRobotException(TAG, ex.getMessage());
-        }
-        */
+        BackdropPixelImageParametersXML backdropPixelImageParametersXML = new BackdropPixelImageParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
+        VisionParameters.ImageParameters backdropPixelImageParameters = backdropPixelImageParametersXML.getBackdropPixelImageParameters();
 
         originalGrayParameters = backdropPixelParameters.grayscaleParameters;
         currentThresholdLow = originalGrayParameters.threshold_low;
@@ -144,8 +140,8 @@ public class BackdropPixelViewer extends LinearOpMode {
     // pixelCountRendering will be null!
     private void updateIncreaseThreshold() {
         if (increaseThreshold.is(FTCButton.State.TAP)) {
-            if (backdropPixelRendering == null || currentThresholdLow == 255)
-                return; //**TODO no OpMode has been selected; can't go above maximum
+            if (currentThresholdLow == 255)
+                return; // can't go above maximum
 
             currentThresholdLow += THRESHOLD_CHANGE;
 
@@ -164,8 +160,8 @@ public class BackdropPixelViewer extends LinearOpMode {
     // pixelCountRendering will be null!
     private void updateDecreaseThreshold() {
         if (decreaseThreshold.is(FTCButton.State.TAP)) {
-            if (backdropPixelRendering == null || currentThresholdLow == 0)
-                return; // no OpMode has been selected; can't go below minimum
+            if (currentThresholdLow == 0)
+                return; // can't go below minimum
 
             currentThresholdLow -= THRESHOLD_CHANGE;
 
@@ -180,13 +176,9 @@ public class BackdropPixelViewer extends LinearOpMode {
         }
     }
 
-    // Take no action if this method is called before an OpMode is selected -
-    // pixelCountRendering will be null!
     private void updateRequestImageCapture() {
-        if (requestImageCapture.is(FTCButton.State.TAP)) {
-            if (backdropPixelRendering != null)
+        if (requestImageCapture.is(FTCButton.State.TAP))
                 backdropPixelRendering.requestImageCapture();
-        }
     }
 
 }

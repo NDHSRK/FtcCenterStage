@@ -1,0 +1,19 @@
+<!-- WARNING: The image_parameters element in this file
+ duplicates the identical elements found in
+ "RobotAction COMP.xml" under the OpModes RED_F2 and
+ BLUE_A2 and the action DRIVE_TO_BACKDROP_APRIL_TAG. -->
+<backdrop_pixel_image_parameters>
+    <image_parameters>
+        <image_source>rear_webcam</image_source>
+        <resolution>
+            <width>640</width>
+            <height>480</height>
+        </resolution>
+        <image_roi>
+            <x>140</x>
+            <y>0</y>
+            <width>345</width>
+            <height>250</height>
+        </image_roi>
+    </image_parameters>
+</backdrop_pixel_image_parameters>
