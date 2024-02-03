@@ -69,8 +69,9 @@ public class BackdropPixelRendering implements CameraStreamRendering {
         ArrayList<Mat> channels = new ArrayList<>(3);
         Core.split(imageROI, channels); // red or blue channel. B = 0, G = 1, R = 2
 
+        // We're using the red channel.
         if (captureNow) {
-            String outputFilename = outputFilePreamble + "BackdropPixel_" + String.format(Locale.US, "_%04d_INV.png", captureCount);
+            String outputFilename = outputFilePreamble + "BackdropPixel_" + String.format(Locale.US, "_%04d_RED.png", captureCount);
             Imgcodecs.imwrite(outputFilename, channels.get(2));
         }
 
@@ -90,12 +91,10 @@ public class BackdropPixelRendering implements CameraStreamRendering {
             return;
         }
 
-        // Draw all of the contours.
-
-        Mat contoursDrawn = bgrFrame.clone();
-        ShapeDrawing.drawShapeContours(contours, contoursDrawn);
-
         if (captureNow) {
+            // Draw all of the contours.
+            Mat contoursDrawn = bgrFrame.clone();
+            ShapeDrawing.drawShapeContours(contours, contoursDrawn);
             String outputFilename = outputFilePreamble + "BackdropPixel_" + String.format(Locale.US, "_%04d_CON.png", captureCount);
             Imgcodecs.imwrite(outputFilename, contoursDrawn);
         }

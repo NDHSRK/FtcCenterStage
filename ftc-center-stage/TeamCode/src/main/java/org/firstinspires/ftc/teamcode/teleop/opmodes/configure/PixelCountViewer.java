@@ -85,7 +85,7 @@ public class PixelCountViewer extends LinearOpMode {
 
         pixelCountProcessor = new CameraStreamProcessor.Builder().build();
         VisionPortalWebcam pixelCountWebcam = new VisionPortalWebcam(frontWebcamConfiguration,
-                RobotConstantsCenterStage.ProcessorIdentifier.PIXEL_COUNT,
+                RobotConstantsCenterStage.ProcessorIdentifier.CAMERA_STREAM_PREVIEW,
                 Pair.create(pixelCountProcessor, true));
 
         if (!pixelCountWebcam.waitForWebcamStart(2000))
@@ -117,7 +117,7 @@ public class PixelCountViewer extends LinearOpMode {
         telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
         telemetry.addLine("Press Y for RED_F4, B for RED_F2");
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to *END* the OpMode");
+        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
         telemetry.update();
 
         while (!isStarted() && !isStopRequested()) {

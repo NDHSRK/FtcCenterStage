@@ -19,18 +19,13 @@ import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.util.Objects;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
 // This OpMode gives the drive team a way to check and
-// modify the grayscale thresholding of the
-// webcam frame that contains the AprilTag and possibly
-// a previously placed yellow pixel on the backdrop.
+// modify the grayscale thresholding of the webcam
+// frame that contains the AprilTag and possibly a
+// previously placed yellow pixel on the backdrop.
 @TeleOp(name = "BackdropPixelViewer", group = "Configure")
 //@Disabled
 public class BackdropPixelViewer extends LinearOpMode {
@@ -38,10 +33,6 @@ public class BackdropPixelViewer extends LinearOpMode {
     private static final int THRESHOLD_CHANGE = 5;
 
     private BackdropPixelParametersXML backdropPixelParametersXML;
-    private BackdropPixelParameters backdropPixelParameters;
-    private BackdropPixelImageParametersXML backdropPixelImageParametersXML;
-    private CameraStreamProcessor backdropPixelProcessor;
-
     private FTCButton increaseThreshold;
     private FTCButton decreaseThreshold;
     private FTCButton requestImageCapture;
@@ -57,36 +48,40 @@ public class BackdropPixelViewer extends LinearOpMode {
 
         // Read the parameters for backdrop pixel recognition from the xml file.
         backdropPixelParametersXML = new BackdropPixelParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
-        backdropPixelParameters = backdropPixelParametersXML.getBackdropPixelParameters();
+        BackdropPixelParameters backdropPixelParameters = backdropPixelParametersXML.getBackdropPixelParameters();
 
         // Get the camera configuration from RobotConfig.xml.
         FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
 
-        // Start the rear webcam with the backdrop pixel processor.
-        if (robot.configuredWebcams == null)
-            throw new AutonomousRobotException(TAG, "There are no webcams in the current configuration");
-
-        VisionPortalWebcamConfiguration.ConfiguredWebcam rearWebcamConfiguration =
-                Objects.requireNonNull(robot.configuredWebcams.get(RobotConstantsCenterStage.InternalWebcamId.REAR_WEBCAM),
-                        TAG + " The REAR_WEBCAM is not configured");
-
-        backdropPixelProcessor = new CameraStreamProcessor.Builder().build();
-        VisionPortalWebcam backdropPixelWebcam = new VisionPortalWebcam(rearWebcamConfiguration,
-                RobotConstantsCenterStage.ProcessorIdentifier.BACKDROP_PIXEL,
-                Pair.create(backdropPixelProcessor, true));
-
-        if (!backdropPixelWebcam.waitForWebcamStart(2000))
-            throw new AutonomousRobotException(TAG, "Backdrop pixel webcam timed out on start");
-
-        rearWebcamConfiguration.setVisionPortalWebcam(backdropPixelWebcam);
-        RobotLog.ii(TAG, "BackdropPixelViewer successfully started on the rear webcam");
-
-        //!! To avoid parsing RobotAction.XML for the ROI definitions for the
+        //!! To avoid parsing RobotAction.xml for the ROI definitions of the
         // backdrop under DRIVE_TO_BACKDROP_APRIL_TAG - which should be the same
         // for all OpModes - put the definitions in a separate file *with the risk
         // that these definitions must be kept in sync*.
         BackdropPixelImageParametersXML backdropPixelImageParametersXML = new BackdropPixelImageParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
         VisionParameters.ImageParameters backdropPixelImageParameters = backdropPixelImageParametersXML.getBackdropPixelImageParameters();
+
+        // Start the rear webcam with the backdrop pixel processor.
+        if (robot.configuredWebcams == null)
+            throw new AutonomousRobotException(TAG, "There are no webcams in the current configuration");
+
+        RobotConstantsCenterStage.InternalWebcamId webcamId =
+                RobotConstantsCenterStage.InternalWebcamId.valueOf(backdropPixelImageParameters.image_source.toUpperCase());
+        VisionPortalWebcamConfiguration.ConfiguredWebcam backdropWebcamConfiguration = Objects.requireNonNull(robot.configuredWebcams.get(webcamId),
+                TAG + " Webcam " + webcamId + " is not in the current configuration");
+
+        if (webcamId != backdropWebcamConfiguration.internalWebcamId)
+            throw new AutonomousRobotException(TAG, "The AprilTag webcam id and the backstop pixel webcam id are not the same");
+
+        CameraStreamProcessor backdropPixelProcessor = new CameraStreamProcessor.Builder().build();
+        VisionPortalWebcam backdropPixelWebcam = new VisionPortalWebcam(backdropWebcamConfiguration,
+                RobotConstantsCenterStage.ProcessorIdentifier.CAMERA_STREAM_PREVIEW,
+                Pair.create(backdropPixelProcessor, true));
+
+        if (!backdropPixelWebcam.waitForWebcamStart(2000))
+            throw new AutonomousRobotException(TAG, "Backdrop pixel webcam timed out on start");
+
+        backdropWebcamConfiguration.setVisionPortalWebcam(backdropPixelWebcam);
+        RobotLog.ii(TAG, "BackdropPixelViewer successfully started on webcam " + webcamId);
 
         originalGrayParameters = backdropPixelParameters.grayscaleParameters;
         currentThresholdLow = originalGrayParameters.threshold_low;
@@ -101,7 +96,7 @@ public class BackdropPixelViewer extends LinearOpMode {
         telemetry.addLine("Press DPAD UP to increase threshold");
         telemetry.addLine("Press DPAD DOWN to decrease threshold");
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to *END* the OpMode");
+        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
         telemetry.update();
 
         while (!isStarted() && !isStopRequested()) {
@@ -111,7 +106,7 @@ public class BackdropPixelViewer extends LinearOpMode {
 
         if (opModeIsActive()) {
             // If there have been any changes to the grayscale values
-            // write them out to TeamPropParameters.xml now.
+            // write them out to BackdropPixelParameters.xml now.
             if (grayscaleParametersChanged) {
                 backdropPixelParametersXML.writeBackdropPixelParametersFile();
                 RobotLog.ii(TAG, "Writing BackdropPixelParameters.xml");
@@ -136,8 +131,6 @@ public class BackdropPixelViewer extends LinearOpMode {
         updateRequestImageCapture();
     }
 
-    // Take no action if this method is called before an OpMode is selected -
-    // pixelCountRendering will be null!
     private void updateIncreaseThreshold() {
         if (increaseThreshold.is(FTCButton.State.TAP)) {
             if (currentThresholdLow == 255)
@@ -156,8 +149,6 @@ public class BackdropPixelViewer extends LinearOpMode {
         }
     }
 
-    // Take no action if this method is called before an OpMode is selected -
-    // pixelCountRendering will be null!
     private void updateDecreaseThreshold() {
         if (decreaseThreshold.is(FTCButton.State.TAP)) {
             if (currentThresholdLow == 0)

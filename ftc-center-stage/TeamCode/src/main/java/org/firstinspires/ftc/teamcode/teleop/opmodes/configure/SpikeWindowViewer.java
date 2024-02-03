@@ -58,7 +58,7 @@ public class SpikeWindowViewer extends LinearOpMode {
 
         spikeWindowProcessor = new CameraStreamProcessor.Builder().build();
         VisionPortalWebcam spikeWindowWebcam = new VisionPortalWebcam(frontWebcamConfiguration,
-                RobotConstantsCenterStage.ProcessorIdentifier.SPIKE_WINDOW,
+                RobotConstantsCenterStage.ProcessorIdentifier.CAMERA_STREAM_PREVIEW,
                 Pair.create(spikeWindowProcessor, true));
 
         if (!spikeWindowWebcam.waitForWebcamStart(2000))
