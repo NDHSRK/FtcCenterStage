@@ -47,7 +47,7 @@ public class RobotConstantsCenterStage {
     }
 
     public enum ProcessorIdentifier {
-        RAW_FRAME, APRIL_TAG, SPIKE_WINDOW, PIXEL_COUNT, PROCESSOR_NPOS
+        RAW_FRAME, APRIL_TAG, SPIKE_WINDOW, PIXEL_COUNT, BACKDROP_PIXEL, PROCESSOR_NPOS
     }
 
     public enum TeamPropRecognitionPath {

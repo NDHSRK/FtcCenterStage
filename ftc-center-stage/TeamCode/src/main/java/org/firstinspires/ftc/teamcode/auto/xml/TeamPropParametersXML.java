@@ -376,11 +376,11 @@ public class TeamPropParametersXML {
         return teamPropParameters;
     }
 
-    // Replaces the text values of the children of the <gray_arameters> element
+    // Replaces the text values of the children of the <gray_parameters> element
     // under RED or BLUE <color_channel_pixel_count>.
     public void setPixelCountGrayParameters(RobotConstants.Alliance pAlliance,
                                             VisionParameters.GrayParameters pGrayParameters) {
-        RobotLog.ii(TAG, "Setting the grayscale parameters for alliance " + pAlliance + " for the color pixel countT recognition path in teamPropParameters");
+        RobotLog.ii(TAG, "Setting the grayscale parameters for alliance " + pAlliance + " for the color pixel count recognition path in teamPropParameters");
         if (pAlliance == RobotConstants.Alliance.RED) {
             RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
             red_pixel_count_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));

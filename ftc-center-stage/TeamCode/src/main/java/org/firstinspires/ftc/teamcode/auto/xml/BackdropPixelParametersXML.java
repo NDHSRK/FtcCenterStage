@@ -1,21 +1,28 @@
 package org.firstinspires.ftc.teamcode.auto.xml;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
+import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.xml.ImageXML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
-import java.io.File;
-import java.io.IOException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 // Class whose job it is to read an XML file that contains all of the information
 // needed for our OpenCV methods to recognize a pixel on the backdrop
@@ -25,10 +32,18 @@ public class BackdropPixelParametersXML {
     private static final String BDP_FILE_NAME = "BackdropPixelParameters.xml";
 
     private final Document document;
-    private final XPath xpath;
+    private final String xmlDirectory;
+    private final String xmlFilePath;
+    private final Node backdrop_pixel_gray_median_node;
+    private final Node backdrop_pixel_gray_threshold_node;
+    private final BackdropPixelParameters backdropPixelParameters;
 
     public BackdropPixelParametersXML(String pXMLDir) {
+        Node backdrop_pixel_parameters_node;
         try {
+            xmlDirectory = pXMLDir;
+            xmlFilePath = pXMLDir + BDP_FILE_NAME;
+
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             dbFactory.setIgnoringComments(true);
 
@@ -37,9 +52,15 @@ public class BackdropPixelParametersXML {
             // Not supported in Android Studio dbFactory.setXIncludeAware(true);
 
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            document = dBuilder.parse(new File(pXMLDir + BDP_FILE_NAME));
+            document = dBuilder.parse(new File(xmlFilePath));
             XPathFactory xpathFactory = XPathFactory.newInstance();
-            xpath = xpathFactory.newXPath();
+            XPath xpath = xpathFactory.newXPath();
+
+            // Point to the first node.
+            XPathExpression expr = xpath.compile("//backdrop_pixel_parameters");
+            backdrop_pixel_parameters_node = (Node) expr.evaluate(document, XPathConstants.NODE);
+            if (backdrop_pixel_parameters_node == null)
+                throw new AutonomousRobotException(TAG, "Element '//backdrop_pixel_parameters' not found");
 
         } catch (ParserConfigurationException pex) {
             throw new AutonomousRobotException(TAG, "DOM parser Exception " + pex.getMessage());
@@ -47,20 +68,9 @@ public class BackdropPixelParametersXML {
             throw new AutonomousRobotException(TAG, "SAX Exception " + sx.getMessage());
         } catch (IOException iex) {
             throw new AutonomousRobotException(TAG, "IOException " + iex.getMessage());
+        } catch (XPathExpressionException xex) {
+            throw new AutonomousRobotException(TAG, "XPath Exception " + xex.getMessage());
         }
-    }
-
-    public BackdropPixelParameters getBackdropPixelParameters() throws XPathExpressionException {
-        XPathExpression expr;
-        VisionParameters.GrayParameters grayParameters;
-
-        // Point to the first node.
-        RobotLogCommon.d(TAG, "Parsing XML backdrop_pixel_parameters");
-
-        expr = xpath.compile("//backdrop_pixel_parameters");
-        Node backdrop_pixel_parameters_node = (Node) expr.evaluate(document, XPathConstants.NODE);
-        if (backdrop_pixel_parameters_node == null)
-            throw new AutonomousRobotException(TAG, "Element '//backdrop_pixel_parameters' not found");
 
         // Point to <gray_parameters>
         Node gray_node = backdrop_pixel_parameters_node.getFirstChild();
@@ -68,7 +78,14 @@ public class BackdropPixelParametersXML {
         if ((gray_parameters_node == null) || !gray_parameters_node.getNodeName().equals("gray_parameters"))
             throw new AutonomousRobotException(TAG, "Element 'gray_parameters' not found");
 
-        grayParameters = ImageXML.parseGrayParameters(gray_parameters_node);
+        VisionParameters.GrayParameters grayParameters = ImageXML.parseGrayParameters(gray_parameters_node);
+
+        // Get access to the <median_target> and <threshold_low> elements under <gray_parameters>
+        // for possible modification.
+        Node local_backdrop_pixel_gray_median_node = gray_node.getFirstChild();
+        backdrop_pixel_gray_median_node = XMLUtils.getNextElement(local_backdrop_pixel_gray_median_node);
+        Node local_red_pixel_count_gray_threshold_node = local_backdrop_pixel_gray_median_node.getNextSibling();
+        backdrop_pixel_gray_threshold_node = XMLUtils.getNextElement(local_red_pixel_count_gray_threshold_node);
 
         // Parse the size criteria for the AprilTag bounding box.
         Node criteria_node = gray_parameters_node.getNextSibling();
@@ -91,7 +108,25 @@ public class BackdropPixelParametersXML {
 
         BackdropPixelParameters.BoundingBoxCriteria yellowPixelCriteria = parseCriteria(april_tag_criteria_node);
 
-        return new BackdropPixelParameters(grayParameters, aprilTagCriteria, yellowPixelCriteria);
+        backdropPixelParameters = new BackdropPixelParameters(grayParameters, aprilTagCriteria, yellowPixelCriteria);
+    }
+
+    public BackdropPixelParameters getBackdropPixelParameters() {
+        return backdropPixelParameters;
+    }
+
+    // Replaces the text values of the children of the <gray_parameters> element.
+    public void setBackdropPixelGrayParameters(VisionParameters.GrayParameters pGrayParameters) {
+        RobotLog.ii(TAG, "Setting the grayscale parameters for backdrop pixel recognition in backdropPixelParameters");
+        RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+        backdrop_pixel_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
+
+        RobotLog.ii(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+        backdrop_pixel_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
+    }
+
+    public void writeBackdropPixelParametersFile() {
+        XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
     }
 
     private BackdropPixelParameters.BoundingBoxCriteria parseCriteria(Node pCriteriaChildNode) {

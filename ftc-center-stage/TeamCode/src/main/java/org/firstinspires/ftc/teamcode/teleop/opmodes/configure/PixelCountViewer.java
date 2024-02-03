@@ -29,9 +29,9 @@ import java.util.Objects;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-// This OpMode gives the drive team a way to check the
-// alignment of the front camera to check the OpenCV
-// grayscale thresholding of the cropped webcam frame.
+// This OpMode gives the drive team a way to check and
+// modify the grayscale thresholding of the cropped
+// webcam frame that contains the Team Prop.
 @TeleOp(name = "PixelCountViewer", group = "Configure")
 //@Disabled
 public class PixelCountViewer extends LinearOpMode {
@@ -89,7 +89,7 @@ public class PixelCountViewer extends LinearOpMode {
                 Pair.create(pixelCountProcessor, true));
 
         if (!pixelCountWebcam.waitForWebcamStart(2000))
-            throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
+            throw new AutonomousRobotException(TAG, "Pixel count webcam timed out on start");
 
         frontWebcamConfiguration.setVisionPortalWebcam(pixelCountWebcam);
         RobotLog.ii(TAG, "PixelCountViewer successfully started on the front webcam");
