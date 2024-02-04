@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.common.xml;
+package org.firstinspires.ftc.teamcode.xml;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -6,7 +6,6 @@ import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.common.StartParameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto.vision;
+package org.firstinspires.ftc.teamcode.xml;
 
 // Input parameters to Team Prop recognition.
 public class TeamPropParameters {

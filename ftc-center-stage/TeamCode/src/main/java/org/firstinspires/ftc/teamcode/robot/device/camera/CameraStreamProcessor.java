@@ -36,7 +36,6 @@
 
 package org.firstinspires.ftc.teamcode.robot.device.camera;
 
-import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
 import org.firstinspires.ftc.vision.VisionProcessor;
 
 // Follow the class relationships of the AprilTag sample in which

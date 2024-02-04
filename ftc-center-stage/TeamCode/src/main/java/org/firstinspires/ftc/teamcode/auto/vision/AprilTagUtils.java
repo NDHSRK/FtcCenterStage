@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto.vision;
 
-import org.checkerframework.checker.units.qual.Angle;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
-import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.teamcode.common.AngleDistance;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
 import java.util.EnumSet;
@@ -12,20 +9,51 @@ public class AprilTagUtils {
 
     private static final String TAG = AprilTagUtils.class.getSimpleName();
 
+    // AprilTag identifiers
+    public enum AprilTagId {
+        TAG_ID_NPOS(-1),
+        TAG_ID_1(1), TAG_ID_2(2), TAG_ID_3(3),
+        TAG_ID_4(4), TAG_ID_5(5), TAG_ID_6(6),
+        TAG_ID_7(7), TAG_ID_8(8), TAG_ID_9(9),
+        TAG_ID_10(10);
+
+        private final int numericAprilTagId;
+
+        AprilTagId(int pNumericId) {
+            numericAprilTagId = pNumericId;
+        }
+
+        public int getNumericId() {
+            return numericAprilTagId;
+        }
+
+        // Given the numeric id of an AprilTag return its
+        // enumeration.
+        public static AprilTagUtils.AprilTagId getEnumValue(int pNumericId) {
+            AprilTagUtils.AprilTagId[] tagValues = AprilTagUtils.AprilTagId.values();
+            for (AprilTagUtils.AprilTagId tagValue : tagValues) {
+                if (tagValue.numericAprilTagId == pNumericId)
+                    return tagValue;
+            }
+
+            return AprilTagUtils.AprilTagId.TAG_ID_NPOS; // no match
+        }
+    }
+    
     private static final double STRAFE_LEFT = 90.0;
     private static final double STRAFE_RIGHT = -90.0;
 
     // For validation of the AprilTags on the BLUE side backdrop.
-    private static final EnumSet<RobotConstantsCenterStage.AprilTagId> blueBackdropAprilTags =
-            EnumSet.of(RobotConstantsCenterStage.AprilTagId.TAG_ID_1,
-                    RobotConstantsCenterStage.AprilTagId.TAG_ID_2,
-                    RobotConstantsCenterStage.AprilTagId.TAG_ID_3);
+    private static final EnumSet<AprilTagUtils.AprilTagId> blueBackdropAprilTags =
+            EnumSet.of(AprilTagUtils.AprilTagId.TAG_ID_1,
+                    AprilTagUtils.AprilTagId.TAG_ID_2,
+                    AprilTagUtils.AprilTagId.TAG_ID_3);
 
     // For validation of the AprilTags on the RED side backdrop.
-    private static final EnumSet<RobotConstantsCenterStage.AprilTagId> redBackdropAprilTags =
-            EnumSet.of(RobotConstantsCenterStage.AprilTagId.TAG_ID_4,
-                    RobotConstantsCenterStage.AprilTagId.TAG_ID_5,
-                    RobotConstantsCenterStage.AprilTagId.TAG_ID_6);
+    private static final EnumSet<AprilTagUtils.AprilTagId> redBackdropAprilTags =
+            EnumSet.of(AprilTagUtils.AprilTagId.TAG_ID_4,
+                    AprilTagUtils.AprilTagId.TAG_ID_5,
+                    AprilTagUtils.AprilTagId.TAG_ID_6);
 
     // Call this method if the target AprilTag on the backstop could not
     // be located but at least one if its near neighbors in the same set
@@ -33,8 +61,8 @@ public class AprilTagUtils {
     // target AprilTag from the position of its neighbor and returns the
     // distance and angle to the target AprilTag.
 
-    public static AngleDistance inferAprilTag(RobotConstantsCenterStage.AprilTagId pTargetId,
-                                              RobotConstantsCenterStage.AprilTagId pRecognizedId,
+    public static AngleDistance inferAprilTag(AprilTagUtils.AprilTagId pTargetId,
+                                              AprilTagUtils.AprilTagId pRecognizedId,
                                               double pDistanceToRecognizedId, double pAngleToRecognizedId) {
         if (pTargetId == pRecognizedId) // the caller shouldn't do this
             return new AngleDistance(pAngleToRecognizedId, pDistanceToRecognizedId); // so return the input

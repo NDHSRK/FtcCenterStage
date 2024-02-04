@@ -133,8 +133,7 @@
                 <offset_camera_lens_from_robot_center>0.0</offset_camera_lens_from_robot_center>
                 <processor_set>
                     <processor>raw_frame</processor>
-                    <processor>spike_window</processor>
-                    <processor>pixel_count</processor>
+                    <processor>camera_stream_preview</processor>
                 </processor_set>
             </webcam>
             <webcam>
@@ -146,8 +145,9 @@
                 <distance_camera_lens_to_robot_center>8.5</distance_camera_lens_to_robot_center>
                 <offset_camera_lens_from_robot_center>2.5</offset_camera_lens_from_robot_center>
                 <processor_set>
-                    <processor>raw_frame</processor>
                     <processor>april_tag</processor>
+                    <processor>raw_frame</processor>
+                    <processor>camera_stream_preview</processor>
                 </processor_set>
                 <webcam_calibration_for_apriltags>
                     <focal_length_x>622.001</focal_length_x>

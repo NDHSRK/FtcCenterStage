@@ -85,37 +85,6 @@ public class RobotConstantsCenterStage {
         }
     }
 
-    // AprilTag identifiers
-    public enum AprilTagId {
-        TAG_ID_NPOS(-1),
-        TAG_ID_1(1), TAG_ID_2(2), TAG_ID_3(3),
-        TAG_ID_4(4), TAG_ID_5(5), TAG_ID_6(6),
-        TAG_ID_7(7), TAG_ID_8(8), TAG_ID_9(9),
-        TAG_ID_10(10);
-
-        private final int numericAprilTagId;
-
-        AprilTagId(int pNumericId) {
-            numericAprilTagId = pNumericId;
-        }
-
-        public int getNumericId() {
-            return numericAprilTagId;
-        }
-
-        // Given the numeric id of an AprilTag return its
-        // enumeration.
-        public static AprilTagId getEnumValue(int pNumericId) {
-            AprilTagId[] tagValues = AprilTagId.values();
-            for (AprilTagId tagValue : tagValues) {
-                if (tagValue.numericAprilTagId == pNumericId)
-                    return tagValue;
-            }
-
-            return AprilTagId.TAG_ID_NPOS; // no match
-        }
-    }
-
     public enum BackdropPixelRecognitionPath {
         RED_CHANNEL_GRAYSCALE
     }

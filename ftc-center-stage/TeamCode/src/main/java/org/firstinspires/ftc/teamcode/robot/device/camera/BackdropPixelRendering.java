@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.auto.vision.ImageUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.ShapeDrawing;
-import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
+import org.firstinspires.ftc.teamcode.xml.VisionParameters;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;

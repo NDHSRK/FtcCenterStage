@@ -1,5 +1,5 @@
 // Port of CommonParameters.h
-package org.firstinspires.ftc.teamcode.auto.vision;
+package org.firstinspires.ftc.teamcode.xml;
 
 import org.opencv.core.Rect;
 

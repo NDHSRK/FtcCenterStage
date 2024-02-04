@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.auto.xml;
+package org.firstinspires.ftc.teamcode.xml;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
-import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
-import org.firstinspires.ftc.teamcode.common.xml.ImageXML;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,8 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;

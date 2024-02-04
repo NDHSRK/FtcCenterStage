@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import static android.os.SystemClock.sleep;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
-import static org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage.AprilTagId.getEnumValue;
+import static org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils.AprilTagId.getEnumValue;
 
 import android.annotation.SuppressLint;
 
@@ -19,24 +19,24 @@ import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
-import org.firstinspires.ftc.teamcode.auto.vision.BackdropParameters;
-import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelParameters;
+import org.firstinspires.ftc.teamcode.xml.BackdropParameters;
+import org.firstinspires.ftc.teamcode.xml.BackdropPixelParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelReturn;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
-import org.firstinspires.ftc.teamcode.auto.vision.TeamPropParameters;
+import org.firstinspires.ftc.teamcode.xml.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropRecognition;
 import org.firstinspires.ftc.teamcode.auto.vision.TeamPropReturn;
-import org.firstinspires.ftc.teamcode.auto.vision.VisionParameters;
-import org.firstinspires.ftc.teamcode.auto.xml.BackdropParametersXML;
-import org.firstinspires.ftc.teamcode.auto.xml.BackdropPixelParametersXML;
-import org.firstinspires.ftc.teamcode.auto.xml.RobotActionXMLCenterStage;
-import org.firstinspires.ftc.teamcode.auto.xml.TeamPropParametersXML;
-import org.firstinspires.ftc.teamcode.common.AngleDistance;
+import org.firstinspires.ftc.teamcode.xml.VisionParameters;
+import org.firstinspires.ftc.teamcode.xml.BackdropParametersXML;
+import org.firstinspires.ftc.teamcode.xml.BackdropPixelParametersXML;
+import org.firstinspires.ftc.teamcode.xml.RobotActionXMLCenterStage;
+import org.firstinspires.ftc.teamcode.xml.TeamPropParametersXML;
+import org.firstinspires.ftc.teamcode.auto.vision.AngleDistance;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
-import org.firstinspires.ftc.teamcode.common.xml.SpikeWindowMappingXML;
+import org.firstinspires.ftc.teamcode.xml.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagAccess;
 import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
@@ -846,7 +846,7 @@ public class FTCAuto {
             // Look for a specific AprilTag
             case "FIND_APRIL_TAG": {
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
-                RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
+                AprilTagUtils.AprilTagId targetTagId = AprilTagUtils.AprilTagId.valueOf(tagIdString);
                 findBackdropAprilTag(targetTagId, actionXPath);
                 break;
             }
@@ -867,7 +867,7 @@ public class FTCAuto {
 
                 // First find the target AprilTag on the backdrop.
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
-                RobotConstantsCenterStage.AprilTagId targetTagId = RobotConstantsCenterStage.AprilTagId.valueOf(tagIdString);
+                AprilTagUtils.AprilTagId targetTagId = AprilTagUtils.AprilTagId.valueOf(tagIdString);
                 AprilTagDetectionData detectionData = findBackdropAprilTag(targetTagId, actionXPath);
                 if (detectionData.ftcDetectionData == null) {
                     return false; // no sure path to the backdrop
@@ -999,6 +999,7 @@ public class FTCAuto {
                     double strafeDirection = adjustment.angle * directionFactor;
                     distanceToStrafe = adjustment.distance;
                     RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
+                    RobotLog.dd(TAG, "Strafe angle " + strafeDirection);
 
                     // Check for a minimum distance to strafe.
                     if (distanceToStrafe >= 1.0) {
@@ -1510,7 +1511,7 @@ public class FTCAuto {
     }
 
     @SuppressLint("DefaultLocale")
-    private AprilTagDetectionData findBackdropAprilTag(RobotConstantsCenterStage.AprilTagId pTargetTagId, XPathAccess pActionXPath) throws XPathExpressionException {
+    private AprilTagDetectionData findBackdropAprilTag(AprilTagUtils.AprilTagId pTargetTagId, XPathAccess pActionXPath) throws XPathExpressionException {
         String webcamIdString = pActionXPath.getRequiredText("internal_webcam_id").toUpperCase();
         RobotConstantsCenterStage.InternalWebcamId webcamId =
                 RobotConstantsCenterStage.InternalWebcamId.valueOf(webcamIdString);
@@ -1574,7 +1575,7 @@ public class FTCAuto {
         }
 
         // Found a backup detection.
-        RobotConstantsCenterStage.AprilTagId backupTagId = getEnumValue(backupDetection.id);
+        AprilTagUtils.AprilTagId backupTagId = getEnumValue(backupDetection.id);
         String backupTagString = "Found backup AprilTag " + String.format("Id %d (%s)", backupDetection.id, backupDetection.metadata.name);
         String range = "Range " + String.format("%5.1f inches", backupDetection.ftcPose.range);
         String bearing = "Bearing " + String.format("%3.0f degrees", backupDetection.ftcPose.bearing);
@@ -1773,11 +1774,11 @@ public class FTCAuto {
 
     private static class AprilTagDetectionData {
         public final RobotConstantsCenterStage.InternalWebcamId webcamId;
-        public final RobotConstantsCenterStage.AprilTagId aprilTagId;
+        public final AprilTagUtils.AprilTagId aprilTagId;
         public final AprilTagDetection ftcDetectionData;
 
         public AprilTagDetectionData(RobotConstantsCenterStage.InternalWebcamId pWebcamId,
-                                     RobotConstantsCenterStage.AprilTagId pAprilTagId,
+                                     AprilTagUtils.AprilTagId pAprilTagId,
                                      AprilTagDetection pFtcDetectionData) {
             webcamId = pWebcamId;
             aprilTagId = pAprilTagId;

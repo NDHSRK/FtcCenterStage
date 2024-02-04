@@ -6,12 +6,10 @@ import android.graphics.Paint;
 
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.common.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.xml.SpikeWindowMapping;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class SpikeWindowRendering implements CameraStreamRendering {

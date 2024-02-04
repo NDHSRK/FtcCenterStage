@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto.xml;
+package org.firstinspires.ftc.teamcode.xml;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.RobotXMLElement;
