@@ -39,7 +39,7 @@ import org.firstinspires.ftc.teamcode.xml.SpikeWindowMapping;
 import org.firstinspires.ftc.teamcode.xml.SpikeWindowMappingXML;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.AprilTagAccess;
-import org.firstinspires.ftc.teamcode.robot.device.camera.MultiPortalAuto;
+import org.firstinspires.ftc.teamcode.teleop.opmodes.test.MultiPortalAuto;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameAccess;
 import org.firstinspires.ftc.teamcode.robot.device.camera.RawFrameProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;

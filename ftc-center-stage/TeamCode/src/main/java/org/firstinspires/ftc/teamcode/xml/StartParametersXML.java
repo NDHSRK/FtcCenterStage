@@ -19,6 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.Objects;
 
 public class StartParametersXML {
 
@@ -151,12 +152,13 @@ public class StartParametersXML {
     }
 
     public void setAutoEndingPosition(RobotConstantsCenterStage.OpMode pAutoOpMode, String pEndingPositionText) {
-        RobotConstantsCenterStage.AutoEndingPosition endingPosition = RobotConstantsCenterStage.AutoEndingPosition.valueOf(pEndingPositionText);
-        RobotLog.ii(TAG, "Setting ending position " + pEndingPositionText + " for Autonomous OpMode " + pAutoOpMode + " in in startParameters");
+        String endingPositionText = pEndingPositionText.toUpperCase().trim();
+        RobotConstantsCenterStage.AutoEndingPosition endingPosition = RobotConstantsCenterStage.AutoEndingPosition.valueOf(endingPositionText);
+        RobotLog.ii(TAG, "Setting ending position " + endingPositionText + " for Autonomous OpMode " + pAutoOpMode + " in in startParameters");
 
         autoEndingPositions.put(pAutoOpMode, endingPosition);
         Node endingPositionNode = autoEndingPositionNodes.get(pAutoOpMode);
-        endingPositionNode.setTextContent(pEndingPositionText);
+        Objects.requireNonNull(endingPositionNode, TAG + " No ending position for OpMode " + pAutoOpMode).setTextContent(endingPositionText);
     }
 
     public void writeStartParametersFile() {

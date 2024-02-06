@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robot.device.camera;
+package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
 import android.util.Size;
 

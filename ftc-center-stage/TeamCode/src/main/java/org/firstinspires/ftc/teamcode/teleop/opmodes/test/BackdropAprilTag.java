@@ -38,11 +38,14 @@ public class BackdropAprilTag {
     // As seen from behind.
     private static final double DISTANCE_CAMERA_LENS_TO_ROBOT_CENTER = 9.5; // LCHS 23838
     private static final double OFFSET_CAMERA_LENS_FROM_ROBOT_CENTER = -6.125; // LCHS 23838
+
+    //**TODO Tune the next four values later - after the basic movement is working ...
     private static final double STRAFE_ADJUSTMENT_PERCENT = 0.0; // LCHS 23838
     private static final double OUTSIDE_STRAFE_ADJUSTMENT = 0.0; // LCHS 23838
     private static final double YELLOW_PIXEL_ADJUSTMENT = 0.0; // LCHS 23838
     private static final double DISTANCE_ADJUSTMENT_PERCENT = 0.0; // LCHS 23838
 
+    //**TODO Instantiate this class in the init section of your Autonomous.
     public BackdropAprilTag(LinearOpMode pLinear) {
         linearOpMode = pLinear;
         initAprilTag();
@@ -50,8 +53,9 @@ public class BackdropAprilTag {
 
     // Assume that the robot's camera is parallel to the backdrop and that the
     // target AprilTag is in view.
+    //**TODO Look at the test TeleOp OpMode FindBackdropAprilTag; it contains an
+    // example of how to call this method.
     public boolean driveToBackdropAprilTag(AprilTagUtils.AprilTagId pTargetTagId, double pDesiredDistanceFromTag, Direction pDirection) {
-
         // First look for the target AprilTag on the backdrop.
         AprilTagDetectionData detectionData = findBackdropAprilTag(pTargetTagId);
         if (detectionData.ftcDetectionData == null) {
@@ -146,6 +150,9 @@ public class BackdropAprilTag {
             // Check for a minimum distance to strafe.
             if (distanceToStrafe >= 1.0) {
                 RobotLog.dd(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
+                //**TODO Here's where you actually strafe your robot into position: the variable
+                // strafeDirection is either 90.0 for a strafe to the left or -90.0 for a strafe
+                // to the right.
                 // int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
                 // driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
             }
@@ -172,8 +179,11 @@ public class BackdropAprilTag {
         double straightLineVelocity = .3;
         if (Math.abs(distanceToMove) >= 1.0) {
             RobotLog.dd(TAG, "Move robot towards the AprilTag " + distanceToMove + " inches");
-            //**TODO int targetClicks = (int) (Math.abs(distanceToMove) * robot.driveTrain.getClicksPerInch());
-            //**TODO driveTrainMotion.straight(targetClicks, moveAngle, straightLineVelocity, 0, desiredHeading);
+            //**TODO Here's where you actually move your robot forward or backward into position:
+            // the variable moveAngle is either 0.0 for forward movement or -180.0 for backward
+            // movement.
+            // int targetClicks = (int) (Math.abs(distanceToMove) * robot.driveTrain.getClicksPerInch());
+            // driveTrainMotion.straight(targetClicks, moveAngle, straightLineVelocity, 0, desiredHeading);
         }
 
         return true;
@@ -282,9 +292,9 @@ public class BackdropAprilTag {
                     <principal_point_x>319.803</principal_point_x>
                     <principal_point_y>241.251</principal_point_y>
                  */
-                .setLensIntrinsics(622.001f, 622.001f, 319.803f, 241.251f)
+                //.setLensIntrinsics(622.001f, 622.001f, 319.803f, 241.251f)
                 // Logitech C270 from FTC teamwebcamcalibrations.xml
-                //.setLensIntrinsics(822.317f, 822.317f, 319.495f, 242.502f)
+                .setLensIntrinsics(822.317f, 822.317f, 319.495f, 242.502f)
                 .build();
 
         // Create the vision portal by using a builder.
