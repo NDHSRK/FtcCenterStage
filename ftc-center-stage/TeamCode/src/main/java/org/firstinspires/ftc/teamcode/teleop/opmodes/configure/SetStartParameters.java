@@ -38,6 +38,7 @@ public class SetStartParameters extends LinearOpMode {
     private static final int MAX_DELAY = 10; // applies to all delays
 
     private enum Mode {STANDARD, OPTIONAL}
+
     private Mode mode = Mode.STANDARD;
     // Toggle button for switching between the STANDARD button layout
     // and the OPTIONAL button layout.
@@ -58,8 +59,7 @@ public class SetStartParameters extends LinearOpMode {
     private int currentPreBackstageDelay;
     // Toggle button for switching between a post_spike delay and a pre_backstage delay.
     private FTCToggleButton midPathDelay;
-    private StartParameters.OptionalStartParameters.MidPathDelayPoint midPathDelayPoint =
-            StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE; // default
+    private StartParameters.OptionalStartParameters.MidPathDelayPoint midPathDelayPoint;
     // End OPTIONAL mode section
 
     // This section applies to the modal use of same buttons
@@ -97,26 +97,7 @@ public class SetStartParameters extends LinearOpMode {
         modalButton1Y = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         modalButton1B = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
-        String fullXMLDir = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
-        try {
-            startParametersXML = new StartParametersXML(fullXMLDir);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        startParameters = startParametersXML.getStartParameters();
-
-        currentStartDelay = startParameters.autoStartDelay;
-        autoEndingPositions = new EnumMap<>(startParameters.autoEndingPositions); // copy
-
-        //## Note: StartParameters.OptionalStartParameters may be null because
-        // these parameters are optional. If this object is null then the
-        // mode toggle button will not switch to OPTIONAL actions.
-        if (startParameters.optionalStartParameters != null) {
-            currentPath = startParameters.optionalStartParameters.path;
-            currentPostSpikeDelay = startParameters.optionalStartParameters.midPathDelayPostSpike;
-            currentPreBackstageDelay = startParameters.optionalStartParameters.midPathDelayPreBackstage;
-        }
+        initializeStartParameters();
 
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
@@ -282,8 +263,36 @@ public class SetStartParameters extends LinearOpMode {
 
     private void updateFactoryReset() {
         if (factoryReset.is(FTCButton.State.TAP)) {
-            //**TODO reset all fields and flags, call all XML set... methods
-            // and write out the XML file.
+
+            //**TODO Confirmation Y button; cancel X
+
+            // Call all XML set... methods and reset the values to their defaults.
+            startParametersXML.setAutoStartDelay(0);
+
+            // Reset the ending position for each OpMode to be the closest wall.
+            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A4, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.RED_F2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.RED_F4, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+            if (startParameters.optionalStartParameters != null) {
+                startParametersXML.setOptionalPath(StartParameters.OptionalStartParameters.Path.STAGE_DOOR);
+                startParametersXML.setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE, 0);
+                startParametersXML.setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE, 0);
+            }
+
+            // Write out the XML file.
+            startParametersXML.writeStartParametersFile();
+            RobotLog.ii(TAG, "Writing StartParameters.xml");
+            telemetry.addLine("Writing StartParameters.xml");
+            telemetry.update();
+            sleep(1500);
+
+            // Read the XML file back in.
+            initializeStartParameters();
+
+            // Reinitialize toggle buttons to their default "A" positions.
+            toggleMode = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
+            midPathDelay = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
         }
     }
 
@@ -360,6 +369,34 @@ public class SetStartParameters extends LinearOpMode {
                     startParametersXMLChanged = true;
                 }
             }
+        }
+    }
+
+    private void initializeStartParameters() {
+        startParametersXMLChanged = false;
+        mode = Mode.STANDARD;
+        currentOpMode = RobotConstantsCenterStage.OpMode.OPMODE_NPOS;
+
+        String fullXMLDir = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
+        try {
+            startParametersXML = new StartParametersXML(fullXMLDir);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        startParameters = startParametersXML.getStartParameters();
+
+        currentStartDelay = startParameters.autoStartDelay;
+        autoEndingPositions = new EnumMap<>(startParameters.autoEndingPositions); // copy
+
+        //## Note: StartParameters.OptionalStartParameters may be null because
+        // these parameters are optional. If this object is null then the
+        // mode toggle button will not switch to OPTIONAL actions.
+        if (startParameters.optionalStartParameters != null) {
+            currentPath = startParameters.optionalStartParameters.path;
+            midPathDelayPoint = StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE; // default
+            currentPostSpikeDelay = startParameters.optionalStartParameters.midPathDelayPostSpike;
+            currentPreBackstageDelay = startParameters.optionalStartParameters.midPathDelayPreBackstage;
         }
     }
 
