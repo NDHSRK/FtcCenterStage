@@ -910,9 +910,9 @@ public class FTCAuto {
                 // centered on the robot.
 
                 // From the point of view of an observer facing the robot and the
-                // backdrop from the center of the field -- a positive angle from
-                // the camera to the AprilTag indicates that the tag is to the left
-                // of the center of the robot (counter-clockwise).
+                // backdrop from the center of the field -- a positive
+                // angleFromRobotCenterToAprilTag angle from indicates that the tag
+                // is to the left of the center of the robot (counter-clockwise).
                 VisionPortalWebcamConfiguration.ConfiguredWebcam backdropWebcamConfiguration = Objects.requireNonNull(robot.configuredWebcams.get(detectionData.webcamId),
                         TAG + " Webcam " + detectionData.webcamId + " is not in the current configuration");
                 double angleFromRobotCenterToAprilTag =

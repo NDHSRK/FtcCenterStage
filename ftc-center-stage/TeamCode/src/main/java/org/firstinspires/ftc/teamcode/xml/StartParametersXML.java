@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.xml;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
+import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
@@ -12,14 +13,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Objects;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class StartParametersXML {
 
@@ -38,7 +39,13 @@ public class StartParametersXML {
     private final EnumMap<RobotConstantsCenterStage.OpMode, Node> autoEndingPositionNodes
             = new EnumMap<>(RobotConstantsCenterStage.OpMode.class);
 
-    private StartParameters startParameters;
+    // Optional
+    private Node pathNode;
+    private Node postSpikeDelayMsNode;
+    private Node preBackstageDelayMsNode;
+
+    // Common
+    private final StartParameters startParameters;
 
     // IntelliJ only
     /*
@@ -130,7 +137,38 @@ public class StartParametersXML {
             autoEndingPositionNodes.put(autoOpMode, opmode_node);
         });
 
-        startParameters = new StartParameters(robotConfigFilename, robotActionFilename, autoStartDelay, autoEndingPositions);
+        // Parse the optional <optional_start_parameters>
+        StartParameters.OptionalStartParameters optionalStartParameters = null;
+        Node optional_node = ending_position_node.getNextSibling();
+        if (optional_node != null) {
+            optional_node = XMLUtils.getNextElement(optional_node);
+            if (optional_node == null || !optional_node.getNodeName().equals("optional_start_parameters"))
+                throw new AutonomousRobotException(TAG, "Element 'optional_start_parameters' not found");
+
+            pathNode = optional_node.getFirstChild();
+            pathNode = XMLUtils.getNextElement(pathNode);
+            if (pathNode == null || !pathNode.getNodeName().equals("path") || pathNode.getTextContent().isEmpty())
+                throw new AutonomousRobotException(TAG, "Element 'path' not found");
+
+            String pathString = pathNode.getTextContent().toUpperCase().trim();
+            StartParameters.OptionalStartParameters.Path path = StartParameters.OptionalStartParameters.Path.valueOf(pathString);
+
+            // Parse two <mid_path_delay> elements. The first must contain a first child of
+            // element <delay_point>post_spike</delay_point>; the second must contain a
+            // first child of <<delay_point>pre_backstage</delay_point>.
+            Node mid_path_delay_spike_node = pathNode.getNextSibling();
+            mid_path_delay_spike_node = XMLUtils.getNextElement(mid_path_delay_spike_node);
+            Pair<Node, Integer> midPathDelayPostSpike = parseMidPathDelay(mid_path_delay_spike_node, StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE);
+            postSpikeDelayMsNode = midPathDelayPostSpike.first;
+
+            Node mid_path_delay_backstage_node = mid_path_delay_spike_node.getNextSibling();
+            mid_path_delay_backstage_node = XMLUtils.getNextElement(mid_path_delay_backstage_node);
+            Pair<Node, Integer> midPathDelayPreBackstage = parseMidPathDelay(mid_path_delay_backstage_node, StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE);
+            preBackstageDelayMsNode = midPathDelayPreBackstage.first;
+            optionalStartParameters = new StartParameters.OptionalStartParameters(path, midPathDelayPostSpike.second, midPathDelayPreBackstage.second);
+        }
+
+        startParameters = new StartParameters(robotConfigFilename, robotActionFilename, autoStartDelay, autoEndingPositions, optionalStartParameters);
         RobotLog.ii(TAG, "In StartParametersXML; opened and parsed the XML file");
     }
 
@@ -161,8 +199,60 @@ public class StartParametersXML {
         Objects.requireNonNull(endingPositionNode, TAG + " No ending position for OpMode " + pAutoOpMode).setTextContent(endingPositionText);
     }
 
+    public void setOptionalPath(StartParameters.OptionalStartParameters.Path pPath) {
+        pathNode.setTextContent(pPath.toString());
+    }
+
+    public void setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint pDelayPoint,
+                                    int pDelayMs) {
+        switch (pDelayPoint) {
+            case POST_SPIKE: {
+                postSpikeDelayMsNode.setTextContent(Integer.toString(pDelayMs));
+                break;
+            }
+            case PRE_BACKSTAGE: {
+                preBackstageDelayMsNode.setTextContent(Integer.toString(pDelayMs));
+                break;
+            }
+            default:
+                throw new AutonomousRobotException(TAG, "Invalid delay_point");
+        }
+    }
+
     public void writeStartParametersFile() {
         XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
+    }
+
+    private Pair<Node, Integer> parseMidPathDelay(Node pMidPathDelayNode, StartParameters.OptionalStartParameters.MidPathDelayPoint pDelayPoint) {
+        if (pMidPathDelayNode == null || !pMidPathDelayNode.getNodeName().equals("mid_path_delay"))
+            throw new AutonomousRobotException(TAG, "Element 'mid_path_delay' not found");
+
+        Node delay_point_node = pMidPathDelayNode.getFirstChild();
+        delay_point_node = XMLUtils.getNextElement(delay_point_node);
+        if (delay_point_node == null || !delay_point_node.getNodeName().equals("delay_point") || delay_point_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'delay_point' not found");
+
+        String delayPointString = delay_point_node.getTextContent().toUpperCase().trim();
+        StartParameters.OptionalStartParameters.MidPathDelayPoint delayPoint =
+                StartParameters.OptionalStartParameters.MidPathDelayPoint.valueOf(delayPointString);
+
+        if (delayPoint != pDelayPoint)
+            throw new AutonomousRobotException(TAG, "Missing expected delay point " + pDelayPoint);
+
+        Node delay_ms_node = delay_point_node.getNextSibling();
+        delay_ms_node = XMLUtils.getNextElement(delay_ms_node);
+        if (delay_ms_node == null || !delay_ms_node.getNodeName().equals("delay_ms") || delay_ms_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'delay_ms' not found");
+
+        String delayMsString = delay_ms_node.getTextContent();
+        int delayMs;
+        try {
+            delayMs = Integer.parseInt(delayMsString);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'delay_ms'");
+        }
+
+        return Pair.create(delay_ms_node, delayMs);
     }
 
 }

@@ -26,7 +26,10 @@ public class RobotConstantsCenterStage {
         // from TeleOp. These are also not "real" OpMoces in that
         // they don't appear on the Driver Station but they are
         // present in RobotAction.xml.
-        TEAM_PROP_CALIBRATION(OpModeType.PSEUDO_OPMODE);
+        TEAM_PROP_CALIBRATION(OpModeType.PSEUDO_OPMODE),
+
+        // Indication that an OpMode has not yet been assigned.
+        OPMODE_NPOS(OpModeType.PSEUDO_OPMODE);
 
         public enum OpModeType {COMPETITION, AUTO_TEST, TELEOP_TEST, PSEUDO_OPMODE}
         private final OpModeType opModeType;

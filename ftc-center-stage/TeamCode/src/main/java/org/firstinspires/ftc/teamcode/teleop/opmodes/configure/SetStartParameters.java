@@ -10,12 +10,20 @@ import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 import org.firstinspires.ftc.teamcode.xml.StartParameters;
 import org.firstinspires.ftc.teamcode.xml.StartParametersXML;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButton;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.EnumMap;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+// A class that supports two sets of start parameters, a STANDARD
+// set with its particular button layout and an optional set with
+// a different button layout. A toggle button switches back and
+// forth between the two sets.
+//## For the CenterSTage season the optional parameters support
+// the Qualia FTC Team.
 
 @TeleOp(name = "SetStartParameters", group = "Configure")
 //@Disabled
@@ -25,37 +33,69 @@ public class SetStartParameters extends LinearOpMode {
 
     private StartParametersXML startParametersXML;
     private StartParameters startParameters;
+    private boolean startParametersXMLChanged = false;
 
-    private static final int MAX_START_DELAY = 10;
-    private int startDelay;
+    private static final int MAX_DELAY = 10; // applies to all delays
+
+    private enum Mode {STANDARD, OPTIONAL}
+    private Mode mode = Mode.STANDARD;
+    // Toggle button for switching between the STANDARD button layout
+    // and the OPTIONAL button layout.
+    private FTCToggleButton toggleMode;
+
+    // This section applies to the STANDARD model only
     private int currentStartDelay;
-    private FTCButton increaseDelay;
-    private FTCButton decreaseDelay;
-
+    RobotConstantsCenterStage.OpMode currentOpMode = RobotConstantsCenterStage.OpMode.OPMODE_NPOS;
     EnumMap<RobotConstantsCenterStage.OpMode, RobotConstantsCenterStage.AutoEndingPosition> autoEndingPositions;
-    private boolean endPositionsChanged = false;
     private FTCButton endPositionLeft;
     private FTCButton endPositionRight;
+    private FTCButton factoryReset;
+    // End STANDARD mode section
 
-    private FTCButton opModeRedF4;
-    private FTCButton opModeRedF2;
-    private FTCButton opModeBlueA2;
-    private FTCButton opModeBlueA4;
+    // This section applies to the OPTIONAL mode only.
+    private StartParameters.OptionalStartParameters.Path currentPath;
+    private int currentPostSpikeDelay;
+    private int currentPreBackstageDelay;
+    // Toggle button for switching between a post_spike delay and a pre_backstage delay.
+    private FTCToggleButton midPathDelay;
+    private StartParameters.OptionalStartParameters.MidPathDelayPoint midPathDelayPoint =
+            StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE; // default
+    // End OPTIONAL mode section
+
+    // This section applies to the modal use of same buttons
+    private FTCButton modalIncreaseDelay; // STANDARD increase start delay, OPTIONAL increase mid-point delay
+    private FTCButton modalDecreaseDelay; // STANDARD decrease start delay, OPTIONAL decrease mid-point delay
+    private FTCButton modalButton1A; // STANDARD opModeBlueA2, OPTIONAL wall_truss
+    private FTCButton modalButton1X; // STANDARD opModeBlueA4, OPTIONAL center_truss path
+    private FTCButton modalButton1Y; // STANDARD opModeRedF4, OPTIONAL stage_door path
+    private FTCButton modalButton1B; // STANDARD opModeRedF2, no OPTIONAL use
+    // End modal section
 
     @Override
     public void runOpMode() {
-        increaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
-        decreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        // Toggle button for switching between STANDARD mode and OPTIONAL mode.
+        // DPAD left toggle button position A (default) is the STANDARD button layout.
+        // DPAD left Toggle button position B is the OPTIONAL layout.
+        toggleMode = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
+        // Button assignments for STANDARD mode.
         endPositionLeft = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_LEFT);
         endPositionRight = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_RIGHT);
+        factoryReset = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_START);
 
-        // Set up the DPAD buttons for starting position selection - clockwise
-        // from the audience wall.
-        opModeBlueA2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
-        opModeBlueA4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
-        opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
-        opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
+        // Button assignments for OPTIONAL mode.
+        // Toggle button for switching between a post_spike delay and a pre_backstage delay.
+        // DPAD right toggle button position A (default) is for the post_spike delay.
+        // DPAD right Toggle button position B is for the pre_backstage delay.
+        midPathDelay = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
+
+        // Modal button assignments.
+        modalIncreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_UP);
+        modalDecreaseDelay = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
+        modalButton1A = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_A);
+        modalButton1X = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_X);
+        modalButton1Y = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
+        modalButton1B = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         String fullXMLDir = WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR;
         try {
@@ -65,148 +105,303 @@ public class SetStartParameters extends LinearOpMode {
         }
 
         startParameters = startParametersXML.getStartParameters();
-        currentStartDelay = startDelay = startParameters.autoStartDelay;
 
-        telemetry.addLine("The current start delay is " + currentStartDelay);
-        telemetry.addLine("DPAD_UP to increase delay; DPAD_DOWN to decrease");
-        telemetry.addLine("Hold ABXY buttons to select OpMode:");
-        telemetry.addLine("  A for BLUE_A2, X for BLUE_A4");
-        telemetry.addLine("  Y for RED_F4, B for RED_F2");
-        telemetry.addLine("Touch DPAD left or right for ending position");
-        telemetry.addLine("Touch play to SAVE changes and END the OpMode");
-        telemetry.update();
-
+        currentStartDelay = startParameters.autoStartDelay;
         autoEndingPositions = new EnumMap<>(startParameters.autoEndingPositions); // copy
+
+        //## Note: StartParameters.OptionalStartParameters may be null because
+        // these parameters are optional. If this object is null then the
+        // mode toggle button will not switch to OPTIONAL actions.
+        if (startParameters.optionalStartParameters != null) {
+            currentPath = startParameters.optionalStartParameters.path;
+            currentPostSpikeDelay = startParameters.optionalStartParameters.midPathDelayPostSpike;
+            currentPreBackstageDelay = startParameters.optionalStartParameters.midPathDelayPreBackstage;
+        }
 
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
             updatePlayer1();
+            updateTelemetry();
 
-            // Don't burn CPU cycles busy-looping in this sample
-            sleep(50);
+            sleep(50); // Don't burn CPU cycles busy-looping
         } // while
 
         if (opModeIsActive()) {
-            if (startDelay != currentStartDelay || endPositionsChanged) {
-                if (startDelay != currentStartDelay) {
-                    startParametersXML.setAutoStartDelay(currentStartDelay);
-                    startParametersXML.writeStartParametersFile();
-                    RobotLog.ii(TAG, "Changed start delay to " + currentStartDelay);
-                    telemetry.addLine("Changed start delay to " + currentStartDelay);
-                }
-
-                if (endPositionsChanged) {
-                    RobotLog.ii(TAG, "Changed one or more ending positions");
-                    telemetry.addLine("Changed one or more ending positions");
-                }
-
+            if (startParametersXMLChanged) {
                 startParametersXML.writeStartParametersFile();
                 RobotLog.ii(TAG, "Writing StartParameters.xml");
                 telemetry.addLine("Writing StartParameters.xml");
-                telemetry.update();
-                sleep(1500);
-            }
+            } else
+                telemetry.addLine("No changes to StartParameters.xml");
+
+            telemetry.update();
+            sleep(1500);
         }
     }
 
     private void updateButtons() {
-        increaseDelay.update();
-        decreaseDelay.update();
+        toggleMode.update();
+
+        modalIncreaseDelay.update();
+        modalDecreaseDelay.update();
         endPositionLeft.update();
         endPositionRight.update();
-        opModeBlueA2.update();
-        opModeBlueA4.update();
-        opModeRedF4.update();
-        opModeRedF2.update();
+        factoryReset.update();
+
+        modalButton1A.update();
+        modalButton1X.update();
+        modalButton1Y.update();
+        modalButton1B.update();
+        midPathDelay.update();
     }
 
     private void updatePlayer1() {
-        updateIncreaseDelay();
-        updateDecreaseDelay();
-        updateOpModeBlueA2();
-        updateOpModeBlueA4();
-        updateOpModeRedF2();
-        updateOpModeRedF4();
-    }
-
-    private void updateIncreaseDelay() {
-        if (increaseDelay.is((FTCButton.State.TAP))) {
-            currentStartDelay = currentStartDelay < MAX_START_DELAY ? ++currentStartDelay : MAX_START_DELAY;
-            if (currentStartDelay == MAX_START_DELAY)
-                telemetry.addLine("Start delay is at the maximum of " + MAX_START_DELAY);
-            else
-                telemetry.addLine("Start delay increased to " + currentStartDelay);
-            telemetry.update();
+        updateMode();
+        if (mode == Mode.STANDARD) {
+            updateIncreaseStartDelay();
+            updateDecreaseStartDelay();
+            updateOpModeBlueA2();
+            updateOpModeBlueA4();
+            updateOpModeRedF2();
+            updateOpModeRedF4();
+            updateEndPositionLeft();
+            updateEndPositionRight();
+            updateFactoryReset();
+        } else { // Mode.OPTIONAL
+            updateStageDoorPath();
+            updateCenterTrussPath();
+            updateWallTrussPath();
+            updateMidPointDelayPath();
+            updateIncreaseMidPathDelay();
+            updateDecreaseMidPathDelay();
         }
     }
 
-    private void updateDecreaseDelay() {
-        if (decreaseDelay.is((FTCButton.State.TAP))) {
-            currentStartDelay = currentStartDelay >= 1 ? --currentStartDelay : 0; // 0 or positive
-            if (currentStartDelay == 0)
-                telemetry.addLine("Start delay is at the minimum of 0");
-            else
-                telemetry.addLine("Start delay decreased to " + currentStartDelay);
-            telemetry.update();
+    private void updateMode() {
+        if (toggleMode.is(FTCButton.State.TAP)) {
+            if (toggleMode.toggle() == FTCToggleButton.ToggleState.A)
+                mode = Mode.STANDARD;
+            else {
+                if (startParameters.optionalStartParameters == null) {
+                    telemetry.addLine("Toggle disallowed: optional elements are not present in StartParameters.xml");
+                    telemetry.update();
+                } else
+                    mode = Mode.OPTIONAL;
+            }
+        }
+    }
+
+    // STANDARD mode methods.
+    private void updateIncreaseStartDelay() {
+        if (modalIncreaseDelay.is(FTCButton.State.TAP)) {
+            if (currentStartDelay < MAX_DELAY) {
+                ++currentStartDelay;
+                startParametersXML.setAutoStartDelay(currentStartDelay);
+                startParametersXMLChanged = true;
+            }
+        }
+    }
+
+    private void updateDecreaseStartDelay() {
+        if (modalDecreaseDelay.is(FTCButton.State.TAP)) {
+            if (currentStartDelay > 0) {
+                --currentStartDelay;
+                startParametersXML.setAutoStartDelay(currentStartDelay);
+                startParametersXMLChanged = true;
+            }
         }
     }
 
     private void updateOpModeBlueA2() {
-        setEndPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2, endPositionLeft, endPositionRight);
+        if (modalButton1A.is(FTCButton.State.TAP))
+            currentOpMode = RobotConstantsCenterStage.OpMode.BLUE_A2;
     }
 
     private void updateOpModeBlueA4() {
-        setEndPosition(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4, endPositionLeft, endPositionRight);
+        if (modalButton1X.is(FTCButton.State.TAP))
+            currentOpMode = RobotConstantsCenterStage.OpMode.BLUE_A4;
     }
 
     private void updateOpModeRedF2() {
-        setEndPosition(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2, endPositionLeft, endPositionRight);
+        if (modalButton1B.is(FTCButton.State.TAP))
+            currentOpMode = RobotConstantsCenterStage.OpMode.RED_F2;
     }
 
     private void updateOpModeRedF4() {
-        setEndPosition(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4, endPositionLeft, endPositionRight);
+        if (modalButton1Y.is(FTCButton.State.TAP))
+            currentOpMode = RobotConstantsCenterStage.OpMode.RED_F4;
     }
 
-    private void setEndPosition(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton,
-                                FTCButton pEndPositionLeftButton, FTCButton pEndPositionRightButton) {
-        if (pOpModeButton.is(FTCButton.State.TAP) || pOpModeButton.is(FTCButton.State.HELD)) {
-            if (pOpModeButton.is(FTCButton.State.TAP)) {
-                // Display the current end position.
-                RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(pOpMode);
-                telemetry.addLine(pOpMode + " end position: " + endPosition);
+    private void updateEndPositionLeft() {
+        if (endPositionLeft.is(FTCButton.State.TAP)) {
+            if (currentOpMode == RobotConstantsCenterStage.OpMode.OPMODE_NPOS) {
+                telemetry.addLine("End position cannot be set: first choose an OpMode");
                 telemetry.update();
                 return;
             }
 
-            // Button is held - check for a LEFT or RIGHT selection from the DPAD.
-            RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(pOpMode);
-            if (pEndPositionLeftButton.is(FTCButton.State.TAP)) {
-                if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.LEFT) {
-                    telemetry.addLine("Ending position is already set to LEFT for " + pOpMode);
-                    telemetry.update();
-                    return;
-                }
-
-                endPositionsChanged = true;
-                startParametersXML.setAutoEndingPosition(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
-                autoEndingPositions.put(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.LEFT);
-
-                telemetry.addLine("Ending position set to LEFT for " + pOpMode);
+            RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(currentOpMode);
+            if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.LEFT) {
+                telemetry.addLine("Ending position is already set to LEFT for " + currentOpMode);
                 telemetry.update();
-            } else if (pEndPositionRightButton.is(FTCButton.State.TAP)) {
-                if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.RIGHT) {
+                return;
+            }
 
-                    telemetry.addLine("Ending position is already set to RIGHT for " + pOpMode);
-                    telemetry.update();
-                    return;
-                }
+            startParametersXMLChanged = true;
+            startParametersXML.setAutoEndingPosition(currentOpMode, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+            autoEndingPositions.put(currentOpMode, RobotConstantsCenterStage.AutoEndingPosition.LEFT);
 
-                endPositionsChanged = true;
-                startParametersXML.setAutoEndingPosition(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
-                autoEndingPositions.put(pOpMode, RobotConstantsCenterStage.AutoEndingPosition.RIGHT);
-                telemetry.addLine("Ending position set to RIGHT for " + pOpMode);
+            telemetry.addLine("Ending position set to LEFT for " + currentOpMode);
+            telemetry.update();
+        }
+    }
+
+    private void updateEndPositionRight() {
+        if (endPositionRight.is(FTCButton.State.TAP)) {
+            if (currentOpMode == RobotConstantsCenterStage.OpMode.OPMODE_NPOS) {
+                telemetry.addLine("End position cannot be set: first choose an OpMode");
                 telemetry.update();
+                return;
+            }
+
+            RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(currentOpMode);
+            if (endPosition == RobotConstantsCenterStage.AutoEndingPosition.RIGHT) {
+                telemetry.addLine("Ending position is already set to RIGHT for " + currentOpMode);
+                telemetry.update();
+                return;
+            }
+
+            startParametersXMLChanged = true;
+            startParametersXML.setAutoEndingPosition(currentOpMode, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+            autoEndingPositions.put(currentOpMode, RobotConstantsCenterStage.AutoEndingPosition.RIGHT);
+
+            telemetry.addLine("Ending position set to RIGHT for " + currentOpMode);
+            telemetry.update();
+        }
+    }
+
+    private void updateFactoryReset() {
+        if (factoryReset.is(FTCButton.State.TAP)) {
+            //**TODO reset all fields and flags, call all XML set... methods
+            // and write out the XML file.
+        }
+    }
+
+    // OPTIONAL mode methods.
+    private void updateStageDoorPath() {
+        if (modalButton1Y.is(FTCButton.State.TAP)) {
+            currentPath = StartParameters.OptionalStartParameters.Path.STAGE_DOOR;
+            startParametersXML.setOptionalPath(StartParameters.OptionalStartParameters.Path.STAGE_DOOR);
+            startParametersXMLChanged = true;
+        }
+    }
+
+    private void updateCenterTrussPath() {
+        if (modalButton1X.is(FTCButton.State.TAP)) {
+            currentPath = StartParameters.OptionalStartParameters.Path.CENTER_TRUSS;
+            startParametersXML.setOptionalPath(StartParameters.OptionalStartParameters.Path.CENTER_TRUSS);
+            startParametersXMLChanged = true;
+        }
+    }
+
+    private void updateWallTrussPath() {
+        if (modalButton1A.is(FTCButton.State.TAP)) {
+            currentPath = StartParameters.OptionalStartParameters.Path.WALL_TRUSS;
+            startParametersXML.setOptionalPath(StartParameters.OptionalStartParameters.Path.WALL_TRUSS);
+            startParametersXMLChanged = true;
+        }
+    }
+
+    private void updateMidPointDelayPath() {
+        if (midPathDelay.is(FTCButton.State.TAP)) {
+            if (startParameters.optionalStartParameters == null) {
+                telemetry.addLine("Toggle disallowed: optional elements are not present in StartParameters.xml");
+                telemetry.update();
+                return;
+            }
+
+            if (midPathDelay.toggle() == FTCToggleButton.ToggleState.A)
+                midPathDelayPoint = StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE;
+            else
+                midPathDelayPoint = StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE;
+        }
+    }
+
+    private void updateIncreaseMidPathDelay() {
+        if (modalIncreaseDelay.is(FTCButton.State.TAP)) {
+            if (midPathDelayPoint == StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE) {
+                if (currentPostSpikeDelay < MAX_DELAY) {
+                    ++currentPostSpikeDelay;
+                    startParametersXML.setOptionalDelayPoint(midPathDelayPoint, currentPostSpikeDelay);
+                    startParametersXMLChanged = true;
+                }
+            } else if (midPathDelayPoint == StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE) {
+                if (currentPreBackstageDelay < MAX_DELAY) {
+                    ++currentPreBackstageDelay;
+                    startParametersXML.setOptionalDelayPoint(midPathDelayPoint, currentPreBackstageDelay);
+                    startParametersXMLChanged = true;
+                }
             }
         }
     }
+
+    private void updateDecreaseMidPathDelay() {
+        if (modalDecreaseDelay.is(FTCButton.State.TAP)) {
+            if (midPathDelayPoint == StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE) {
+                if (currentPostSpikeDelay > 0) {
+                    --currentPostSpikeDelay;
+                    startParametersXML.setOptionalDelayPoint(midPathDelayPoint, currentPostSpikeDelay);
+                    startParametersXMLChanged = true;
+                }
+            } else if (midPathDelayPoint == StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE) {
+                if (currentPreBackstageDelay > 0) {
+                    --currentPreBackstageDelay;
+                    startParametersXML.setOptionalDelayPoint(midPathDelayPoint, currentPreBackstageDelay);
+                    startParametersXMLChanged = true;
+                }
+            }
+        }
+    }
+
+    private void updateTelemetry() {
+        if (mode == Mode.STANDARD) {
+            telemetry.addLine("The current mode is STANDARD");
+            if (startParameters.optionalStartParameters != null)
+                telemetry.addLine("Press the DPAD left bumper to toggle to OPTIONAL");
+
+            telemetry.addLine("The current start delay is " + currentStartDelay);
+            telemetry.addLine("Press DPAD_UP to increase delay; DPAD_DOWN to decrease");
+
+            telemetry.addLine("The current OpMode is " + currentOpMode);
+            telemetry.addLine("Press ABXY buttons to select OpMode:");
+            telemetry.addLine("  A for BLUE_A2, X for BLUE_A4");
+            telemetry.addLine("  Y for RED_F4, B for RED_F2");
+
+            if (currentOpMode != RobotConstantsCenterStage.OpMode.OPMODE_NPOS) {
+                RobotConstantsCenterStage.AutoEndingPosition endPosition = autoEndingPositions.get(currentOpMode);
+                telemetry.addLine("The ending position for the current OpMode is " + endPosition);
+            }
+
+            telemetry.addLine("Press DPAD left or right for ending position");
+            telemetry.addLine("Press START for factory reset");
+        } else { // Mode.OPTIONAL
+            telemetry.addLine("The current mode is OPTIONAL");
+            telemetry.addLine("The current path is " + currentPath);
+            telemetry.addLine("Press YXA buttons to select the path:");
+            telemetry.addLine("  Y for stage door truss, X for center, A for wall");
+
+            telemetry.addLine("The mid path delay is for " + midPathDelayPoint);
+            telemetry.addLine("Press the RIGHT_BUMPER to toggle the mid path delay");
+
+            if (midPathDelayPoint == StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE)
+                telemetry.addLine("The current delay is " + currentPostSpikeDelay);
+            else
+                telemetry.addLine("The current delay is " + currentPreBackstageDelay);
+            telemetry.addLine("Press DPAD_UP to increase delay; DPAD_DOWN to decrease");
+        }
+
+        telemetry.addLine("Touch play to SAVE changes and END the OpMode");
+        telemetry.update();
+    }
+
 }

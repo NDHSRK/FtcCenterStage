@@ -94,9 +94,9 @@ public class BackdropAprilTag {
         // centered on the robot.
 
         // From the point of view of an observer facing the robot and the
-        // backdrop from the center of the field -- a positive angle from
-        // the camera to the AprilTag indicates that the tag is to the left
-        // of the center of the robot (counter-clockwise).
+        // backdrop from the center of the field -- a positive
+        // angleFromRobotCenterToAprilTag angle from indicates that the tag
+        // is to the left of the center of the robot (counter-clockwise).
         double angleFromRobotCenterToAprilTag =
                 CameraToCenterCorrections.getCorrectedAngle(DISTANCE_CAMERA_LENS_TO_ROBOT_CENTER,
                         OFFSET_CAMERA_LENS_FROM_ROBOT_CENTER, aprilTagDistance, aprilTagAngle);

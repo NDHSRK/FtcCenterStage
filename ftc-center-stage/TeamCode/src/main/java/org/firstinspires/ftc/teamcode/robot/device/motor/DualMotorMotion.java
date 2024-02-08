@@ -97,7 +97,7 @@ public class DualMotorMotion {
         }
     }
 
-    //**TODO Move both motors downward until they each trip their respective magnetic switch.
+    // Move both motors downward until they each trip their respective magnetic switch.
     public void moveDualMotorsDownToMagneticLimit(TouchSensor pLeftSwitch, TouchSensor pRightSwitch, double pVelocity) {
         dualMotors.setModeDual(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Pair<FTCRobot.MotorId, FTCRobot.MotorId> motorIds = dualMotors.getMotorIds();
