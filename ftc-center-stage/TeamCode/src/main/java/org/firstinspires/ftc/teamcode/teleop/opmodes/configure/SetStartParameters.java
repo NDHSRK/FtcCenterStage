@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
@@ -51,6 +52,8 @@ public class SetStartParameters extends LinearOpMode {
     private FTCButton endPositionLeft;
     private FTCButton endPositionRight;
     private FTCButton factoryReset;
+    private boolean factoryResetRequested = false;
+    private boolean factoryResetExecuted = false;
     // End STANDARD mode section
 
     // This section applies to the OPTIONAL mode only.
@@ -113,7 +116,9 @@ public class SetStartParameters extends LinearOpMode {
                 RobotLog.ii(TAG, "Writing StartParameters.xml");
                 telemetry.addLine("Writing StartParameters.xml");
             } else
-                telemetry.addLine("No changes to StartParameters.xml");
+                // Do not output if factory reset has been executed.
+                if (!factoryResetExecuted)
+                    telemetry.addLine("No changes to StartParameters.xml");
 
             telemetry.update();
             sleep(1500);
@@ -121,6 +126,14 @@ public class SetStartParameters extends LinearOpMode {
     }
 
     private void updateButtons() {
+        // If a factory reset has been requested only update
+        // the buttons for confirm and cancel.
+        if (factoryResetRequested) {
+            modalButton1Y.update();
+            modalButton1X.update();
+            return;
+        }
+
         toggleMode.update();
 
         modalIncreaseDelay.update();
@@ -137,6 +150,14 @@ public class SetStartParameters extends LinearOpMode {
     }
 
     private void updatePlayer1() {
+        // If a factory reset has been requested only test for
+        // confirm or cancel.
+        if (factoryResetRequested) {
+            if (!updateFactoryResetConfirm())
+                updateFactoryResetCancel();
+            return;
+        }
+
         updateMode();
         if (mode == Mode.STANDARD) {
             updateIncreaseStartDelay();
@@ -264,36 +285,52 @@ public class SetStartParameters extends LinearOpMode {
     private void updateFactoryReset() {
         if (factoryReset.is(FTCButton.State.TAP)) {
 
-            //**TODO Confirmation Y button; cancel X
-
-            // Call all XML set... methods and reset the values to their defaults.
-            startParametersXML.setAutoStartDelay(0);
-
-            // Reset the ending position for each OpMode to be the closest wall.
-            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
-            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A4, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
-            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.RED_F2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
-            startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.RED_F4, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
-            if (startParameters.optionalStartParameters != null) {
-                startParametersXML.setOptionalPath(StartParameters.OptionalStartParameters.Path.STAGE_DOOR);
-                startParametersXML.setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE, 0);
-                startParametersXML.setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE, 0);
-            }
-
-            // Write out the XML file.
-            startParametersXML.writeStartParametersFile();
-            RobotLog.ii(TAG, "Writing StartParameters.xml");
-            telemetry.addLine("Writing StartParameters.xml");
-            telemetry.update();
-            sleep(1500);
-
-            // Read the XML file back in.
-            initializeStartParameters();
-
-            // Reinitialize toggle buttons to their default "A" positions.
-            toggleMode = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
-            midPathDelay = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
+            factoryResetRequested = true;
+            factoryResetExecuted = false;
         }
+    }
+
+    private boolean updateFactoryResetConfirm() {
+        if (!modalButton1Y.is(FTCButton.State.TAP))
+            return false;
+
+        factoryResetRequested = false;
+        factoryResetExecuted = true;
+
+        // Call all XML set... methods and reset the values to their defaults.
+        startParametersXML.setAutoStartDelay(0);
+
+        // Reset the ending position for each OpMode to be the closest wall.
+        startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A2, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+        startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.BLUE_A4, RobotConstantsCenterStage.AutoEndingPosition.LEFT.toString());
+        startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.RED_F2, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+        startParametersXML.setAutoEndingPosition(RobotConstantsCenterStage.OpMode.RED_F4, RobotConstantsCenterStage.AutoEndingPosition.RIGHT.toString());
+        if (startParameters.optionalStartParameters != null) {
+            startParametersXML.setOptionalPath(StartParameters.OptionalStartParameters.Path.STAGE_DOOR);
+            startParametersXML.setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint.POST_SPIKE, 0);
+            startParametersXML.setOptionalDelayPoint(StartParameters.OptionalStartParameters.MidPathDelayPoint.PRE_BACKSTAGE, 0);
+        }
+
+        // Write out the XML file.
+        startParametersXML.writeStartParametersFile();
+        RobotLog.ii(TAG, "Writing StartParameters.xml");
+        telemetry.addLine("Writing StartParameters.xml");
+        telemetry.update();
+        sleep(1500);
+
+        // Read the XML file back in.
+        initializeStartParameters();
+
+        // Reinitialize toggle buttons to their default "A" positions.
+        toggleMode = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
+        midPathDelay = new FTCToggleButton(this, FTCButton.ButtonValue.GAMEPAD_1_RIGHT_BUMPER);
+
+        return true;
+    }
+
+    private void updateFactoryResetCancel() {
+        if (modalButton1X.is(FTCButton.State.TAP))
+            factoryResetRequested = false;
     }
 
     // OPTIONAL mode methods.
@@ -381,7 +418,7 @@ public class SetStartParameters extends LinearOpMode {
         try {
             startParametersXML = new StartParametersXML(fullXMLDir);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
+            throw new AutonomousRobotException(TAG, e.getMessage());
         }
 
         startParameters = startParametersXML.getStartParameters();
@@ -403,6 +440,15 @@ public class SetStartParameters extends LinearOpMode {
     private void updateTelemetry() {
         if (mode == Mode.STANDARD) {
             telemetry.addLine("The current mode is STANDARD");
+
+            // If a factory reset has been requested only show the confirm/cancel options.
+            if (factoryResetRequested) {
+                telemetry.addLine("Factory reset requested");
+                telemetry.addLine("  Press Y to confirm, X to cancel");
+                telemetry.update();
+                return;
+            }
+
             if (startParameters.optionalStartParameters != null)
                 telemetry.addLine("Press the DPAD left bumper to toggle to OPTIONAL");
 
