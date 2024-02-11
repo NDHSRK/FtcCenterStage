@@ -1,19 +1,16 @@
-package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
+package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.common.RobotConstants;
-import org.firstinspires.ftc.teamcode.teleop.common.DriveStick;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButtonNWay;
-import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
 import java.util.EnumSet;
 
-@TeleOp(group = "Drive")
+@TeleOp(name = "TestNWAYToggle", group = "Test")
 //@Disabled
-public class BasicDrive extends TeleOpBase {
+public class TestNWayToggle extends LinearOpMode {
 
     enum DrivePower {FULL_POWER, HALF_POWER}
 
@@ -21,23 +18,19 @@ public class BasicDrive extends TeleOpBase {
     private double driveMotorPower = 1.0;
 
     @Override
-    public RobotConstants.RunType getRunType() {
-        return RobotConstants.RunType.TELEOP;
-    }
-
-    @Override
-    public void initialize() {
+    public void runOpMode() {
         toggleHalfPower = new FTCToggleButtonNWay<>(this, FTCButton.ButtonValue.GAMEPAD_1_A,
-                EnumSet.allOf(DrivePower.class));
-        robot.driveTrain.setRunModeAll(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
+        EnumSet.allOf(DrivePower.class));
 
-   @Override
-    public void run() throws InterruptedException {
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+        // Wait for the game to start (driver presses PLAY)
+        waitForStart();
+
         while (opModeIsActive()) {
             updateButtons();
             updatePlayerOne();
-            updatePlayerTwo();
 
             telemetry.addLine("Power toggle " + toggleHalfPower.getToggleState());
             telemetry.update();
@@ -50,15 +43,10 @@ public class BasicDrive extends TeleOpBase {
         toggleHalfPower.update();
     }
 
-    // Execute the action(s) controlled by Player 1.  This method
+    // Execute the action(s) controlled by Player 1. This method
     // should be called once per cycle.
     private void updatePlayerOne() {
-        robot.driveTrain.runAtPowerAll(DriveStick.updateDrivePower(this, driveMotorPower));
         togglePowerLevel();
-    }
-
-    private void updatePlayerTwo() {
-        // Placeholder
     }
 
     private void togglePowerLevel() {

@@ -140,6 +140,7 @@ public class StartParametersXML {
         // Parse the optional <optional_start_parameters>
         StartParameters.OptionalStartParameters optionalStartParameters = null;
         Node optional_node = ending_position_node.getNextSibling();
+        optional_node = XMLUtils.getNextElement(optional_node);
         if (optional_node != null) {
             optional_node = XMLUtils.getNextElement(optional_node);
             if (optional_node == null || !optional_node.getNodeName().equals("optional_start_parameters"))
