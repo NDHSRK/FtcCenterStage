@@ -110,6 +110,7 @@ public class BackdropPixelViewer extends LinearOpMode {
                 telemetry.update();
                 sleep(1500);
             }
+
             telemetry.addLine("Ending the BackdropPixelViewer");
             telemetry.update();
         }
@@ -137,11 +138,7 @@ public class BackdropPixelViewer extends LinearOpMode {
             VisionParameters.GrayParameters updatedVisionParameters = new VisionParameters.GrayParameters(originalGrayParameters.median_target, currentThresholdLow);
             backdropPixelParametersXML.setBackdropPixelGrayParameters(updatedVisionParameters);
             grayscaleParametersChanged = true;
-
             backdropPixelRendering.setGrayscaleThresholdParameters(updatedVisionParameters);
-            telemetry.addLine("Grayscale median " + originalGrayParameters.median_target);
-            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
-            telemetry.update();
         }
     }
 
@@ -155,11 +152,7 @@ public class BackdropPixelViewer extends LinearOpMode {
             VisionParameters.GrayParameters updatedVisionParameters = new VisionParameters.GrayParameters(originalGrayParameters.median_target, currentThresholdLow);
             backdropPixelParametersXML.setBackdropPixelGrayParameters(updatedVisionParameters);
             grayscaleParametersChanged = true;
-
             backdropPixelRendering.setGrayscaleThresholdParameters(updatedVisionParameters);
-            telemetry.addLine("Grayscale median " + originalGrayParameters.median_target);
-            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
-            telemetry.update();
         }
     }
 
@@ -170,6 +163,7 @@ public class BackdropPixelViewer extends LinearOpMode {
 
     private void updateTelemetry() {
         telemetry.addLine("All backdrop pixel viewing takes place in init");
+        telemetry.addLine("Current low threshold " + currentThresholdLow);
         telemetry.addLine("Change the threshold");
         telemetry.addLine(" DPAD UP to increase for less white");
         telemetry.addLine(" DPAD DOWN to decrease for more white");

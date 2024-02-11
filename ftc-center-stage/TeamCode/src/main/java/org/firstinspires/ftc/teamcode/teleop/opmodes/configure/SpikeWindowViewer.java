@@ -35,6 +35,7 @@ public class SpikeWindowViewer extends LinearOpMode {
 
     private CameraStreamProcessor spikeWindowProcessor;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
+    RobotConstantsCenterStage.OpMode currentOpMode = RobotConstantsCenterStage.OpMode.OPMODE_NPOS;
     private FTCButton opModeBlueA2;
     private FTCButton opModeBlueA4;
     private FTCButton opModeRedF4;
@@ -110,18 +111,22 @@ public class SpikeWindowViewer extends LinearOpMode {
     }
 
     private void updateOpModeBlueA2() {
+        currentOpMode = RobotConstantsCenterStage.OpMode.BLUE_A2;
         setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
     }
 
     private void updateOpModeBlueA4() {
+        currentOpMode = RobotConstantsCenterStage.OpMode.BLUE_A4;
         setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
     }
 
     private void updateOpModeRedF4() {
+        currentOpMode = RobotConstantsCenterStage.OpMode.RED_F4;
         setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
     }
 
     private void updateOpModeRedF2() {
+        currentOpMode = RobotConstantsCenterStage.OpMode.RED_F2;
         setSpikeWindowRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
     }
 
@@ -139,13 +144,12 @@ public class SpikeWindowViewer extends LinearOpMode {
             // camera stream.
             spikeWindowProcessor.setCameraStreamRendering(new SpikeWindowRendering(spikeWindows));
             RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);
-            telemetry.addLine("Spike windows for " + pOpMode);
-            telemetry.update();
         }
     }
 
     private void updateTelemetry() {
         telemetry.addLine("All spike window viewing takes place in init");
+        telemetry.addLine("Spike windows for " + currentOpMode);
         telemetry.addLine("Select an OpMode");
         telemetry.addLine(" A for BLUE_A2, X for BLUE_A4");
         telemetry.addLine(" Y for RED_F4, B for RED_F2");
