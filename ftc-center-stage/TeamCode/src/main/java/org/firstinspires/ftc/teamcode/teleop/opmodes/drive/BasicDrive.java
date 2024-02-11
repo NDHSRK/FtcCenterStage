@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.drive;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 import java.util.EnumSet;
 
 @TeleOp(group = "Drive")
-//@Disabled
+@Disabled
 public class BasicDrive extends TeleOpBase {
 
     enum DrivePower {FULL_POWER, HALF_POWER}

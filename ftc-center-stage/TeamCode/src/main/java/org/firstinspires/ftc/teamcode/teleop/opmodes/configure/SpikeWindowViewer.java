@@ -84,15 +84,11 @@ public class SpikeWindowViewer extends LinearOpMode {
         opModeRedF4 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_Y);
         opModeRedF2 = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_B);
 
-        telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
-        telemetry.addLine("Press Y for RED_F4, B for RED_F2");
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to *END* the OpMode");
-        telemetry.update();
-
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
             updatePlayerOne();
+
+            updateTelemetry();
         }
 
         telemetry.addLine("Ending the SpikeWindowViewer");
@@ -146,6 +142,16 @@ public class SpikeWindowViewer extends LinearOpMode {
             telemetry.addLine("Spike windows for " + pOpMode);
             telemetry.update();
         }
+    }
+
+    private void updateTelemetry() {
+        telemetry.addLine("All spike window viewing takes place in init");
+        telemetry.addLine("Select an OpMode");
+        telemetry.addLine(" A for BLUE_A2, X for BLUE_A4");
+        telemetry.addLine(" Y for RED_F4, B for RED_F2");
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch play to *END* the OpMode");
+        telemetry.update();
     }
 
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCToggleButtonNWay;
 import java.util.EnumSet;
 
 @TeleOp(name = "TestNWAYToggle", group = "Test")
-//@Disabled
+@Disabled
 public class TestNWayToggle extends LinearOpMode {
 
     enum DrivePower {FULL_POWER, HALF_POWER}

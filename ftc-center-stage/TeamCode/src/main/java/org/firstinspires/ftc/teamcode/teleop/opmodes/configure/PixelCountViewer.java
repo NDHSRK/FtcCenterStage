@@ -114,15 +114,11 @@ public class PixelCountViewer extends LinearOpMode {
         decreaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
         requestImageCapture = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
-        telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
-        telemetry.addLine("Press Y for RED_F4, B for RED_F2");
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
-        telemetry.update();
-
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
             updatePlayerOne();
+
+            updateTelemetry();
         }
 
         if (opModeIsActive()) {
@@ -257,6 +253,16 @@ public class PixelCountViewer extends LinearOpMode {
             telemetry.addLine("Pixel count rendering for " + pOpMode);
             telemetry.update();
         }
+    }
+
+    private void updateTelemetry() {
+        telemetry.addLine("All pixel count viewing takes place in init");
+        telemetry.addLine("Select an OpMode");
+        telemetry.addLine(" A for BLUE_A2, X for BLUE_A4");
+        telemetry.addLine(" Y for RED_F4, B for RED_F2");
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
+        telemetry.update();
     }
 
 }

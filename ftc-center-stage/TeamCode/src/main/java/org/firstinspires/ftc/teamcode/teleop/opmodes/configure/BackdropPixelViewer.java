@@ -93,15 +93,11 @@ public class BackdropPixelViewer extends LinearOpMode {
         decreaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
         requestImageCapture = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
-        telemetry.addLine("Press DPAD UP to increase threshold");
-        telemetry.addLine("Press DPAD DOWN to decrease threshold");
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
-        telemetry.update();
-
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
             updatePlayerOne();
+
+            updateTelemetry();
         }
 
         if (opModeIsActive()) {
@@ -170,6 +166,16 @@ public class BackdropPixelViewer extends LinearOpMode {
     private void updateRequestImageCapture() {
         if (requestImageCapture.is(FTCButton.State.TAP))
                 backdropPixelRendering.requestImageCapture();
+    }
+
+    private void updateTelemetry() {
+        telemetry.addLine("All backdrop pixel viewing takes place in init");
+        telemetry.addLine("Change the threshold");
+        telemetry.addLine(" DPAD UP to increase for less white");
+        telemetry.addLine(" DPAD DOWN to decrease for more white");
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
+        telemetry.update();
     }
 
 }

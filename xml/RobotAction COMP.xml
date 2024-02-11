@@ -638,7 +638,7 @@
 
     <OpMode id="BLUE_A4">
         <parameters>
-            <log_level>vv</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
