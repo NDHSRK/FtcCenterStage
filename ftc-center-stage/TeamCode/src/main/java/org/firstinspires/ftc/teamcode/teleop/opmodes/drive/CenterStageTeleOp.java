@@ -43,7 +43,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private int cumulativeClicks = 0;
     private static final int CLICKS_PER_WINCH_MOVEMENT = 100;
      */
-
+    private final FTCButton resetIntakeArm;
     private final FTCButton launchDrone;
     private boolean droneLaunchRequested = false;
     private final FTCToggleButton toggleSpeed;
@@ -107,6 +107,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // Gamepad 1 ABXY Buttons
         launchDrone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
+        resetIntakeArm = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
 
         //&& Uncomment to calibrate the winch by small steps
         /*
@@ -189,7 +190,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         winchIncrement.update();
         winchDecrement.update();
         */
-
+        resetIntakeArm.update();
         launchDrone.update();
 
         // Game Controller 2
@@ -289,7 +290,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateWinchIncrement();
         updateWinchDecrement();
         */
-
+        updateResetIntakeArm();
         updateLaunchDrone();
 
         // Game Controller 2
@@ -302,6 +303,13 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateGoToGround();
     }
 
+    private void updateResetIntakeArm() {
+        if (resetIntakeArm.is(FTCButton.State.TAP)) {
+            robot.intakeArmServo.up();
+            linearOpMode.sleep(500); // give the servo time to actuate
+            robot.intakeArmServo.down();
+        }
+    }
     private void updateToggleSpeed() {
         if (toggleSpeed.is(FTCButton.State.TAP)) {
             FTCToggleButton.ToggleState newToggleState = toggleSpeed.toggle();
