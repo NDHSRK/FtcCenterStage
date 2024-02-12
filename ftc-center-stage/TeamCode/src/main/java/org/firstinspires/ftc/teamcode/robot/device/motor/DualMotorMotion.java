@@ -80,8 +80,9 @@ public class DualMotorMotion {
                     break;
                 }
 
-                sleep(10);
+                sleep(10); //**TODO Note: DriveTrainMotion has no sleep for either straight or turn
             }
+            //**TODO You could put a catch here
         } finally {
             // Only stop the motors if the user has requested a stop; otherwise hold their position.
             if (pDualMotorAction == DualMotorAction.MOVE_AND_STOP)

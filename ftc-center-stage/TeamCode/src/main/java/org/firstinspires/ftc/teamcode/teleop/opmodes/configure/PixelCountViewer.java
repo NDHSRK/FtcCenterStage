@@ -159,22 +159,18 @@ public class PixelCountViewer extends LinearOpMode {
     }
 
     private void updateOpModeBlueA2() {
-        currentOpMode = RobotConstantsCenterStage.OpMode.BLUE_A2;
         setPixelCountRendering(RobotConstantsCenterStage.OpMode.BLUE_A2, opModeBlueA2);
     }
 
     private void updateOpModeBlueA4() {
-        currentOpMode = RobotConstantsCenterStage.OpMode.BLUE_A4;
         setPixelCountRendering(RobotConstantsCenterStage.OpMode.BLUE_A4, opModeBlueA4);
     }
 
     private void updateOpModeRedF4() {
-        currentOpMode = RobotConstantsCenterStage.OpMode.RED_F4;
         setPixelCountRendering(RobotConstantsCenterStage.OpMode.RED_F4, opModeRedF4);
     }
 
     private void updateOpModeRedF2() {
-        currentOpMode = RobotConstantsCenterStage.OpMode.RED_F2;
         setPixelCountRendering(RobotConstantsCenterStage.OpMode.RED_F2, opModeRedF2);
     }
 
@@ -225,6 +221,7 @@ public class PixelCountViewer extends LinearOpMode {
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
+            currentOpMode = pOpMode;
             SpikeWindowMapping spikeWindows = collectedSpikeWindowMapping.get(pOpMode);
             if (spikeWindows == null)
                 return; // ignore the button click

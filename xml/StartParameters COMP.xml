@@ -1,6 +1,6 @@
 <StartParameters>
-    <robot_config>RobotConfig HOME.xml</robot_config>
-    <robot_action>RobotAction HOME.xml</robot_action>
+    <robot_config>RobotConfig COMP.xml</robot_config>
+    <robot_action>RobotAction COMP.xml</robot_action>
     <auto_start_delay>0</auto_start_delay>
     <auto_ending_position>
         <RED_F4>RIGHT</RED_F4>

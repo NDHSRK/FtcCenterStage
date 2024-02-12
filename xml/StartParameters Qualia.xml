@@ -1,0 +1,23 @@
+<StartParameters>
+    <robot_config>RobotConfig - Qualia.xml</robot_config>
+    <robot_action>RobotAction - Qualia.xml</robot_action>
+    <auto_start_delay>0</auto_start_delay>
+    <auto_ending_position>
+        <RED_F4>right</RED_F4> <!-- wall -->
+        <RED_F2>right</RED_F2>
+        <BLUE_A2>left</BLUE_A2> <!-- wall -->
+        <BLUE_A4>left</BLUE_A4>
+    </auto_ending_position>
+    <!-- Custom start parameters for FTC Team Qualia -->
+    <optional_start_parameters>
+        <path>stage_door</path> <!-- one of: stage_door, center_truss, wall_truss -->
+        <mid_path_delay>
+            <delay_point>post_spike</delay_point>
+            <delay_ms>0</delay_ms>
+        </mid_path_delay>
+        <mid_path_delay>
+            <delay_point>pre_backstage</delay_point>
+            <delay_ms>0</delay_ms>
+        </mid_path_delay>
+    </optional_start_parameters>
+</StartParameters>

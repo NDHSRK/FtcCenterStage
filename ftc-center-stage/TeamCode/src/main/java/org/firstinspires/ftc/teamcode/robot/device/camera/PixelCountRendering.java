@@ -113,7 +113,7 @@ public class PixelCountRendering implements CameraStreamRendering {
         int rightNonZeroCount = Core.countNonZero(rightSpikeWindow);
         String rightwindowResults = rightWindow.second.toString() + " white pixel count " + rightNonZeroCount;
 
-        Pair<String, String> localTeamPropResults = Pair.create(leftwindowResults, rightwindowResults);
+        teamPropResults.set(Pair.create(leftwindowResults, rightwindowResults));
 
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.
