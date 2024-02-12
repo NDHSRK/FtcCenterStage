@@ -30,10 +30,10 @@ public class PixelCountRendering implements CameraStreamRendering {
     private final RobotConstantsCenterStage.OpMode opMode;
     private final RobotConstants.Alliance alliance;
     private final AtomicReference<VisionParameters.GrayParameters> allianceGrayParameters = new AtomicReference<>();
-    private final int allianceMinWhitePixelCount;
     private final SpikeWindowMapping spikeWindowMapping;
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow;
     private final Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightWindow;
+    private AtomicReference<Pair<String, String>> teamPropResults = new AtomicReference<>(); // null AtomiceReference
     private final AtomicBoolean requestImageCapture = new AtomicBoolean();
     private int captureCount;
     private final String outputFilePreamble;
@@ -42,17 +42,20 @@ public class PixelCountRendering implements CameraStreamRendering {
     public PixelCountRendering(LinearOpMode pLinear, RobotConstantsCenterStage.OpMode pOpMode,
                                RobotConstants.Alliance pAlliance,
                                VisionParameters.GrayParameters pAllianceGrayParameters,
-                               int pAllianceMinWhitePixelCount,
                                SpikeWindowMapping pSpikeWindowMapping) {
         linear = pLinear;
         opMode = pOpMode;
         alliance = pAlliance;
         allianceGrayParameters.set(pAllianceGrayParameters);
-        allianceMinWhitePixelCount = pAllianceMinWhitePixelCount;
         spikeWindowMapping = pSpikeWindowMapping;
         leftWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
         rightWindow = spikeWindowMapping.spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT);
         outputFilePreamble = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR;
+    }
+
+    // May return null if no results havw been set.
+    public Pair<String, String> getTeamPropResults() {
+        return teamPropResults.get();
     }
 
     public void setGrayscaleThresholdParameters(VisionParameters.GrayParameters pGrayParameters) {
@@ -98,22 +101,19 @@ public class PixelCountRendering implements CameraStreamRendering {
             Imgcodecs.imwrite(outputFilename, thresholded);
         }
 
-        linear.telemetry.addLine("Grayscale median " + localGrayParameters.median_target);
-        linear.telemetry.addLine("Threshold values: low " + localGrayParameters.threshold_low + ", high 255");
-        linear.telemetry.addLine("Minimum white pixel count " + allianceMinWhitePixelCount);
-
         // Get the white pixel count for both the left and right
         // spike windows.
         Rect leftSpikeWindowBoundary = leftWindow.first;
         Mat leftSpikeWindow = thresholded.submat(leftSpikeWindowBoundary);
         int leftNonZeroCount = Core.countNonZero(leftSpikeWindow);
-        linear.telemetry.addLine(leftWindow.second.toString() + " white pixel count " + leftNonZeroCount);
+        String leftwindowResults = leftWindow.second.toString() + " white pixel count " + leftNonZeroCount;
 
         Rect rightSpikeWindowBoundary = rightWindow.first;
         Mat rightSpikeWindow = thresholded.submat(rightSpikeWindowBoundary);
         int rightNonZeroCount = Core.countNonZero(rightSpikeWindow);
-        linear.telemetry.addLine(rightWindow.second.toString() + " white pixel count " + rightNonZeroCount);
-        linear.telemetry.update();
+        String rightwindowResults = rightWindow.second.toString() + " white pixel count " + rightNonZeroCount;
+
+        Pair<String, String> localTeamPropResults = Pair.create(leftwindowResults, rightwindowResults);
 
         // Show the thresholded ROI in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.

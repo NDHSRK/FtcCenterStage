@@ -450,7 +450,7 @@ public class SetStartParameters extends LinearOpMode {
             }
 
             if (startParameters.optionalStartParameters != null)
-                telemetry.addLine("Press the DPAD left bumper to toggle to OPTIONAL");
+                telemetry.addLine("Press the LEFT BUMPER to toggle to OPTIONAL");
 
             telemetry.addLine("The current start delay is " + currentStartDelay);
             telemetry.addLine("Press DPAD_UP to increase delay; DPAD_DOWN to decrease");

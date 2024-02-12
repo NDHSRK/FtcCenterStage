@@ -62,6 +62,7 @@ public class PixelCountViewer extends LinearOpMode {
     private RobotConstants.Alliance alliance = RobotConstants.Alliance.NONE;
     private VisionParameters.GrayParameters opModeGrayParameters;
     private int currentThresholdLow;
+    private int currentMinWhitePixelCount;
     private boolean grayscaleParametersChanged = false;
 
     // In this OpMode all of the action takes place during init().
@@ -243,7 +244,8 @@ public class PixelCountViewer extends LinearOpMode {
 
             opModeGrayParameters = allianceGrayParameters;
             currentThresholdLow = opModeGrayParameters.threshold_low;
-            pixelCountRendering = new PixelCountRendering(this, pOpMode, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows);
+            currentMinWhitePixelCount = allianceMinWhitePixelCount;
+            pixelCountRendering = new PixelCountRendering(this, pOpMode, alliance, allianceGrayParameters, spikeWindows);
             pixelCountProcessor.setCameraStreamRendering(pixelCountRendering);
             RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
         }
@@ -251,16 +253,27 @@ public class PixelCountViewer extends LinearOpMode {
 
     private void updateTelemetry() {
         telemetry.addLine("All pixel count viewing takes place in init");
-        telemetry.addLine("Team prop pixel count for " + currentOpMode);
+        telemetry.addLine("Current OpMode " + currentOpMode);
         telemetry.addLine("Select an OpMode");
         telemetry.addLine(" A for BLUE_A2, X for BLUE_A4");
         telemetry.addLine(" Y for RED_F4, B for RED_F2");
-        telemetry.addLine("Current low threshold " + currentThresholdLow);
-        telemetry.addLine("Change the threshold");
-        telemetry.addLine(" DPAD UP to increase for less white");
-        telemetry.addLine(" DPAD DOWN to decrease for more white");
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
+
+        // Show Team Prop locations and pixel counts.
+        if (pixelCountRendering != null) {
+            Pair<String, String> teamPropResults = pixelCountRendering.getTeamPropResults();
+            if (teamPropResults != null) {
+                telemetry.addLine("Current minimum pixel count " + currentMinWhitePixelCount);
+                telemetry.addLine(teamPropResults.first); // left spike mark in view
+                telemetry.addLine(teamPropResults.second); // right spike mark in view
+                telemetry.addLine("Current low threshold " + currentThresholdLow);
+                telemetry.addLine("Change the threshold");
+                telemetry.addLine(" DPAD UP to increase for less white");
+                telemetry.addLine(" DPAD DOWN to decrease for more white");
+                telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+                telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
+            }
+        }
+
         telemetry.update();
     }
 
