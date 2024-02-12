@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.robot.device.motor;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
@@ -59,9 +60,13 @@ public abstract class MotorCore {
 
     public boolean isBusy(FTCRobot.MotorId pMotorId) {
         if (Objects.requireNonNull(motorMap.get(pMotorId),
-                TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").getMode() != DcMotor.RunMode.RUN_TO_POSITION)
-            throw new AutonomousRobotException(TAG, "Illegal test of isBusy((); motor " + pMotorId +
+                TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
+            //**TODO TEMP - log instead of throw throw new AutonomousRobotException(TAG, "Illegal test of isBusy((); motor " + pMotorId +
+            //        " has not been set to RUN_TO_POSITION; motor mode is " + getRunMode(pMotorId));
+            RobotLog.dd(TAG, "Illegal test of isBusy((); motor " + pMotorId +
                     " has not been set to RUN_TO_POSITION; motor mode is " + getRunMode(pMotorId));
+            return false; // stop motors
+        }
 
         return Objects.requireNonNull(motorMap.get(pMotorId),
                 TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").isBusy();

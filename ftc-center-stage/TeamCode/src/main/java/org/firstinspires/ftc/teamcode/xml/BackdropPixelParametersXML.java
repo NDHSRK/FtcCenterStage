@@ -79,9 +79,9 @@ public class BackdropPixelParametersXML {
 
         // Get access to the <median_target> and <threshold_low> elements under <gray_parameters>
         // for possible modification.
-        Node local_backdrop_pixel_gray_median_node = gray_node.getFirstChild();
+        Node local_backdrop_pixel_gray_median_node = gray_parameters_node.getFirstChild();
         backdrop_pixel_gray_median_node = XMLUtils.getNextElement(local_backdrop_pixel_gray_median_node);
-        Node local_red_pixel_count_gray_threshold_node = local_backdrop_pixel_gray_median_node.getNextSibling();
+        Node local_red_pixel_count_gray_threshold_node = backdrop_pixel_gray_median_node.getNextSibling();
         backdrop_pixel_gray_threshold_node = XMLUtils.getNextElement(local_red_pixel_count_gray_threshold_node);
 
         // Parse the size criteria for the AprilTag bounding box.

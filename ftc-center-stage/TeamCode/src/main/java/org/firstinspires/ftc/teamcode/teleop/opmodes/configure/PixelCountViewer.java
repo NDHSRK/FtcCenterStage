@@ -42,6 +42,7 @@ public class PixelCountViewer extends LinearOpMode {
     private TeamPropParameters teamPropParameters;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
     private CameraStreamProcessor pixelCountProcessor;
+    RobotConstantsCenterStage.OpMode currentOpMode = RobotConstantsCenterStage.OpMode.OPMODE_NPOS;
     private FTCButton opModeBlueA2;
     private FTCButton opModeBlueA4;
     private FTCButton opModeRedF4;
@@ -61,6 +62,7 @@ public class PixelCountViewer extends LinearOpMode {
     private RobotConstants.Alliance alliance = RobotConstants.Alliance.NONE;
     private VisionParameters.GrayParameters opModeGrayParameters;
     private int currentThresholdLow;
+    private int currentMinWhitePixelCount;
     private boolean grayscaleParametersChanged = false;
 
     // In this OpMode all of the action takes place during init().
@@ -114,15 +116,11 @@ public class PixelCountViewer extends LinearOpMode {
         decreaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
         requestImageCapture = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
-        telemetry.addLine("Press A for BLUE_A2, X for BLUE_A4");
-        telemetry.addLine("Press Y for RED_F4, B for RED_F2");
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
-        telemetry.update();
-
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
             updatePlayerOne();
+
+            updateTelemetry();
         }
 
         if (opModeIsActive()) {
@@ -188,11 +186,7 @@ public class PixelCountViewer extends LinearOpMode {
             VisionParameters.GrayParameters updatedVisionParameters = new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow);
             teamPropParametersXML.setPixelCountGrayParameters(alliance, updatedVisionParameters);
             grayscaleParametersChanged = true;
-
             pixelCountRendering.setGrayscaleThresholdParameters(updatedVisionParameters);
-            telemetry.addLine("Grayscale median " + opModeGrayParameters.median_target);
-            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
-            telemetry.update();
         }
     }
 
@@ -208,11 +202,7 @@ public class PixelCountViewer extends LinearOpMode {
             VisionParameters.GrayParameters updatedVisionParameters = new VisionParameters.GrayParameters(opModeGrayParameters.median_target, currentThresholdLow);
             teamPropParametersXML.setPixelCountGrayParameters(alliance, updatedVisionParameters);
             grayscaleParametersChanged = true;
-
             pixelCountRendering.setGrayscaleThresholdParameters(updatedVisionParameters);
-            telemetry.addLine("Grayscale median " + opModeGrayParameters.median_target);
-            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
-            telemetry.update();
         }
     }
 
@@ -231,6 +221,7 @@ public class PixelCountViewer extends LinearOpMode {
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
+            currentOpMode = pOpMode;
             SpikeWindowMapping spikeWindows = collectedSpikeWindowMapping.get(pOpMode);
             if (spikeWindows == null)
                 return; // ignore the button click
@@ -250,13 +241,37 @@ public class PixelCountViewer extends LinearOpMode {
 
             opModeGrayParameters = allianceGrayParameters;
             currentThresholdLow = opModeGrayParameters.threshold_low;
-
-            pixelCountRendering = new PixelCountRendering(this, pOpMode, alliance, allianceGrayParameters, allianceMinWhitePixelCount, spikeWindows);
+            currentMinWhitePixelCount = allianceMinWhitePixelCount;
+            pixelCountRendering = new PixelCountRendering(this, pOpMode, alliance, allianceGrayParameters, spikeWindows);
             pixelCountProcessor.setCameraStreamRendering(pixelCountRendering);
             RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
-            telemetry.addLine("Pixel count rendering for " + pOpMode);
-            telemetry.update();
         }
+    }
+
+    private void updateTelemetry() {
+        telemetry.addLine("All pixel count viewing takes place in init");
+        telemetry.addLine("Current OpMode " + currentOpMode);
+        telemetry.addLine("Select an OpMode");
+        telemetry.addLine(" A for BLUE_A2, X for BLUE_A4");
+        telemetry.addLine(" Y for RED_F4, B for RED_F2");
+
+        // Show Team Prop locations and pixel counts.
+        if (pixelCountRendering != null) {
+            Pair<String, String> teamPropResults = pixelCountRendering.getTeamPropResults();
+            if (teamPropResults != null) {
+                telemetry.addLine("Current minimum pixel count " + currentMinWhitePixelCount);
+                telemetry.addLine(teamPropResults.first); // left spike mark in view
+                telemetry.addLine(teamPropResults.second); // right spike mark in view
+                telemetry.addLine("Current low threshold " + currentThresholdLow);
+                telemetry.addLine("Change the threshold");
+                telemetry.addLine(" DPAD UP to increase for less white");
+                telemetry.addLine(" DPAD DOWN to decrease for more white");
+                telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+                telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
+            }
+        }
+
+        telemetry.update();
     }
 
 }

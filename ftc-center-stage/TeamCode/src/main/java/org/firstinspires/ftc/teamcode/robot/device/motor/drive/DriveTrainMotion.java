@@ -308,6 +308,10 @@ public class DriveTrainMotion {
                 currentHeading = robot.imuDirect.getIMUHeading();
                 degreeDifference = Headings.normalize(currentHeading - previousCurrentHeading, -180, 180);
                 degreesTurned += degreeDifference;
+
+                //**TODO What we might want to do is compare degreesTurned and turnData.actualTurn
+                // but then we're comparing doubles for equality, which is a known pitfall. See
+                // https://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places/2808648#2808648
                 remainingAngle = turnData.actualTurn - degreesTurned;
 
                 if (logVV)

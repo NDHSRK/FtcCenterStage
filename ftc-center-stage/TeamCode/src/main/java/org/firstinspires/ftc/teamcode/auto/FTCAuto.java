@@ -1724,7 +1724,7 @@ public class FTCAuto {
         }
     }
 
-    // This method assumes that the caller's has made sure that an
+    // This method assumes that the caller has made sure that an
     // asynchronous movement of the elevator is not already in progress.
     private CompletableFuture<Elevator.ElevatorLevel> async_move_elevator(int pElevatorPosition, double pElevatorVelocity, Elevator.ElevatorLevel pElevatorLevelOnCompletion) {
         Callable<Elevator.ElevatorLevel> callableMoveElevator = () -> {
@@ -1736,7 +1736,7 @@ public class FTCAuto {
         return Threading.launchAsync(callableMoveElevator);
     }
 
-    // This method assumes that the caller's has made sure that an
+    // This method assumes that the caller has made sure that an
     // asynchronous movement of the elevator is not already in progress.
     private CompletableFuture<Winch.WinchLevel> async_move_winch(int pWinchPosition, Winch.WinchLevel pWinchLevelOnCompletion) {
         Callable<Winch.WinchLevel> callableMoveWinch = () -> {

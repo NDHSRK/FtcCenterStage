@@ -85,11 +85,8 @@ public class BackdropPixelRendering implements CameraStreamRendering {
         // Identify the contours.
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(thresholded, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        if (contours.size() == 0) {
-            linear.telemetry.addLine("No contours found");
-            linear.telemetry.update();
+        if (contours.size() == 0)
             return;
-        }
 
         if (captureNow) {
             // Draw all of the contours.
@@ -98,10 +95,6 @@ public class BackdropPixelRendering implements CameraStreamRendering {
             String outputFilename = outputFilePreamble + "BackdropPixel_" + String.format(Locale.US, "_%04d_CON.png", captureCount);
             Imgcodecs.imwrite(outputFilename, contoursDrawn);
         }
-
-        linear.telemetry.addLine("Grayscale median " + localGrayParameters.median_target);
-        linear.telemetry.addLine("Threshold values: low " + localGrayParameters.threshold_low + ", high 255");
-        linear.telemetry.update();
 
         // Show the thresholded image in the DS camera stream.
         // First convert the thresholded ROI to an Android Bitmap.

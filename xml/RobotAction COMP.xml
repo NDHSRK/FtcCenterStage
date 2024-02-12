@@ -111,6 +111,63 @@
             </SLEEP>
 
             <MOVE_ELEVATOR>
+                <position>DRONE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>ABOVE_TRUSS</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>2000</ms>
+            </SLEEP>
+            
+            <MOVE_ELEVATOR>
+                <position>ON_TRUSS</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>2000</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
+                <position>GROUND</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+        </actions>
+    </OpMode>
+
+    <OpMode id="TEST_PRE_MATCH">
+        <parameters>
+            <log_level>d</log_level>
+        </parameters>
+        <actions>
+
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <SLEEP>
+                <ms>1500</ms>
+            </SLEEP>
+
+            <MOVE_ELEVATOR>
                 <position>AUTONOMOUS</position>
             </MOVE_ELEVATOR>
 
@@ -164,43 +221,6 @@
 
             <SLEEP>
                 <ms>1500</ms>
-            </SLEEP>
-
-        </actions>
-    </OpMode>
-
-    <OpMode id="TEST_PRE_MATCH">
-        <parameters>
-            <log_level>d</log_level>
-        </parameters>
-        <actions>
-
-            <MOVE_ELEVATOR>
-                <position>SAFE</position>
-            </MOVE_ELEVATOR>
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>LEVEL_1</position>
-            </MOVE_ELEVATOR>
-            <SLEEP>
-                <ms>1500</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>SAFE</position>
-            </MOVE_ELEVATOR>
-            <SLEEP>
-                <ms>1000</ms>
-            </SLEEP>
-
-            <MOVE_ELEVATOR>
-                <position>GROUND</position>
-            </MOVE_ELEVATOR>
-            <SLEEP>
-                <ms>1000</ms>
             </SLEEP>
 
         </actions>
@@ -638,7 +658,7 @@
 
     <OpMode id="BLUE_A4">
         <parameters>
-            <log_level>vv</log_level>
+            <log_level>d</log_level>
         </parameters>
         <actions>
 
@@ -1710,7 +1730,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>22.0</distance>
+                                <distance>20.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>

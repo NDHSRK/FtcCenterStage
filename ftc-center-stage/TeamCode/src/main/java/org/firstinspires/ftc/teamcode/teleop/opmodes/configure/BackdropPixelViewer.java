@@ -93,15 +93,11 @@ public class BackdropPixelViewer extends LinearOpMode {
         decreaseThreshold = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_DPAD_DOWN);
         requestImageCapture = new FTCButton(this, FTCButton.ButtonValue.GAMEPAD_1_LEFT_BUMPER);
 
-        telemetry.addLine("Press DPAD UP to increase threshold");
-        telemetry.addLine("Press DPAD DOWN to decrease threshold");
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
-        telemetry.update();
-
         while (!isStarted() && !isStopRequested()) {
             updateButtons();
             updatePlayerOne();
+
+            updateTelemetry();
         }
 
         if (opModeIsActive()) {
@@ -114,6 +110,7 @@ public class BackdropPixelViewer extends LinearOpMode {
                 telemetry.update();
                 sleep(1500);
             }
+
             telemetry.addLine("Ending the BackdropPixelViewer");
             telemetry.update();
         }
@@ -141,11 +138,7 @@ public class BackdropPixelViewer extends LinearOpMode {
             VisionParameters.GrayParameters updatedVisionParameters = new VisionParameters.GrayParameters(originalGrayParameters.median_target, currentThresholdLow);
             backdropPixelParametersXML.setBackdropPixelGrayParameters(updatedVisionParameters);
             grayscaleParametersChanged = true;
-
             backdropPixelRendering.setGrayscaleThresholdParameters(updatedVisionParameters);
-            telemetry.addLine("Grayscale median " + originalGrayParameters.median_target);
-            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
-            telemetry.update();
         }
     }
 
@@ -159,17 +152,24 @@ public class BackdropPixelViewer extends LinearOpMode {
             VisionParameters.GrayParameters updatedVisionParameters = new VisionParameters.GrayParameters(originalGrayParameters.median_target, currentThresholdLow);
             backdropPixelParametersXML.setBackdropPixelGrayParameters(updatedVisionParameters);
             grayscaleParametersChanged = true;
-
             backdropPixelRendering.setGrayscaleThresholdParameters(updatedVisionParameters);
-            telemetry.addLine("Grayscale median " + originalGrayParameters.median_target);
-            telemetry.addLine("Grayscale low threshold " + currentThresholdLow);
-            telemetry.update();
         }
     }
 
     private void updateRequestImageCapture() {
         if (requestImageCapture.is(FTCButton.State.TAP))
                 backdropPixelRendering.requestImageCapture();
+    }
+
+    private void updateTelemetry() {
+        telemetry.addLine("All backdrop pixel viewing takes place in init");
+        telemetry.addLine("Current low threshold " + currentThresholdLow);
+        telemetry.addLine("Change the threshold");
+        telemetry.addLine(" DPAD UP to increase for less white");
+        telemetry.addLine(" DPAD DOWN to decrease for more white");
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch play to SAVE changes and END the OpMode");
+        telemetry.update();
     }
 
 }

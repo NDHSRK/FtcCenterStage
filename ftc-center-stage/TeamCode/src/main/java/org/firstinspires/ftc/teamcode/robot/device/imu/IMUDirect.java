@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGR
 
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -20,22 +21,31 @@ public class IMUDirect {
     private final IMU expansionHubIMU; // optional, may be null
     private YawPitchRollAngles angles;
     private double heading;
-    private boolean useControlHubIMU = true;
+    private boolean useControlHubIMU = false; //**TODO 2/12/24 switch to expansion hub IMU
     private boolean logFirstExpansionHubIMUHeading = true;
 
     // The IMU must have been previously initialized.
     public IMUDirect(IMU pControlHubIMU, IMU pExpansionHubIMU) {
         controlHubIMU = pControlHubIMU;
         expansionHubIMU = pExpansionHubIMU;
+
+        // This can happen during testing with a robot that does not have an
+        // Expansion Hub.
+        if (expansionHubIMU == null && !useControlHubIMU) {
+            RobotLogCommon.d(TAG, "Flag set to use expansion hub IMU but it is not in the configuration");
+            RobotLogCommon.d(TAG, "Switching to use the Control Hub IMU");
+            useControlHubIMU = true;
+        }
     }
 
     public void resetIMUYaw() {
-        controlHubIMU.resetYaw(); // necessary because sometimes the yaw carries over after a restart
-        angles = controlHubIMU.getRobotYawPitchRollAngles();
-        heading = angles.getYaw(DEGREES);
-        RobotLogCommon.d(TAG, "Control Hub IMU after reset " + heading);
-
-        if (expansionHubIMU != null) {
+        if (useControlHubIMU) {
+            controlHubIMU.resetYaw(); // necessary because sometimes the yaw carries over after a restart
+            angles = controlHubIMU.getRobotYawPitchRollAngles();
+            heading = angles.getYaw(DEGREES);
+            RobotLogCommon.d(TAG, "Control Hub IMU after reset " + heading);
+        }
+        else {
             expansionHubIMU.resetYaw();
             angles = expansionHubIMU.getRobotYawPitchRollAngles();
             heading = angles.getYaw(DEGREES);
@@ -45,6 +55,9 @@ public class IMUDirect {
 
     // Switch to Expansion Hub IMU (if present) if the Control Hub
     // IMU returns a heading of -0.0. Log the change.
+    //**TODO 2/12/2024 Monitor - in a scrimmage on 2/10/24 the Control
+    // HUB IMU unexpectedly returned -180.0 and only a short time later
+    // returned -0.0.
     public double getIMUHeading() {
         if (useControlHubIMU) {
             angles = controlHubIMU.getRobotYawPitchRollAngles();
@@ -55,11 +68,11 @@ public class IMUDirect {
                 if (expansionHubIMU != null)
                     RobotLogCommon.c(TAG, "Switching to the Expansion Hub IMU");
                 else
-                    RobotLogCommon.c(TAG, "Expansion Hub IMU not present");
+                    throw new AutonomousRobotException(TAG, "Control Hub IMU returned heading -0.0 but Expansion Hub IMU not present");
             } else return heading;
         }
 
-        if (!useControlHubIMU && expansionHubIMU != null) {
+        if (!useControlHubIMU) {
             angles = expansionHubIMU.getRobotYawPitchRollAngles();
             heading = angles.getYaw(DEGREES);
             if (logFirstExpansionHubIMUHeading) {

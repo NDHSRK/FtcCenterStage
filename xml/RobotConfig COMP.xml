@@ -75,7 +75,7 @@
         <positions>
             <rest>0</rest>
             <intake>0</intake>
-            <deliver_front>500</deliver_front>
+            <deliver_front>400</deliver_front>
             <deliver_back>1300</deliver_back>
         </positions>
     </INTAKE>
@@ -87,8 +87,8 @@
             <right_arm>intake_arm_right</right_arm>
         </servos>
         <positions>
-            <up>0.27</up>
-            <down>0.22</down> <!-- previously 0.21-->
+            <up>0.14</up>
+            <down>0.24</down>
             <auto>0.16</auto>
             <stack>.16</stack>
         </positions>
