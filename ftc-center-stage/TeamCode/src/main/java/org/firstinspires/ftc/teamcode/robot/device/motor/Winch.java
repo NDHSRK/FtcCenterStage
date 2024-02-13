@@ -22,7 +22,7 @@ public class Winch extends SingleMotor {
         ON_TRUSS, ABOVE_TRUSS, HANG
     }
 
-    public static final int WINCH_MIN_POSITION = -8000;
+    public static final int WINCH_MIN_POSITION = -9000;
     public static final int WINCH_MAX_POSITION = 8000;
 
     public final int ground;

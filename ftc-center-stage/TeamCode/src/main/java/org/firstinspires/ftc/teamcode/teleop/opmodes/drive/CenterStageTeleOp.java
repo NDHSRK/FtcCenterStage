@@ -37,12 +37,10 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton winchDown;
 
     //&& Uncomment to calibrate the winch by small steps
-    /*
     private final FTCButton winchIncrement;
     private final FTCButton winchDecrement;
     private int cumulativeClicks = 0;
     private static final int CLICKS_PER_WINCH_MOVEMENT = 100;
-     */
 
     private final FTCButton launchDrone;
     private boolean droneLaunchRequested = false;
@@ -109,10 +107,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
 
         //&& Uncomment to calibrate the winch by small steps
-        /*
         winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
         winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B);
-        */
 
         // Gamepad 2
         intake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
@@ -185,10 +181,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         winchDown.update();
 
         //&& Uncomment to calibrate the winch by small steps
-        /*
         winchIncrement.update();
         winchDecrement.update();
-        */
 
         launchDrone.update();
 
@@ -285,10 +279,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateWinchDown();
 
         //&& Uncomment to calibrate the winch by small steps
-        /*
         updateWinchIncrement();
         updateWinchDecrement();
-        */
 
         updateLaunchDrone();
 
@@ -452,7 +444,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
     //&& Uncomment to calibrate the winch by small steps
-    /*
     private void updateWinchIncrement() {
         if (winchIncrement.is(FTCButton.State.TAP)) {
             robot.winchMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(),
@@ -467,7 +458,6 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
             updateWinchEncoderTelemetry();
         }
     }
-    */
 
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
