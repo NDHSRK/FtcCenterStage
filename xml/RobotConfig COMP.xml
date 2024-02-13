@@ -34,7 +34,7 @@
             <safe>95</safe>
             <pixel_clearance>200</pixel_clearance>
             <drone>3495</drone>
-            <autonomous>2995</autonomous>
+            <autonomous>2900</autonomous>
             <level_1>3398</level_1>
             <level_2>4496</level_2>
             <level_3>5596</level_3>
@@ -56,13 +56,13 @@
             <safe>0</safe>
             <pixel_clearance>0</pixel_clearance>
             <drone>6000</drone>
-            <autonomous>3000</autonomous>
-            <level_1>4102</level_1>
-            <level_2>6500</level_2>
+            <autonomous>-300</autonomous>
+            <level_1>500</level_1>
+            <level_2>2800</level_2>
             <level_3>0</level_3>
-            <on_truss>6200</on_truss>
-            <above_truss>6200</above_truss>
-            <hang>-5400</hang>
+            <on_truss>2600</on_truss>
+            <above_truss>2600</above_truss>
+            <hang>-8700</hang>
         </positions>
     </WINCH>
 

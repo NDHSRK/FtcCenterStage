@@ -775,7 +775,7 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>22.0</distance>
+                                <distance>20.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
@@ -885,7 +885,7 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>2.0</distance>
+                        <distance>4.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -900,7 +900,7 @@
                     </MOVE_ELEVATOR>
 
                     <BACK>
-                        <distance>20.0</distance>
+                        <distance>24.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -934,7 +934,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>22.0</distance>
+                                <distance>20.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>
@@ -1126,7 +1126,7 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>22.0</distance>
+                                <distance>20.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
@@ -1424,7 +1424,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>22.0</distance>
+                                <distance>20.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>
@@ -1523,7 +1523,7 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>2.0</distance>
+                        <distance>4.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -1571,7 +1571,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>40.0</distance>
+                                <distance>38.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
@@ -1583,7 +1583,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>30</distance>
+                        <distance>28</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -1613,7 +1613,7 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>12.0</distance>
+                        <distance>15.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
 
@@ -1648,7 +1648,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>32.0</distance>
+                                <distance>28.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_LEFT>
                         </RIGHT>

@@ -1662,7 +1662,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to LEVEL_1");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_1");
-                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").level_1, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_1);
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").level_1, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_1);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.level_1, Winch.WinchLevel.LEVEL_1);
                 break;
@@ -1672,7 +1672,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to LEVEL_2");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_2");
-                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").level_2, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_2);
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").level_2, robot.elevator.getVelocity(), Elevator.ElevatorLevel.LEVEL_2);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.level_2, Winch.WinchLevel.LEVEL_2);
                 break;
@@ -1682,7 +1682,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to the DRONE level");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to DRONE");
-                async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").drone, robot.elevator.getVelocity(), Elevator.ElevatorLevel.DRONE);
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").drone, robot.elevator.getVelocity(), Elevator.ElevatorLevel.DRONE);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.drone, Winch.WinchLevel.DRONE);
                 break;

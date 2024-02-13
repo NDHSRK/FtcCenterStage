@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
 
 @Autonomous(name = "TestPreMatch", group = "TeamCode")
-@Disabled
+//@Disabled
 public class TestPreMatch extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
