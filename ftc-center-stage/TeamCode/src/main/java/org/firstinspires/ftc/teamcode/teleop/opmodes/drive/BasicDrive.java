@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 import java.util.EnumSet;
 
 @TeleOp(group = "Drive")
-@Disabled
+//@Disabled
 public class BasicDrive extends TeleOpBase {
 
     enum DrivePower {FULL_POWER, HALF_POWER}

@@ -308,7 +308,7 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>2.0</distance>
+                        <distance>5.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -420,8 +420,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <!-- save 35, .75, -15 -->
-                        <distance>60</distance>
+                        <distance>58</distance>
                         <velocity>0.75</velocity>
                         <angle>-28.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
@@ -449,7 +448,7 @@
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>18.0</distance>
+                        <distance>16.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>5</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
@@ -460,17 +459,17 @@
                         <ramp_down_at_distance_remaining>15</ramp_down_at_distance_remaining>
                     </FORWARD>
 
+                    <STRAFE_LEFT>
+                        <distance>25.0</distance>
+                        <velocity>0.5</velocity>
+                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+                    </STRAFE_LEFT>
+
                     <TURN>
                         <angle>-180.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>20.0</ramp_down_at_angle_remaining>
                     </TURN>
-
-                    <STRAFE_RIGHT>
-                        <distance>25.0</distance>
-                        <velocity>0.5</velocity>
-                        <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAFE_RIGHT>
 
                     <DESKEW />
 
@@ -534,7 +533,7 @@
                     <STRAIGHT_BY>
                         <distance>34.0</distance>
                         <velocity>0.75</velocity>
-                        <angle>-39.0</angle>
+                        <angle>-33.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -555,7 +554,7 @@
                     </STRAFE_LEFT>
 
                     <FORWARD>
-                        <distance>40</distance>
+                        <distance>35</distance>
                         <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
