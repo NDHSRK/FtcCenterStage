@@ -1149,9 +1149,9 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>50</distance>
+                        <distance>55.0</distance> // 50.0
                         <velocity>0.75</velocity>
-                        <angle>28.0</angle>
+                        <angle>25.0</angle> // 28.0
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -1177,7 +1177,7 @@
                     </BACK>
 
                     <STRAFE_LEFT>
-                        <distance>15.0</distance>
+                        <distance>16.0</distance> // 15.0
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>5</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
@@ -1188,17 +1188,17 @@
                         <ramp_down_at_distance_remaining>15</ramp_down_at_distance_remaining>
                     </FORWARD>
 
-                    <TURN>
-                        <angle>-180.0</angle>
-                        <power>.5</power>
-                        <ramp_down_at_angle_remaining>20.0</ramp_down_at_angle_remaining>
-                    </TURN>
-
                     <STRAFE_LEFT>
                         <distance>35.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
+
+                    <TURN>
+                        <angle>-180.0</angle>
+                        <power>.5</power>
+                        <ramp_down_at_angle_remaining>20.0</ramp_down_at_angle_remaining>
+                    </TURN>
 
                     <DESKEW />
 
@@ -1319,7 +1319,7 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>80.0</distance>
+                        <distance>83.0</distance> // 80.0
                         <velocity>.75</velocity>
                         <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
