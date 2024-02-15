@@ -278,7 +278,10 @@
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
+                <processor_set>
+                    <processor>april_tag</processor>
+                    <processor>raw_frame</processor>
+                </processor_set>
             </START_WEBCAM>
 
             <MOVE_ELEVATOR>
@@ -308,7 +311,7 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>5.0</distance>
+                        <distance>2.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -348,7 +351,7 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>80.0</distance>
+                        <distance>83.0</distance>
                         <velocity>.75</velocity>
                         <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
@@ -402,13 +405,13 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>24.0</distance>
+                                <distance>22.0</distance>
                                 <velocity>0.5</velocity>
                             </STRAFE_RIGHT>
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>44.0</distance>
+                                <distance>42.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
@@ -420,9 +423,9 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>58</distance>
+                        <distance>55</distance>
                         <velocity>0.75</velocity>
-                        <angle>-28.0</angle>
+                        <angle>-25.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -884,7 +887,7 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>4.0</distance>
+                        <distance>2.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -1002,7 +1005,10 @@
 
             <START_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <processor>april_tag</processor>
+                <processor_set>
+                    <processor>april_tag</processor>
+                    <processor>raw_frame</processor>
+                </processor_set>
             </START_WEBCAM>
 
             <MOVE_ELEVATOR>
@@ -1522,7 +1528,7 @@
                     </FORWARD>
 
                     <BACK>
-                        <distance>4.0</distance>
+                        <distance>2.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -1582,7 +1588,7 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>28</distance>
+                        <distance>30</distance>
                         <velocity>0.75</velocity>
                         <angle>-11.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>

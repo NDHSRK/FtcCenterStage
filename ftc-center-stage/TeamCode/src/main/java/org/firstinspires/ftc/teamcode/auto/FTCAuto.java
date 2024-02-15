@@ -958,6 +958,13 @@ public class FTCAuto {
                         adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment, backdropParameters.yellowPixelAdjustment);
                     } else { // Must be BLUE_A2 or RED_F2
+                        //**TODO 2/15/2024 Disable BackdropPixelRecognition because results
+                        // have been inconsistent in testing and we're out of time for the
+                        // ILT on 2/17/24.
+                        //**TODO Next line TEMP: use the same adjustment as BLUE_A4 and RED_F4
+                        adjustment =
+                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment, backdropParameters.yellowPixelAdjustment);
+                        /*
                         // To perform BackdropPixelRecognition the raw_frame processor
                         // on the camera must be enabled.
                         VisionProcessor rawFrameProcessor =
@@ -989,6 +996,8 @@ public class FTCAuto {
                         RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
                         adjustment =
                                 AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);
+
+                         */
                     }
 
                     // Set the final angle to strafe with respect to the front of the
