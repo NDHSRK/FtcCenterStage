@@ -1674,7 +1674,7 @@ public class FTCAuto {
                     throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to AUTONOMOUS");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to AUTONOMOUS_HIGH");
-                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").autonomous, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS_HIGH);
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").autonomous_high, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS_HIGH);
                 break;
             }
             case LEVEL_1: {
