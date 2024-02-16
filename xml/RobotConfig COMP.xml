@@ -35,6 +35,7 @@
             <pixel_clearance>200</pixel_clearance>
             <drone>3495</drone>
             <autonomous>2900</autonomous>
+            <autonomous_high>3500</autonomous_high>
             <level_1>3398</level_1>
             <level_2>4496</level_2>
             <level_3>5596</level_3>

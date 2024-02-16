@@ -1029,7 +1029,10 @@ public class FTCAuto {
                 }
 
                 // Start the elevator moving up to the AUTONOMOUS level asynchronously.
-                Callable<Void> callableMove = async_move_elevator_and_winch(Elevator.ElevatorLevel.AUTONOMOUS);
+                Elevator.ElevatorLevel finalElevatorLevel = (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||
+                        pOpMode == RobotConstantsCenterStage.OpMode.RED_F2) ? Elevator.ElevatorLevel.AUTONOMOUS_HIGH :
+                        Elevator.ElevatorLevel.AUTONOMOUS;
+                Callable<Void> callableMove = async_move_elevator_and_winch(finalElevatorLevel);
                 asyncMoveElevator = Threading.launchAsync(callableMove);
                 RobotLogCommon.d(TAG, "Start asynchronous elevator/winch movement to the AUTONOMOUS level");
 
@@ -1664,6 +1667,14 @@ public class FTCAuto {
                 localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").autonomous, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS);
                 if (robot.winch != null) // the winch is configured in
                     localAsyncWinch = async_move_winch(robot.winch.autonomous, Winch.WinchLevel.AUTONOMOUS);
+                break;
+            }
+            case AUTONOMOUS_HIGH: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
+                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to AUTONOMOUS");
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to AUTONOMOUS_HIGH");
+                localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").autonomous, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS_HIGH);
                 break;
             }
             case LEVEL_1: {

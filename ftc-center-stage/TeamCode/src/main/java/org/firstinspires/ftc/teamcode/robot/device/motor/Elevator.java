@@ -16,7 +16,7 @@ public class Elevator extends DualMotors {
     public static final String TAG = Elevator.class.getSimpleName();
 
     public enum ElevatorLevel {
-        GROUND, SAFE, PIXEL_CLEARANCE, DRONE, AUTONOMOUS, LEVEL_1, LEVEL_2, LEVEL_3,
+        GROUND, SAFE, PIXEL_CLEARANCE, DRONE, AUTONOMOUS, AUTONOMOUS_HIGH, LEVEL_1, LEVEL_2, LEVEL_3,
         ON_TRUSS, ABOVE_TRUSS
     }
 
@@ -29,6 +29,7 @@ public class Elevator extends DualMotors {
     public final int pixel_clearance;
     public final int drone;
     public final int autonomous;
+    public final int autonomous_high;
     public final int level_1;
     public final int level_2;
     public final int level_3;
@@ -65,6 +66,10 @@ public class Elevator extends DualMotors {
         autonomous = pConfigXPath.getRequiredInt("positions/autonomous");
         if (autonomous < ELEVATOR_MIN_POSITION || autonomous > ELEVATOR_MAX_POSITION)
             throw new AutonomousRobotException(TAG, "Elevator autonomous position is out of range");
+
+        autonomous_high = pConfigXPath.getRequiredInt("positions/autonomous_high");
+        if (autonomous_high < ELEVATOR_MIN_POSITION || autonomous > ELEVATOR_MAX_POSITION)
+            throw new AutonomousRobotException(TAG, "Elevator autonomous_high position is out of range");
 
         level_1 = pConfigXPath.getRequiredInt("positions/level_1");
         if (level_1 < ELEVATOR_MIN_POSITION || level_1 > ELEVATOR_MAX_POSITION)
