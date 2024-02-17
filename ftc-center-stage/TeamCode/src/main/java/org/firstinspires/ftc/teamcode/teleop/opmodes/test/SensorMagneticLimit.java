@@ -31,13 +31,14 @@ The code assumes the sensor has been named "Limit" and the motor has been named 
 */
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
  
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
  
 @TeleOp(name = "Sensor: magnetic limit", group = "Test")
-//@Disabled
+@Disabled
 public class SensorMagneticLimit extends LinearOpMode {
 
     @Override

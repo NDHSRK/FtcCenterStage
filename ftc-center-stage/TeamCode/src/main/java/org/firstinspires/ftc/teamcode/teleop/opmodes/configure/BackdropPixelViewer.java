@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -27,7 +28,7 @@ import java.util.Objects;
 // frame that contains the AprilTag and possibly a
 // previously placed yellow pixel on the backdrop.
 @TeleOp(name = "BackdropPixelViewer", group = "Configure")
-//@Disabled
+@Disabled
 public class BackdropPixelViewer extends LinearOpMode {
     private static final String TAG = BackdropPixelViewer.class.getSimpleName();
     private static final int THRESHOLD_CHANGE = 5;

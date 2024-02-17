@@ -57,7 +57,7 @@ import java.util.List;
 // WebcamFrameProcessor.
 
 @TeleOp(name = "Concept: Double Vision", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptDoubleVision extends LinearOpMode {
 
     /**

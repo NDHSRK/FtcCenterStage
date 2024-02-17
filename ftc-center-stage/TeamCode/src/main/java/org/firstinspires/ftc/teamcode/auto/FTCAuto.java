@@ -963,7 +963,7 @@ public class FTCAuto {
                         // ILT on 2/17/24.
                         //**TODO Next line TEMP: use the same adjustment as BLUE_A4 and RED_F4
                         adjustment =
-                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment, backdropParameters.yellowPixelAdjustment);
+                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, 0, 0);
                         /*
                         // To perform BackdropPixelRecognition the raw_frame processor
                         // on the camera must be enabled.
@@ -1112,12 +1112,12 @@ public class FTCAuto {
 
             case "DELIVER_PIXEL_TO_SPIKE": {
                 // The position of the pixel stopper does not matter.
-                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, 0.25, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, 0.15, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
                 break;
             }
 
             // Assumes the robot is in position in front of the target
-            // backstop and that the elevator is at the AUTONOOUS
+            // backstop and that the elevator is at the AUTONOMOUS
             // level.
             case "DELIVER_PIXEL_TO_BACKSTOP": {
                 if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
@@ -1671,7 +1671,7 @@ public class FTCAuto {
             }
             case AUTONOMOUS_HIGH: {
                 if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
-                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to AUTONOMOUS");
+                    throw new AutonomousRobotException(TAG, "The elevator must be at SAFE before moving to AUTONOMOUS_HIGH");
 
                 RobotLogCommon.d(TAG, "Moving elevator from SAFE to AUTONOMOUS_HIGH");
                 localAsyncElevator = async_move_elevator(Objects.requireNonNull(robot.elevator, TAG + " The elevator is not in the current configuration").autonomous_high, robot.elevator.getVelocity(), Elevator.ElevatorLevel.AUTONOMOUS_HIGH);

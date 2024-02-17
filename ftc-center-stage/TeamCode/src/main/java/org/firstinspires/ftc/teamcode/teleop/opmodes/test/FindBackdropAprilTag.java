@@ -31,13 +31,14 @@ The code assumes the sensor has been named "Limit" and the motor has been named 
 */
 package org.firstinspires.ftc.teamcode.teleop.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 
 @TeleOp(name = "Find Backdrop AprilTag", group = "Test")
-//@Disabled
+@Disabled
 public class FindBackdropAprilTag extends LinearOpMode {
     @Override
     public void runOpMode() {
