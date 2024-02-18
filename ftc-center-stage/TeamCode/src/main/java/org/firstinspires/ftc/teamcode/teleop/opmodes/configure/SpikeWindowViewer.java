@@ -35,7 +35,7 @@ public class SpikeWindowViewer extends LinearOpMode {
 
     private CameraStreamProcessor spikeWindowProcessor;
     private EnumMap<RobotConstantsCenterStage.OpMode, SpikeWindowMapping> collectedSpikeWindowMapping;
-    RobotConstantsCenterStage.OpMode currentOpMode = RobotConstantsCenterStage.OpMode.OPMODE_NPOS;
+    private RobotConstantsCenterStage.OpMode currentOpMode = RobotConstantsCenterStage.OpMode.OPMODE_NPOS;
     private FTCButton opModeBlueA2;
     private FTCButton opModeBlueA4;
     private FTCButton opModeRedF4;

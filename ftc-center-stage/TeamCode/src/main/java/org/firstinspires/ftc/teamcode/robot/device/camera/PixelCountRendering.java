@@ -53,7 +53,7 @@ public class PixelCountRendering implements CameraStreamRendering {
         outputFilePreamble = WorkingDirectory.getWorkingDirectory() + RobotConstants.IMAGE_DIR;
     }
 
-    // May return null if no results havw been set.
+    // May return null if no results have been set.
     public Pair<String, String> getTeamPropResults() {
         return teamPropResults.get();
     }
