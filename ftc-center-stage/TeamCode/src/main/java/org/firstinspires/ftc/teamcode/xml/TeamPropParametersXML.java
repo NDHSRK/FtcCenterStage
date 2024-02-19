@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.xml;
 
-import com.qualcomm.robotcore.util.RobotLog;
-
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
@@ -378,18 +376,18 @@ public class TeamPropParametersXML {
     // under RED or BLUE <color_channel_pixel_count>.
     public void setPixelCountGrayParameters(RobotConstants.Alliance pAlliance,
                                             VisionParameters.GrayParameters pGrayParameters) {
-        RobotLog.ii(TAG, "Setting the grayscale parameters for alliance " + pAlliance + " for the color pixel count recognition path in teamPropParameters");
+        RobotLogCommon.c(TAG, "Setting the grayscale parameters for alliance " + pAlliance + " for the color pixel count recognition path in teamPropParameters");
         if (pAlliance == RobotConstants.Alliance.RED) {
-            RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+            RobotLogCommon.c(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
             red_pixel_count_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
 
-            RobotLog.ii(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+            RobotLogCommon.c(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
             red_pixel_count_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
         } else {
-            RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+            RobotLogCommon.c(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
             blue_pixel_count_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
 
-            RobotLog.ii(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+            RobotLogCommon.c(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
             blue_pixel_count_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
         }
     }

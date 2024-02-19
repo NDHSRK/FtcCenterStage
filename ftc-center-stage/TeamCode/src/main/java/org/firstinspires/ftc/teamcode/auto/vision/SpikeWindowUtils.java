@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto.vision;
 
+import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
@@ -52,7 +53,12 @@ public class SpikeWindowUtils {
                                   EnumMap<RobotConstantsCenterStage.SpikeLocationWindow, Pair<Rect, RobotConstantsCenterStage.TeamPropLocation>> pSpikeWindows,
                                   String pOutputFilenamePreamble) {
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftWindow = pSpikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
+        if (leftWindow == null)
+            throw new AutonomousRobotException(TAG, "pSpikeWindows key for LEFT is null");
+
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightWindow = pSpikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT);
+        if (rightWindow == null)
+            throw new AutonomousRobotException(TAG, "pSpikeWindows key for RIGHT is null");
 
         // Draw the spike windows on the ROI
         // so that we can see their placement during debugging.

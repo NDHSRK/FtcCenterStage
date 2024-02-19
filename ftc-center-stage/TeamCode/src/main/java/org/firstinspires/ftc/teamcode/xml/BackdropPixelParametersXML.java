@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -114,11 +115,11 @@ public class BackdropPixelParametersXML {
 
     // Replaces the text values of the children of the <gray_parameters> element.
     public void setBackdropPixelGrayParameters(VisionParameters.GrayParameters pGrayParameters) {
-        RobotLog.ii(TAG, "Setting the grayscale parameters for backdrop pixel recognition in backdropPixelParameters");
-        RobotLog.ii(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+        RobotLogCommon.c(TAG, "Setting the grayscale parameters for backdrop pixel recognition in backdropPixelParameters");
+        RobotLogCommon.c(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
         backdrop_pixel_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
 
-        RobotLog.ii(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+        RobotLogCommon.c(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
         backdrop_pixel_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
     }
 

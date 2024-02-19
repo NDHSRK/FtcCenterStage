@@ -99,7 +99,7 @@ public class RobotConfigXML {
             }
         }
 
-        RobotLogCommon.i(TAG, "In RobotConfigXML; opened and parsed the XML file");
+        RobotLogCommon.c(TAG, "In RobotConfigXML; opened and parsed the XML file");
     }
 
     public XPathAccess getPath(String pElementName) {
@@ -146,7 +146,7 @@ public class RobotConfigXML {
         XMLUtils.processElements(webcam_set_elements, (each_webcam) -> {
             VisionPortalWebcamConfiguration.ConfiguredWebcam webcamData = parseWebcamData(each_webcam);
 
-            RobotLogCommon.d(TAG, "Configuring webcam with serial number " + webcamData.serialNumber);
+            RobotLogCommon.c(TAG, "Configuring webcam with serial number " + webcamData.serialNumber);
 
             // Make sure there are no duplicate webcam ids or serial numbers.
             Optional<RobotConstantsCenterStage.InternalWebcamId> duplicate = configuredWebcams.entrySet().stream()

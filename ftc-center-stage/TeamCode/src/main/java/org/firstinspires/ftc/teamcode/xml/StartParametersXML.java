@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.xml;
 
-import com.qualcomm.robotcore.util.RobotLog;
-
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -170,7 +169,7 @@ public class StartParametersXML {
         }
 
         startParameters = new StartParameters(robotConfigFilename, robotActionFilename, autoStartDelay, autoEndingPositions, optionalStartParameters);
-        RobotLog.ii(TAG, "In StartParametersXML; opened and parsed the XML file");
+        RobotLogCommon.c(TAG, "In StartParametersXML; opened and parsed the XML file");
     }
 
     // Warning: this method returns the start parameters from the XML
@@ -185,7 +184,7 @@ public class StartParametersXML {
 
     // Replaces the text value of the <auto_start_delay> element.
     public void setAutoStartDelay(int pAutoStartDelay) {
-        RobotLog.ii(TAG, "Setting the Autonomous start delay in startParameters to " + pAutoStartDelay);
+        RobotLogCommon.c(TAG, "Setting the Autonomous start delay in startParameters to " + pAutoStartDelay);
         autoStartDelay = pAutoStartDelay;
         delay_node.setTextContent(Integer.toString(pAutoStartDelay));
     }
@@ -193,7 +192,7 @@ public class StartParametersXML {
     public void setAutoEndingPosition(RobotConstantsCenterStage.OpMode pAutoOpMode, String pEndingPositionText) {
         String endingPositionText = pEndingPositionText.toUpperCase().trim();
         RobotConstantsCenterStage.AutoEndingPosition endingPosition = RobotConstantsCenterStage.AutoEndingPosition.valueOf(endingPositionText);
-        RobotLog.ii(TAG, "Setting ending position " + endingPositionText + " for Autonomous OpMode " + pAutoOpMode + " in in startParameters");
+        RobotLogCommon.c(TAG, "Setting ending position " + endingPositionText + " for Autonomous OpMode " + pAutoOpMode + " in in startParameters");
 
         autoEndingPositions.put(pAutoOpMode, endingPosition);
         Node endingPositionNode = autoEndingPositionNodes.get(pAutoOpMode);

@@ -9,12 +9,12 @@ import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.auto.vision.AprilTagUtils;
 import org.firstinspires.ftc.teamcode.auto.vision.CameraToCenterCorrections;
 import org.firstinspires.ftc.teamcode.auto.vision.AngleDistance;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -67,26 +67,26 @@ public class BackdropAprilTag {
         double aprilTagAngle;
         double aprilTagDistance;
         if (detectionData.aprilTagId != pTargetTagId) {
-            RobotLog.dd(TAG, "Did not detect the target AprilTag " + pTargetTagId);
-            RobotLog.dd(TAG, "Inferring its position from tag " + detectionData.aprilTagId);
+            RobotLogCommon.d(TAG, "Did not detect the target AprilTag " + pTargetTagId);
+            RobotLogCommon.d(TAG, "Inferring its position from tag " + detectionData.aprilTagId);
             AngleDistance inferredPosition = AprilTagUtils.inferAprilTag(pTargetTagId, detectionData.aprilTagId,
                     detectionData.ftcDetectionData.ftcPose.range, detectionData.ftcDetectionData.ftcPose.bearing);
             aprilTagAngle = inferredPosition.angle;
             aprilTagDistance = inferredPosition.distance;
-            RobotLog.dd(TAG, "Inferred distance " + aprilTagDistance + ", angle " + aprilTagAngle);
+            RobotLogCommon.d(TAG, "Inferred distance " + aprilTagDistance + ", angle " + aprilTagAngle);
         } else {
             aprilTagDistance = detectionData.ftcDetectionData.ftcPose.range;
             aprilTagAngle = detectionData.ftcDetectionData.ftcPose.bearing;
-            RobotLog.dd(TAG, "Using target AprilTag distance " + aprilTagDistance + ", angle " + aprilTagAngle);
+            RobotLogCommon.d(TAG, "Using target AprilTag distance " + aprilTagDistance + ", angle " + aprilTagAngle);
         }
 
         // WSe assume the robot is square to the backdrop (the yaw is close to 0)
         // but let's see what the AprilTag detector thinks it is.
-        RobotLog.dd(TAG, "Yaw as reported by the AprilTag detector " + detectionData.ftcDetectionData.ftcPose.yaw);
+        RobotLogCommon.d(TAG, "Yaw as reported by the AprilTag detector " + detectionData.ftcDetectionData.ftcPose.yaw);
 
-        RobotLog.dd(TAG, "Driving to AprilTag with id " + pTargetTagId);
-        RobotLog.dd(TAG, "Stop at " + pDesiredDistanceFromTag + " from the tag");
-        RobotLog.dd(TAG, "Direction of travel " + pDirection);
+        RobotLogCommon.d(TAG, "Driving to AprilTag with id " + pTargetTagId);
+        RobotLogCommon.d(TAG, "Stop at " + pDesiredDistanceFromTag + " from the tag");
+        RobotLogCommon.d(TAG, "Direction of travel " + pDirection);
 
         // Unlike the RobotAutoDriveToAprilTagOmni sample, which tracks the
         // AprilTag in relation to the camera, we need the angle and distance
@@ -105,8 +105,8 @@ public class BackdropAprilTag {
                 CameraToCenterCorrections.getCorrectedDistance(DISTANCE_CAMERA_LENS_TO_ROBOT_CENTER,
                         OFFSET_CAMERA_LENS_FROM_ROBOT_CENTER, aprilTagDistance, aprilTagAngle);
 
-        RobotLog.dd(TAG, "Angle from robot center to AprilTag " + angleFromRobotCenterToAprilTag);
-        RobotLog.dd(TAG, "Distance from robot center to AprilTag " + distanceFromRobotCenterToAprilTag);
+        RobotLogCommon.d(TAG, "Angle from robot center to AprilTag " + angleFromRobotCenterToAprilTag);
+        RobotLogCommon.d(TAG, "Distance from robot center to AprilTag " + distanceFromRobotCenterToAprilTag);
 
         double distanceToMove;
         if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
@@ -114,12 +114,12 @@ public class BackdropAprilTag {
             double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
             double distanceToStrafe = Math.abs(sinTheta * distanceFromRobotCenterToAprilTag);
             double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
-            RobotLog.dd(TAG, "Calculated distance to strafe " + distanceToStrafe);
+            RobotLogCommon.d(TAG, "Calculated distance to strafe " + distanceToStrafe);
 
             // Add in strafe percentage adjustment.
             if (STRAFE_ADJUSTMENT_PERCENT != 0.0) {
                 distanceToStrafe += (distanceToStrafe * STRAFE_ADJUSTMENT_PERCENT);
-                RobotLog.dd(TAG, "Adjusting distance to strafe by a factor of " + STRAFE_ADJUSTMENT_PERCENT + " for a distance to strafe of " + distanceToStrafe);
+                RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + STRAFE_ADJUSTMENT_PERCENT + " for a distance to strafe of " + distanceToStrafe);
             }
 
             // Call a method that adjusts the distance of the
@@ -132,7 +132,7 @@ public class BackdropAprilTag {
 
             // The returned strafe angle (90.0 degrees or -90.0 degrees) is also
             // given from the point of view of an observer facing the backdrop.
-            RobotLog.dd(TAG, "Including outside strafe adjustment of " + OUTSIDE_STRAFE_ADJUSTMENT);
+            RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + OUTSIDE_STRAFE_ADJUSTMENT);
             double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
             AngleDistance adjustment =
                     AprilTagUtils.strafeAdjustment(pTargetTagId.getNumericId(), distanceToStrafe * signOfDistance, OUTSIDE_STRAFE_ADJUSTMENT, YELLOW_PIXEL_ADJUSTMENT);
@@ -144,12 +144,12 @@ public class BackdropAprilTag {
             double directionFactor = (pDirection == Direction.FORWARD) ? 1.0 : -1.0;
             double strafeDirection = adjustment.angle * directionFactor;
             distanceToStrafe = adjustment.distance;
-            RobotLog.dd(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
-            RobotLog.dd(TAG, "Strafe angle " + strafeDirection);
+            RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
+            RobotLogCommon.d(TAG, "Strafe angle " + strafeDirection);
 
             // Check for a minimum distance to strafe.
             if (distanceToStrafe >= 1.0) {
-                RobotLog.dd(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
+                RobotLogCommon.d(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
                 //**TODO Here's where you actually strafe your robot into position: the variable
                 // strafeDirection is either 90.0 for a strafe to the left or -90.0 for a strafe
                 // to the right.
@@ -162,23 +162,23 @@ public class BackdropAprilTag {
             double adjacentSquared = Math.pow(distanceFromRobotCenterToAprilTag, 2) - Math.pow(distanceToStrafe, 2);
             double adjacent = Math.sqrt(adjacentSquared); // center of robot to AprilTag
             distanceToMove = adjacent - (DISTANCE_CAMERA_LENS_TO_ROBOT_CENTER + pDesiredDistanceFromTag);
-            RobotLog.dd(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
+            RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
         } else {
             distanceToMove = distanceFromRobotCenterToAprilTag - (DISTANCE_CAMERA_LENS_TO_ROBOT_CENTER + pDesiredDistanceFromTag);
-            RobotLog.dd(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
+            RobotLogCommon.d(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
         }
 
         // Move the robot towards the backstop. Take into account the robot's direction of travel.
         // Add in distance percentage adjustment.
         if (DISTANCE_ADJUSTMENT_PERCENT != 0.0) {
             distanceToMove += (distanceToMove * DISTANCE_ADJUSTMENT_PERCENT);
-            RobotLog.dd(TAG, "Adjusting distance to move by " + DISTANCE_ADJUSTMENT_PERCENT);
+            RobotLogCommon.d(TAG, "Adjusting distance to move by " + DISTANCE_ADJUSTMENT_PERCENT);
         }
 
         double moveAngle = (pDirection == Direction.FORWARD) ? 0.0 : -180.0;
         double straightLineVelocity = .3;
         if (Math.abs(distanceToMove) >= 1.0) {
-            RobotLog.dd(TAG, "Move robot towards the AprilTag " + distanceToMove + " inches");
+            RobotLogCommon.d(TAG, "Move robot towards the AprilTag " + distanceToMove + " inches");
             //**TODO Here's where you actually move your robot forward or backward into position:
             // the variable moveAngle is either 0.0 for forward movement or -180.0 for backward
             // movement.
@@ -222,10 +222,10 @@ public class BackdropAprilTag {
             linearOpMode.telemetry.addLine(targetTagString);
             linearOpMode.telemetry.update();
 
-            RobotLog.dd(TAG, targetTagString);
-            RobotLog.dd(TAG, range);
-            RobotLog.dd(TAG, bearing);
-            RobotLog.dd(TAG, yaw);
+            RobotLogCommon.d(TAG, targetTagString);
+            RobotLogCommon.d(TAG, range);
+            RobotLogCommon.d(TAG, bearing);
+            RobotLogCommon.d(TAG, yaw);
             return new AprilTagDetectionData(pTargetTagId, targetDetection);
         }
 
@@ -234,7 +234,7 @@ public class BackdropAprilTag {
         if (backupDetection == null) {
             linearOpMode.telemetry.addLine("No AprilTags found within " + 2000 + "ms");
             linearOpMode.telemetry.update();
-            RobotLog.dd(TAG, "No AprilTags found within " + 2000 + "ms");
+            RobotLogCommon.d(TAG, "No AprilTags found within " + 2000 + "ms");
             return new AprilTagDetectionData(pTargetTagId, null);
         }
 
@@ -247,10 +247,10 @@ public class BackdropAprilTag {
         linearOpMode.telemetry.addLine(backupTagString);
         linearOpMode.telemetry.update();
 
-        RobotLog.dd(TAG, backupTagString);
-        RobotLog.dd(TAG, range);
-        RobotLog.dd(TAG, bearing);
-        RobotLog.dd(TAG, yaw);
+        RobotLogCommon.d(TAG, backupTagString);
+        RobotLogCommon.d(TAG, range);
+        RobotLogCommon.d(TAG, bearing);
+        RobotLogCommon.d(TAG, yaw);
         return new AprilTagDetectionData(getEnumValue(backupDetection.id), backupDetection);
     }
 
@@ -323,7 +323,7 @@ public class BackdropAprilTag {
         // Build the Vision Portal, using the above settings.
         VisionPortal visionPortal = builder.build();
 
-        RobotLog.d("ConceptAprilTag", "Waiting for webcam to start streaming");
+        RobotLogCommon.d("ConceptAprilTag", "Waiting for webcam to start streaming");
         ElapsedTime streamingTimer = new ElapsedTime();
         streamingTimer.reset(); // start
         while (streamingTimer.milliseconds() < 2000 && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {

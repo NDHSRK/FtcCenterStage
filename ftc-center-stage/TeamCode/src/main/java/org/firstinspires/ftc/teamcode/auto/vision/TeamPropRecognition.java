@@ -119,6 +119,9 @@ public class TeamPropRecognition {
         Mat propOut = pImageROI.clone();
         if (circles.cols() == 0) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            if (nposWindow == null)
+                throw new AutonomousRobotException(TAG, "spikeWindows key for WINDOW_NPOS is null");
+
             RobotLogCommon.d(TAG, "No circles found; Team Prop location assumed as " + nposWindow.second);
             SpikeWindowUtils.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
@@ -164,6 +167,9 @@ public class TeamPropRecognition {
         // also passed all of the filters.
         if (numberOfTeamPropsFound == 0) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            if (nposWindow == null)
+                throw new AutonomousRobotException(TAG, "spikeWindows key for WINDOW_NPOS is null");
+
             RobotLogCommon.d(TAG, "No circles passed the filters; Team Prop location assumed as " + nposWindow.second);
             SpikeWindowUtils.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
@@ -181,6 +187,9 @@ public class TeamPropRecognition {
 
         if (numberOfTeamPropsFound > pColorChannelCirclesParameters.maxCircles) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            if (nposWindow == null)
+                throw new AutonomousRobotException(TAG, "spikeWindows key for WINDOW_NPOS is null");
+
             RobotLogCommon.d(TAG, "Number of circles (" + numberOfTeamPropsFound + ") " +
                     "exceeds the maximum of " + pColorChannelCirclesParameters.maxCircles);
             SpikeWindowUtils.drawSpikeWindows(propOut, spikeWindows, pOutputFilenamePreamble);
@@ -226,12 +235,18 @@ public class TeamPropRecognition {
         // spike windows.
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> leftSpikeWindow =
                 spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.LEFT);
+        if (leftSpikeWindow == null)
+            throw new AutonomousRobotException(TAG, "spikeWindows key for LEFT is null");
+
         Mat leftSpikeWindowBoundary = thresholded.submat(leftSpikeWindow.first);
         int leftNonZeroCount = Core.countNonZero(leftSpikeWindowBoundary);
         RobotLogCommon.d(TAG, "Left spike window white pixel count " + leftNonZeroCount);
 
         Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> rightSpikeWindow =
                 spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.RIGHT);
+        if (rightSpikeWindow == null)
+            throw new AutonomousRobotException(TAG, "spikeWindows key for RIGHT is null");
+
         Mat rightSpikeWindowBoundary = thresholded.submat(rightSpikeWindow.first);
         int rightNonZeroCount = Core.countNonZero(rightSpikeWindowBoundary);
         RobotLogCommon.d(TAG, "Right spike window white pixel count " + rightNonZeroCount);
@@ -241,6 +256,9 @@ public class TeamPropRecognition {
         if (leftNonZeroCount < allianceMinWhitePixelCount &&
                 rightNonZeroCount < allianceMinWhitePixelCount) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            if (nposWindow == null)
+                throw new AutonomousRobotException(TAG, "spikeWindows key for WINDOW_NPOS is null");
+
             RobotLogCommon.d(TAG, "White pixel counts for the left and right spike windows were under the threshold");
             SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
@@ -317,6 +335,9 @@ public class TeamPropRecognition {
         // If the bright spot is under the threshold then assume no Team Prop is present.
         if (brightResult.maxVal < allianceGrayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            if (nposWindow == null)
+                throw new AutonomousRobotException(TAG, "spikeWindows key for WINDOW_NPOS is null");
+
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
             SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);
@@ -381,6 +402,9 @@ public class TeamPropRecognition {
         // If the bright spot is under the threshold then assume no Team Prop is present.
         if (brightGrayResult.maxVal < allianceGrayParameters.threshold_low) {
             Pair<Rect, RobotConstantsCenterStage.TeamPropLocation> nposWindow = spikeWindows.get(RobotConstantsCenterStage.SpikeLocationWindow.WINDOW_NPOS);
+            if (nposWindow == null)
+                throw new AutonomousRobotException(TAG, "spikeWindows key for WINDOW_NPOS is null");
+
             RobotLogCommon.d(TAG, "Bright spot value was under the threshold");
             SpikeWindowUtils.drawSpikeWindows(pImageROI.clone(), spikeWindows, pOutputFilenamePreamble);
             return new TeamPropReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, nposWindow.second);

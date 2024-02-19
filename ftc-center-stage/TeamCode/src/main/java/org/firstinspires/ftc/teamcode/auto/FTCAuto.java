@@ -1006,7 +1006,7 @@ public class FTCAuto {
                     double strafeDirection = adjustment.angle * directionFactor;
                     distanceToStrafe = adjustment.distance;
                     RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
-                    RobotLog.dd(TAG, "Strafe angle " + strafeDirection);
+                    RobotLogCommon.d(TAG, "Strafe angle " + strafeDirection);
 
                     // Check for a minimum distance to strafe.
                     if (distanceToStrafe >= 1.0) {
