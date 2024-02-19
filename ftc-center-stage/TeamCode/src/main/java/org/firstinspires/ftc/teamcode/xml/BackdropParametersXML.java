@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.xml;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

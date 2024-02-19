@@ -5,9 +5,6 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
-import org.firstinspires.ftc.teamcode.common.RobotConstants;
-
 // For use by the action "STRAIGHT_BY" and all specializations.
 public class DriveTrainPID {
 

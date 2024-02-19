@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto.vision;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;

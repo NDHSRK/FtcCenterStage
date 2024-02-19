@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.xml.VisionParameters;
 import org.opencv.android.Utils;
 import org.opencv.core.*;
@@ -179,11 +179,11 @@ public class ImageUtils {
         Mat adjusted = adjustSaturationAndValueMedians(hsvROI, pHSVParameters.saturation_median_target,  pHSVParameters.value_median_target);
 
         // Convert back to BGR.
-        if (pOutputFilenamePreamble != null && RobotLogCommon.isLoggable("v")) {
+        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || RobotLogCommon.usingFTCRobotLog())) {
             Mat adjustedBGR = new Mat();
             Imgproc.cvtColor(adjusted, adjustedBGR, Imgproc.COLOR_HSV2BGR);
             Imgcodecs.imwrite(pOutputFilenamePreamble + "_ADJ" + pFilenameSuffix + ".png", adjustedBGR);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_ADJ" + pFilenameSuffix + ".png");
+            RobotLogCommon.v(TAG, "Writing " + pOutputFilenamePreamble + "_ADJ" + pFilenameSuffix + ".png");
         }
 
          Mat thresholded = applyInRange(adjusted,  pHSVParameters.hue_low, pHSVParameters.hue_high,
@@ -271,9 +271,9 @@ public class ImageUtils {
         Mat grayROI = new Mat();
         Imgproc.cvtColor(pBGRInputROI, grayROI, Imgproc.COLOR_BGR2GRAY);
 
-        if (pOutputFilenamePreamble != null && RobotLogCommon.isLoggable("v")) {
+        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || RobotLogCommon.usingFTCRobotLog())) {
             Imgcodecs.imwrite(pOutputFilenamePreamble + "_GRAY.png", grayROI);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_GRAY.png");
+            RobotLogCommon.v(TAG, "Writing " + pOutputFilenamePreamble + "_GRAY.png");
         }
 
         return performThresholdOnGray(grayROI, pOutputFilenamePreamble, pGrayscaleMedianTarget, pLowThreshold);
@@ -282,9 +282,9 @@ public class ImageUtils {
     public static Mat performThresholdOnGray(Mat pGrayInputROI, String pOutputFilenamePreamble,
                                              int pGrayscaleMedianTarget, int pLowThreshold) {
         Mat adjustedGray = adjustGrayscaleMedian(pGrayInputROI, pGrayscaleMedianTarget);
-        if (pOutputFilenamePreamble != null && RobotLogCommon.isLoggable("v")) {
+        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || RobotLogCommon.usingFTCRobotLog())) {
             Imgcodecs.imwrite(pOutputFilenamePreamble + "_ADJ.png", adjustedGray);
-            RobotLogCommon.d(TAG, "Writing adjusted grayscale image " + pOutputFilenamePreamble + "_ADJ.png");
+            RobotLogCommon.v(TAG, "Writing adjusted grayscale image " + pOutputFilenamePreamble + "_ADJ.png");
         }
 
         Mat thresholded = applyGrayThreshold(adjustedGray, pLowThreshold);
@@ -368,11 +368,11 @@ public class ImageUtils {
 
         // Within the ROI draw all of the contours.
         RobotLogCommon.d(TAG, "Number of contours " + contours.size());
-        if (pOutputFilenamePreamble != null && RobotLogCommon.isLoggable("v")) {
+        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || RobotLogCommon.usingFTCRobotLog())) {
             Mat contoursDrawn = pImageROI.clone();
             ShapeDrawing.drawShapeContours(contours, contoursDrawn);
             Imgcodecs.imwrite(pOutputFilenamePreamble + "_CON.png", contoursDrawn);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_CON.png");
+            RobotLogCommon.v(TAG, "Writing " + pOutputFilenamePreamble + "_CON.png");
         }
 
         // See how this works here:

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.robot.device.servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XPathAccess;
 
 import javax.xml.xpath.XPathExpressionException;

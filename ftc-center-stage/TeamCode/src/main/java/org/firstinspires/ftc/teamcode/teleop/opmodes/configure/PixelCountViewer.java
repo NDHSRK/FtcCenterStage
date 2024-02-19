@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.xml.TeamPropParameters;
 import org.firstinspires.ftc.teamcode.xml.VisionParameters;
 import org.firstinspires.ftc.teamcode.xml.TeamPropParametersXML;
@@ -68,7 +68,7 @@ public class PixelCountViewer extends LinearOpMode {
     // In this OpMode all of the action takes place during init().
     @Override
     public void runOpMode() throws InterruptedException {
-        RobotLog.ii(TAG, "Initializing the PixelCountViewer");
+        RobotLogCommon.c(TAG, "Initializing the PixelCountViewer");
 
         // Read the parameters for team prop recognition from the xml file.
         teamPropParametersXML = new TeamPropParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
@@ -94,7 +94,7 @@ public class PixelCountViewer extends LinearOpMode {
             throw new AutonomousRobotException(TAG, "Pixel count webcam timed out on start");
 
         frontWebcamConfiguration.setVisionPortalWebcam(pixelCountWebcam);
-        RobotLog.ii(TAG, "PixelCountViewer successfully started on the front webcam");
+        RobotLogCommon.c(TAG, "PixelCountViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
@@ -128,7 +128,7 @@ public class PixelCountViewer extends LinearOpMode {
             // write them out to TeamPropParameters.xml now.
             if (grayscaleParametersChanged) {
                 teamPropParametersXML.writeTeamPropParametersFile();
-                RobotLog.ii(TAG, "Writing TeamPropParameters.xml");
+                RobotLogCommon.i(TAG, "Writing TeamPropParameters.xml");
                 telemetry.addLine("Writing TeamPropParameters.xml");
                 telemetry.update();
                 sleep(1500);
@@ -217,7 +217,7 @@ public class PixelCountViewer extends LinearOpMode {
 
     private void setPixelCountRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
         if (pOpModeButton.is(FTCButton.State.TAP)) {
-            RobotLog.dd(TAG, "Button " + pOpModeButton.getButtonValue() + " for " + pOpMode + " tapped");
+            RobotLogCommon.d(TAG, "Button " + pOpModeButton.getButtonValue() + " for " + pOpMode + " tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
@@ -244,7 +244,7 @@ public class PixelCountViewer extends LinearOpMode {
             currentMinWhitePixelCount = allianceMinWhitePixelCount;
             pixelCountRendering = new PixelCountRendering(this, pOpMode, alliance, allianceGrayParameters, spikeWindows);
             pixelCountProcessor.setCameraStreamRendering(pixelCountRendering);
-            RobotLog.dd(TAG, "Set pixel count rendering for " + pOpMode);
+            RobotLogCommon.d(TAG, "Set pixel count rendering for " + pOpMode);
         }
     }
 

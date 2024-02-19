@@ -1,10 +1,13 @@
-package org.firstinspires.ftc.ftcdevcommon.platform.android;
+package org.firstinspires.ftc.teamcode.common;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
+import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,6 +85,9 @@ public class RobotLogCommon {
         put(LogIdentifier.APP_LOG, "AppLog_");
     }};
 
+    // Use the FTC RobotLog as a default for OpModes where we don't
+    // need custom logging.
+    private static boolean useFTCRobotLog = true;
     private static LogIdentifier currentLogIdentifier = LogIdentifier.NONE;
     private static LogData currentLogData;
 
@@ -107,6 +113,7 @@ public class RobotLogCommon {
         // Now we can initialize the requested logger.
         Log.d(TAG, "Initializing the requested logger");
         OpenStatus openStatus;
+        useFTCRobotLog = false;
         try {
             // Log file initialization is based on --
             //https://www.logicbig.com/tutorials/core-java-tutorial/logging/customizing-default-format.html
@@ -166,10 +173,15 @@ public class RobotLogCommon {
             currentLogIdentifier = LogIdentifier.NONE;
             currentLogData = null;
             openStatus = OpenStatus.LOGGING_DISABLED;
+            useFTCRobotLog = true;
             Log.d(TAG, "Error in logger initialization; logging is disabled");
         }
 
         return openStatus;
+    }
+
+    public static synchronized boolean usingFTCRobotLog() {
+        return useFTCRobotLog;
     }
 
     public static synchronized void setMostDetailedLogLevel(final Level pLogLevel) {
@@ -184,7 +196,7 @@ public class RobotLogCommon {
 
     public static synchronized boolean isLoggable(String pLogLevel) {
         if (currentLogIdentifier == LogIdentifier.NONE) {
-            Log.d(TAG, "Attempt to set log level when logging is disabled");
+            Log.d(TAG, "Attempt to test log level when logging is disabled");
             return false;
         }
 
@@ -210,29 +222,52 @@ public class RobotLogCommon {
         return currentLogData.logger.getLevel();
     }
 
+    // Error
     public static void e(String pTAG, String pLogMessage) {
-        enqueueLogEntry(Level.SEVERE, pTAG + " " + pLogMessage);
+        if (useFTCRobotLog)
+            RobotLog.ee(pTAG, pLogMessage);
+        else
+            enqueueLogEntry(Level.SEVERE, pTAG + " " + pLogMessage);
     }
 
-    // Highest
+    // Information
     public static void i(String pTAG, String pLogMessage) {
-        enqueueLogEntry(Level.INFO, pTAG + " " + pLogMessage);
+        if (useFTCRobotLog)
+            RobotLog.ii(pTAG, pLogMessage);
+        else
+            enqueueLogEntry(Level.INFO, pTAG + " " + pLogMessage);
     }
 
+    // Configuration
     public static void c(String pTAG, String pLogMessage) {
-        enqueueLogEntry(Level.CONFIG, pTAG + " " + pLogMessage);
+        if (useFTCRobotLog)
+            RobotLog.aa(pTAG, pLogMessage); // take to be "administrative"
+        else
+            enqueueLogEntry(Level.CONFIG, pTAG + " " + pLogMessage);
     }
 
+    // Debugging
     public static void d(String pTAG, String pLogMessage) {
-        enqueueLogEntry(Level.FINE, pTAG + " " + pLogMessage);
+        if (useFTCRobotLog)
+            RobotLog.dd(pTAG, pLogMessage);
+        else
+            enqueueLogEntry(Level.FINE, pTAG + " " + pLogMessage);
     }
 
+    // Verbose
     public static void v(String pTAG, String pLogMessage) {
-        enqueueLogEntry(Level.FINER, pTAG + " " + pLogMessage);
+        if (useFTCRobotLog)
+            RobotLog.vv(pTAG, pLogMessage);
+        else
+            enqueueLogEntry(Level.FINER, pTAG + " " + pLogMessage);
     }
 
+    // Very verbose
     public static void vv(String pTAG, String pLogMessage) {
-        enqueueLogEntry(Level.FINEST, pTAG + " " + pLogMessage);
+        if (useFTCRobotLog)
+            RobotLog.vv(pTAG, pLogMessage);
+        else
+            enqueueLogEntry(Level.FINEST, pTAG + " " + pLogMessage);
     }
 
     // Even though the BlockingQueue is thread-safe there's a warning about drainTo:
@@ -324,25 +359,21 @@ public class RobotLogCommon {
             countDownLatch.countDown();
             while (true) {
                 try {
-                    Objects.requireNonNull(currentLogData.logWriterLock,
-                            TAG + " The logWriterLock is unexpectedly null").lock();
+                    Objects.requireNonNull(currentLogData.logWriterLock).lock();
                     while (!currentLogData.logWriterNotification)
-                        Objects.requireNonNull(currentLogData.logWriterCondition,
-                                TAG + " The logWriterCondition is unexpectedly null").await();
+                        Objects.requireNonNull(currentLogData.logWriterCondition).await();
 
                     currentLogData.logWriterNotification = false;
 
                     // If there is a request to close the LogWriter, write a maximum
                     // number of 10 entries to the log *inside* the lock.
                     if (currentLogData.closeLogWriter) {
-                        Objects.requireNonNull(currentLogData.logEntryQueue,
-                                TAG + " The logQueueEntry is unexpectedly null").drainTo(drain); // must be protected by a lock
+                        Objects.requireNonNull(currentLogData.logEntryQueue).drainTo(drain); // must be protected by a lock
                         int drainCount = drain.size();
                         int drainIndex = 0;
 
                         Log.d(TAG, "Closing the log with " + drainCount + " entries on the queue");
-                        Objects.requireNonNull(currentLogData.logger,
-                                TAG + " The logger is unexpectedly null").log(Level.INFO, "Closing the log with " + drainCount + " entries on the queue");
+                        Objects.requireNonNull(currentLogData.logger).log(Level.INFO, "Closing the log with " + drainCount + " entries on the queue");
                         if (drainCount > 10) {
                             Log.d(TAG, "Writing out the last 10 entries on the queue");
                             currentLogData.logger.log(Level.INFO, "Writing out the last 10 entries on the queue");
@@ -359,21 +390,18 @@ public class RobotLogCommon {
                     // This is the normal path.
                     // Drain one or more entries from the queue to a local collection
                     // and then write them out *after* the lock is released.
-                    Objects.requireNonNull(currentLogData.logEntryQueue,
-                            TAG + " The logQueueEntry is unexpectedly null").drainTo(drain); // must be protected by a lock
+                    Objects.requireNonNull(currentLogData.logEntryQueue).drainTo(drain); // must be protected by a lock
                 } catch (InterruptedException iex) {  // await() can throw InterruptedException
                     break; // LogWriter will exit
                 } finally {
-                    Objects.requireNonNull(currentLogData.logWriterLock,
-                            TAG + " The logWriterLock is unexpectedly null").unlock();
+                    Objects.requireNonNull(currentLogData.logWriterLock).unlock();
                 }
 
                 // We're *outside* the lock so more queue entries or a close request
                 // may come in. But we won't see them until the following writes to
                 // the log file have completed.
                 for (Pair<Level, String> oneLogEntry : drain) {
-                    Objects.requireNonNull(currentLogData.logger,
-                            TAG + " The logger is unexpectedly null").log(oneLogEntry.first, oneLogEntry.second);
+                    Objects.requireNonNull(currentLogData.logger).log(oneLogEntry.first, oneLogEntry.second);
                 }
                 drain.clear();
             }

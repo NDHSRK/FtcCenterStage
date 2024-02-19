@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot.device.motor.drive;
 
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 
 // The original implementations of the functions getActualAngle()
 // and normalize() can be found in the Visual Studio 2019

@@ -2,20 +2,20 @@ package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
 import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.teamcode.xml.SpikeWindowMapping;
-import org.firstinspires.ftc.teamcode.xml.SpikeWindowMappingXML;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.robot.FTCRobot;
 import org.firstinspires.ftc.teamcode.robot.device.camera.CameraStreamProcessor;
 import org.firstinspires.ftc.teamcode.robot.device.camera.SpikeWindowRendering;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcam;
 import org.firstinspires.ftc.teamcode.robot.device.camera.VisionPortalWebcamConfiguration;
 import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
+import org.firstinspires.ftc.teamcode.xml.SpikeWindowMapping;
+import org.firstinspires.ftc.teamcode.xml.SpikeWindowMappingXML;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class SpikeWindowViewer extends LinearOpMode {
     // In this OpMode all of the action takes place during init().
     @Override
     public void runOpMode() throws InterruptedException {
-        RobotLog.ii(TAG, "Initializing the SpikeWindowViewer");
+        RobotLogCommon.c(TAG, "Initializing the SpikeWindowViewer");
 
         // Get the camera configuration from RobotConfig.xml.
         FTCRobot robot = new FTCRobot(this, RobotConstants.RunType.TELEOP_VISION_PREVIEW);
@@ -66,7 +66,7 @@ public class SpikeWindowViewer extends LinearOpMode {
             throw new AutonomousRobotException(TAG, "Spike window webcam timed out on start");
 
         frontWebcamConfiguration.setVisionPortalWebcam(spikeWindowWebcam);
-        RobotLog.ii(TAG, "SpikeWindowViewer successfully started on the front webcam");
+        RobotLogCommon.c(TAG, "SpikeWindowViewer successfully started on the front webcam");
 
         // Note: if no COMPETITION or AUTO_TEST OpMode in RobotAction.XML contains
         // the action FIND_TEAM_PROP then collectedSpikeWindowData will be empty.
@@ -128,7 +128,7 @@ public class SpikeWindowViewer extends LinearOpMode {
 
     private void setSpikeWindowRendering(RobotConstantsCenterStage.OpMode pOpMode, FTCButton pOpModeButton) {
         if (pOpModeButton.is(FTCButton.State.TAP)) {
-            RobotLog.dd(TAG, "Button " + pOpModeButton.getButtonValue() + " for " + pOpMode + " tapped");
+            RobotLogCommon.d(TAG, "Button " + pOpModeButton.getButtonValue() + " for " + pOpMode + " tapped");
 
             // Make sure that the Autonomous OpMode for the selected
             // starting position has actually been defined in RobotAction.xml.
@@ -140,7 +140,7 @@ public class SpikeWindowViewer extends LinearOpMode {
             // Show the spike window mapping on the Driver Station
             // camera stream.
             spikeWindowProcessor.setCameraStreamRendering(new SpikeWindowRendering(spikeWindows));
-            RobotLog.dd(TAG, "Set spike window mapping for " + pOpMode);
+            RobotLogCommon.d(TAG, "Set spike window mapping for " + pOpMode);
         }
     }
 

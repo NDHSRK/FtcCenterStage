@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.ftcdevcommon.AutoWorker;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;

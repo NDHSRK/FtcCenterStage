@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auto.vision;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
@@ -216,7 +216,7 @@ public class TeamPropRecognition {
                 Math.abs(allianceGrayParameters.threshold_low),    // threshold value
                 255,   // white
                 allianceGrayParameters.threshold_low >= 0 ? Imgproc.THRESH_BINARY : Imgproc.THRESH_BINARY_INV); // thresholding type
-        RobotLogCommon.v(TAG, "Threshold values: low " + allianceGrayParameters.threshold_low + ", high 255");
+        RobotLogCommon.d(TAG, "Threshold values: low " + allianceGrayParameters.threshold_low + ", high 255");
 
         String thrFilename = pOutputFilenamePreamble + "_THR.png";
         Imgcodecs.imwrite(thrFilename, thresholded);

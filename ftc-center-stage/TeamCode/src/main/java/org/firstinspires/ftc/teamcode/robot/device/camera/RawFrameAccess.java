@@ -4,11 +4,8 @@ import static android.os.SystemClock.sleep;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
-import org.firstinspires.ftc.teamcode.common.RobotConstantsCenterStage;
-import org.firstinspires.ftc.vision.VisionProcessor;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.opencv.core.Mat;
 
 import java.util.Date;

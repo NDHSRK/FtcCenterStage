@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGR
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
-import org.firstinspires.ftc.ftcdevcommon.platform.android.RobotLogCommon;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 // Direct synchronous access to the IMU. This class is an alternative

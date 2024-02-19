@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.teleop.opmodes.configure;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.teamcode.xml.BackdropPixelParameters;
 import org.firstinspires.ftc.teamcode.xml.VisionParameters;
 import org.firstinspires.ftc.teamcode.xml.BackdropPixelImageParametersXML;
@@ -45,7 +45,7 @@ public class BackdropPixelViewer extends LinearOpMode {
     // In this OpMode all of the action takes place during init().
     @Override
     public void runOpMode() throws InterruptedException {
-        RobotLog.ii(TAG, "Initializing the BackdropPixelViewer");
+        RobotLogCommon.c(TAG, "Initializing the BackdropPixelViewer");
 
         // Read the parameters for backdrop pixel recognition from the xml file.
         backdropPixelParametersXML = new BackdropPixelParametersXML(WorkingDirectory.getWorkingDirectory() + RobotConstants.XML_DIR);
@@ -82,7 +82,7 @@ public class BackdropPixelViewer extends LinearOpMode {
             throw new AutonomousRobotException(TAG, "Backdrop pixel webcam timed out on start");
 
         backdropWebcamConfiguration.setVisionPortalWebcam(backdropPixelWebcam);
-        RobotLog.ii(TAG, "BackdropPixelViewer successfully started on webcam " + webcamId);
+        RobotLogCommon.c(TAG, "BackdropPixelViewer successfully started on webcam " + webcamId);
 
         originalGrayParameters = backdropPixelParameters.grayscaleParameters;
         currentThresholdLow = originalGrayParameters.threshold_low;
@@ -106,7 +106,7 @@ public class BackdropPixelViewer extends LinearOpMode {
             // write them out to BackdropPixelParameters.xml now.
             if (grayscaleParametersChanged) {
                 backdropPixelParametersXML.writeBackdropPixelParametersFile();
-                RobotLog.ii(TAG, "Writing BackdropPixelParameters.xml");
+                RobotLogCommon.i(TAG, "Writing BackdropPixelParameters.xml");
                 telemetry.addLine("Writing BackdropPixelParameters.xml");
                 telemetry.update();
                 sleep(1500);
