@@ -37,8 +37,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private final FTCButton winchDown;
 
     //&& Uncomment to calibrate the winch by small steps
-    private final FTCButton winchIncrement;
-    private final FTCButton winchDecrement;
+    // private final FTCButton winchIncrement;
+    // private final FTCButton winchDecrement;
     private int cumulativeClicks = 0;
     private static final int CLICKS_PER_WINCH_MOVEMENT = 100;
 
@@ -56,6 +56,8 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private boolean reverseIntakeInProgress = false;
     private final FTCButton deliveryLevel1;
     private final FTCButton deliveryLevel2;
+
+    private final FTCButton resetIntakeArm;
 
     // Drive train
     private double driveTrainPower;
@@ -105,10 +107,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         // Gamepad 1 ABXY Buttons
         launchDrone = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_Y);
         toggleSpeed = new FTCToggleButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_A);
+        resetIntakeArm = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
 
         //&& Uncomment to calibrate the winch by small steps
-        winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
-        winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B);
+        // winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
+        // winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         // Gamepad 2
         intake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
@@ -181,10 +184,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         winchDown.update();
 
         //&& Uncomment to calibrate the winch by small steps
-        winchIncrement.update();
-        winchDecrement.update();
+        // winchIncrement.update();
+        // winchDecrement.update();
 
         launchDrone.update();
+        resetIntakeArm.update();
 
         // Game Controller 2
         intake.update();
@@ -279,10 +283,11 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateWinchDown();
 
         //&& Uncomment to calibrate the winch by small steps
-        updateWinchIncrement();
-        updateWinchDecrement();
+        // updateWinchIncrement();
+        // updateWinchDecrement();
 
         updateLaunchDrone();
+        updateResetIntakeArm();
 
         // Game Controller 2
         updateIntake();
@@ -355,6 +360,15 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         if (launchDrone.is(FTCButton.State.TAP)) {
             droneLaunchRequested = true;
             move_elevator_to_selected_level(Elevator.ElevatorLevel.DRONE);
+        }
+    }
+
+    private void updateResetIntakeArm() {
+        if (resetIntakeArm.is(FTCButton.State.TAP)) {
+            robot.intakeArmServo.up();
+            // give time to go up
+            linearOpMode.sleep(500);
+            robot.intakeArmServo.down();
         }
     }
 
@@ -444,20 +458,20 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     }
 
     //&& Uncomment to calibrate the winch by small steps
-    private void updateWinchIncrement() {
-        if (winchIncrement.is(FTCButton.State.TAP)) {
-            robot.winchMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(),
-                    SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
-            updateWinchEncoderTelemetry();
-        }
-    }
+//    private void updateWinchIncrement() {
+//        if (winchIncrement.is(FTCButton.State.TAP)) {
+//            robot.winchMotion.moveSingleMotor(cumulativeClicks += CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(),
+//                    SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+//            updateWinchEncoderTelemetry();
+//        }
+//    }
 
-    private void updateWinchDecrement() {
-        if (winchDecrement.is(FTCButton.State.TAP)) {
-            robot.winchMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
-            updateWinchEncoderTelemetry();
-        }
-    }
+//    private void updateWinchDecrement() {
+//        if (winchDecrement.is(FTCButton.State.TAP)) {
+//            robot.winchMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
+//            updateWinchEncoderTelemetry();
+//        }
+//    }
 
     private void updateGoToSafe() {
         if (goToSafe.is(FTCButton.State.TAP)) {
