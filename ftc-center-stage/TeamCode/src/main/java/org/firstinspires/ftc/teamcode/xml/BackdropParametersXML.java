@@ -72,8 +72,7 @@ public class BackdropParametersXML {
                 DriveTrainConstants.Direction.valueOf(direction_node.getTextContent().toUpperCase());
 
         // Strafe and distance adjustment percentages should be in the range
-        // of > -100.0 and < +100.0. But if someone has entered a value in
-        // the range of > -1.0 and < 1.0 then we'll multiply by 100.
+        // of > -100.0 and < +100.0.
         // <strafe_adjustment_percent>
         Node strafe_adjustment_node = direction_node.getNextSibling();
         strafe_adjustment_node = XMLUtils.getNextElement(strafe_adjustment_node);

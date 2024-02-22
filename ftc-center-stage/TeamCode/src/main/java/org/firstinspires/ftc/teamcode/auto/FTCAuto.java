@@ -925,6 +925,9 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Distance from robot center to AprilTag " + distanceFromRobotCenterToAprilTag);
 
                 double distanceToMove;
+                //**TODO You really can't make this test here because you haven't
+                // yet taken any strafe adjustments into account. But note that
+                // the sine of 0 degrees is 0.
                 if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
                     // Strafe to place the center of the robot opposite the AprilTag.
                     double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
@@ -962,6 +965,9 @@ public class FTCAuto {
                         //**TODO Next line TEMP: use the same adjustment as BLUE_A4 and RED_F4
                         adjustment =
                                 AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, 0, 0);
+
+                        //**TODO Disable the raw frame processor on start; disable the april_tag
+                        // processor here; enable the raw_frame_processor ...
                         /*
                         // To perform BackdropPixelRecognition the raw_frame processor
                         // on the camera must be enabled.

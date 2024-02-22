@@ -9,6 +9,10 @@
         </parameters>
         <actions>
 
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
             <!-- FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>

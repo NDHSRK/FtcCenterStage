@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 // Inherit from TeleOpBase because we need FTCRobot to
 // set up several devices.
 @TeleOp(name = "IntakeArmServoCalibration", group = "Test")
-@Disabled
+// @Disabled
 public class IntakeArmServoCalibration extends TeleOpBase {
 
     private static final String TAG = ServoCalibration.class.getSimpleName();
