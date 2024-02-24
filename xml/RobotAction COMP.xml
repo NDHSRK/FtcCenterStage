@@ -13,6 +13,12 @@
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
 
+            <FORWARD>
+                <distance>72.0</distance>
+                <velocity>.5</velocity>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </FORWARD>
+
             <!-- FIND_TEAM_PROP>
                 <image_parameters>
                     <image_source>front_webcam</image_source>
@@ -42,7 +48,7 @@
                 </team_prop_recognition>
             </FIND_TEAM_PROP -->
 
-            <STOP_WEBCAM>
+            <!-- STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM>
 
@@ -61,7 +67,7 @@
             
             <TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-            </TAKE_PICTURE_WEBCAM>
+            </TAKE_PICTURE_WEBCAM -->
            
             <!-- MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -799,9 +805,9 @@
                 <CENTER_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>31.0</distance>
+                        <distance>27.0</distance>
                         <velocity>0.5</velocity>
-                        <angle>7.0</angle>
+                        <angle>10.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
