@@ -247,6 +247,15 @@
         distances, which we pass to the robot, but the robot never moves
         as far as a given actual distance. In the OpModes below look for
         a movement <BACK> after a turn towards the backdrop. -->
+
+    <!-- WARNING about DRIVE_TO_BACKDROP_APRIL_TAG -->
+    <!-- The OpModes RED_F2 and BLUE_A2 contain the actions
+        DRIVE_TO_BACKDROP_APRIL_TAG with the child elements
+        yellow_pixel/image_parameters. For consistent results
+        the children of *all* of such yelllow_pixel/image_parameters
+        elements *must* be the same. They must also match the
+        <image_parameters> element in the file
+        BackdropPixelImageParameters.xml. -->
     <OpMode id="BLUE_A2">
         <parameters>
             <log_level>d</log_level>
