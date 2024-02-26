@@ -1116,7 +1116,8 @@ public class FTCAuto {
 
             case "DELIVER_PIXEL_TO_SPIKE": {
                 // The position of the pixel stopper does not matter.
-                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, 0.15, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+                //## Before the latest cgange to the intake the velocity was 0.15.
+                robot.intakeMotion.resetAndMoveSingleMotor(robot.intakeMotor.deliver_front, 0.25, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
                 break;
             }
 
