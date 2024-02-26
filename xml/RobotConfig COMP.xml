@@ -31,7 +31,7 @@
         <velocity_down>0.8</velocity_down>
         <positions>
             <ground>0</ground>
-            <safe>95</safe>
+            <safe>145</safe> // 95
             <pixel_clearance>200</pixel_clearance>
             <drone>3495</drone>
             <autonomous>2900</autonomous>
