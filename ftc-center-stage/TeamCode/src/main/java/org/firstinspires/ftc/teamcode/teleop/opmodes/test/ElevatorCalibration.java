@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.teleop.common.FTCButton;
 import org.firstinspires.ftc.teamcode.teleop.common.TeleOpBase;
 
 @TeleOp(name = "ElevatorCalibration", group = "Test")
-@Disabled
+// @Disabled
 public class ElevatorCalibration extends TeleOpBase {
 
     private Elevator elevator;
