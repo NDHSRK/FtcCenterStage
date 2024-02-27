@@ -87,10 +87,10 @@
                             <height>480</height>
                         </resolution>
                         <image_roi>
-                            <x>140</x>
+                            <x>0</x>
                             <y>0</y>
-                            <width>345</width>
-                            <height>250</height>
+                            <width>640</width>
+                            <height>295</height>
                         </image_roi>
                     </image_parameters>
                     <backdrop_pixel_recognition>
@@ -402,10 +402,10 @@
                                     <height>480</height>
                                 </resolution>
                                 <image_roi>
-                                    <x>140</x>
+                                    <x>0</x>
                                     <y>0</y>
-                                    <width>345</width>
-                                    <height>250</height>
+                                    <width>640</width>
+                                    <height>295</height>
                                 </image_roi>
                             </image_parameters>
                             <backdrop_pixel_recognition>
@@ -514,10 +514,10 @@
                                     <height>480</height>
                                 </resolution>
                                 <image_roi>
-                                    <x>140</x>
+                                    <x>0</x>
                                     <y>0</y>
-                                    <width>345</width>
-                                    <height>250</height>
+                                    <width>640</width>
+                                    <height>295</height>
                                 </image_roi>
                             </image_parameters>
                             <backdrop_pixel_recognition>
@@ -620,10 +620,10 @@
                                     <height>480</height>
                                 </resolution>
                                 <image_roi>
-                                    <x>140</x>
+                                    <x>0</x>
                                     <y>0</y>
-                                    <width>345</width>
-                                    <height>250</height>
+                                    <width>640</width>
+                                    <height>295</height>
                                 </image_roi>
                             </image_parameters>
                             <backdrop_pixel_recognition>
@@ -1104,10 +1104,10 @@
                                     <height>480</height>
                                 </resolution>
                                 <image_roi>
-                                    <x>140</x>
+                                    <x>0</x>
                                     <y>0</y>
-                                    <width>345</width>
-                                    <height>250</height>
+                                    <width>640</width>
+                                    <height>295</height>
                                 </image_roi>
                             </image_parameters>
                             <backdrop_pixel_recognition>
@@ -1216,10 +1216,10 @@
                                     <height>480</height>
                                 </resolution>
                                 <image_roi>
-                                    <x>140</x>
+                                    <x>0</x>
                                     <y>0</y>
-                                    <width>345</width>
-                                    <height>250</height>
+                                    <width>640</width>
+                                    <height>295</height>
                                 </image_roi>
                             </image_parameters>
                             <backdrop_pixel_recognition>
@@ -1346,10 +1346,10 @@
                                     <height>480</height>
                                 </resolution>
                                 <image_roi>
-                                    <x>140</x>
+                                    <x>0</x>
                                     <y>0</y>
-                                    <width>345</width>
-                                    <height>250</height>
+                                    <width>640</width>
+                                    <height>295</height>
                                 </image_roi>
                             </image_parameters>
                             <backdrop_pixel_recognition>

@@ -69,7 +69,6 @@ public class BackdropPixelImageParametersXML {
             throw new AutonomousRobotException(TAG, "Element 'image_parameters' not found");
 
         backdropPixelImageParameters = ImageXML.parseImageParameters(image_parameters_node);
-
     }
 
     public VisionParameters.ImageParameters getBackdropPixelImageParameters() {
