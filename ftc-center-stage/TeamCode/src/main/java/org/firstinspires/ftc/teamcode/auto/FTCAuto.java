@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.ftcdevcommon.Pair;
 import org.firstinspires.ftc.ftcdevcommon.Threading;
+import org.firstinspires.ftc.teamcode.auto.vision.BackdropPixelReturn;
 import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.TimeStamp;
 import org.firstinspires.ftc.ftcdevcommon.platform.android.WorkingDirectory;
@@ -50,6 +51,7 @@ import org.firstinspires.ftc.teamcode.robot.device.motor.drive.AprilTagNavigatio
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainConstants;
 import org.firstinspires.ftc.teamcode.robot.device.motor.drive.DriveTrainMotion;
 import org.firstinspires.ftc.teamcode.robot.device.servo.PixelStopperServo;
+import org.firstinspires.ftc.teamcode.xml.VisionParameters;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -351,6 +353,7 @@ public class FTCAuto {
                 autonomousTimer.stopAutonomousTimer();
                 failsafeElevator(); // bring the elevator to GROUND
 
+                //**TODO try fix in 9.1 release
            /*
             if (!keepCamerasRunning) {
                 //&& Attempt at an orderly shutdown causes the Robot Controller to crash in easyopencv.
@@ -882,11 +885,11 @@ public class FTCAuto {
                             detectionData.ftcDetectionData.ftcPose.range, detectionData.ftcDetectionData.ftcPose.bearing);
                     aprilTagAngle = inferredPosition.angle;
                     aprilTagDistance = inferredPosition.distance;
-                    RobotLogCommon.d(TAG, "Inferred distance " + aprilTagDistance + ", angle " + aprilTagAngle);
+                    RobotLogCommon.d(TAG, "Inferred angle " + aprilTagAngle + ", distance " + aprilTagDistance);
                 } else {
                     aprilTagDistance = detectionData.ftcDetectionData.ftcPose.range;
                     aprilTagAngle = detectionData.ftcDetectionData.ftcPose.bearing;
-                    RobotLogCommon.d(TAG, "Using target AprilTag distance " + aprilTagDistance + ", angle " + aprilTagAngle);
+                    RobotLogCommon.d(TAG, "Using target AprilTag angle " + aprilTagAngle + ", distance " + aprilTagDistance);
                 }
 
                 // The deskew above should have taken care of the yaw but let's see
@@ -924,113 +927,97 @@ public class FTCAuto {
                 RobotLogCommon.d(TAG, "Angle from robot center to AprilTag " + angleFromRobotCenterToAprilTag);
                 RobotLogCommon.d(TAG, "Distance from robot center to AprilTag " + distanceFromRobotCenterToAprilTag);
 
-                double distanceToMove;
-                //**TODO You really can't make this test here because you haven't
-                // yet taken any strafe adjustments into account. But note that
-                // the sine of 0 degrees is 0.
-                if (Math.abs(angleFromRobotCenterToAprilTag) >= 3.0) {
-                    // Strafe to place the center of the robot opposite the AprilTag.
-                    double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
-                    double distanceToStrafe = Math.abs(sinTheta * distanceFromRobotCenterToAprilTag);
-                    double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
-                    RobotLogCommon.d(TAG, "Calculated distance to strafe " + distanceToStrafe);
+                // Strafe to place the center of the robot opposite the AprilTag.
+                double sinTheta = Math.sin(Math.toRadians(Math.abs(angleFromRobotCenterToAprilTag)));
+                double distanceToStrafe = Math.abs(sinTheta * distanceFromRobotCenterToAprilTag);
+                double strafeVelocity = shortDistanceVelocity(distanceToStrafe);
+                RobotLogCommon.d(TAG, "Calculated distance to strafe " + distanceToStrafe);
 
-                    // Add in strafe percentage adjustment.
-                    if (backdropParameters.strafeAdjustmentPercent != 0.0) {
-                        distanceToStrafe += (distanceToStrafe * backdropParameters.strafeAdjustmentPercent);
-                        RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + backdropParameters.strafeAdjustmentPercent + " for a distance to strafe of " + distanceToStrafe);
-                    }
-
-                    // Call one of two methods that adjust the distance of the
-                    // strafe depending on the AprilTag. For both methods the parameter
-                    // "strafeDistanceFromAprilTagToRobotCenter" is the number of inches
-                    // that the center of the robot is left (positive) or right (negative)
-                    // of the AprilTag. The sign of the parameter is the same as the
-                    // inverse of the sign of the angle from the center of the robot to
-                    // the AprilTag.
-
-                    // The returned strafe angle (90.0 degrees or -90.0 degrees) is also
-                    // given from the point of view of an observer facing the backdrop.
-                    double signOfDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
-                    AngleDistance adjustment;
-                    if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
-                            pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
-                        RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
-                        adjustment =
-                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, backdropParameters.outsideStrafeAdjustment, backdropParameters.yellowPixelAdjustment);
-                    } else { // Must be BLUE_A2 or RED_F2
-                        //**TODO 2/15/2024 Disable BackdropPixelRecognition because results
-                        // have been inconsistent in testing and we're out of time for the
-                        // ILT on 2/17/24.
-                        //**TODO Next line TEMP: use the same adjustment as BLUE_A4 and RED_F4
-                        adjustment =
-                                AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, 0, 0);
-
-                        //**TODO Disable the raw frame processor on start; disable the april_tag
-                        // processor here; enable the raw_frame_processor ...
-                        /*
-                        // To perform BackdropPixelRecognition the raw_frame processor
-                        // on the camera must be enabled.
-                        VisionProcessor rawFrameProcessor =
-                                backdropWebcamConfiguration.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME);
-                        if (rawFrameProcessor == null)
-                            throw new AutonomousRobotException(TAG, "The RAW_FRAME processor is not active for BackdropPixelRecognition");
-
-                        RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor);
-
-                        // Get the <image_parameters> for the backdrop pixels from the RobotAction XML file.
-                        VisionParameters.ImageParameters backdropPixelImageParameters =
-                                actionXML.getImageParametersFromXPath(pAction, "yellow_pixel/image_parameters");
-                        RobotConstantsCenterStage.InternalWebcamId webcamId =
-                                RobotConstantsCenterStage.InternalWebcamId.valueOf(backdropPixelImageParameters.image_source.toUpperCase());
-
-                        if (webcamId != backdropWebcamConfiguration.internalWebcamId)
-                            throw new AutonomousRobotException(TAG, "The AprilTag webcam id and the backstop pixel webcam id are not the same");
-
-                        // Get the recognition path from the XML file.
-                        String recognitionPathString = actionXPath.getRequiredText("yellow_pixel/backdrop_pixel_recognition/recognition_path");
-                        RobotConstantsCenterStage.BackdropPixelRecognitionPath backdropPixelRecognitionPath =
-                                RobotConstantsCenterStage.BackdropPixelRecognitionPath.valueOf(recognitionPathString.toUpperCase());
-                        RobotLogCommon.d(TAG, "Backdrop pixel recognition path " + backdropPixelRecognitionPath);
-
-                        BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters, backdropPixelRecognitionPath);
-                        RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
-
-                        RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = backdropPixelReturn.backdropPixelOpenSlot;
-                        RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
-                        adjustment =
-                                AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);
-
-                         */
-                    }
-
-                    // Set the final angle to strafe with respect to the front of the
-                    // robot. The adjusted angle may have to be inverted depending on
-                    // whether the camera facing the backdrop is on the front (no
-                    // inversion) or back (inversion) of the robot.
-                    double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
-                    double strafeDirection = adjustment.angle * directionFactor;
-                    distanceToStrafe = adjustment.distance;
-                    RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
-                    RobotLogCommon.d(TAG, "Strafe angle " + strafeDirection);
-
-                    // Check for a minimum distance to strafe.
-                    if (distanceToStrafe >= 1.0) {
-                        RobotLogCommon.d(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
-                        int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
-                        driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
-                    }
-
-                    // Calculate the distance to move towards the backstop based on our triangle.
-                    // distanceFromRobotCenterToAprilTag (hypotenuse) squared = distanceToStrafe squared + adjacent squared.
-                    double adjacentSquared = Math.pow(distanceFromRobotCenterToAprilTag, 2) - Math.pow(distanceToStrafe, 2);
-                    double adjacent = Math.sqrt(adjacentSquared); // center of robot to AprilTag
-                    distanceToMove = adjacent - (backdropWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
-                    RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
-                } else {
-                    distanceToMove = distanceFromRobotCenterToAprilTag - (backdropWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
-                    RobotLogCommon.d(TAG, "Calculated distance to move towards the backdrop " + distanceToMove);
+                // Add in strafe percentage adjustment.
+                if (backdropParameters.strafeAdjustmentPercent != 0.0) {
+                    distanceToStrafe += (distanceToStrafe * backdropParameters.strafeAdjustmentPercent);
+                    RobotLogCommon.d(TAG, "Adjusting distance to strafe by a factor of " + backdropParameters.strafeAdjustmentPercent + " for a distance to strafe of " + distanceToStrafe);
                 }
+
+                // Call one of two methods that adjust the distance of the
+                // strafe depending on the AprilTag. For both methods the parameter
+                // "strafeDistanceFromAprilTagToRobotCenter" is the number of inches
+                // that the center of the robot is left (positive) or right (negative)
+                // of the AprilTag. The sign of the parameter is the same as the
+                // inverse of the sign of the angle from the center of the robot to
+                // the AprilTag.
+
+                // The returned strafe angle (90.0 degrees or -90.0 degrees) is also
+                // given from the point of view of an observer facing the backdrop.
+                double signOfStrafeDistance = Math.signum(angleFromRobotCenterToAprilTag) * -1;
+                AngleDistance strafeAdjustment;
+                if (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A4 ||
+                        pOpMode == RobotConstantsCenterStage.OpMode.RED_F4) {
+                    // There's more real estate on the backdrop at the outside positions:
+                    // tags 1, 3, 4, and 6. So nudge the robot towards the edge of the
+                    // backdrop.
+                    RobotLogCommon.d(TAG, "Including outside strafe adjustment of " + backdropParameters.outsideStrafeAdjustment);
+                    strafeAdjustment =
+                            AprilTagUtils.strafeAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfStrafeDistance, backdropParameters.outsideStrafeAdjustment, backdropParameters.yellowPixelAdjustment);
+                } else { // Must be BLUE_A2 or RED_F2
+                    // To perform BackdropPixelRecognition the raw_frame processor
+                    // on the camera must be enabled.
+                    VisionProcessor rawFrameProcessor =
+                            backdropWebcamConfiguration.getVisionPortalWebcam().getEnabledProcessor(RobotConstantsCenterStage.ProcessorIdentifier.RAW_FRAME);
+                    if (rawFrameProcessor == null)
+                        throw new AutonomousRobotException(TAG, "The RAW_FRAME processor is not active for BackdropPixelRecognition");
+
+                    RawFrameAccess rawFrameAccess = new RawFrameAccess((RawFrameProcessor) rawFrameProcessor);
+
+                    // Get the <image_parameters> for the backdrop pixels from the RobotAction XML file.
+                    VisionParameters.ImageParameters backdropPixelImageParameters =
+                            actionXML.getImageParametersFromXPath(pAction, "yellow_pixel/image_parameters");
+                    RobotConstantsCenterStage.InternalWebcamId webcamId =
+                            RobotConstantsCenterStage.InternalWebcamId.valueOf(backdropPixelImageParameters.image_source.toUpperCase());
+
+                    if (webcamId != backdropWebcamConfiguration.internalWebcamId)
+                        throw new AutonomousRobotException(TAG, "The AprilTag webcam id and the backstop pixel webcam id are not the same");
+
+                    // Get the recognition path from the XML file.
+                    String recognitionPathString = actionXPath.getRequiredText("yellow_pixel/backdrop_pixel_recognition/recognition_path");
+                    RobotConstantsCenterStage.BackdropPixelRecognitionPath backdropPixelRecognitionPath =
+                            RobotConstantsCenterStage.BackdropPixelRecognitionPath.valueOf(recognitionPathString.toUpperCase());
+                    RobotLogCommon.d(TAG, "Backdrop pixel recognition path " + backdropPixelRecognitionPath);
+
+                    BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters,
+                            aprilTagAngle, aprilTagDistance, backdropPixelRecognitionPath);
+                    RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
+
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = backdropPixelReturn.backdropPixelOpenSlot;
+                    RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);
+                    strafeAdjustment =
+                            AprilTagUtils.yellowPixelAdjustment(targetTagId.getNumericId(), distanceToStrafe * signOfStrafeDistance, openSlot, backdropParameters.yellowPixelAdjustment, backdropParameters.outsideStrafeAdjustment);
+                }
+
+                // Set the final angle to strafe with respect to the front of the
+                // robot. The adjusted angle may have to be inverted depending on
+                // whether the camera facing the backdrop is on the front (no
+                // inversion) or back (inversion) of the robot.
+                double directionFactor = (direction == DriveTrainConstants.Direction.FORWARD) ? 1.0 : -1.0;
+                double strafeDirection = strafeAdjustment.angle * directionFactor;
+                distanceToStrafe = strafeAdjustment.distance;
+                RobotLogCommon.d(TAG, "Calculated final distance for strafe to yellow pixel delivery point " + distanceToStrafe);
+                RobotLogCommon.d(TAG, "Strafe angle " + strafeDirection);
+
+                // Check for a minimum distance to strafe.
+                if (distanceToStrafe >= 1.0) {
+                    RobotLogCommon.d(TAG, "Strafe to yellow pixel delivery point " + distanceToStrafe);
+                    int targetClicks = (int) (distanceToStrafe * robot.driveTrain.getClicksPerInch());
+                    driveTrainMotion.straight(targetClicks, strafeDirection, strafeVelocity, 0, desiredHeading);
+                } else
+                    RobotLogCommon.d(TAG, "Final distance to strafe is < 1.0 in.");
+
+                // Calculate the distance to move towards or away from the backstop based on our triangle.
+                // distanceFromRobotCenterToAprilTag (hypotenuse) squared = distanceToStrafe squared + adjacent squared.
+                double adjacentSquared = Math.pow(distanceFromRobotCenterToAprilTag, 2) - Math.pow(distanceToStrafe, 2);
+                double adjacent = Math.sqrt(adjacentSquared); // center of robot to AprilTag
+                double distanceToMove = adjacent - (backdropWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
+                RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
 
                 // Start the elevator moving up to the AUTONOMOUS level asynchronously.
                 Elevator.ElevatorLevel finalElevatorLevel = (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||
@@ -1040,17 +1027,20 @@ public class FTCAuto {
                 asyncMoveElevator = Threading.launchAsync(callableMove);
                 RobotLogCommon.d(TAG, "Start asynchronous elevator/winch movement to the AUTONOMOUS level");
 
-                // Move the robot towards the backstop. Take into account the robot's direction of travel.
-                // Add in distance percentage adjustment.
+                //**TODO The sign of the distance to move affects the sign of the adjustment!
                 if (backdropParameters.distanceAdjustmentPercent != 0.0) {
                     distanceToMove += (distanceToMove * backdropParameters.distanceAdjustmentPercent);
                     RobotLogCommon.d(TAG, "Adjusting distance to move by " + backdropParameters.distanceAdjustmentPercent);
                 }
 
+                // Move the robot towards or away from the backstop. Take into account
+                // the robot's direction of travel and whether the robot is currently
+                // too close to or too far from the backdrop.
+                //**TODO The sign of the distance to move may flip the direction!
                 double moveAngle = (direction == DriveTrainConstants.Direction.FORWARD) ? 0.0 : -180.0;
                 double straightLineVelocity = .3;
                 if (Math.abs(distanceToMove) >= 1.0) {
-                    RobotLogCommon.d(TAG, "Move robot towards the AprilTag " + distanceToMove + " inches");
+                    RobotLogCommon.d(TAG, "Move robot towards or away from the AprilTag " + distanceToMove + " inches");
                     int targetClicks = (int) (Math.abs(distanceToMove) * robot.driveTrain.getClicksPerInch());
                     driveTrainMotion.straight(targetClicks, moveAngle, straightLineVelocity, 0, desiredHeading);
                 }

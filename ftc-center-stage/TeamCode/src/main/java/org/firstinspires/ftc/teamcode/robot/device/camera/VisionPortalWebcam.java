@@ -238,7 +238,8 @@ public class VisionPortalWebcam {
         //&& avoid crash in easyopencv by simply closing the camera ...
         // Reported to FTC
         /*
-        // Shut down the active processor. Stop streaming.
+        //**TODO  try fix in 9.1 release
+         //Shut down the active processor. Stop streaming.
         if (activeProcessorEnabled && visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
             disableProcessor();
 
