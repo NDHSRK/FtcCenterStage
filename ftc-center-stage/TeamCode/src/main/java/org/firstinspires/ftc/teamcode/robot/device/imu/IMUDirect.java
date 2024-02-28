@@ -21,7 +21,7 @@ public class IMUDirect {
     private final IMU expansionHubIMU; // optional, may be null
     private YawPitchRollAngles angles;
     private double heading;
-    private boolean useControlHubIMU = false; //**TODO 2/12/24 switch to expansion hub IMU
+    private boolean useControlHubIMU = false; //## 2/12/24 switched to expansion hub IMU
     private boolean logFirstExpansionHubIMUHeading = true;
 
     // The IMU must have been previously initialized.
@@ -55,9 +55,9 @@ public class IMUDirect {
 
     // Switch to Expansion Hub IMU (if present) if the Control Hub
     // IMU returns a heading of -0.0. Log the change.
-    //**TODO 2/12/2024 Monitor - in a scrimmage on 2/10/24 the Control
-    // HUB IMU unexpectedly returned -180.0 and only a short time later
-    // returned -0.0.
+    //## 2/12/2024 Switched to the Expansion Hub IMU - in a scrimmage
+    // on 2/10/24 the Control HUB IMU unexpectedly returned -180.0 and
+    // only a short time later returned -0.0.
     public double getIMUHeading() {
         if (useControlHubIMU) {
             angles = controlHubIMU.getRobotYawPitchRollAngles();

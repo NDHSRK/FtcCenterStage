@@ -80,9 +80,9 @@ public class SingleMotorMotion {
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
                     break;
                 }
-
-                sleep(10);
             } // while
+            //**TODO SingleMotorMotion: you could put a catch here and set a flag for finally()
+            // not to stop the motors.
         } finally {
             // Only stop the motor if the user has requested a stop;
             // otherwise hold the position of the motor.

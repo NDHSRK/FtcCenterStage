@@ -353,20 +353,16 @@ public class FTCAuto {
                 autonomousTimer.stopAutonomousTimer();
                 failsafeElevator(); // bring the elevator to GROUND
 
-                //**TODO try fix in 9.1 release
-           /*
-            if (!keepCamerasRunning) {
-                //&& Attempt at an orderly shutdown causes the Robot Controller to crash in easyopencv.
-                // Reported to FTC.
-                if (robot.configuredWebcams != null) { // if webcam(s) are configured in
-                    RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
-                    robot.configuredWebcams.forEach((k, v) -> {
-                                if (v != null && v.getVisionPortalWebcam() != null)
-                                    v.getVisionPortalWebcam().finalShutdown();
-                            });
+                //**TODO FTCAuto: try fix in 9.1 release for the crash we reported.
+                if (!keepCamerasRunning) {
+                    if (robot.configuredWebcams != null) { // if webcam(s) are configured in
+                        RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
+                        robot.configuredWebcams.forEach((k, v) -> {
+                            if (v != null && v.getVisionPortalWebcam() != null)
+                                v.getVisionPortalWebcam().finalShutdown();
+                        });
+                    }
                 }
-            }
-             */
             }
         }
 
@@ -1019,6 +1015,14 @@ public class FTCAuto {
                 double distanceToMove = adjacent - (backdropWebcamConfiguration.distanceCameraLensToRobotCenter + desiredDistanceFromTag);
                 RobotLogCommon.d(TAG, "Adjusted pythagorean distance to move towards the backdrop " + distanceToMove);
 
+                // It's practically impossible that the robot would be closer than our
+                // target distance to the backdrop because we'd never see the AprilTag.
+                // But put in a failsafe.
+                if (distanceToMove < 0) {
+                    RobotLogCommon.d(TAG, "Failsafe: distance to move towards the backdrop must not be negative");
+                    break;
+                }
+
                 // Start the elevator moving up to the AUTONOMOUS level asynchronously.
                 Elevator.ElevatorLevel finalElevatorLevel = (pOpMode == RobotConstantsCenterStage.OpMode.BLUE_A2 ||
                         pOpMode == RobotConstantsCenterStage.OpMode.RED_F2) ? Elevator.ElevatorLevel.AUTONOMOUS_HIGH :
@@ -1027,20 +1031,17 @@ public class FTCAuto {
                 asyncMoveElevator = Threading.launchAsync(callableMove);
                 RobotLogCommon.d(TAG, "Start asynchronous elevator/winch movement to the AUTONOMOUS level");
 
-                //**TODO The sign of the distance to move affects the sign of the adjustment!
                 if (backdropParameters.distanceAdjustmentPercent != 0.0) {
                     distanceToMove += (distanceToMove * backdropParameters.distanceAdjustmentPercent);
                     RobotLogCommon.d(TAG, "Adjusting distance to move by " + backdropParameters.distanceAdjustmentPercent);
                 }
 
-                // Move the robot towards or away from the backstop. Take into account
-                // the robot's direction of travel and whether the robot is currently
-                // too close to or too far from the backdrop.
-                //**TODO The sign of the distance to move may flip the direction!
+                // Move the robot towards the backstop. Take into account the
+                // the robot's direction of travel.
                 double moveAngle = (direction == DriveTrainConstants.Direction.FORWARD) ? 0.0 : -180.0;
                 double straightLineVelocity = .3;
                 if (Math.abs(distanceToMove) >= 1.0) {
-                    RobotLogCommon.d(TAG, "Move robot towards or away from the AprilTag " + distanceToMove + " inches");
+                    RobotLogCommon.d(TAG, "Move robot towards the backdrop " + distanceToMove + " inches");
                     int targetClicks = (int) (Math.abs(distanceToMove) * robot.driveTrain.getClicksPerInch());
                     driveTrainMotion.straight(targetClicks, moveAngle, straightLineVelocity, 0, desiredHeading);
                 }

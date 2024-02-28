@@ -79,10 +79,9 @@ public class DualMotorMotion {
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     break;
                 }
-
-                sleep(10); //**TODO Note: DriveTrainMotion has no sleep for either straight or turn
             }
-            //**TODO You could put a catch here
+            //**TODO DualMotorMotion: you could put a catch here and set a flag for finally()
+            // not to stop the motors.
         } finally {
             // Only stop the motors if the user has requested a stop; otherwise hold their position.
             if (pDualMotorAction == DualMotorAction.MOVE_AND_STOP)

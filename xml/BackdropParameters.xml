@@ -1,8 +1,8 @@
     <backdrop_parameters>
         <direction>back</direction>
         <strafe_adjustment_percent>17.0</strafe_adjustment_percent>
-        <distance_adjustment_percent>15.0</distance_adjustment_percent>
-        <outside_strafe_adjustment>2.5</outside_strafe_adjustment>
+        <distance_adjustment_percent>-15.0</distance_adjustment_percent>
+        <outside_strafe_adjustment>2.0</outside_strafe_adjustment>
         <yellow_pixel_adjustment>1.0</yellow_pixel_adjustment>
     </backdrop_parameters>
 

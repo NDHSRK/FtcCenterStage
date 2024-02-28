@@ -16,7 +16,7 @@ public class DriveTrainConstants {
     public static final double MINIMUM_DOMINANT_MOTOR_VELOCITY = 0.2; // minimum velocity to turn the wheels
 
     // PID constants
-    public static final double P_DRIVE_COEFF = 0.06; // Larger is more responsive, but also less stable
+    public static final double P_DRIVE_COEFF = 0.03; // Larger is more responsive, but also less stable
     public static final double I_DRIVE_COEFF = P_DRIVE_COEFF / 10;
     public static final double P_TURN_COEFF = 0.01;  // Larger is more responsive, but also less stable
 

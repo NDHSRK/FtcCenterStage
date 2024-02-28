@@ -189,6 +189,8 @@ public class DriveTrainMotion {
                     rampDownFactor = straightDriveRampdown.rampDown(remainingClickCount,
                             pAngle, steer, logVV);
             } // while
+            //**TODO DriveTrainMotion: you could put a catch here and set a flag for finally()
+            // not to stop the motors.
         } finally {
             robot.driveTrain.stopAllZeroVelocity();
 
