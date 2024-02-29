@@ -23,6 +23,7 @@ public class DualMotorMotion {
 
     private final LinearOpMode linearOpMode;
     private final DualMotors dualMotors;
+    private boolean abnormalTermination = false;
 
     public DualMotorMotion(LinearOpMode pLinearOpMode, DualMotors pDualMotors) {
         linearOpMode = pLinearOpMode;
@@ -46,6 +47,7 @@ public class DualMotorMotion {
     // Note: all target positions are absolute.
     @SuppressLint("DefaultLocale")
     public void moveDualMotors(int pTargetPosition, double pVelocity, DualMotorAction pDualMotorAction) {
+        abnormalTermination = false;
 
         Pair<FTCRobot.MotorId, FTCRobot.MotorId> motorIds = dualMotors.getMotorIds();
         Pair<Integer, Integer> currentMotorPositions = dualMotors.getCurrentPositions(); // first = left motor; second = right motor    
@@ -68,7 +70,7 @@ public class DualMotorMotion {
         try {
             while (dualMotors.dualMotorsAreBusy()) {
                 if (!linearOpMode.opModeIsActive()) {
-                    RobotLog.dd(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
+                    RobotLog.ee(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     RobotLogCommon.d(TAG, "OpMode went inactive during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     break;
                 }
@@ -77,12 +79,19 @@ public class DualMotorMotion {
                 if (FTCAuto.autonomousTimer != null && FTCAuto.autonomousTimer.autoTimerIsExpired()) {
                     RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of dual motors " + motorIds.first + " and " + motorIds.second);
+                    // Do not set the abnormalTermination flag - we want the code in finally() to run.
                     break;
                 }
             }
-            //**TODO DualMotorMotion: you could put a catch here and set a flag for finally()
-            // not to stop the motors.
+        } catch (Exception ex) {
+            abnormalTermination = true;
+            throw ex;
         } finally {
+            if (!linearOpMode.opModeIsActive() || abnormalTermination) {
+              RobotLog.ee(TAG, "Abnormal termination");
+              return;
+            }
+
             // Only stop the motors if the user has requested a stop; otherwise hold their position.
             if (pDualMotorAction == DualMotorAction.MOVE_AND_STOP)
                 dualMotors.stopVelocityDual();

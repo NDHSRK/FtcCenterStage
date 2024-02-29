@@ -29,6 +29,7 @@ public class DriveTrainMotion {
 
     private final LinearOpMode linearOpMode;
     private final FTCRobot robot;
+    private boolean abnormalTermination = false;
 
     public DriveTrainMotion(LinearOpMode pLinearOpMode, FTCRobot pRobot) {
         linearOpMode = pLinearOpMode;
@@ -62,6 +63,7 @@ public class DriveTrainMotion {
     public void straight(int pTargetClicks, double pAngle, double pVelocity,
                          int pRampDownAtClicksRemaining, double pDesiredHeading,
                          Supplier<Boolean> pCutShort) {
+        abnormalTermination = false;
 
         int targetClicks = Math.abs(pTargetClicks); // ensure consistency
         int rampDownAtClicksRemaining = Math.abs(pRampDownAtClicksRemaining); // ensure consistency
@@ -189,9 +191,15 @@ public class DriveTrainMotion {
                     rampDownFactor = straightDriveRampdown.rampDown(remainingClickCount,
                             pAngle, steer, logVV);
             } // while
-            //**TODO DriveTrainMotion: you could put a catch here and set a flag for finally()
-            // not to stop the motors.
+        } catch (Exception ex) {
+            abnormalTermination = true;
+            throw ex;
         } finally {
+            if (!linearOpMode.opModeIsActive() || abnormalTermination) {
+                RobotLog.ee(TAG, "Abnormal termination");
+                return;
+            }
+
             robot.driveTrain.stopAllZeroVelocity();
 
             // Log ending click counts for all dominant motors.
@@ -207,7 +215,7 @@ public class DriveTrainMotion {
         }
     }
 
-    //&& DEFER to off-season Why can't you use RUN_USING_ENCODER and velocity here?
+    //**TODO DEFER to off-season Why can't you use RUN_USING_ENCODER and velocity here?
     // If you do this then RobotAction.xml and XPath matching will also have to change.
     // So will a fair amount of motion code and comments.
 
@@ -232,6 +240,7 @@ public class DriveTrainMotion {
     @SuppressLint("DefaultLocale")
     public double turn(double pDesiredHeadingBeforeTurn, double pCurrentHeading, double pTurnDegrees, double pPower, double pStartRampDownDegrees, DriveTrainConstants.TurnNormalization pTurnNormalization,
                        Supplier<Boolean> pCutShort) throws IOException, InterruptedException, TimeoutException {
+        abnormalTermination = false;
 
         int logVVCount = -1;
         boolean logVV;
@@ -342,10 +351,15 @@ public class DriveTrainMotion {
             }
 
             return turnData.desiredHeadingAfterTurn;
-        } // try
+        } catch (Exception ex) {
+            abnormalTermination = true;
+            throw ex;
+        } finally {
+            if (!linearOpMode.opModeIsActive() || abnormalTermination) {
+                RobotLog.ee(TAG, "Abnormal termination");
+                return 0.0;
+            }
 
-        // In case of any unforeseen conditions always stop the motors.
-        finally {
             robot.driveTrain.stopAllZeroPower();
             RobotLogCommon.d(TAG, "IMU heading after turn " + String.format("%.2f", robot.imuDirect.getIMUHeading()));
         }

@@ -60,13 +60,9 @@ public abstract class MotorCore {
 
     public boolean isBusy(FTCRobot.MotorId pMotorId) {
         if (Objects.requireNonNull(motorMap.get(pMotorId),
-                TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            //**TODO TEMP - log instead of throw throw new AutonomousRobotException(TAG, "Illegal test of isBusy((); motor " + pMotorId +
-            //        " has not been set to RUN_TO_POSITION; motor mode is " + getRunMode(pMotorId));
-            RobotLog.dd(TAG, "Illegal test of isBusy((); motor " + pMotorId +
+                TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").getMode() != DcMotor.RunMode.RUN_TO_POSITION)
+            throw new AutonomousRobotException(TAG, "Illegal test of isBusy((); motor " + pMotorId +
                     " has not been set to RUN_TO_POSITION; motor mode is " + getRunMode(pMotorId));
-            return false; // stop motors
-        }
 
         return Objects.requireNonNull(motorMap.get(pMotorId),
                 TAG + " isBusy: motor " + pMotorId + " is not in the current configuration").isBusy();
@@ -138,7 +134,7 @@ public abstract class MotorCore {
         Objects.requireNonNull(motorMap.get(pMotorId),
                 TAG + " runAtPower: motor " + pMotorId + " is not in the current configuration").setPower(pPower);
     }
-    
+
     public void runAtPowerAll(EnumMap<FTCRobot.MotorId, Double> pPowerMap) {
         pPowerMap.forEach((k, v) ->
         {

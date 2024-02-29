@@ -21,6 +21,7 @@ public class SingleMotorMotion {
 
     private final LinearOpMode linearOpMode;
     private final SingleMotor singleMotor;
+    private boolean abnormalTermination = false;
 
     public SingleMotorMotion(LinearOpMode pLinearOpMode, SingleMotor pSingleMotor) {
         linearOpMode = pLinearOpMode;
@@ -44,6 +45,8 @@ public class SingleMotorMotion {
 
     @SuppressLint("DefaultLocale")
     public void moveSingleMotor(int pTargetPosition, double pVelocity, MotorAction pMotorAction) {
+        abnormalTermination = false;
+
         FTCRobot.MotorId motorId = singleMotor.getMotorId();
         int motorPosition = singleMotor.getCurrentPosition();
 
@@ -78,12 +81,19 @@ public class SingleMotorMotion {
                 if (FTCAuto.autonomousTimer != null && FTCAuto.autonomousTimer.autoTimerIsExpired()) {
                    RobotLog.dd(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
                     RobotLogCommon.d(TAG, "Autonomous panic stop triggered during movement of a single motor " + motorId);
+                    // Do not set the abnormalTermination flag - we want the code in finally() to run.
                     break;
                 }
             } // while
-            //**TODO SingleMotorMotion: you could put a catch here and set a flag for finally()
-            // not to stop the motors.
+        } catch (Exception ex) {
+            abnormalTermination = true;
+            throw ex;
         } finally {
+            if (!linearOpMode.opModeIsActive() || abnormalTermination) {
+                RobotLog.ee(TAG, "Abnormal termination");
+                return;
+            }
+
             // Only stop the motor if the user has requested a stop;
             // otherwise hold the position of the motor.
             if (pMotorAction == MotorAction.MOVE_AND_STOP)
