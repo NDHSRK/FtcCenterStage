@@ -156,6 +156,11 @@ public class BackdropPixelRecognition {
             return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
                     RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
         }
+        
+        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
+            Imgcodecs.imwrite(pOutputFilenamePreamble + "_EDGE.png", drawnBoundingBoxes);
+            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_EDGE.png");
+        }
 
         // Collect potential AprilTag edges by collecting lines according
         // to the proximity of their x-coordinates.
@@ -167,7 +172,7 @@ public class BackdropPixelRecognition {
         for (Rect rect : verticalBoundingBoxes) {
             if (rect.x > currentX + currentWidth) {
                 if (!oneVerticalLine.isEmpty()) {
-                    allVerticalLines.add(oneVerticalLine);
+                    allVerticalLines.add(new ArrayList<Rect>(oneVerticalLine)); // need copy
                     oneVerticalLine.clear();
                 }
 
@@ -209,17 +214,16 @@ public class BackdropPixelRecognition {
             }
         }
 
-        RobotLogCommon.d(TAG, "The height of the tallest AprilTag edge is " + tallestLine.height);
-        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-            Imgcodecs.imwrite(pOutputFilenamePreamble + "_EDGE.png", drawnBoundingBoxes);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_EDGE.png");
-        }
-
         // Assume that the tallest line is a vertical edge of an AprilTag.
         // The known height of the AprilTag sticker including its white boundary
-        // is 3.0". From this we can calculate pixels/inch.
-        double pixelsPerInch = tallestLine.height / 3.0;
-        RobotLogCommon.d(TAG, "Backdrop pixels per inch " + pixelsPerInch);
+        // is 3.0". From this we can calculate pixels/inch. However, because the
+        // backdrop is at a 30-degree angle we need to add a factor for "perspective
+        // compression" because in the image the edge will appear to be shorter than
+        // it really is.
+        RobotLogCommon.d(TAG, "The height of the tallest AprilTag edge is " + tallestLine.height);
+        RobotLogCommon.d(TAG, "Applying perspective compression factor of 30%");
+        double pixelsPerInch = (tallestLine.height + (tallestLine.height * 0.3)) / 3.0;
+        RobotLogCommon.d(TAG, "Adjusted backdrop pixels per inch " + pixelsPerInch);
 
         // We have the angle from the camera to the center of the target
         // AprilTag (left-of-center is a positive angle, right-of-center
@@ -229,6 +233,9 @@ public class BackdropPixelRecognition {
         double sinA = Math.sin(Math.toRadians(angleFromCameraToAprilTag));
         double oppositeInches = sinA * pDistanceFromCameraToAprilTag;
         int oppositePixels = (int) (pixelsPerInch * oppositeInches);
+
+        RobotLogCommon.d(TAG, "Distance from image center to AprilTag center " + oppositeInches +
+                ", pixels " + oppositePixels);
 
         // If the original angle was positive then *subtract* else *add*.
         int imageCenter = pImageParameters.resolution_width / 2;
@@ -430,7 +437,7 @@ public class BackdropPixelRecognition {
         int boundingBoxRightBoundary = pImageParameters.image_roi.x + pPixelContourBoundingBox.x + pPixelContourBoundingBox.width;
         int boundingBoxTopBoundary = pImageParameters.image_roi.y + pPixelContourBoundingBox.y;
         int boundingBoxBottomBoundary = pImageParameters.image_roi.y + pPixelContourBoundingBox.y + pPixelContourBoundingBox.height;
-        RobotLogCommon.d(TAG, "Disjoint pixel contour's bounding box area: " + pPixelContourBoundingBox.area() +
+        RobotLogCommon.d(TAG, "Possible pixel contour's bounding box area: " + pPixelContourBoundingBox.area() +
                 ", low x " + boundingBoxLeftBoundary + ", high x " + boundingBoxRightBoundary +
                 ", low y " + boundingBoxTopBoundary + ", high y " + boundingBoxBottomBoundary);
 

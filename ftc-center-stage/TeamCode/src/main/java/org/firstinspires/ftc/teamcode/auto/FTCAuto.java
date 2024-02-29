@@ -353,7 +353,6 @@ public class FTCAuto {
                 autonomousTimer.stopAutonomousTimer();
                 failsafeElevator(); // bring the elevator to GROUND
 
-                //**TODO FTCAuto: try fix in 9.1 release for the crash we reported.
                 if (!keepCamerasRunning) {
                     if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                         RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
@@ -983,6 +982,8 @@ public class FTCAuto {
                     BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters,
                             aprilTagAngle, aprilTagDistance, backdropPixelRecognitionPath);
                     RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
+                    linearOpMode.telemetry.addData("Backdrop pixel open slot: ", backdropPixelReturn.backdropPixelOpenSlot);
+                    linearOpMode.telemetry.update();
 
                     RobotConstantsCenterStage.BackdropPixelOpenSlot openSlot = backdropPixelReturn.backdropPixelOpenSlot;
                     RobotLogCommon.d(TAG, "Including yellow pixel strafe adjustment of " + backdropParameters.yellowPixelAdjustment);

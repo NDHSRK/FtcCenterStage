@@ -15,9 +15,9 @@
         </resolution>
         <image_roi>
             <x>0</x>
-            <y>0</y>
+            <y>70</y>
             <width>640</width>
-            <height>295</height>
+            <height>275</height>
         </image_roi>
     </image_parameters>
 </backdrop_pixel_image_parameters>
