@@ -8,15 +8,31 @@
             <log_level>vv</log_level>
         </parameters>
         <actions>
+            
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <FORWARD>
+                <distance>24.0</distance>
+                <velocity>.5</velocity>
+                <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
+            </FORWARD>
 
             <MOVE_ELEVATOR>
+                <position>GROUND</position>
+            </MOVE_ELEVATOR>
+
+            <DELIVER_PIXEL_TO_SPIKE />
+
+            <!--MOVE_ELEVATOR>
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
 
             <STRAFE_LEFT>
                 <distance>24.0</distance>
                 <velocity>.5</velocity>
-            </STRAFE_LEFT>
+            </STRAFE_LEFT-->
 
             <!-- FIND_TEAM_PROP>
                 <image_parameters>
@@ -356,7 +372,7 @@
                     <DESKEW />
 
                     <FORWARD>
-                        <distance>20</distance>
+                        <distance>18</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
@@ -453,6 +469,12 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
+                    <SLEEP>
+                        <ms>500</ms>
+                    </SLEEP>
+
+                    <DESKEW />
+
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
                     </MOVE_ELEVATOR>
@@ -475,13 +497,13 @@
                     </STRAFE_RIGHT>
 
                     <FORWARD>
-                        <distance>89.0</distance>
-                        <velocity>.75</velocity>
+                        <distance>87.0</distance>
+                        <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>15</ramp_down_at_distance_remaining>
                     </FORWARD>
 
                     <STRAFE_LEFT>
-                        <distance>35.0</distance>
+                        <distance>31.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
@@ -503,7 +525,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -802,12 +824,11 @@
 
                 <CENTER_SPIKE>
 
-                    <STRAIGHT_BY>
-                        <distance>26.0</distance>
-                        <velocity>0.5</velocity>
-                        <angle>11.0</angle>
+                    <FORWARD>
+                        <distance>24</distance>
+                        <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
+                    </FORWARD>
 
                     <DESKEW />
 
@@ -1146,6 +1167,10 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
+                    <SLEEP>
+                        <ms>500</ms>
+                    </SLEEP>
+
                     <DESKEW/>
 
                     <MOVE_ELEVATOR>
@@ -1293,7 +1318,7 @@
                     <DESKEW />
 
                     <FORWARD>
-                        <distance>20</distance>
+                        <distance>18</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
@@ -1306,8 +1331,8 @@
                     <DESKEW />
 
                     <BACK>
-                        <distance>78.0</distance>
-                        <velocity>.75</velocity>
+                        <distance>80.0</distance>
+                        <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
 
@@ -1525,12 +1550,11 @@
 
                 <CENTER_SPIKE>
 
-                    <STRAIGHT_BY>
-                        <distance>25</distance>
-                        <velocity>0.50</velocity>
-                        <angle>-11.0</angle>
+                    <FORWARD>
+                        <distance>24</distance>
+                        <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
-                    </STRAIGHT_BY>
+                    </FORWARD>
 
                     <DESKEW />
 

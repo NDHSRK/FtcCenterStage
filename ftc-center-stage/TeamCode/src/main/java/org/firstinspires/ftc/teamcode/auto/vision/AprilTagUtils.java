@@ -189,7 +189,7 @@ public class AprilTagUtils {
                     return new AngleDistance(STRAFE_RIGHT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
-                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment, yellowPixelAdjustment);
+                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, 0, 0);
                 }
                 default: {
                     return new AngleDistance(STRAFE_RIGHT, strafeDistanceFromAprilTagToRobotCenter);
@@ -204,7 +204,7 @@ public class AprilTagUtils {
                     return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
-                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, outsideAdjustment, yellowPixelAdjustment);
+                    return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, 0, 0);
                 }
                 default: {
                     return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter));
