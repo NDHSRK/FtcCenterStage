@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.robot.device.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -121,12 +123,23 @@ public class BackdropPixelRendering implements CameraStreamRendering {
         //android.graphics.Rect destRect = new android.graphics.Rect(0, 0, onscreenWidth, onscreenHeight);
         //pDriverStationScreenCanvas.drawBitmap(bmp, null, destRect, null);
 
-        // This method displays a centered inset.
+        // Display a centered inset.
         float insetLeft = (float) ((onscreenWidth / 2) - (imageParameters.image_roi.width / 2));
         float insetTop = (float) ((onscreenHeight / 2) - (imageParameters.image_roi.height / 2));
         pDriverStationScreenCanvas.drawBitmap(bmp, insetLeft, insetTop, null);
 
-        //**TODO Draw a green boundary around the inset. See SpikeWindowRendering.
+        // Draw a green boundary around the inset.
+        Paint greenAxisPaint = new Paint();
+        greenAxisPaint.setColor(Color.GREEN);
+        greenAxisPaint.setAntiAlias(true);
+        greenAxisPaint.setStyle(Paint.Style.STROKE);
+        greenAxisPaint.setStrokeCap(Paint.Cap.BUTT);
+        greenAxisPaint.setStrokeWidth(4);
+
+        pDriverStationScreenCanvas.drawRect(insetLeft, insetTop,
+                insetLeft + imageParameters.image_roi.width,
+                insetTop + imageParameters.image_roi.height,
+                greenAxisPaint);
     }
 
 }
