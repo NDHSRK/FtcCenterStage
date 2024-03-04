@@ -4,7 +4,6 @@ import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
 import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
-import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -16,6 +15,10 @@ import javax.xml.xpath.*;
 
 import java.io.File;
 import java.io.IOException;
+
+//!! WARNING: DO NOT copy the file/class of the same name from IJCenterStageVision
+// and paste it here. This file supports changes to the XML for the configuration
+// utility BackdropPixelViewer.
 
 // Class whose job it is to read an XML file that contains all of the information
 // needed for our OpenCV methods to recognize a pixel on the backdrop
@@ -86,44 +89,59 @@ public class BackdropPixelParametersXML {
         if (criteria_node == null)
             throw new AutonomousRobotException(TAG, "Element 'criteria' not found");
 
-        // Step down to the <april_tag> element.
-        Node april_tag_criteria_node = criteria_node.getFirstChild();
-        april_tag_criteria_node = XMLUtils.getNextElement(april_tag_criteria_node);
-        if (april_tag_criteria_node == null)
-            throw new AutonomousRobotException(TAG, "Element 'april_tag/criteria' not found");
+        // Step down to the <april_tag_rectangle> element.
+        Node april_tag_rectangle_node = criteria_node.getFirstChild();
+        april_tag_rectangle_node = XMLUtils.getNextElement(april_tag_rectangle_node);
+        if (april_tag_rectangle_node == null || !april_tag_rectangle_node.getNodeName().equals("april_tag_rectangle"))
+            throw new AutonomousRobotException(TAG, "Element 'criteria/april_tag_rectangle' not found");
 
-        // Step down to the <edge_max_aspect_ratio> element.
-        Node april_tag_edge_node = april_tag_criteria_node.getFirstChild();
-        april_tag_edge_node = XMLUtils.getNextElement(april_tag_edge_node);
-        if (april_tag_edge_node == null || !april_tag_edge_node.getNodeName().equals("edge_max_aspect_ratio") ||
-                april_tag_edge_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'edge_max_aspect_ratio' not found or empty");
+        // Step down to the <min_aspect_ratio> element.
+        Node min_ratio_node = april_tag_rectangle_node.getFirstChild();
+        min_ratio_node = XMLUtils.getNextElement(min_ratio_node);
+        if (min_ratio_node == null || !min_ratio_node.getNodeName().equals("min_aspect_ratio") ||
+                min_ratio_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'min_aspect_ratio' not found or empty");
 
-        String maxAspectRatioText = april_tag_edge_node.getTextContent();
+        String minAspectRatioText = min_ratio_node.getTextContent();
+        double minRatio;
+        try {
+            minRatio = Double.parseDouble(minAspectRatioText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_aspect_ratio'");
+        }
+
+        // Parse the <max_aspect_ratio> element.
+        Node max_ratio_node = min_ratio_node.getNextSibling();
+        max_ratio_node = XMLUtils.getNextElement(max_ratio_node);
+        if (max_ratio_node == null || !max_ratio_node.getNodeName().equals("max_aspect_ratio") ||
+                max_ratio_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'max_aspect_ratio' not found or empty");
+
+        String maxAspectRatioText = max_ratio_node.getTextContent();
         double maxRatio;
         try {
             maxRatio = Double.parseDouble(maxAspectRatioText);
         } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'edge_max_aspect_ratio'");
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_aspect_ratio'");
         }
 
-        // Step down to the <min_bounding_box_area> element.
-        Node april_tag_min_area_node = april_tag_edge_node.getNextSibling();
+        // Parse the <min_area> element.
+        Node april_tag_min_area_node = max_ratio_node.getNextSibling();
         april_tag_min_area_node = XMLUtils.getNextElement(april_tag_min_area_node);
-        BackdropPixelParameters.BoundingBoxCriteria aprilTagCriteria = parseBoundingBoxCriteria(april_tag_min_area_node);
+        BackdropPixelParameters.AreaLimits aprilTagCriteria = parseAreaCriteria(april_tag_min_area_node);
 
         // Parse the criteria for the yellow pixel bounding box.
-        Node yellow_pixel_criteria_node = april_tag_criteria_node.getNextSibling();
+        Node yellow_pixel_criteria_node = april_tag_rectangle_node.getNextSibling();
         yellow_pixel_criteria_node = XMLUtils.getNextElement(yellow_pixel_criteria_node);
         if (yellow_pixel_criteria_node == null)
-            throw new AutonomousRobotException(TAG, "Element 'yellow_pixel/criteria' not found");
+            throw new AutonomousRobotException(TAG, "Element 'criteria/yellow_pixel' not found");
 
-        // Step down to the <min_bounding_box_area> element.
+        // Step down to the <min_area> element.
         Node yellow_pixel_min_area_node = yellow_pixel_criteria_node.getFirstChild();
         yellow_pixel_min_area_node = XMLUtils.getNextElement(yellow_pixel_min_area_node);
-        BackdropPixelParameters.BoundingBoxCriteria yellowPixelCriteria = parseBoundingBoxCriteria(yellow_pixel_min_area_node);
+        BackdropPixelParameters.AreaLimits yellowPixelCriteria = parseAreaCriteria(yellow_pixel_min_area_node);
 
-        backdropPixelParameters = new BackdropPixelParameters(grayParameters, maxRatio, aprilTagCriteria, yellowPixelCriteria);
+        backdropPixelParameters = new BackdropPixelParameters(grayParameters, minRatio, maxRatio, aprilTagCriteria, yellowPixelCriteria);
     }
 
     public BackdropPixelParameters getBackdropPixelParameters() {
@@ -144,36 +162,36 @@ public class BackdropPixelParametersXML {
         XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
     }
 
-    private BackdropPixelParameters.BoundingBoxCriteria parseBoundingBoxCriteria(Node pMinAreaNode) {
-        // Parse the <min_bounding_box_area> element.
-        if (pMinAreaNode == null || !pMinAreaNode.getNodeName().equals("min_bounding_box_area") ||
+    private BackdropPixelParameters.AreaLimits parseAreaCriteria(Node pMinAreaNode) {
+        // Parse the <min_area> element.
+        if (pMinAreaNode == null || !pMinAreaNode.getNodeName().equals("min_area") ||
                 pMinAreaNode.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'min_bounding_box_area' not found or empty");
+            throw new AutonomousRobotException(TAG, "Element 'min_area' not found or empty");
 
         String minAreaText = pMinAreaNode.getTextContent();
         double minArea;
         try {
             minArea = Double.parseDouble(minAreaText);
         } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_bounding_box_area'");
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_area'");
         }
 
-        // Parse the <max_bounding_box_area> element.
+        // Parse the <max_area> element.
         Node max_area_node = pMinAreaNode.getNextSibling();
         max_area_node = XMLUtils.getNextElement(max_area_node);
-        if (max_area_node == null || !max_area_node.getNodeName().equals("max_bounding_box_area") ||
+        if (max_area_node == null || !max_area_node.getNodeName().equals("max_area") ||
                 max_area_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'max_bounding_box_area' not found or empty");
+            throw new AutonomousRobotException(TAG, "Element 'max_area' not found or empty");
 
         String maxAreaText = max_area_node.getTextContent();
         double maxArea;
         try {
             maxArea = Double.parseDouble(maxAreaText);
         } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_bounding_box_area'");
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_area'");
         }
 
-        return new BackdropPixelParameters.BoundingBoxCriteria(minArea, maxArea);
+        return new BackdropPixelParameters.AreaLimits(minArea, maxArea);
     }
 
 }

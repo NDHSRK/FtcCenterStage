@@ -5,27 +5,30 @@ public class BackdropPixelParameters {
 
     public final VisionParameters.GrayParameters grayscaleParameters;
 
-    public final double aprilTagEdgeMaxAspectRatio;
-    public final BoundingBoxCriteria aprilTagBoundingBoxCriteria;
-    public final BoundingBoxCriteria yellowPixelBoundingBoxCriteria;
+    public final double aprilTagRectangleMinAspectRatio;
+    public final double aprilTagRectangleMaxAspectRatio;
+    public final AreaLimits aprilTagRectangleAreaLimits;
+    public final AreaLimits yellowPixelAreaLimits;
 
     public BackdropPixelParameters(VisionParameters.GrayParameters pGrayscaleParameters,
-                                   double pAprilTagEdgeMaxAspectRatio,
-                                   BoundingBoxCriteria pAprilTagCriteria,
-                                   BoundingBoxCriteria pYellowPixelCriteria) {
+                                   double pAprilTagRectangleMinAspectRatio,
+                                   double pAprilTagRectangleMaxAspectRatio,
+                                   AreaLimits pAprilTagRectangleCriteria,
+                                   AreaLimits pYellowPixelCriteria) {
         grayscaleParameters = pGrayscaleParameters;
-        aprilTagEdgeMaxAspectRatio = pAprilTagEdgeMaxAspectRatio;
-        aprilTagBoundingBoxCriteria = pAprilTagCriteria;
-        yellowPixelBoundingBoxCriteria = pYellowPixelCriteria;
+        aprilTagRectangleMinAspectRatio = pAprilTagRectangleMinAspectRatio;
+        aprilTagRectangleMaxAspectRatio = pAprilTagRectangleMaxAspectRatio;
+        aprilTagRectangleAreaLimits = pAprilTagRectangleCriteria;
+        yellowPixelAreaLimits = pYellowPixelCriteria;
     }
 
-    public static class BoundingBoxCriteria {
-        public final double minBoundingBoxArea;
-        public final double maxBoundingBoxArea;
+    public static class AreaLimits {
+        public final double minArea;
+        public final double maxArea;
 
-        public BoundingBoxCriteria(double pMin, double pMax) {
-            minBoundingBoxArea = pMin;
-            maxBoundingBoxArea = pMax;
+        public AreaLimits(double pMin, double pMax) {
+            minArea = pMin;
+            maxArea = pMax;
         }
     }
 

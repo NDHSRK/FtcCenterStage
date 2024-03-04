@@ -16,6 +16,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -34,8 +35,12 @@ import static org.opencv.imgproc.Imgproc.MORPH_RECT;
 public class BackdropPixelRecognition {
 
     private static final String TAG = BackdropPixelRecognition.class.getSimpleName();
-    private static final double PIXEL_OUT_OF_RAGE_LOW = .71;
-    private static final double PIXEL_OUT_OF_RANGE_HIGH = 1.27;
+
+    // The next two values come from the x-coordinates of points in an image as seen
+    // in Gimp. The values are percentages in relation to the x-coordinate of the
+    // center of a target AprilTag.
+    private static final double PIXEL_OUT_OF_RANGE_LEFT = .63;
+    private static final double PIXEL_OUT_OF_RANGE_RIGHT = 1.36;
 
     private final String workingDirectory;
     private final RobotConstants.Alliance alliance;
@@ -55,8 +60,8 @@ public class BackdropPixelRecognition {
     public BackdropPixelReturn recognizePixelsOnBackdropAutonomous(ImageProvider pImageProvider,
                                                                    VisionParameters.ImageParameters pImageParameters,
                                                                    BackdropPixelParameters pBackdropPixelParameters,
-                                                                   double pAngleFromCameraToAprilTag,
-                                                                   double pDistanceFromCameraToAprilTag,
+                                                                   AprilTagUtils.AprilTagId pTargetAprilTagId,
+                                                                   double pAngleToAprilTag,
                                                                    RobotConstantsCenterStage.BackdropPixelRecognitionPath pBackdropPixelRecognitionPath) throws InterruptedException {
 
         RobotLogCommon.d(TAG, "In BackdropPixelRecognition.recognizePixelsOnBackdropAutonomous");
@@ -76,13 +81,16 @@ public class BackdropPixelRecognition {
             throw new AutonomousRobotException(TAG, "Unrecognized recognition path");
 
         return redChannelPathWebcam(pImageParameters, imageROI, outputFilenamePreamble, pBackdropPixelParameters,
-                pAngleFromCameraToAprilTag, pDistanceFromCameraToAprilTag);
+                pTargetAprilTagId, pAngleToAprilTag);
     }
 
     private BackdropPixelReturn redChannelPathWebcam(VisionParameters.ImageParameters pImageParameters, Mat pImageROI, String pOutputFilenamePreamble,
                                                      BackdropPixelParameters pBackdropPixelParameters,
-                                                     double pAngleFromCameraToAprilTag,
-                                                     double pDistanceFromCameraToAprilTag) {
+                                                     AprilTagUtils.AprilTagId pTargetAprilTagId,
+                                                     double pAngleToAprilTag) {
+
+        // Use the red channel of the image for maximum contrast - works for both the
+        // yellow pixel and the white boundary around the AprilTags.
         ArrayList<Mat> channels = new ArrayList<>(3);
         Core.split(pImageROI, channels); // red or blue channel. B = 0, G = 1, R = 2
 
@@ -94,383 +102,306 @@ public class BackdropPixelRecognition {
 
         Mat thresholded = ImageUtils.performThresholdOnGray(channels.get(2), pOutputFilenamePreamble, pBackdropPixelParameters.grayscaleParameters.median_target, pBackdropPixelParameters.grayscaleParameters.threshold_low);
 
-        // Look for one or more vertical lines that are the edges of AprilTags.
-        // From https://stackoverflow.com/questions/60521925/how-to-detect-the-horizontal-and-vertical-lines-of-a-table-and-eliminate-the-noi
-        Mat openedVertical = new Mat();
-        Mat vertical_kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(1, 50));
-        Imgproc.morphologyEx(thresholded, openedVertical, MORPH_OPEN, vertical_kernel);
-
-        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-            Imgcodecs.imwrite(pOutputFilenamePreamble + "_VERT.png", openedVertical);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_VERT.png");
-        }
-
-        //## Too many horizontal lines ...
-        /*
-        Mat openedHorizontal = new Mat();
-        Mat horizontal_kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(50,1));
-        Imgproc.morphologyEx(thresholded, openedHorizontal, MORPH_OPEN, horizontal_kernel);
-        Imgcodecs.imwrite(pOutputFilenamePreamble + "_HORIZ.png", openedHorizontal);
-        RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_HORIZ.png");
-        */
-
         // Identify the contours.
         List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(openedVertical, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(thresholded, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         if (contours.size() == 0) {
             RobotLogCommon.d(TAG, "No contours found");
             return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
                     RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
         }
 
-        // Within the ROI draw all of the contours.
-        RobotLogCommon.d(TAG, "Number of contours " + contours.size());
-        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-            Mat contoursDrawn = pImageROI.clone();
-            ShapeDrawing.drawShapeContours(contours, contoursDrawn);
-            Imgcodecs.imwrite(pOutputFilenamePreamble + "_ECON.png", contoursDrawn);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_ECON.png");
-        }
+        // Go through the contours and look for a pixel in the top half of the ROI
+        // and 1 -3 AprilTags in the bottom half of the ROI.
+        RobotLogCommon.d(TAG, "Total number of contours " + contours.size());
+        Mat drawnContours = pImageROI.clone();
 
-        // Enclose each contour in a bounding box.
-        Mat drawnBoundingBoxes = pImageROI.clone();
-        Rect oneBoundingRect;
-        ArrayList<Rect> verticalBoundingBoxes = new ArrayList<>();
-        for (MatOfPoint oneContour : contours) {
-            oneBoundingRect = Imgproc.boundingRect(oneContour);
+        Point yellowPixelCentroid = new Point(0, 0);
+        List<Point> aprilTagCentroids = new ArrayList<>();
+        int roiCenterY = pImageParameters.image_roi.height / 2;
+        boolean foundYellowPixel = false;
 
-            RobotLogCommon.d(TAG, "Contour bounding box: width " + oneBoundingRect.width +
-                    ", height " + oneBoundingRect.height +
-                    ", x " + oneBoundingRect.x +
-                    ", y " + oneBoundingRect.y);
-
-            // Check the aspect ratio of what we think is a vertical edge of an AprilTag.
-            if ((double) oneBoundingRect.width / (double) oneBoundingRect.height <= pBackdropPixelParameters.aprilTagEdgeMaxAspectRatio) {
-                verticalBoundingBoxes.add(oneBoundingRect);
-                ShapeDrawing.drawOneRectangle(oneBoundingRect, drawnBoundingBoxes, 2);
-            } else RobotLogCommon.d(TAG, "Bounding box over the allowable aspect ratio");
-        }
-
-        if (verticalBoundingBoxes.isEmpty()) {
-            RobotLogCommon.d(TAG, "Failed to find the edge of an AprilTag");
-            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
-                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
-        }
-        
-        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-            Imgcodecs.imwrite(pOutputFilenamePreamble + "_EDGE.png", drawnBoundingBoxes);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_EDGE.png");
-        }
-
-        // Collect potential AprilTag edges by collecting lines according
-        // to the proximity of their x-coordinates.
-        verticalBoundingBoxes.sort(Comparator.comparingInt((Rect r) -> r.x));
-        int currentX = -1;
-        int currentWidth = 0;
-        ArrayList<Rect> oneVerticalLine = new ArrayList<>();
-        ArrayList<ArrayList<Rect>> allVerticalLines = new ArrayList<>();
-        for (Rect rect : verticalBoundingBoxes) {
-            if (rect.x > currentX + currentWidth) {
-                if (!oneVerticalLine.isEmpty()) {
-                    allVerticalLines.add(new ArrayList<Rect>(oneVerticalLine)); // need copy
-                    oneVerticalLine.clear();
-                }
-
-                currentX = rect.x;
-                currentWidth = rect.width;
-                oneVerticalLine.add(rect);
-            }
-        }
-
-        // Iterate through the collection of line segments and find (or
-        // synthesize) the tallest.
-        Rect tallestLine = new Rect(0, 0, 0, 0);
-        Rect firstSegment;
-        int lowestY;
-        Rect highestSegment;
-        int highestY;
-        int synthesizedLineHeight;
-        for (ArrayList<Rect> oneLine : allVerticalLines) {
-            for (Rect oneSegment : oneLine) {
-                if (oneLine.size() == 1) {
-                    if (oneSegment.height > tallestLine.height) {
-                        tallestLine = oneSegment;
-                    }
-                } else { // the line consists of more than one segment
-                    // Sort the segments by their y-coordinates.
-                    oneLine.sort(Comparator.comparingInt((Rect r) -> r.y));
-
-                    // Synthesize a single line by combining the segments.
-                    firstSegment = oneLine.get(0);
-                    lowestY = firstSegment.y;
-                    highestSegment = oneLine.get(oneLine.size() - 1);
-                    highestY = highestSegment.y + highestSegment.height;
-                    synthesizedLineHeight = highestY - lowestY;
-                    if (synthesizedLineHeight > tallestLine.height) {
-                        tallestLine = new Rect(firstSegment.x, firstSegment.y,
-                                firstSegment.width, synthesizedLineHeight);
-                    }
-                }
-            }
-        }
-
-        // Assume that the tallest line is a vertical edge of an AprilTag.
-        // The known height of the AprilTag sticker including its white boundary
-        // is 3.0". From this we can calculate pixels/inch. However, because the
-        // backdrop is at a 30-degree angle we need to add a factor for "perspective
-        // compression" because in the image the edge will appear to be shorter than
-        // it really is.
-        RobotLogCommon.d(TAG, "The height of the tallest AprilTag edge is " + tallestLine.height);
-        RobotLogCommon.d(TAG, "Applying perspective compression factor of 30%");
-        double pixelsPerInch = (tallestLine.height + (tallestLine.height * 0.3)) / 3.0;
-        RobotLogCommon.d(TAG, "Adjusted backdrop pixels per inch " + pixelsPerInch);
-
-        // We have the angle from the camera to the center of the target
-        // AprilTag (left-of-center is a positive angle, right-of-center
-        // is negative).
-        int signOfAngle = (int) Math.signum(pAngleFromCameraToAprilTag);
-        double angleFromCameraToAprilTag = Math.abs(pAngleFromCameraToAprilTag);
-        double sinA = Math.sin(Math.toRadians(angleFromCameraToAprilTag));
-        double oppositeInches = sinA * pDistanceFromCameraToAprilTag;
-        int oppositePixels = (int) (pixelsPerInch * oppositeInches);
-
-        RobotLogCommon.d(TAG, "Distance from image center to AprilTag center " + oppositeInches +
-                ", pixels " + oppositePixels);
-
-        // If the original angle was positive then *subtract* else *add*.
-        int imageCenter = pImageParameters.resolution_width / 2;
-        int targetAprilTagCenterX = (signOfAngle > 0) ? imageCenter - oppositePixels :
-                imageCenter + oppositePixels;
-        RobotLogCommon.d(TAG, "Center of the target AprilTag in pixels: " + targetAprilTagCenterX);
-
-        RobotLogCommon.d(TAG, "Look for a hexagon that encloses a yellow pixel");
-        List<MatOfPoint> pixelContours = new ArrayList<>();
-        Imgproc.findContours(thresholded, pixelContours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        if (pixelContours.size() == 0) {
-            RobotLogCommon.d(TAG, "No pixel contours found");
-            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
-                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
-        }
-
-        // Within the ROI draw all of the contours.
-        RobotLogCommon.d(TAG, "Number of pixel contours " + pixelContours.size());
-        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-            Mat contoursDrawn = pImageROI.clone();
-            ShapeDrawing.drawShapeContours(pixelContours, contoursDrawn);
-            Imgcodecs.imwrite(pOutputFilenamePreamble + "_PCON.png", contoursDrawn);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_PCON.png");
-        }
-
-        Mat drawnBackdropObjects = pImageROI.clone();
         MatOfPoint2f contourPoints2f;
         double perimeter;
+        MatOfPoint2f approx;
         Point[] points;
-        List<MatOfPoint> disjointPixelContourCandidates = new ArrayList<>();
-        boolean foundAPixel = false;
-        Rect validatedPixelRect = null;
-        int validatedPixelCenterX = 0;
-        for (MatOfPoint oneContour : pixelContours) {
+        Point contourCentroid;
+        double contourArea;
+        int contourIndex = -1;
+        for (MatOfPoint oneContour : contours) {
             contourPoints2f = new MatOfPoint2f(oneContour.toArray()); // Point2f for approxPolyDP
             perimeter = Imgproc.arcLength(contourPoints2f, true);
-            MatOfPoint2f approx = new MatOfPoint2f();
+            approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(contourPoints2f, approx, 0.03 * perimeter, true); // simplify the contour
             points = approx.toArray();
+            contourCentroid = ImageUtils.getContourCentroid(oneContour);
+            contourArea = Imgproc.contourArea(oneContour);
+            contourIndex++;
 
-            // Candidate contours for classification as a pixel must have
-            // a y-coordinate in the top third of the ROI.
-            Rect pixelBoundingRect = Imgproc.boundingRect(oneContour);
-            if (pixelBoundingRect.y > pImageParameters.image_roi.height / 3) {
-                RobotLogCommon.d(TAG, "Origin of a candidate pixel contour is not in the top third of the ROI ");
-                continue;
-            }
+            // Look for a yellow pixel hexagon in the top half of the ROI.
+            if (!foundYellowPixel && points.length == 6) {
+                RobotLogCommon.d(TAG, "Found a hexagon with a center point of " + contourCentroid);
 
-            if (points.length == 6) {
-                RobotLogCommon.d(TAG, "Found a polygon with 6 sides");
-                RobotLogCommon.d(TAG, "Area of a possible pixel's hexagonal contour bounding box: " + pixelBoundingRect.area());
-
-                // Rule out out-of-size blobs that have qualified as hexagons.
-                if (pixelBoundingRect.area() < pBackdropPixelParameters.yellowPixelBoundingBoxCriteria.minBoundingBoxArea ||
-                        pixelBoundingRect.area() > pBackdropPixelParameters.yellowPixelBoundingBoxCriteria.maxBoundingBoxArea) {
-                    RobotLogCommon.d(TAG, "The hexagon violates the size criteria");
-
-                    // But collect a small blob that may be part of a disjoint pixel.
-                    if (pixelBoundingRect.area() < pBackdropPixelParameters.yellowPixelBoundingBoxCriteria.maxBoundingBoxArea)
-                        disjointPixelContourCandidates.add(oneContour); // include as a disjoint contour
+                // Skip any hexagon whose center is not in the top half of the ROI.
+                if (contourCentroid.y > roiCenterY) {
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    RobotLogCommon.d(TAG, "The hexagon is not in the top half of the ROI");
                     continue;
                 }
 
-                // Qualify the left and right boundaries of the pixel's bounding box
-                // with respect to the AprilTag's center.
-                if (qualifyPixel(pImageParameters, targetAprilTagCenterX, pixelBoundingRect)) {
-                    foundAPixel = true;
-                    validatedPixelRect = pixelBoundingRect;
-                    validatedPixelCenterX = pImageParameters.image_roi.x + validatedPixelRect.x + (validatedPixelRect.width / 2);
-                    ShapeDrawing.drawOneRectangle(validatedPixelRect, drawnBackdropObjects, 2);
-                    RobotLogCommon.d(TAG, "Found a yellow pixel on the backdrop");
-                    break; // only need one pixel
+                // Skip out-of-size hexagons.
+                RobotLogCommon.d(TAG, "Area of the hexagonal contour: " + contourArea);
+                if (contourArea < pBackdropPixelParameters.yellowPixelAreaLimits.minArea ||
+                        contourArea > pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    RobotLogCommon.d(TAG, "The hexagon violates the size criteria");
+                    continue;
                 }
-            } else {
-                // Didn't find a hexagon but there may be a cluster of contours
-                // that we can take as a pixel.
-                disjointPixelContourCandidates.add(oneContour);
+
+                foundYellowPixel = true; // only need one pixel
+                yellowPixelCentroid = contourCentroid;
+                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
+                RobotLogCommon.d(TAG, "Found a yellow pixel on the backdrop with a center point in the ROI of " + yellowPixelCentroid);
+                continue;
             }
+
+            // Look for AprilTag rectangles in the bottom half of the ROI.
+            if (points.length == 4) {
+                RobotLogCommon.d(TAG, "Found a rectangle with a center point in the ROI of " + contourCentroid);
+
+                // Skip any rectangle whose center is not in the bottom half of the ROI.
+                if (contourCentroid.y < roiCenterY) {
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    RobotLogCommon.d(TAG, "The rectangle is not in the bottom half of the ROI");
+                    continue;
+                }
+
+                // Skip out-of-size rectangles.
+                RobotLogCommon.d(TAG, "Area of the rectangular contour " + Imgproc.contourArea(oneContour));
+                if (contourArea < pBackdropPixelParameters.aprilTagRectangleAreaLimits.minArea ||
+                        contourArea > pBackdropPixelParameters.aprilTagRectangleAreaLimits.maxArea) {
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    RobotLogCommon.d(TAG, "The rectangle violates the size criteria");
+                    continue;
+                }
+
+                // Get the bounding box to check for aspect ratio.
+                Rect aprilTagBoundingRect = Imgproc.boundingRect(oneContour);
+                RobotLogCommon.d(TAG, "The possible AprilTag's contour bounding box in the ROI: " + aprilTagBoundingRect);
+
+                double aspectRatio = (double) aprilTagBoundingRect.width / aprilTagBoundingRect.height;
+                if (aspectRatio < pBackdropPixelParameters.aprilTagRectangleMinAspectRatio || aspectRatio > pBackdropPixelParameters.aprilTagRectangleMaxAspectRatio) {
+                    RobotLogCommon.d(TAG, "The possible AprilTag rectangle's aspect ratio of " + aspectRatio + " violates the limits");
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    continue;
+                }
+
+                // Save the centroid of the AprilTag rectangle.
+                aprilTagCentroids.add(contourCentroid);
+                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
+                RobotLogCommon.d(TAG, "Found an AprilTag on the backdrop");
+                continue;
+            }
+
+            // Found some kind of a blob; draw it for information.
+            RobotLogCommon.d(TAG, "Found a contour with a center point in the ROI of " + contourCentroid + " that is neither a hexagon nor a rectangle");
+            ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
         }
 
-        // If we haven't found a hexagon then see if there's a
-        // cluster of contours that we can assume is a pixel.
-        int qualifyingDisjointCountourCenters = 0;
-        int accumQualifyingCentersX = 0;
-        int averageQualifyingPixelCenterX;
-        int contourBoundingBoxLowestX = 1000, contourBoundingBoxHighestX = 0;
-        int contourBoundingBoxLowestY = 1000, contourBoundingBoxHighestY = 0;
-        if (!foundAPixel) {
-            // We didn't find a complete hexagon. So look for a set of disjoint
-            // contours in the top third of the ROI.
-            RobotLogCommon.d(TAG, "Did not find a complete hexagon; try to find a cluster of disjoined contours that we can assume is a pixel");
+        // Write out all of the contours.
+        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
+            Imgcodecs.imwrite(pOutputFilenamePreamble + "_CON.png", drawnContours);
+            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_CON.png");
+        }
 
-            if (disjointPixelContourCandidates.size() == 0) {
-                RobotLogCommon.d(TAG, "No disjoint pixel contours found");
+        // Preliminary check to see if we found a yellow pixel.
+        if (!foundYellowPixel) {
+            RobotLogCommon.d(TAG, "No yellow pixel found");
+            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
+        }
+
+        // Preliminary check to see if we found two or three AprilTag rectangles.
+        int numAprilTags = aprilTagCentroids.size();
+        if (numAprilTags < 2 || numAprilTags > 3) {
+            RobotLogCommon.d(TAG, "Need two or three AprilTags, found " + numAprilTags);
+            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
+        }
+
+        // Two cases: 2 or 3 AprilTag rectangles.
+        // Sort the AprilTag rectangles by their center point x-coordinate.
+        // 3 - If the AprilTag target is 1 or 4 use the leftmost AprilTag rectangle;
+        //       if the target is 2 or 5 use the center AprilTag rectangle; if the
+        //       target is 3 or 6 use the rightmost AprilTag rectangle.
+        // 2 - How many AprilTag rectangles are on the same side of image center as the
+        //     target AprilTag?
+        //   1 - found the correct AprilTag
+        //   2 - if the target AprilTag is on the right-hand side of the backdrop (3, 6)
+        //         use the AprilTag rectangle furthest to the right
+        //       if the target AprilTag is on the left-hand side of the backdrop (1, 4)
+        //         use the AprilTag rectangle furthest to the left
+        //       if the target AprilTags is in the center (2, 5) use the AprilTag
+        //         rectangle closest to the center
+
+        // Sort the AprilTag rectangles by their x-xoordinates.
+        aprilTagCentroids.sort(Comparator.comparingDouble((Point p) -> p.x));
+        int aprilTagAngleSign = (int) Math.signum(pAngleToAprilTag);
+        int imageCenterX = pImageParameters.resolution_width / 2;
+        int roiX = pImageParameters.image_roi.x;
+
+        // Three AprilTag rectangles.
+        // 3 - If the AprilTag target is 1 or 4 use the leftmost AprilTag rectangle;
+        //       if the target is 2 or 5 use the center AprilTag rectangle; if the
+        //       target is 3 or 6 use the rightmost AprilTag rectangle.
+        if (aprilTagCentroids.size() == 3) {
+            RobotLogCommon.d(TAG, "Found 3 AprilTag rectangles");
+            Point aprilTagRectangleToUse;
+            switch (pTargetAprilTagId) {
+                case TAG_ID_1:
+                case TAG_ID_4: {
+                    aprilTagRectangleToUse = aprilTagCentroids.get(0);
+                    break;
+                }
+                case TAG_ID_2:
+                case TAG_ID_5: {
+                    aprilTagRectangleToUse = aprilTagCentroids.get(1);
+                    break;
+                }
+                case TAG_ID_3:
+                case TAG_ID_6: {
+                    aprilTagRectangleToUse = aprilTagCentroids.get(2);
+                    break;
+                }
+                default:
+                    throw new AutonomousRobotException(TAG, "Invalid backdrop AprilTag id");
+            }
+
+            return findOpenSlot(roiX + (int) aprilTagRectangleToUse.x, roiX + (int) yellowPixelCentroid.x);
+        }
+
+        // Two AprilTagRectangles.
+        // 2 - How many AprilTag rectangles are on the same side of image center as the
+        //     target AprilTag?
+        //   1 - found the correct AprilTag
+        if (aprilTagCentroids.size() == 2) {
+            RobotLogCommon.d(TAG, "Found 2 AprilTag rectangles");
+            RobotLogCommon.d(TAG, "Apply the primary location filter");
+            List<Point> filteredAprilTagCentroids = new ArrayList<>();
+            for (Point oneAprilTagCentroid : aprilTagCentroids) {
+                Point updatedCentroid = new Point(roiX + oneAprilTagCentroid.x, oneAprilTagCentroid.y);
+                if (aprilTagAngleSign < 0 && updatedCentroid.x > imageCenterX) {
+                    RobotLogCommon.d(TAG, "AprilTag rectangle passed the primary location filter; center point in full image " + updatedCentroid);
+                    filteredAprilTagCentroids.add(updatedCentroid);
+                } else if (aprilTagAngleSign >= 0 && updatedCentroid.x <= imageCenterX) {
+                    filteredAprilTagCentroids.add(updatedCentroid);
+                    RobotLogCommon.d(TAG, "AprilTag rectangle passed the primary location filter; center point in full image" + updatedCentroid);
+                } else
+                    RobotLogCommon.d(TAG, "AprilTag rectangle did not pass the primary location filter; center point in full image " + updatedCentroid);
+            }
+
+            if (filteredAprilTagCentroids.isEmpty()) {
+                RobotLogCommon.d(TAG, "No AprilTag rectangles passed the primary location filter");
                 return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
                         RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
             }
 
-            // Within the ROI draw all of the disjoint contours.
-            RobotLogCommon.d(TAG, "Number of disjoint pixel contours " + disjointPixelContourCandidates.size());
-            if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-                Mat contoursDrawn = pImageROI.clone();
-                ShapeDrawing.drawShapeContours(disjointPixelContourCandidates, contoursDrawn);
-                Imgcodecs.imwrite(pOutputFilenamePreamble + "_DCON.png", contoursDrawn);
-                RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_DCON.png");
+            if (filteredAprilTagCentroids.size() == 1) {
+                RobotLogCommon.d(TAG, "A single AprilTag rectangle passed the primary location filter");
+                return findOpenSlot((int) filteredAprilTagCentroids.get(0).x, roiX + (int) yellowPixelCentroid.x);
             }
 
-            // Qualify disjoint contours for pixel detection according to the
-            // horizontal and vertical positions of their bounding boxes.
-            Rect contourBoundingRect;
-            int boundingBoxCenterX;
-            for (MatOfPoint oneContour : disjointPixelContourCandidates) {
-                contourBoundingRect = Imgproc.boundingRect(oneContour);
-                boundingBoxCenterX = pImageParameters.image_roi.x + contourBoundingRect.x +
-                        (contourBoundingRect.width / 2);
-
-                // If the right boundary of the contour's bounding box is to the
-                // left of the two slots that belong to the AprilTag then disqualify
-                // this contour. Also disqualify this contour if the left boundary
-                // of the contour's bounding box is to the right of the two slots
-                // that belong to the AprilTag.
-                if (!qualifyPixel(pImageParameters, targetAprilTagCenterX, contourBoundingRect)) {
-                    RobotLogCommon.d(TAG, "Possible pixel contour is *not* within range of the AprilTag");
-                    continue;
+            // There are two AprilTag rectangles whose centers are in the same half of the
+            // image as the target AprilTag.
+            //   2 - if the target AprilTag is on the right-hand side of the backdrop (3, 6)
+            //         use the AprilTag rectangle furthest to the right
+            //       if the target AprilTag is on the left-hand side of the backdrop (1, 4)
+            //         use the AprilTag rectangle furthest to the left
+            //       if the target AprilTags is in the center (2, 5) use the AprilTag
+            //         rectangle closest to the center
+            RobotLogCommon.d(TAG, "Apply the secondary location filter");
+            Point aprilTagRectangleToUse;
+            switch (pTargetAprilTagId) {
+                case TAG_ID_3:
+                case TAG_ID_6: {
+                    aprilTagRectangleToUse = filteredAprilTagCentroids.get(1);
+                    break;
                 }
-
-                qualifyingDisjointCountourCenters++;
-                accumQualifyingCentersX += boundingBoxCenterX;
-                RobotLogCommon.d(TAG, "Possible pixel contour *is* within range of the AprilTag");
-
-                // Pay attention to each bounding box because at the end we want to draw an enclosing
-                // rectangle around all of the disjoint contours.
-                if (contourBoundingRect.x < contourBoundingBoxLowestX)
-                    contourBoundingBoxLowestX = contourBoundingRect.x;
-
-                if (contourBoundingRect.x + contourBoundingRect.width > contourBoundingBoxHighestX)
-                    contourBoundingBoxHighestX = contourBoundingRect.x + contourBoundingRect.width;
-
-                if (contourBoundingRect.y < contourBoundingBoxLowestY)
-                    contourBoundingBoxLowestY = contourBoundingRect.y;
-
-                if (contourBoundingRect.y + contourBoundingRect.height > contourBoundingBoxHighestY)
-                    contourBoundingBoxHighestY = contourBoundingRect.y + contourBoundingRect.height;
+                case TAG_ID_1:
+                case TAG_ID_4: {
+                    aprilTagRectangleToUse = filteredAprilTagCentroids.get(0);
+                    break;
+                }
+                case TAG_ID_2:
+                case TAG_ID_5: {
+                    if (Math.abs(imageCenterX - filteredAprilTagCentroids.get(0).x) <=
+                            Math.abs(imageCenterX - filteredAprilTagCentroids.get(1).x))
+                        aprilTagRectangleToUse = filteredAprilTagCentroids.get(0);
+                    else
+                        aprilTagRectangleToUse = filteredAprilTagCentroids.get(1);
+                    break;
+                }
+                default:
+                    throw new AutonomousRobotException(TAG, "Invalid backdrop AprilTag id");
             }
+
+            RobotLogCommon.d(TAG, "A single AprilTag rectangle passed the secondary location filter");
+            RobotLogCommon.d(TAG, "X-coordinate of rectangle in full image " + (int) aprilTagRectangleToUse.x);
+            return findOpenSlot((int) aprilTagRectangleToUse.x, roiX + (int) yellowPixelCentroid.x);
         }
 
-        // We have found an AprilTag. If we haven't found a pixel -
-        // either a hexagon or a cluster of disjointed contours - then
-        // we're done.
-        if (!foundAPixel && qualifyingDisjointCountourCenters == 0) {
-            RobotLogCommon.d(TAG, "Did not find a pixel (hexagon); both slots are open");
+        RobotLogCommon.d(TAG, "No AprilTag rectangle passed the secondary location filter");
+        return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
+    }
+
+    // Find the slot on the backdrop above the AprilTag that is not occupied
+    // by the yellow pixel.
+    // We need to filter out the case where our alliance partner misplaced
+    // the pixel to the left or right of the two target locations, one on
+    // each side of the AprilTag. We can't use absolute pixel counts but
+    // a percentage should work, e.g. if the center of the pixel is at
+    // 210 x in the full image and the center of the AprilTag is at 335 x
+    // then the pixel position is .63 of that of the AprilTag and is misplaced
+    // to the left. If the center of the pixel is at 455 x then it is 1.36
+    // more than that of the AprilTag and is misplaced to the right.
+    private BackdropPixelReturn findOpenSlot(int pAprilTagRectangleCenterX, int pYellowPixelCenterX) {
+        RobotLogCommon.d(TAG, "In findOpenSlot: center of AprilTag rectangle in full image " + pAprilTagRectangleCenterX);
+        RobotLogCommon.d(TAG, "In findOpenSlot: center of yellow pixel in full image " + pYellowPixelCenterX);
+
+        // If the center of the yellow pixel is to the left of the two slots
+        // that belong to the AprilTag then disqualify the pixel.
+        if ((pYellowPixelCenterX / (double) pAprilTagRectangleCenterX) <= PIXEL_OUT_OF_RANGE_LEFT) {
+            RobotLogCommon.d(TAG, "Yellow pixel is too far to the left of the AprilTag");
             return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
                     RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
         }
 
-        // This is the most desirable case: an AprilTag and a pixel hexagon.
-        RobotLogCommon.d(TAG, "Target AprilTag center x " + targetAprilTagCenterX);
-        RobotConstantsCenterStage.BackdropPixelOpenSlot backdropPixelOpenSlot;
-        if (foundAPixel) {
-            // Compare the relative positions of the center of the AprilTag closest
-            // to the center of the full image and the center of the yellow pixel.
-            RobotLogCommon.d(TAG, "Yellow pixel bounding box center x " + validatedPixelCenterX +
-                    ", y " + (validatedPixelRect.y + (validatedPixelRect.height / 2)));
-
-            backdropPixelOpenSlot = determinePixelOpenSlot(targetAprilTagCenterX, validatedPixelCenterX);
-        } else { // There must be a cluster of contours that comprises a pixel.
-            Rect enclosingBox = new Rect(contourBoundingBoxLowestX, contourBoundingBoxLowestY,
-                    contourBoundingBoxHighestX - contourBoundingBoxLowestX,
-                    contourBoundingBoxHighestY - contourBoundingBoxLowestY);
-            ShapeDrawing.drawOneRectangle(enclosingBox, drawnBackdropObjects, 2);
-            RobotLogCommon.d(TAG, "Draw a rectangle around the cluster of pixels " + enclosingBox);
-
-            averageQualifyingPixelCenterX = accumQualifyingCentersX / qualifyingDisjointCountourCenters;
-            RobotLogCommon.d(TAG, "Average center of disjointed pixel contours " + averageQualifyingPixelCenterX);
-            backdropPixelOpenSlot = determinePixelOpenSlot(targetAprilTagCenterX, averageQualifyingPixelCenterX);
-        }
-
-        if (pOutputFilenamePreamble != null && (RobotLogCommon.isLoggable("v") || writeIntermediateImageFiles)) {
-            Imgcodecs.imwrite(pOutputFilenamePreamble + "_BRECT.png", drawnBackdropObjects);
-            RobotLogCommon.d(TAG, "Writing " + pOutputFilenamePreamble + "_BRECT.png");
-        }
-
-        return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, backdropPixelOpenSlot);
-    }
-
-    // We need to filter out the case where our alliance partner misplaced
-    // the pixel to the left or right of the two target locations, one on
-    // each side of the AprilTag. We can't use absolute pixel counts but
-    // a percentage should work, e.g. if the right edge of the pixel is at
-    // 235 x in the full image and the center of the AprilTag is at 330 x
-    // then the pixel position is .71 of that of the AprilTag and is misplaced
-    // to the left. If the left edge of the pixel is at 420 x then it is 1.27
-    // more than the AprilTag and is misplaced to the right.
-    private boolean qualifyPixel(VisionParameters.ImageParameters pImageParameters, int pMostCentralAprilTagX, Rect pPixelContourBoundingBox) {
-        // If the right boundary of the contour's bounding box is to the
-        // left of the two slots that belong to the AprilTag then disqualify
-        // this contour.
-        int boundingBoxLeftBoundary = pImageParameters.image_roi.x + pPixelContourBoundingBox.x;
-        int boundingBoxRightBoundary = pImageParameters.image_roi.x + pPixelContourBoundingBox.x + pPixelContourBoundingBox.width;
-        int boundingBoxTopBoundary = pImageParameters.image_roi.y + pPixelContourBoundingBox.y;
-        int boundingBoxBottomBoundary = pImageParameters.image_roi.y + pPixelContourBoundingBox.y + pPixelContourBoundingBox.height;
-        RobotLogCommon.d(TAG, "Possible pixel contour's bounding box area: " + pPixelContourBoundingBox.area() +
-                ", low x " + boundingBoxLeftBoundary + ", high x " + boundingBoxRightBoundary +
-                ", low y " + boundingBoxTopBoundary + ", high y " + boundingBoxBottomBoundary);
-
-        if ((boundingBoxRightBoundary / (double) pMostCentralAprilTagX) <= PIXEL_OUT_OF_RAGE_LOW) {
-            RobotLogCommon.d(TAG, "Possible pixel contour is too far to the left of the AprilTag");
-            return false;
-        }
-
-        // If the left boundary of the contour's bounding box is to the
-        // right of the two slots that belong to the AprilTag then disqualify
-        // this contour.
-        if ((boundingBoxLeftBoundary / (double) pMostCentralAprilTagX) >= PIXEL_OUT_OF_RANGE_HIGH) {
+        // If the center of the yellow pixel is to the right of the two slots
+        // that belong to the AprilTag then disqualify the pixel.
+        if ((pYellowPixelCenterX / (double) pAprilTagRectangleCenterX) >= PIXEL_OUT_OF_RANGE_RIGHT) {
             RobotLogCommon.d(TAG, "Possible pixel contour is too far to the right of the AprilTag");
-            return false;
+            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
         }
 
-        return true;
-    }
-
-    private RobotConstantsCenterStage.BackdropPixelOpenSlot
-    determinePixelOpenSlot(int pMostCentralAprilTagX, int pCenterOfObjectX) {
-        if (pCenterOfObjectX == pMostCentralAprilTagX) {
-            RobotLogCommon.d(TAG, "The yellow pixel is exactly above the AprilTag");
-            return RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT;
+        // The yellow pixel is in range of the AprilTag; find out whether
+        // the open slot is to the left or right.
+        if (pYellowPixelCenterX < pAprilTagRectangleCenterX) {
+            RobotLogCommon.d(TAG, "The yellow pixel is to the left of the AprilTag");
+            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot.RIGHT);
         }
 
-        if (pCenterOfObjectX > pMostCentralAprilTagX) {
-            RobotLogCommon.d(TAG, "The open slot is on the left");
-            return RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT;
+        if (pYellowPixelCenterX > pAprilTagRectangleCenterX) {
+            RobotLogCommon.d(TAG, "The yellow pixel is to the right of the AprilTag");
+            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
+                    RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT);
         }
 
-        RobotLogCommon.d(TAG, "The open slot is on the right");
-        return RobotConstantsCenterStage.BackdropPixelOpenSlot.RIGHT;
+
+        RobotLogCommon.d(TAG, "The yellow pixel is exactly above the AprilTag");
+        return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
+                RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
     }
 
 }

@@ -125,6 +125,8 @@ public class BackdropPixelRendering implements CameraStreamRendering {
         float insetLeft = (float) ((onscreenWidth / 2) - (imageParameters.image_roi.width / 2));
         float insetTop = (float) ((onscreenHeight / 2) - (imageParameters.image_roi.height / 2));
         pDriverStationScreenCanvas.drawBitmap(bmp, insetLeft, insetTop, null);
+
+        //**TODO Draw a green boundary around the inset. See SpikeWindowRendering.
     }
 
 }

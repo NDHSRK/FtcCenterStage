@@ -28,7 +28,7 @@ import java.util.Objects;
 // frame that contains the AprilTag and possibly a
 // previously placed yellow pixel on the backdrop.
 @TeleOp(name = "BackdropPixelViewer", group = "Configure")
-@Disabled
+//@Disabled
 public class BackdropPixelViewer extends LinearOpMode {
     private static final String TAG = BackdropPixelViewer.class.getSimpleName();
     private static final int THRESHOLD_CHANGE = 5;

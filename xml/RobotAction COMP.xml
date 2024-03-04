@@ -904,6 +904,7 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
 
+                    <!-- //**TODO The sleep should be after the turn and before the deskew -->
                     <SLEEP>
                         <ms>500</ms>
                     </SLEEP>

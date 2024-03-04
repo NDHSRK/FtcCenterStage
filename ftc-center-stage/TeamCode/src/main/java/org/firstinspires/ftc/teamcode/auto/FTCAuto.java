@@ -494,7 +494,9 @@ public class FTCAuto {
 
             // Straighten out the robot by turning to the desired heading.
             case "DESKEW": {
-                deskew();
+                // Parse the optional element that specifies how long to sleep before the deskew.
+                int sleepBeforeDeskewMs = Math.abs(actionXPath.getInt("sleep_before_deskew_ms", 0));
+                deskew(sleepBeforeDeskewMs);
                 break;
             }
 
@@ -859,7 +861,7 @@ public class FTCAuto {
                 if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE)
                     throw new AutonomousRobotException(TAG, "Elevator movement must start at the SAFE level, not " + currentElevatorLevel);
 
-                deskew(); // face the AprilTag(s), i.e. cut the yaw to 0
+                deskew(500); // face the AprilTag(s), i.e. cut the yaw to 0
 
                 // First find the target AprilTag on the backdrop.
                 String tagIdString = actionXPath.getRequiredText("tag_id").toUpperCase();
@@ -980,7 +982,7 @@ public class FTCAuto {
                     RobotLogCommon.d(TAG, "Backdrop pixel recognition path " + backdropPixelRecognitionPath);
 
                     BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters,
-                            aprilTagAngle, aprilTagDistance, backdropPixelRecognitionPath);
+                            targetTagId, aprilTagAngle, backdropPixelRecognitionPath);
                     RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
                     linearOpMode.telemetry.addData("Backdrop pixel open slot: ", backdropPixelReturn.backdropPixelOpenSlot);
                     linearOpMode.telemetry.update();
@@ -1088,7 +1090,7 @@ public class FTCAuto {
                     return false;
                 }
 
-                deskew(); // make sure the robot is aligned with the desired heading
+                deskew(500); // make sure the robot is aligned with the desired heading
                 break;
             }
 
@@ -1488,12 +1490,15 @@ public class FTCAuto {
 
     // Straighten out the robot by turning to the desired heading.
     // Make a normalized turn at minimum power.
-    private void deskew() throws IOException, InterruptedException, TimeoutException {
+    private void deskew(int pSleepBeforeDeskewMs) throws IOException, InterruptedException, TimeoutException {
         if (asyncStraight != null)
             throw new AutonomousRobotException(TAG, "Deskew not allowed while asyncStraight is in progress");
 
         if (asyncTurn != null)
             throw new AutonomousRobotException(TAG, "Deskew not allowed while asyncTurn is in progress");
+
+        if (pSleepBeforeDeskewMs != 0)
+            sleepInLoop(pSleepBeforeDeskewMs);
 
         double currentHeading = robot.imuDirect.getIMUHeading();
         RobotLogCommon.d(TAG, "Current heading " + currentHeading);

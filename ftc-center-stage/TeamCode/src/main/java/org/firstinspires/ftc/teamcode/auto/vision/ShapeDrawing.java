@@ -24,6 +24,11 @@ public class ShapeDrawing {
         }
     }
 
+    public static void drawOneContour(List<MatOfPoint> pContours, int pContourIndex,
+                                      Mat pImageOut, Scalar pColor) {
+        Imgproc.drawContours(pImageOut, pContours, pContourIndex, pColor, 2);
+    }
+
     // Thickness of < 0 means fill with color.
     public static void drawOneRectangle(Rect pRect, Mat pImageOut, int pThickness) {
         Imgproc.rectangle(pImageOut, pRect, new Scalar(0, 255, 0), pThickness); // GREEN
