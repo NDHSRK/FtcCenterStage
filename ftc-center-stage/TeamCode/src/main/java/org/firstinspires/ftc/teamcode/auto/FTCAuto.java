@@ -493,9 +493,12 @@ public class FTCAuto {
             }
 
             // Straighten out the robot by turning to the desired heading.
+            // Because the IMU seems to lag in its reporting of the current
+            // heading (especially when we're using higher-rpm motors), add
+            // a provision to sleep before the actual deskew operation.
             case "DESKEW": {
                 // Parse the optional element that specifies how long to sleep before the deskew.
-                int sleepBeforeDeskewMs = Math.abs(actionXPath.getInt("sleep_before_deskew_ms", 0));
+                int sleepBeforeDeskewMs = Math.abs(actionXPath.getInt("sleep_before", 0));
                 deskew(sleepBeforeDeskewMs);
                 break;
             }

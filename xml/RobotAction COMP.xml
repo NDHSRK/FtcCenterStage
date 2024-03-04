@@ -337,7 +337,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <FORWARD>
                         <distance>7.0</distance>
@@ -369,7 +371,9 @@
                         <power>.5</power>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <FORWARD>
                         <distance>18</distance>
@@ -382,7 +386,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <BACK>
                         <distance>80.0</distance>
@@ -396,7 +402,8 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
 
-                    <DESKEW />
+                    <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
+                    <!-- DESKEW / -->
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -469,11 +476,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <SLEEP>
-                        <ms>500</ms>
-                    </SLEEP>
-
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -514,7 +519,9 @@
                         <ramp_down_at_angle_remaining>20.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -603,6 +610,10 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
+
                     <BACK>
                         <distance>72.0</distance>
                         <velocity>.5</velocity>
@@ -615,7 +626,8 @@
                         <ramp_down_at_distance_remaining>8</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
 
-                    <DESKEW />
+                    <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
+                    <!-- DESKEW / -->
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -772,7 +784,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <BACK>
                         <distance>12.0</distance>
@@ -830,7 +844,8 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
 
-                    <DESKEW />
+                    <!-- DESKEW should not be needed here -->
+                    <!-- DESKEW / -->
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -853,7 +868,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <BACK>
                         <distance>15.0</distance>
@@ -904,18 +921,15 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
 
-                    <!-- //**TODO The sleep should be after the turn and before the deskew -->
-                    <SLEEP>
-                        <ms>500</ms>
-                    </SLEEP>
-
                     <TURN>
                         <angle>-90.0</angle>
                         <power>.5</power>
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <FORWARD>
                         <distance>6.0</distance>
@@ -1083,6 +1097,10 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
+
                     <BACK>
                         <distance>72.0</distance>
                         <velocity>.5</velocity>
@@ -1095,7 +1113,8 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
 
-                    <DESKEW />
+                    <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
+                    <!-- DESKEW / -->
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -1168,11 +1187,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <SLEEP>
-                        <ms>500</ms>
-                    </SLEEP>
-
-                    <DESKEW/>
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -1213,7 +1230,9 @@
                         <ramp_down_at_angle_remaining>20.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -1284,7 +1303,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <FORWARD>
                         <distance>7.0</distance>
@@ -1314,9 +1335,12 @@
                     <TURN>
                         <angle>90.0</angle>
                         <power>.5</power>
+                        <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <FORWARD>
                         <distance>18</distance>
@@ -1329,7 +1353,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <BACK>
                         <distance>80.0</distance>
@@ -1343,7 +1369,8 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
 
-                    <DESKEW />
+                    <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
+                    <!-- DESKEW / -->
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -1484,7 +1511,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <FORWARD>
                         <distance>7.0</distance>
@@ -1557,7 +1586,8 @@
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
 
-                    <DESKEW />
+                    <!-- DESKEW should not be needed here -->
+                    <!-- DESKEW / -->
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -1580,14 +1610,17 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <BACK>
                         <distance>15.0</distance>
                         <velocity>.75</velocity>
                     </BACK>
 
-                    <DESKEW />
+                    <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
+                    <!-- DESKEW / -->
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
@@ -1656,7 +1689,9 @@
                         <ramp_down_at_angle_remaining>10.0</ramp_down_at_angle_remaining>
                     </TURN>
 
-                    <DESKEW />
+                    <DESKEW>
+                        <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+                    </DESKEW>
 
                     <BACK>
                         <distance>12.0</distance>
@@ -1668,7 +1703,8 @@
                         <velocity>.5</velocity>
                     </STRAFE_RIGHT>
 
-                    <DESKEW />
+                    <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
+                    <!-- DESKEW / -->
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
