@@ -36,11 +36,13 @@ public class BackdropPixelRecognition {
 
     private static final String TAG = BackdropPixelRecognition.class.getSimpleName();
 
+    private static final double C920FOV = 78.0; //**TODO -> RobotConfig
+
     // The next two values come from the x-coordinates of points in an image as seen
     // in Gimp. The values are percentages in relation to the x-coordinate of the
     // center of a target AprilTag.
     private static final double PIXEL_OUT_OF_RANGE_LEFT = .63;
-    private static final double PIXEL_OUT_OF_RANGE_RIGHT = 1.36;
+    private static final double PIXEL_OUT_OF_RANGE_RIGHT = 1.25;
 
     private final String workingDirectory;
     private final RobotConstants.Alliance alliance;
@@ -139,73 +141,89 @@ public class BackdropPixelRecognition {
             contourIndex++;
 
             // Look for a yellow pixel hexagon in the top half of the ROI.
-            if (!foundYellowPixel && points.length == 6) {
-                RobotLogCommon.d(TAG, "Found a hexagon with a center point of " + contourCentroid);
+            if (!foundYellowPixel && contourCentroid.y < roiCenterY) {
+                RobotLogCommon.d(TAG, "Found a contour in the top half of the ROI");
+                RobotLogCommon.d(TAG, "Center point " + contourCentroid + ", area " + contourArea);
+                if (points.length == 6) {
+                    RobotLogCommon.d(TAG, "Found a hexagon");
 
-                // Skip any hexagon whose center is not in the top half of the ROI.
-                if (contourCentroid.y > roiCenterY) {
-                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
-                    RobotLogCommon.d(TAG, "The hexagon is not in the top half of the ROI");
+                    // Skip out-of-size hexagons.
+                    RobotLogCommon.d(TAG, "Area of the hexagonal contour: " + contourArea);
+                    if (contourArea < pBackdropPixelParameters.yellowPixelAreaLimits.minArea ||
+                            contourArea > pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
+                        ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                        RobotLogCommon.d(TAG, "The hexagon violates the size criteria");
+                        continue;
+                    }
+
+                    foundYellowPixel = true; // only need one pixel
+                    yellowPixelCentroid = contourCentroid;
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
+                    RobotLogCommon.d(TAG, "Found a yellow pixel on the backdrop with a center point in the ROI of " + yellowPixelCentroid);
                     continue;
                 }
 
-                // Skip out-of-size hexagons.
-                RobotLogCommon.d(TAG, "Area of the hexagonal contour: " + contourArea);
-                if (contourArea < pBackdropPixelParameters.yellowPixelAreaLimits.minArea ||
-                        contourArea > pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
-                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
-                    RobotLogCommon.d(TAG, "The hexagon violates the size criteria");
+                // Sometimes approxPolyDP does not recognize a hexagon when a contour
+                // contains a small indentation. No luck with adjusting the epsilon
+                // factor (in spite of the example of smoothing out indentations here:
+                // https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html).
+                // Using Imgproc.convexHull would probably work:
+                //  https://docs.opencv.org/3.4/d7/d1d/tutorial_hull.html
+                // but let's just filter on area.
+                if (contourArea >= pBackdropPixelParameters.yellowPixelAreaLimits.minArea ||
+                        contourArea <= pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
+                    foundYellowPixel = true; // only need one pixel
+                    yellowPixelCentroid = contourCentroid;
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
+                    RobotLogCommon.d(TAG, "Found a contour that passes the area criteria for a yellow pixel");
                     continue;
                 }
 
-                foundYellowPixel = true; // only need one pixel
-                yellowPixelCentroid = contourCentroid;
-                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
-                RobotLogCommon.d(TAG, "Found a yellow pixel on the backdrop with a center point in the ROI of " + yellowPixelCentroid);
+                // Just draw the contour
+                RobotLogCommon.d(TAG, "The contour was not recognized as a pixel");
+                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
                 continue;
             }
 
             // Look for AprilTag rectangles in the bottom half of the ROI.
-            if (points.length == 4) {
-                RobotLogCommon.d(TAG, "Found a rectangle with a center point in the ROI of " + contourCentroid);
+            if (contourCentroid.y > roiCenterY) {
+                RobotLogCommon.d(TAG, "Found a contour in the bottom half of the ROI");
+                RobotLogCommon.d(TAG, "Center point " + contourCentroid + ", area " + contourArea);
 
-                // Skip any rectangle whose center is not in the bottom half of the ROI.
-                if (contourCentroid.y < roiCenterY) {
-                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
-                    RobotLogCommon.d(TAG, "The rectangle is not in the bottom half of the ROI");
+                if (points.length == 4) {
+                    RobotLogCommon.d(TAG, "Found a rectangle with a center point in the ROI of " + contourCentroid);
+                    RobotLogCommon.d(TAG, "Area of the rectangular contour " + contourArea);
+
+                    // Skip out-of-size rectangles.
+                    if (contourArea < pBackdropPixelParameters.aprilTagRectangleAreaLimits.minArea ||
+                            contourArea > pBackdropPixelParameters.aprilTagRectangleAreaLimits.maxArea) {
+                        ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                        RobotLogCommon.d(TAG, "The rectangle violates the size criteria");
+                        continue;
+                    }
+
+                    // Get the bounding box to check for aspect ratio.
+                    Rect aprilTagBoundingRect = Imgproc.boundingRect(oneContour);
+                    RobotLogCommon.d(TAG, "The possible AprilTag's contour bounding box in the ROI: " + aprilTagBoundingRect);
+
+                    double aspectRatio = (double) aprilTagBoundingRect.width / aprilTagBoundingRect.height;
+                    if (aspectRatio < pBackdropPixelParameters.aprilTagRectangleMinAspectRatio || aspectRatio > pBackdropPixelParameters.aprilTagRectangleMaxAspectRatio) {
+                        RobotLogCommon.d(TAG, "The possible AprilTag rectangle's aspect ratio of " + aspectRatio + " violates the limits");
+                        ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                        continue;
+                    }
+
+                    // Save the centroid of the AprilTag rectangle.
+                    aprilTagCentroids.add(contourCentroid);
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
+                    RobotLogCommon.d(TAG, "Found an AprilTag on the backdrop");
                     continue;
                 }
 
-                // Skip out-of-size rectangles.
-                RobotLogCommon.d(TAG, "Area of the rectangular contour " + Imgproc.contourArea(oneContour));
-                if (contourArea < pBackdropPixelParameters.aprilTagRectangleAreaLimits.minArea ||
-                        contourArea > pBackdropPixelParameters.aprilTagRectangleAreaLimits.maxArea) {
-                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
-                    RobotLogCommon.d(TAG, "The rectangle violates the size criteria");
-                    continue;
-                }
-
-                // Get the bounding box to check for aspect ratio.
-                Rect aprilTagBoundingRect = Imgproc.boundingRect(oneContour);
-                RobotLogCommon.d(TAG, "The possible AprilTag's contour bounding box in the ROI: " + aprilTagBoundingRect);
-
-                double aspectRatio = (double) aprilTagBoundingRect.width / aprilTagBoundingRect.height;
-                if (aspectRatio < pBackdropPixelParameters.aprilTagRectangleMinAspectRatio || aspectRatio > pBackdropPixelParameters.aprilTagRectangleMaxAspectRatio) {
-                    RobotLogCommon.d(TAG, "The possible AprilTag rectangle's aspect ratio of " + aspectRatio + " violates the limits");
-                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
-                    continue;
-                }
-
-                // Save the centroid of the AprilTag rectangle.
-                aprilTagCentroids.add(contourCentroid);
-                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
-                RobotLogCommon.d(TAG, "Found an AprilTag on the backdrop");
-                continue;
+                // Found some kind of a blob; draw it for information.
+                RobotLogCommon.d(TAG, "The contour was not recognized as an AprilTag");
+                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
             }
-
-            // Found some kind of a blob; draw it for information.
-            RobotLogCommon.d(TAG, "Found a contour with a center point in the ROI of " + contourCentroid + " that is neither a hexagon nor a rectangle");
-            ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
         }
 
         // Write out all of the contours.
@@ -237,12 +255,8 @@ public class BackdropPixelRecognition {
         // 2 - How many AprilTag rectangles are on the same side of image center as the
         //     target AprilTag?
         //   1 - found the correct AprilTag
-        //   2 - if the target AprilTag is on the right-hand side of the backdrop (3, 6)
-        //         use the AprilTag rectangle furthest to the right
-        //       if the target AprilTag is on the left-hand side of the backdrop (1, 4)
-        //         use the AprilTag rectangle furthest to the left
-        //       if the target AprilTags is in the center (2, 5) use the AprilTag
-        //         rectangle closest to the center
+        //**TODO See updated comments below
+        //   2 - ...
 
         // Sort the AprilTag rectangles by their x-xoordinates.
         aprilTagCentroids.sort(Comparator.comparingDouble((Point p) -> p.x));
@@ -284,6 +298,7 @@ public class BackdropPixelRecognition {
         // 2 - How many AprilTag rectangles are on the same side of image center as the
         //     target AprilTag?
         //   1 - found the correct AprilTag
+        //**TODO Use Java API filter method ...
         if (aprilTagCentroids.size() == 2) {
             RobotLogCommon.d(TAG, "Found 2 AprilTag rectangles");
             RobotLogCommon.d(TAG, "Apply the primary location filter");
@@ -311,47 +326,47 @@ public class BackdropPixelRecognition {
                 return findOpenSlot((int) filteredAprilTagCentroids.get(0).x, roiX + (int) yellowPixelCentroid.x);
             }
 
-            // There are two AprilTag rectangles whose centers are in the same half of the
-            // image as the target AprilTag.
-            //   2 - if the target AprilTag is on the right-hand side of the backdrop (3, 6)
-            //         use the AprilTag rectangle furthest to the right
-            //       if the target AprilTag is on the left-hand side of the backdrop (1, 4)
-            //         use the AprilTag rectangle furthest to the left
-            //       if the target AprilTags is in the center (2, 5) use the AprilTag
-            //         rectangle closest to the center
             RobotLogCommon.d(TAG, "Apply the secondary location filter");
-            Point aprilTagRectangleToUse;
-            switch (pTargetAprilTagId) {
-                case TAG_ID_3:
-                case TAG_ID_6: {
-                    aprilTagRectangleToUse = filteredAprilTagCentroids.get(1);
-                    break;
-                }
-                case TAG_ID_1:
-                case TAG_ID_4: {
-                    aprilTagRectangleToUse = filteredAprilTagCentroids.get(0);
-                    break;
-                }
-                case TAG_ID_2:
-                case TAG_ID_5: {
-                    if (Math.abs(imageCenterX - filteredAprilTagCentroids.get(0).x) <=
-                            Math.abs(imageCenterX - filteredAprilTagCentroids.get(1).x))
-                        aprilTagRectangleToUse = filteredAprilTagCentroids.get(0);
-                    else
-                        aprilTagRectangleToUse = filteredAprilTagCentroids.get(1);
-                    break;
-                }
-                default:
-                    throw new AutonomousRobotException(TAG, "Invalid backdrop AprilTag id");
-            }
 
-            RobotLogCommon.d(TAG, "A single AprilTag rectangle passed the secondary location filter");
-            RobotLogCommon.d(TAG, "X-coordinate of rectangle in full image " + (int) aprilTagRectangleToUse.x);
-            return findOpenSlot((int) aprilTagRectangleToUse.x, roiX + (int) yellowPixelCentroid.x);
+            //**TODO NEW: Use the angle to the AprilTag to get its location in pixels
+            // in the full image.
+            // angle to AprilTag / x pixels = (field of view / 2) / (full image width / 2)
+            // Invert the sign of the angle to the AprilTag because a negative angle indicates
+            // that the AprilTag is to the right of the center of the image.
+            double aprilTagCenterX = (-pAngleToAprilTag * (pImageParameters.resolution_width / 2)) / (C920FOV / 2);
+            aprilTagCenterX += pImageParameters.resolution_width / 2;
+
+            // Find the AprilTagRectangle closest to the calculated center of the AprilTag.
+            double closestAprilTagRectangleCenter = findClosestAprilTagRectangle(filteredAprilTagCentroids, aprilTagCenterX);
+
+            RobotLogCommon.d(TAG, "X-coordinate of closest rectangle in full image " + (int) closestAprilTagRectangleCenter);
+            return findOpenSlot((int) closestAprilTagRectangleCenter, roiX + (int) yellowPixelCentroid.x);
         }
 
         RobotLogCommon.d(TAG, "No AprilTag rectangle passed the secondary location filter");
         return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL, RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
+    }
+
+    //**TODO Use enhanced for loop or filter ...
+    // Based on code from Microsoft Edge chat.
+    // Find the x-coordinate of a Point a collection that is closest to
+    // the constructed x-coordinate of an AprilTag.
+    private double findClosestAprilTagRectangle(List<Point> pAprilTagRectangleCenters, double pAprilTagCenterX) {
+        double nearest = -1;
+        double bestDistanceFoundYet = Integer.MAX_VALUE;
+
+        for (int i = 0; i < pAprilTagRectangleCenters.size(); i++) {
+            if (pAprilTagRectangleCenters.get(i).x == pAprilTagCenterX) {
+                return pAprilTagRectangleCenters.get(i).x; // If we found the desired number, return it.
+            } else {
+                double d = Math.abs(pAprilTagCenterX - pAprilTagRectangleCenters.get(i).x); // Calculate the difference.
+                if (d < bestDistanceFoundYet) {
+                    bestDistanceFoundYet = d; // Update the best distance.
+                    nearest = pAprilTagRectangleCenters.get(i).x; // Update the nearest number.
+                }
+            }
+        }
+        return nearest;
     }
 
     // Find the slot on the backdrop above the AprilTag that is not occupied
