@@ -8,8 +8,8 @@
             <log_level>vv</log_level>
         </parameters>
         <actions>
-            
-            <MOVE_ELEVATOR>
+
+            <!-- MOVE_ELEVATOR>
                 <position>SAFE</position>
             </MOVE_ELEVATOR>
 
@@ -23,7 +23,7 @@
                 <position>GROUND</position>
             </MOVE_ELEVATOR>
 
-            <DELIVER_PIXEL_TO_SPIKE />
+            <DELIVER_PIXEL_TO_SPIKE / -->
 
             <!--MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -63,7 +63,7 @@
                 </team_prop_recognition>
             </FIND_TEAM_PROP -->
 
-            <!--STOP_WEBCAM>
+            <STOP_WEBCAM>
                 <internal_webcam_id>front_webcam</internal_webcam_id>
             </STOP_WEBCAM>
 
@@ -78,21 +78,21 @@
             <WAIT_FOR_WEBCAM_START>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
                 <timeout_ms>1000</timeout_ms>
-            </WAIT_FOR_WEBCAM_START-->
-            
+            </WAIT_FOR_WEBCAM_START>
+
             <!-- TAKE_PICTURE_WEBCAM>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
             </TAKE_PICTURE_WEBCAM -->
-           
-            <!-- MOVE_ELEVATOR>
-                <position>SAFE</position>
-            </MOVE_ELEVATOR -->
 
-            <!-- DRIVE_TO_BACKDROP_APRIL_TAG>
+            <MOVE_ELEVATOR>
+                <position>SAFE</position>
+            </MOVE_ELEVATOR>
+
+            <DRIVE_TO_BACKDROP_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <tag_id>tag_id_5</tag_id>
+                <tag_id>tag_id_2</tag_id>
                 <timeout_ms>1000</timeout_ms>
-                <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                <desired_distance_from_tag>4.0</desired_distance_from_tag>
                 <direction>back</direction>
                 <yellow_pixel>
                     <image_parameters>
@@ -103,9 +103,9 @@
                         </resolution>
                         <image_roi>
                             <x>0</x>
-                            <y>70</y>
+                            <y>50</y>
                             <width>640</width>
-                            <height>275</height>
+                            <height>285</height>
                         </image_roi>
                     </image_parameters>
                     <backdrop_pixel_recognition>
@@ -116,7 +116,7 @@
 
             <SLEEP>
                 <ms>1500</ms>
-            </SLEEP-->
+            </SLEEP>
 
         </actions>
     </OpMode>
@@ -150,7 +150,7 @@
             <SLEEP>
                 <ms>2000</ms>
             </SLEEP>
-            
+
             <MOVE_ELEVATOR>
                 <position>ON_TRUSS</position>
             </MOVE_ELEVATOR>
@@ -376,7 +376,7 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>18</distance>
+                        <distance>16</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
@@ -414,7 +414,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -502,7 +502,7 @@
                     </STRAFE_RIGHT>
 
                     <FORWARD>
-                        <distance>87.0</distance>
+                        <distance>89.0</distance>
                         <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>15</ramp_down_at_distance_remaining>
                     </FORWARD>
@@ -532,7 +532,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -638,7 +638,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -807,7 +807,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_1</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -886,7 +886,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_2</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -932,14 +932,14 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>6.0</distance>
+                        <distance>5.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <BACK>
+                    <!-- BACK>
                         <distance>2.0</distance>
                         <velocity>.5</velocity>
-                    </BACK>
+                    </BACK -->
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -952,7 +952,7 @@
                     </MOVE_ELEVATOR>
 
                     <BACK>
-                        <distance>24.0</distance>
+                        <distance>23.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
@@ -965,7 +965,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_3</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -1125,7 +1125,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -1243,7 +1243,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -1381,7 +1381,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>5.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                         <yellow_pixel>
                             <image_parameters>
@@ -1549,7 +1549,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_4</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -1631,7 +1631,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_5</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
@@ -1715,7 +1715,7 @@
                         <internal_webcam_id>rear_webcam</internal_webcam_id>
                         <tag_id>tag_id_6</tag_id>
                         <timeout_ms>1000</timeout_ms>
-                        <desired_distance_from_tag>6.0</desired_distance_from_tag>
+                        <desired_distance_from_tag>4.0</desired_distance_from_tag>
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 

@@ -4,16 +4,15 @@
         <threshold_low>175</threshold_low>
     </gray_parameters>
     <criteria>
-        <april_tag>
-            <edge_max_aspect_ratio>0.1</edge_max_aspect_ratio>
-            <!-- 2/24/2024 These two limits are not currently used
-             but keep them in reserve. -->
-            <min_bounding_box_area>5500.0</min_bounding_box_area>
-            <max_bounding_box_area>12000.0</max_bounding_box_area>
-        </april_tag>
+        <april_tag_rectangle>
+            <min_aspect_ratio>.75</min_aspect_ratio>
+            <max_aspect_ratio>1.25</max_aspect_ratio>
+            <min_area>5500.0</min_area>
+            <max_area>10200.0</max_area>
+        </april_tag_rectangle>
         <yellow_pixel>
-            <min_bounding_box_area>5000.0</min_bounding_box_area>
-            <max_bounding_box_area>10200.0</max_bounding_box_area>
+            <min_area>5000.0</min_area>
+            <max_area>8000.0</max_area>
         </yellow_pixel>
     </criteria>
 </backdrop_pixel_parameters>

@@ -353,6 +353,9 @@ public class FTCAuto {
                 autonomousTimer.stopAutonomousTimer();
                 failsafeElevator(); // bring the elevator to GROUND
 
+                //**TODO 3/4/2024 Revert to commenting out this code.
+                // Still crashed or hung after upgrade to FTC SDK 9.1
+                /*
                 if (!keepCamerasRunning) {
                     if (robot.configuredWebcams != null) { // if webcam(s) are configured in
                         RobotLogCommon.i(TAG, "In FTCAuto finally: close webcam(s)");
@@ -362,6 +365,7 @@ public class FTCAuto {
                         });
                     }
                 }
+                */
             }
         }
 
