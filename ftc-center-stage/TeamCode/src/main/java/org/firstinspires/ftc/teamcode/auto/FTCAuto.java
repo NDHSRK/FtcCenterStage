@@ -1125,14 +1125,15 @@ public class FTCAuto {
             // Assumes the robot is in position in front of the target
             // backstop and that the elevator is at the AUTONOMOUS
             // level.
-            case "DELIVER_PIXEL_TO_BACKSTOP": {
+            case "DELIVER_PIXEL_TO_BACKDROP": {
                 if (pixelServoState != PixelStopperServo.PixelServoState.RELEASE) {
                     robot.pixelStopperServo.release();
                     pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
                 }
 
                 // Note that the click count is negated for delivery to the rear.
-                robot.intakeMotion.resetAndMoveSingleMotor(-robot.intakeMotor.deliver_back, robot.intakeMotor.velocity, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
+                // Use full velocity instead of robot.intakeMotor.velocity
+                robot.intakeMotion.resetAndMoveSingleMotor(-robot.intakeMotor.deliver_back, 1.0, SingleMotorMotion.MotorAction.MOVE_AND_STOP);
                 break;
             }
 

@@ -170,7 +170,7 @@ public class BackdropPixelRecognition {
                 // Using Imgproc.convexHull would probably work:
                 //  https://docs.opencv.org/3.4/d7/d1d/tutorial_hull.html
                 // but let's just filter on area.
-                if (contourArea >= pBackdropPixelParameters.yellowPixelAreaLimits.minArea ||
+                if (contourArea >= pBackdropPixelParameters.yellowPixelAreaLimits.minArea &&
                         contourArea <= pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
                     foundYellowPixel = true; // only need one pixel
                     yellowPixelCentroid = contourCentroid;

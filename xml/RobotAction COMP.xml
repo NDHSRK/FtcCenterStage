@@ -397,7 +397,7 @@
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>37.0</distance>
+                        <distance>34.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
@@ -436,7 +436,7 @@
                         </yellow_pixel>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -508,7 +508,7 @@
                     </FORWARD>
 
                     <STRAFE_LEFT>
-                        <distance>31.0</distance>
+                        <distance>28.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
@@ -554,7 +554,7 @@
                         </yellow_pixel>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>3.0</distance>
@@ -581,9 +581,9 @@
                 <RIGHT_SPIKE>
 
                     <STRAIGHT_BY>
-                        <distance>25.0</distance>
+                        <distance>27.0</distance>
                         <velocity>0.5</velocity>
-                        <angle>-38.0</angle>
+                        <angle>-36.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -593,13 +593,18 @@
                         <position>SAFE</position>
                     </MOVE_ELEVATOR>
 
+                    <BACK>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
                     <STRAFE_LEFT>
                         <distance>12.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_LEFT>
 
                     <FORWARD>
-                        <distance>28</distance>
+                        <distance>30.0</distance>
                         <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
@@ -660,7 +665,7 @@
                         </yellow_pixel>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>3.0</distance>
@@ -670,7 +675,7 @@
                     <AUTO_ENDING_POSITION>
                         <LEFT>
                             <STRAFE_RIGHT>
-                                <distance>42.0</distance>
+                                <distance>40.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_RIGHT>
@@ -811,7 +816,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -890,7 +895,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -969,7 +974,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1080,13 +1085,18 @@
                         <position>SAFE</position>
                     </MOVE_ELEVATOR>
 
+                    <BACK>
+                        <distance>2.0</distance>
+                        <velocity>.5</velocity>
+                    </BACK>
+
                     <STRAFE_RIGHT>
                         <distance>12.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_RIGHT>
 
                     <FORWARD>
-                        <distance>28</distance>
+                        <distance>30</distance>
                         <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </FORWARD>
@@ -1147,7 +1157,7 @@
                         </yellow_pixel>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1163,7 +1173,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>42.0</distance>
+                                <distance>40.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
@@ -1219,7 +1229,7 @@
                     </FORWARD>
 
                     <STRAFE_RIGHT>
-                        <distance>31.0</distance>
+                        <distance>28.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_RIGHT>
@@ -1265,7 +1275,7 @@
                         </yellow_pixel>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1364,7 +1374,7 @@
                     </BACK>
 
                     <STRAFE_LEFT>
-                        <distance>37.0</distance>
+                        <distance>34.0</distance>
                         <velocity>0.5</velocity>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAFE_LEFT>
@@ -1403,7 +1413,7 @@
                         </yellow_pixel>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1553,7 +1563,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1616,7 +1626,7 @@
 
                     <BACK>
                         <distance>15.0</distance>
-                        <velocity>.75</velocity>
+                        <velocity>.5</velocity>
                     </BACK>
 
                     <!-- DRIVE_TO_BACKDROP_APRIL_TAG calls deskew(500) internally -->
@@ -1635,7 +1645,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
@@ -1695,7 +1705,7 @@
 
                     <BACK>
                         <distance>12.0</distance>
-                        <velocity>.75</velocity>
+                        <velocity>.5</velocity>
                     </BACK>
 
                     <STRAFE_RIGHT>
@@ -1719,7 +1729,7 @@
                         <direction>back</direction>
                     </DRIVE_TO_BACKDROP_APRIL_TAG>
 
-                    <DELIVER_PIXEL_TO_BACKSTOP />
+                    <DELIVER_PIXEL_TO_BACKDROP />
 
                     <FORWARD>
                         <distance>2.0</distance>
