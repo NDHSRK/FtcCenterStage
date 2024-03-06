@@ -13,6 +13,7 @@ public class VisionPortalWebcamConfiguration {
         public final String serialNumber;
         public final int resolutionWidth;
         public final int resolutionHeight;
+        public final double fieldOfView;
         public final double distanceCameraLensToRobotCenter;
         public final double offsetCameraLensFromRobotCenter;
 
@@ -29,6 +30,7 @@ public class VisionPortalWebcamConfiguration {
                                 String pSerialNumber,
                                 int pResolutionWidth,
                                 int pResolutionHeight,
+                                double pFieldOfView,
                                 double pDistanceCameraLensToRobotCenter,
                                 double pOffsetCameraLensFromRobotCenter,
                                 ArrayList<RobotConstantsCenterStage.ProcessorIdentifier> pProcessorIdentifiers,
@@ -37,6 +39,7 @@ public class VisionPortalWebcamConfiguration {
             serialNumber = pSerialNumber;
             resolutionWidth = pResolutionWidth;
             resolutionHeight = pResolutionHeight;
+            fieldOfView = pFieldOfView;
             distanceCameraLensToRobotCenter = pDistanceCameraLensToRobotCenter;
             offsetCameraLensFromRobotCenter = pOffsetCameraLensFromRobotCenter;
             processorIdentifiers = pProcessorIdentifiers;

@@ -213,8 +213,23 @@ public class RobotConfigXML {
             throw new AutonomousRobotException(TAG, "Invalid number format in element 'resolution_height'");
         }
 
+        // <field_of_view>
+        Node fov_node = resolution_height_node.getNextSibling();
+        fov_node = XMLUtils.getNextElement(fov_node);
+        if (fov_node == null || !fov_node.getNodeName().equals("field_of_view") ||
+                fov_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'field_of_view' not found");
+
+        String fieldOfViewText = fov_node.getTextContent();
+        double fieldOfView;
+        try {
+            fieldOfView = Double.parseDouble(fieldOfViewText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'field_of_view'");
+        }
+
         // <distance_camera_lens_to_robot_center>
-        Node distance_center_node = resolution_height_node.getNextSibling();
+        Node distance_center_node = fov_node.getNextSibling();
         distance_center_node = XMLUtils.getNextElement(distance_center_node);
         if (distance_center_node == null || !distance_center_node.getNodeName().equals("distance_camera_lens_to_robot_center") ||
                 distance_center_node.getTextContent().isEmpty())
@@ -340,7 +355,7 @@ public class RobotConfigXML {
         }
 
         return new VisionPortalWebcamConfiguration.ConfiguredWebcam(webcamId,
-                serial_number, resolution_width, resolution_height,
+                serial_number, resolution_width, resolution_height, fieldOfView,
                 distance_camera_lens_to_robot_center, offset_camera_lens_from_robot_center,
                 processorIds, calibration);
     }

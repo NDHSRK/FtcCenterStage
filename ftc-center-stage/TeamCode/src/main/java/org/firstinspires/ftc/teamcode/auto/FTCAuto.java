@@ -989,7 +989,7 @@ public class FTCAuto {
                     RobotLogCommon.d(TAG, "Backdrop pixel recognition path " + backdropPixelRecognitionPath);
 
                     BackdropPixelReturn backdropPixelReturn = backdropPixelRecognition.recognizePixelsOnBackdropAutonomous(rawFrameAccess, backdropPixelImageParameters, backdropPixelParameters,
-                            targetTagId, aprilTagAngle, backdropPixelRecognitionPath);
+                            targetTagId, aprilTagAngle, backdropWebcamConfiguration.fieldOfView, backdropPixelRecognitionPath);
                     RobotLogCommon.d(TAG, "Backdrop pixel open slot " + backdropPixelReturn.backdropPixelOpenSlot);
                     linearOpMode.telemetry.addData("Backdrop pixel open slot: ", backdropPixelReturn.backdropPixelOpenSlot);
                     linearOpMode.telemetry.update();
