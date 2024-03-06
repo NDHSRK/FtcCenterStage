@@ -38,7 +38,7 @@
             <autonomous_high>3500</autonomous_high>
             <level_1>3398</level_1>
             <level_2>4496</level_2>
-            <level_3>5596</level_3>
+            <level_3>5086</level_3> // alt 5593
             <on_truss>3600</on_truss>
             <above_truss>4490</above_truss>
         </positions>
@@ -60,7 +60,7 @@
             <autonomous>-300</autonomous>
             <level_1>500</level_1>
             <level_2>2800</level_2>
-            <level_3>0</level_3>
+            <level_3>4300</level_3>
             <on_truss>2600</on_truss>
             <above_truss>2600</above_truss>
             <hang>-8700</hang>
