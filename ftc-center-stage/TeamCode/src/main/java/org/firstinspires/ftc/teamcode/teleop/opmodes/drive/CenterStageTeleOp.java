@@ -56,6 +56,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
     private boolean reverseIntakeInProgress = false;
     private final FTCButton deliveryLevel1;
     private final FTCButton deliveryLevel2;
+    private final FTCButton deliveryLevel3;
 
     private final FTCButton resetIntakeArm;
 
@@ -110,14 +111,15 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         resetIntakeArm = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
 
         //&& Uncomment to calibrate the winch by small steps
-        // winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
-        // winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B);
+//        winchIncrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_X);
+//        winchDecrement = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_1_B);
 
         // Gamepad 2
         intake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_LEFT_BUMPER);
         outtake = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_RIGHT_BUMPER);
         deliveryLevel1 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_LEFT);
         deliveryLevel2 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_UP);
+        deliveryLevel3 = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_DPAD_RIGHT);
 
         // Gamepad 2 ABXY Buttons
         goToSafe = new FTCButton(linearOpMode, FTCButton.ButtonValue.GAMEPAD_2_X);
@@ -196,6 +198,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         reverseIntake.update();
         deliveryLevel1.update();
         deliveryLevel2.update();
+        deliveryLevel3.update();
         goToSafe.update();
         goToGround.update();
     }
@@ -295,6 +298,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         updateReverseIntake();
         updateDeliveryLevel1();
         updateDeliveryLevel2();
+        updateDeliveryLevel3();
         updateGoToSafe();
         updateGoToGround();
     }
@@ -457,6 +461,14 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
         }
     }
 
+    private void updateDeliveryLevel3() {
+        if (deliveryLevel3.is(FTCButton.State.TAP)) {
+            robot.pixelStopperServo.release();
+            pixelServoState = PixelStopperServo.PixelServoState.RELEASE;
+            move_elevator_to_selected_level(Elevator.ElevatorLevel.LEVEL_3);
+        }
+    }
+
     //&& Uncomment to calibrate the winch by small steps
 //    private void updateWinchIncrement() {
 //        if (winchIncrement.is(FTCButton.State.TAP)) {
@@ -465,7 +477,7 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
 //            updateWinchEncoderTelemetry();
 //        }
 //    }
-
+//
 //    private void updateWinchDecrement() {
 //        if (winchDecrement.is(FTCButton.State.TAP)) {
 //            robot.winchMotion.moveSingleMotor(cumulativeClicks -= CLICKS_PER_WINCH_MOVEMENT, robot.winch.getVelocity(), SingleMotorMotion.MotorAction.MOVE_AND_HOLD_VELOCITY);
@@ -567,6 +579,19 @@ public class CenterStageTeleOp extends TeleOpWithAlliance {
                         TAG + " The elevator is not in the current configuration").level_2, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_2);
                 if (robot.winch != null) // the winch is configured in
                     async_move_winch(robot.winch.level_2, Winch.WinchLevel.LEVEL_2);
+                break;
+            }
+            case LEVEL_3: {
+                if (currentElevatorLevel != Elevator.ElevatorLevel.SAFE) {
+                    RobotLogCommon.d(TAG, "The elevator must be at SAFE before moving to " + pSelectedLevel);
+                    return;
+                }
+
+                RobotLogCommon.d(TAG, "Moving elevator from SAFE to LEVEL_3");
+                async_move_elevator(Objects.requireNonNull(robot.elevator,
+                        TAG + " The elevator is not in the current configuration").level_3, elevatorVelocity, Elevator.ElevatorLevel.LEVEL_3);
+                if (robot.winch != null) // the winch is configured in
+                    async_move_winch(robot.winch.level_3, Winch.WinchLevel.LEVEL_3);
                 break;
             }
             case DRONE: {

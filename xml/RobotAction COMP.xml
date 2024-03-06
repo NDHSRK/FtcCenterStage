@@ -1213,7 +1213,7 @@
                     </STRAFE_LEFT>
 
                     <FORWARD>
-                        <distance>87.0</distance>
+                        <distance>89.0</distance>
                         <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>15</ramp_down_at_distance_remaining>
                     </FORWARD>
@@ -1343,7 +1343,7 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>18</distance>
+                        <distance>16</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
@@ -1516,14 +1516,14 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>7.0</distance>
+                        <distance>5.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <BACK>
+                    <!-- BACK>
                         <distance>2.0</distance>
                         <velocity>.5</velocity>
-                    </BACK>
+                    </BACK -->
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -1536,7 +1536,7 @@
                     </MOVE_ELEVATOR>
 
                     <BACK>
-                        <distance>25.0</distance>
+                        <distance>23.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
 
