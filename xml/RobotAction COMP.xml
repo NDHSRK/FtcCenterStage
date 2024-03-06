@@ -1073,9 +1073,9 @@
             <TEAM_PROP_LOCATION_CHOICE>
                 <LEFT_SPIKE>
                     <STRAIGHT_BY>
-                        <distance>25.0</distance>
+                        <distance>27.0</distance>
                         <velocity>0.50</velocity>
-                        <angle>38.0</angle>
+                        <angle>36.0</angle>
                         <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                     </STRAIGHT_BY>
 
@@ -1091,7 +1091,7 @@
                     </BACK>
 
                     <STRAFE_RIGHT>
-                        <distance>12.0</distance>
+                        <distance>13.0</distance>
                         <velocity>0.5</velocity>
                     </STRAFE_RIGHT>
 
@@ -1112,7 +1112,7 @@
                     </DESKEW>
 
                     <BACK>
-                        <distance>72.0</distance>
+                        <distance>75.0</distance>
                         <velocity>.5</velocity>
                         <ramp_down_at_distance_remaining>20</ramp_down_at_distance_remaining>
                     </BACK>
@@ -1526,7 +1526,7 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>5.0</distance>
+                        <distance>3.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
@@ -1579,7 +1579,7 @@
                         </LEFT>
                         <RIGHT>
                             <STRAFE_LEFT>
-                                <distance>38.0</distance>
+                                <distance>40.0</distance>
                                 <velocity>0.5</velocity>
                                 <ramp_down_at_distance_remaining>10</ramp_down_at_distance_remaining>
                             </STRAFE_LEFT>
