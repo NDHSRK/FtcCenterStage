@@ -49,6 +49,7 @@
         <serial_number>845BC8D5</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
+        <field_of_view>78.0</field_of_view>
         <distance_camera_lens_to_robot_center>7.0</distance_camera_lens_to_robot_center>
         <offset_camera_lens_from_robot_center>0.0</offset_camera_lens_from_robot_center>
         <processor_set>
@@ -70,6 +71,7 @@
         <serial_number>F98252DF</serial_number>
         <resolution_width>640</resolution_width>
         <resolution_height>480</resolution_height>
+        <field_of_view>78.0</field_of_view>
         <distance_camera_lens_to_robot_center>7.0</distance_camera_lens_to_robot_center>
         <offset_camera_lens_from_robot_center>0.0</offset_camera_lens_from_robot_center>
         <processor_set>
