@@ -1,20 +1,24 @@
 package org.firstinspires.ftc.teamcode.xml;
 
 import org.firstinspires.ftc.ftcdevcommon.AutonomousRobotException;
-import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.firstinspires.ftc.ftcdevcommon.xml.XMLUtils;
 import org.firstinspires.ftc.teamcode.common.RobotConstants;
+import org.firstinspires.ftc.teamcode.common.RobotLogCommon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
-
-import java.io.File;
-import java.io.IOException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 //!! WARNING: DO NOT copy the file/class of the same name from IJCenterStageVision
 // and paste it here. This file supports changes to the XML for the configuration
@@ -77,7 +81,8 @@ public class BackdropPixelParametersXML {
         VisionParameters.GrayParameters grayParameters = ImageXML.parseGrayParameters(gray_parameters_node);
 
         // Get access to the <median_target> and <threshold_low> elements under <gray_parameters>
-        // for possible modification.
+        // for possible modification. NOTE: there is no possibility of a NPE here since the
+        // <gray_parameters> element has already been parsed.
         Node local_backdrop_pixel_gray_median_node = gray_parameters_node.getFirstChild();
         backdrop_pixel_gray_median_node = XMLUtils.getNextElement(local_backdrop_pixel_gray_median_node);
         Node local_red_pixel_count_gray_threshold_node = backdrop_pixel_gray_median_node.getNextSibling();
@@ -95,8 +100,70 @@ public class BackdropPixelParametersXML {
         if (april_tag_rectangle_node == null || !april_tag_rectangle_node.getNodeName().equals("april_tag_rectangle"))
             throw new AutonomousRobotException(TAG, "Element 'criteria/april_tag_rectangle' not found");
 
-        // Step down to the <min_aspect_ratio> element.
-        Node min_ratio_node = april_tag_rectangle_node.getFirstChild();
+        BackdropPixelParameters.Criteria aprilTagCriteria = parseCriteria(april_tag_rectangle_node);
+
+        // Parse the criteria for the yellow pixel bounding box.
+        Node yellow_pixel_criteria_node = april_tag_rectangle_node.getNextSibling();
+        yellow_pixel_criteria_node = XMLUtils.getNextElement(yellow_pixel_criteria_node);
+        if (yellow_pixel_criteria_node == null)
+            throw new AutonomousRobotException(TAG, "Element 'criteria/yellow_pixel' not found");
+
+        BackdropPixelParameters.Criteria yellowPixelCriteria = parseCriteria(yellow_pixel_criteria_node);
+
+        backdropPixelParameters = new BackdropPixelParameters(grayParameters, aprilTagCriteria, yellowPixelCriteria);
+    }
+
+    public BackdropPixelParameters getBackdropPixelParameters() {
+        return backdropPixelParameters;
+    }
+
+    // Replaces the text values of the children of the <gray_parameters> element.
+    public void setBackdropPixelGrayParameters(VisionParameters.GrayParameters pGrayParameters) {
+        RobotLogCommon.c(TAG, "Setting the grayscale parameters for backdrop pixel recognition in backdropPixelParameters");
+        RobotLogCommon.c(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
+        backdrop_pixel_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
+
+        RobotLogCommon.c(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
+        backdrop_pixel_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
+    }
+
+    public void writeBackdropPixelParametersFile() {
+        XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
+    }
+
+    private BackdropPixelParameters.Criteria parseCriteria(Node pCriteriaChildNode) {
+        // Step down to the <min_area> element.
+        Node min_area_node = pCriteriaChildNode.getFirstChild();
+        min_area_node = XMLUtils.getNextElement(min_area_node);
+        if (min_area_node == null || !min_area_node.getNodeName().equals("min_area") ||
+                min_area_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'min_area' not found or empty");
+
+        String minAreaText = min_area_node.getTextContent();
+        double minArea;
+        try {
+            minArea = Double.parseDouble(minAreaText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_area'");
+        }
+
+        // Parse the <max_area> element.
+        Node max_area_node = min_area_node.getNextSibling();
+        max_area_node = XMLUtils.getNextElement(max_area_node);
+        if (max_area_node == null || !max_area_node.getNodeName().equals("max_area") ||
+                max_area_node.getTextContent().isEmpty())
+            throw new AutonomousRobotException(TAG, "Element 'max_area' not found or empty");
+
+        String maxAreaText = max_area_node.getTextContent();
+        double maxArea;
+        try {
+            maxArea = Double.parseDouble(maxAreaText);
+        } catch (NumberFormatException nex) {
+            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_area'");
+        }
+
+        // Parse the <min_aspect_ratio> element.
+        Node min_ratio_node = max_area_node.getNextSibling();
         min_ratio_node = XMLUtils.getNextElement(min_ratio_node);
         if (min_ratio_node == null || !min_ratio_node.getNodeName().equals("min_aspect_ratio") ||
                 min_ratio_node.getTextContent().isEmpty())
@@ -125,73 +192,7 @@ public class BackdropPixelParametersXML {
             throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_aspect_ratio'");
         }
 
-        // Parse the <min_area> element.
-        Node april_tag_min_area_node = max_ratio_node.getNextSibling();
-        april_tag_min_area_node = XMLUtils.getNextElement(april_tag_min_area_node);
-        BackdropPixelParameters.AreaLimits aprilTagCriteria = parseAreaCriteria(april_tag_min_area_node);
-
-        // Parse the criteria for the yellow pixel bounding box.
-        Node yellow_pixel_criteria_node = april_tag_rectangle_node.getNextSibling();
-        yellow_pixel_criteria_node = XMLUtils.getNextElement(yellow_pixel_criteria_node);
-        if (yellow_pixel_criteria_node == null)
-            throw new AutonomousRobotException(TAG, "Element 'criteria/yellow_pixel' not found");
-
-        // Step down to the <min_area> element.
-        Node yellow_pixel_min_area_node = yellow_pixel_criteria_node.getFirstChild();
-        yellow_pixel_min_area_node = XMLUtils.getNextElement(yellow_pixel_min_area_node);
-        BackdropPixelParameters.AreaLimits yellowPixelCriteria = parseAreaCriteria(yellow_pixel_min_area_node);
-
-        backdropPixelParameters = new BackdropPixelParameters(grayParameters, minRatio, maxRatio, aprilTagCriteria, yellowPixelCriteria);
-    }
-
-    public BackdropPixelParameters getBackdropPixelParameters() {
-        return backdropPixelParameters;
-    }
-
-    // Replaces the text values of the children of the <gray_parameters> element.
-    public void setBackdropPixelGrayParameters(VisionParameters.GrayParameters pGrayParameters) {
-        RobotLogCommon.c(TAG, "Setting the grayscale parameters for backdrop pixel recognition in backdropPixelParameters");
-        RobotLogCommon.c(TAG, "Setting the grayscale median target to " + pGrayParameters.median_target);
-        backdrop_pixel_gray_median_node.setTextContent(Integer.toString(pGrayParameters.median_target));
-
-        RobotLogCommon.c(TAG, "Setting the grayscale threshold to " + pGrayParameters.threshold_low);
-        backdrop_pixel_gray_threshold_node.setTextContent(Integer.toString(pGrayParameters.threshold_low));
-    }
-
-    public void writeBackdropPixelParametersFile() {
-        XMLUtils.writeXMLFile(document, xmlFilePath, xmlDirectory + RobotConstants.XSLT_FILE_NAME);
-    }
-
-    private BackdropPixelParameters.AreaLimits parseAreaCriteria(Node pMinAreaNode) {
-        // Parse the <min_area> element.
-        if (pMinAreaNode == null || !pMinAreaNode.getNodeName().equals("min_area") ||
-                pMinAreaNode.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'min_area' not found or empty");
-
-        String minAreaText = pMinAreaNode.getTextContent();
-        double minArea;
-        try {
-            minArea = Double.parseDouble(minAreaText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'min_area'");
-        }
-
-        // Parse the <max_area> element.
-        Node max_area_node = pMinAreaNode.getNextSibling();
-        max_area_node = XMLUtils.getNextElement(max_area_node);
-        if (max_area_node == null || !max_area_node.getNodeName().equals("max_area") ||
-                max_area_node.getTextContent().isEmpty())
-            throw new AutonomousRobotException(TAG, "Element 'max_area' not found or empty");
-
-        String maxAreaText = max_area_node.getTextContent();
-        double maxArea;
-        try {
-            maxArea = Double.parseDouble(maxAreaText);
-        } catch (NumberFormatException nex) {
-            throw new AutonomousRobotException(TAG, "Invalid number format in element 'max_area'");
-        }
-
-        return new BackdropPixelParameters.AreaLimits(minArea, maxArea);
+        return new BackdropPixelParameters.Criteria(minArea, maxArea, minRatio, maxRatio);
     }
 
 }

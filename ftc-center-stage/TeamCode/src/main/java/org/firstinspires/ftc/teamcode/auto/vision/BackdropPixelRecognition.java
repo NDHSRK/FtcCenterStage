@@ -148,8 +148,8 @@ public class BackdropPixelRecognition {
 
                     // Skip out-of-size hexagons.
                     RobotLogCommon.d(TAG, "Area of the hexagonal contour: " + contourArea);
-                    if (contourArea < pBackdropPixelParameters.yellowPixelAreaLimits.minArea ||
-                            contourArea > pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
+                    if (contourArea < pBackdropPixelParameters.yellowPixelCriteria.minArea ||
+                            contourArea > pBackdropPixelParameters.yellowPixelCriteria.maxArea) {
                         ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
                         RobotLogCommon.d(TAG, "The hexagon violates the size criteria");
                         continue;
@@ -168,19 +168,29 @@ public class BackdropPixelRecognition {
                 // https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html).
                 // Using Imgproc.convexHull would probably work:
                 //  https://docs.opencv.org/3.4/d7/d1d/tutorial_hull.html
-                // but let's just filter on area.
-                if (contourArea >= pBackdropPixelParameters.yellowPixelAreaLimits.minArea &&
-                        contourArea <= pBackdropPixelParameters.yellowPixelAreaLimits.maxArea) {
-                    foundYellowPixel = true; // only need one pixel
-                    yellowPixelCentroid =  new Point(roiX + contourCentroid.x, roiY + contourCentroid.x); // full image
-                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
-                    RobotLogCommon.d(TAG, "Found a yellow pixel with a center point in the full image of " + yellowPixelCentroid);
+                // but let's just filter on area and aspect ratio.
+                RobotLogCommon.d(TAG, "Area of a contour that may be hexagonal: " + contourArea);
+                if (contourArea < pBackdropPixelParameters.yellowPixelCriteria.minArea ||
+                        contourArea > pBackdropPixelParameters.yellowPixelCriteria.maxArea) {
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    RobotLogCommon.d(TAG, "The contour violates the size criteria for a yellow pixel");
                     continue;
                 }
 
-                // Just draw the contour.
-                RobotLogCommon.d(TAG, "The contour was not recognized as a pixel");
-                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                // Get the bounding box to check for aspect ratio.
+                Rect potentialYellowPixelBoundingRect = Imgproc.boundingRect(oneContour);
+                RobotLogCommon.d(TAG, "The potential yellow pixel's bounding box in the ROI: " + potentialYellowPixelBoundingRect);
+                double aspectRatio = (double) potentialYellowPixelBoundingRect.width / potentialYellowPixelBoundingRect.height;
+                if (aspectRatio < pBackdropPixelParameters.yellowPixelCriteria.minAspectRatio || aspectRatio > pBackdropPixelParameters.yellowPixelCriteria.maxAspectRatio) {
+                    RobotLogCommon.d(TAG, "The potential yellow pixel's aspect ratio of " + aspectRatio + " violates the limits");
+                    ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
+                    continue;
+                }
+
+                foundYellowPixel = true; // only need one pixel
+                yellowPixelCentroid =  new Point(roiX + contourCentroid.x, roiY + contourCentroid.x); // full image
+                ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 0, 255)); // red
+                RobotLogCommon.d(TAG, "Found a yellow pixel with a center point in the full image of " + yellowPixelCentroid);
                 continue;
             }
 
@@ -194,8 +204,8 @@ public class BackdropPixelRecognition {
                     RobotLogCommon.d(TAG, "Area of the rectangular contour " + contourArea);
 
                     // Skip out-of-size rectangles.
-                    if (contourArea < pBackdropPixelParameters.aprilTagRectangleAreaLimits.minArea ||
-                            contourArea > pBackdropPixelParameters.aprilTagRectangleAreaLimits.maxArea) {
+                    if (contourArea < pBackdropPixelParameters.aprilTagRectangleCriteria.minArea ||
+                            contourArea > pBackdropPixelParameters.aprilTagRectangleCriteria.maxArea) {
                         ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
                         RobotLogCommon.d(TAG, "The rectangle violates the size criteria");
                         continue;
@@ -206,7 +216,7 @@ public class BackdropPixelRecognition {
                     RobotLogCommon.d(TAG, "The AprilTag rectangle's contour bounding box in the ROI: " + aprilTagBoundingRect);
 
                     double aspectRatio = (double) aprilTagBoundingRect.width / aprilTagBoundingRect.height;
-                    if (aspectRatio < pBackdropPixelParameters.aprilTagRectangleMinAspectRatio || aspectRatio > pBackdropPixelParameters.aprilTagRectangleMaxAspectRatio) {
+                    if (aspectRatio < pBackdropPixelParameters.aprilTagRectangleCriteria.minAspectRatio || aspectRatio > pBackdropPixelParameters.aprilTagRectangleCriteria.maxAspectRatio) {
                         RobotLogCommon.d(TAG, "The AprilTag rectangle's aspect ratio of " + aspectRatio + " violates the limits");
                         ShapeDrawing.drawOneContour(contours, contourIndex, drawnContours, new Scalar(0, 255, 0)); // green
                         continue;

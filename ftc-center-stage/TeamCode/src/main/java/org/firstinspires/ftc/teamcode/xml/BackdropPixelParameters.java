@@ -5,30 +5,28 @@ public class BackdropPixelParameters {
 
     public final VisionParameters.GrayParameters grayscaleParameters;
 
-    public final double aprilTagRectangleMinAspectRatio;
-    public final double aprilTagRectangleMaxAspectRatio;
-    public final AreaLimits aprilTagRectangleAreaLimits;
-    public final AreaLimits yellowPixelAreaLimits;
+    public final Criteria aprilTagRectangleCriteria;
+    public final Criteria yellowPixelCriteria;
 
     public BackdropPixelParameters(VisionParameters.GrayParameters pGrayscaleParameters,
-                                   double pAprilTagRectangleMinAspectRatio,
-                                   double pAprilTagRectangleMaxAspectRatio,
-                                   AreaLimits pAprilTagRectangleCriteria,
-                                   AreaLimits pYellowPixelCriteria) {
+                                   Criteria pAprilTagRectangleCriteria,
+                                   Criteria pYellowPixelCriteria) {
         grayscaleParameters = pGrayscaleParameters;
-        aprilTagRectangleMinAspectRatio = pAprilTagRectangleMinAspectRatio;
-        aprilTagRectangleMaxAspectRatio = pAprilTagRectangleMaxAspectRatio;
-        aprilTagRectangleAreaLimits = pAprilTagRectangleCriteria;
-        yellowPixelAreaLimits = pYellowPixelCriteria;
+        aprilTagRectangleCriteria = pAprilTagRectangleCriteria;
+        yellowPixelCriteria = pYellowPixelCriteria;
     }
 
-    public static class AreaLimits {
+    public static class Criteria {
         public final double minArea;
         public final double maxArea;
+        public final double minAspectRatio;
+        public final double maxAspectRatio;
 
-        public AreaLimits(double pMin, double pMax) {
-            minArea = pMin;
-            maxArea = pMax;
+        public Criteria(double pMinArea, double pMaxArea, double pMinAspectRatio, double pMaxAspectRatio) {
+            minArea = pMinArea;
+            maxArea = pMaxArea;
+            minAspectRatio = pMinAspectRatio;
+            maxAspectRatio = pMaxAspectRatio;
         }
     }
 
