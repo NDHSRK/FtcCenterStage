@@ -198,10 +198,10 @@ public class AprilTagUtils {
         } else {
             switch (openSlot) {
                 case LEFT: {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment));
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - yellowPixelAdjustment));
                 }
                 case RIGHT: {
-                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter - yellowPixelAdjustment));
+                    return new AngleDistance(STRAFE_LEFT, Math.abs(strafeDistanceFromAprilTagToRobotCenter + yellowPixelAdjustment));
                 }
                 case ANY_OPEN_SLOT: {
                     return strafeAdjustment(aprilTag, strafeDistanceFromAprilTagToRobotCenter, 0, 0);

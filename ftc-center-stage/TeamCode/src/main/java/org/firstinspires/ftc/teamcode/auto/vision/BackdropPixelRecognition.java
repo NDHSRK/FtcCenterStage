@@ -240,15 +240,17 @@ public class BackdropPixelRecognition {
                     RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
         }
 
-        // Preliminary check to see if we found two or three AprilTag rectangles.
+        // Preliminary check to see if we found one, two or three AprilTag rectangles.
         int numAprilTags = aprilTagRectangleCentroids.size();
-        if (numAprilTags < 2 || numAprilTags > 3) {
-            RobotLogCommon.d(TAG, "Need two or three AprilTags, found " + numAprilTags);
+        if (numAprilTags < 1 || numAprilTags > 3) {
+            RobotLogCommon.d(TAG, "Need one, two or three AprilTags, found " + numAprilTags);
             return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
                     RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
         }
 
-        // Two cases: 2 or 3 AprilTag rectangles.
+        // Three cases: 1, 2 or 3 AprilTag rectangles.
+        // 1 - Use the single AprilTag rectangle for comparison with the
+        //      location of the yellow pixel.
         // Sort the AprilTag rectangles by their center point x-coordinate.
         // 3 - If the AprilTag target is 1 or 4 use the leftmost AprilTag rectangle;
         //       if the target is 2 or 5 use the center AprilTag rectangle; if the
@@ -257,6 +259,11 @@ public class BackdropPixelRecognition {
         //       angle and the field of view of the camera.
         //     Select the AprilTag rectangle closest to the actual April tag for
         //       comparison with the location of the yellow pixel.
+
+        if (aprilTagRectangleCentroids.size() == 1) {
+            RobotLogCommon.d(TAG, "Found 1 AprilTag rectangle");
+            return findOpenSlot( (int) aprilTagRectangleCentroids.get(0).x, (int) yellowPixelCentroid.x);
+        }
 
         // Sort the AprilTag rectangles by their x-xoordinates.
         aprilTagRectangleCentroids.sort(Comparator.comparingDouble((Point p) -> p.x));
