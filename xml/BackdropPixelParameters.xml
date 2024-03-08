@@ -5,14 +5,16 @@
     </gray_parameters>
     <criteria>
         <april_tag_rectangle>
-            <min_aspect_ratio>.75</min_aspect_ratio>
-            <max_aspect_ratio>1.25</max_aspect_ratio>
             <min_area>4000.0</min_area>
             <max_area>11500.0</max_area>
+            <min_aspect_ratio>.75</min_aspect_ratio>
+            <max_aspect_ratio>1.25</max_aspect_ratio>
         </april_tag_rectangle>
         <yellow_pixel>
             <min_area>4000.0</min_area>
             <max_area>8000.0</max_area>
+            <min_aspect_ratio>.5</min_aspect_ratio>
+            <max_aspect_ratio>1.25</max_aspect_ratio>
         </yellow_pixel>
     </criteria>
 </backdrop_pixel_parameters>

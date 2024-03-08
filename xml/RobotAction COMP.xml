@@ -90,7 +90,7 @@
 
             <DRIVE_TO_BACKDROP_APRIL_TAG>
                 <internal_webcam_id>rear_webcam</internal_webcam_id>
-                <tag_id>tag_id_2</tag_id>
+                <tag_id>tag_id_5</tag_id>
                 <timeout_ms>1000</timeout_ms>
                 <desired_distance_from_tag>4.0</desired_distance_from_tag>
                 <direction>back</direction>
@@ -798,8 +798,12 @@
                         <velocity>.5</velocity>
                     </BACK>
 
+                    <SLEEP>
+                        <ms>500</ms>
+                    </SLEEP>
+
                     <STRAFE_LEFT>
-                        <distance>8.0</distance>
+                        <distance>16.0</distance>
                         <velocity>.5</velocity>
                     </STRAFE_LEFT>
 
@@ -881,6 +885,10 @@
                         <distance>15.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
+                    
+                    <SLEEP>
+                        <ms>500</ms>
+                    </SLEEP>
 
                     <WAIT_FOR_WEBCAM_START>
                         <internal_webcam_id>rear_webcam</internal_webcam_id>

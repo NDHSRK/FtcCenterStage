@@ -32,12 +32,6 @@ public class BackdropPixelRecognition {
 
     private static final String TAG = BackdropPixelRecognition.class.getSimpleName();
 
-    // The next two values come from the x-coordinates of points in an image as seen
-    // in Gimp. The values are percentages in relation to the x-coordinate of the
-    // center of a target AprilTag.
-    private static final double PIXEL_OUT_OF_RANGE_LEFT = .63;
-    private static final double PIXEL_OUT_OF_RANGE_RIGHT = 1.25;
-
     private final String workingDirectory;
     private final RobotConstants.Alliance alliance;
 
@@ -363,25 +357,12 @@ public class BackdropPixelRecognition {
     // then the pixel position is .63 of that of the AprilTag and is misplaced
     // to the left. If the center of the pixel is at 455 x then it is 1.36
     // more than that of the AprilTag and is misplaced to the right.
+    //**TODO The way the percentage is calculated is incorrect! See alternatives
+    // for replacement in IJCenterStageVision. For now there's not much downside
+    // to not checking
     private BackdropPixelReturn findOpenSlot(int pAprilTagRectangleCenterX, int pYellowPixelCenterX) {
         RobotLogCommon.d(TAG, "In findOpenSlot: center of AprilTag rectangle in full image " + pAprilTagRectangleCenterX);
         RobotLogCommon.d(TAG, "In findOpenSlot: center of yellow pixel in full image " + pYellowPixelCenterX);
-
-        // If the center of the yellow pixel is to the left of the two slots
-        // that belong to the AprilTag then disqualify the pixel.
-        if ((pYellowPixelCenterX / (double) pAprilTagRectangleCenterX) <= PIXEL_OUT_OF_RANGE_LEFT) {
-            RobotLogCommon.d(TAG, "Yellow pixel is too far to the left of the AprilTag");
-            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
-                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
-        }
-
-        // If the center of the yellow pixel is to the right of the two slots
-        // that belong to the AprilTag then disqualify the pixel.
-        if ((pYellowPixelCenterX / (double) pAprilTagRectangleCenterX) >= PIXEL_OUT_OF_RANGE_RIGHT) {
-            RobotLogCommon.d(TAG, "Possible pixel contour is too far to the right of the AprilTag");
-            return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
-                    RobotConstantsCenterStage.BackdropPixelOpenSlot.ANY_OPEN_SLOT);
-        }
 
         // The yellow pixel is in range of the AprilTag; find out whether
         // the open slot is to the left or right.
@@ -396,7 +377,6 @@ public class BackdropPixelRecognition {
             return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
                     RobotConstantsCenterStage.BackdropPixelOpenSlot.LEFT);
         }
-
 
         RobotLogCommon.d(TAG, "The yellow pixel is exactly above the AprilTag");
         return new BackdropPixelReturn(RobotConstants.RecognitionResults.RECOGNITION_SUCCESSFUL,
