@@ -693,9 +693,9 @@
 
             <!-- Common to all Team Prop positions. -->
 
-            <SLEEP>
-                <ms>500</ms>
-            </SLEEP>
+            <DESKEW>
+                <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+            </DESKEW>
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -945,14 +945,14 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>5.0</distance>
+                        <distance>7.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <!-- BACK>
+                    <BACK>
                         <distance>2.0</distance>
                         <velocity>.5</velocity>
-                    </BACK -->
+                    </BACK>
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -1010,9 +1010,9 @@
 
             <!-- Common to all Team Prop positions. -->
 
-            <SLEEP>
-                <ms>500</ms>
-            </SLEEP>
+            <DESKEW>
+                <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+            </DESKEW>
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -1450,9 +1450,9 @@
 
             <!-- Common to all Team Prop positions. -->
 
-            <SLEEP>
-                <ms>500</ms>
-            </SLEEP>
+            <DESKEW>
+                <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+            </DESKEW>
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>
@@ -1534,14 +1534,14 @@
                     </DESKEW>
 
                     <FORWARD>
-                        <distance>3.0</distance>
+                        <distance>7.0</distance>
                         <velocity>.5</velocity>
                     </FORWARD>
 
-                    <!-- BACK>
+                    <BACK>
                         <distance>2.0</distance>
                         <velocity>.5</velocity>
-                    </BACK -->
+                    </BACK>
 
                     <MOVE_ELEVATOR>
                         <position>GROUND</position>
@@ -1715,6 +1715,10 @@
                         <distance>12.0</distance>
                         <velocity>.5</velocity>
                     </BACK>
+                   
+                    <SLEEP>
+                        <ms>500</ms>
+                    </SLEEP>
 
                     <STRAFE_RIGHT>
                         <distance>8.0</distance>
@@ -1766,9 +1770,9 @@
 
             <!-- Common to all Team Prop positions. -->
 
-            <SLEEP>
-                <ms>500</ms>
-            </SLEEP>
+            <DESKEW>
+                <sleep_before>500</sleep_before> <!-- milliseconds, optional -->
+            </DESKEW>
 
             <MOVE_ELEVATOR>
                 <position>SAFE</position>

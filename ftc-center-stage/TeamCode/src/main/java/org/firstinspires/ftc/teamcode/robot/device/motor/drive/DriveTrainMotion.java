@@ -174,6 +174,14 @@ public class DriveTrainMotion {
                 steer = applyConstantHeadingPID(pDesiredHeading, currentHeading, pAngle,
                         allDriveMotors, driveTrainPID, rampDownFactor, logVV);
 
+                if (logVV) {
+                    allDriveMotors.forEach((motorId, motorData) -> {
+                        if (motorData.motorRank == DriveTrainConstants.MotorRank.DOMINANT)
+                            RobotLog.vv(TAG, "Dominant motor " + motorId +
+                                    " encoder value " + robot.driveTrain.getCurrentPosition(motorId));
+                    });
+                }
+
                 // Make sure the next call to straightDriveRampdown does not
                 // counteract the PID. The PID method only changes motor velocity
                 // if abs(steer) >= MINIMUM_DRIVE_POWER_STEP, but if the velocity
