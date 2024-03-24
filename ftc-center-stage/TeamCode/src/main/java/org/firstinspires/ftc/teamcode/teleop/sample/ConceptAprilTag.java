@@ -119,11 +119,10 @@ public class ConceptAprilTag extends LinearOpMode {
                 }
             }
         } finally {
-            //visionPortal.setProcessorEnabled(aprilTag, false);
-            //!! When uncommented crashes in easyopencv whether you use gamepad1.x or hit the stop button.
-            // Reported to FTC.
-            //visionPortal.stopStreaming();
-            //visionPortal.close();
+           //!! FTC SDK 9.0 When uncommented crashes in easyopencv whether you use gamepad1.x or hit the stop button.
+            // Reported to FTC. Fixed in SDK 9.1.
+            visionPortal.stopStreaming();
+            visionPortal.close();
         }
     }   // end method runOpMode()
 
